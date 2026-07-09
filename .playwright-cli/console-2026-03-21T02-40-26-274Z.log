@@ -1,2 +1,0 @@
-[    1672ms] [ERROR] EventSource's response has a MIME type ("text/html") that is not "text/event-stream". Aborting the connection. @ https://chiptuningfile.tuningfux.de/login:0
-[    1771ms] [ERROR] EventSource's response has a MIME type ("text/html") that is not "text/event-stream". Aborting the connection. @ https://chiptuningfile.tuningfux.de/login:0

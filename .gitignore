@@ -5,6 +5,13 @@
 /.env.local
 /.env.local.php
 /.env.*.local
+/docs/
+/.playwright-cli/
+/.codex_backup_pre_symfony/
+/.codex/
+/.vscode/
+/output/
+/README.html
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/

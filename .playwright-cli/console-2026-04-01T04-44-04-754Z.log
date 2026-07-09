@@ -1,3 +1,0 @@
-[     229ms] [ERROR] Refused to apply style from 'https://superadmin.tuningfux.de/_wdt/styles' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled. @ https://superadmin.tuningfux.de/operations/vehicles:0
-[     338ms] [ERROR] Refused to apply style from 'https://superadmin.tuningfux.de/_wdt/styles' because its MIME type ('text/html') is not a supported stylesheet MIME type, and strict MIME checking is enabled. @ https://superadmin.tuningfux.de/operations/vehicles:23
-[     483ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://superadmin.tuningfux.de/favicon.ico:0
