@@ -1,0 +1,7 @@
+[GET] https://chiptuningfile.tuningfux.de/_wdt/26f4c2?XDEBUG_IGNORE=1 => [200] 
+[GET] https://verwaltung.tuningfux.de/assets/portals/chiptuningfile/fonts/averta/AVERTA-BOLD.TTF => [FAILED] net::ERR_FAILED
+[GET] https://verwaltung.tuningfux.de/assets/portals/chiptuningfile/fonts/averta/AVERTA-REGULAR.TTF => [FAILED] net::ERR_FAILED
+[POST] https://chiptuningfile.tuningfux.de/cdn-cgi/rum? => [204] 
+[GET] https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/favicon-cpt.svg => [404] 
+[GET] https://verwaltung.tuningfux.de/assets/portals/chiptuningfile/fonts/averta/AVERTA-REGULAR.TTF => [FAILED] net::ERR_FAILED
+[GET] https://verwaltung.tuningfux.de/assets/portals/chiptuningfile/fonts/averta/AVERTA-BOLD.TTF => [FAILED] net::ERR_FAILED

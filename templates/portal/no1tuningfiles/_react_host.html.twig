@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+{% set react_asset_version = 'now'|date('U') %}
+{% set portal_design = reactBootstrap.portalDesign|default({}) %}
+{% set theme_preset = portal_design.themePreset|default('original') %}
+{% set primary_color = portal_design.primaryColor|default('#b91c1c') %}
+{% set secondary_color = portal_design.secondaryColor|default('#111111') %}
+{% set menu_background_color = portal_design.menuBackgroundColor|default('#111111') %}
+{% set content_background_color = portal_design.contentBackgroundColor|default('#050505') %}
+{% set is_light_theme = theme_preset == 'oem' %}
+<html lang="de" class="{{ is_light_theme ? 'light' : 'dark' }}">
+<head>
+    {% set font_families = [] %}
+    {% for font_value in [portal_design.headingFont|default(''), portal_design.bodyFont|default('')] %}
+        {% set font_name = font_value|split(',')|first|replace({"'": '', '"': ''})|trim %}
+        {% if font_name is not empty and font_name|lower != 'averta' and font_name not in font_families %}
+            {% set font_families = font_families|merge([font_name]) %}
+        {% endif %}
+    {% endfor %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title|default('No1tuningfiles.com Portal') }}</title>
+    <link rel="icon" href="{{ asset('assets/portals/no1tuningfiles/favicon-cpt.svg') }}" type="image/svg+xml">
+    {% if font_families is not empty %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family={% for font_name in font_families %}{{ font_name|replace({' ': '+'}) }}:400,500,600,700{% if not loop.last %}|{% endif %}{% endfor %}&display=swap">
+    {% endif %}
+    <link rel="stylesheet" href="{{ asset('assets/portals/no1tuningfiles/react/static/css/main.css') }}?v={{ react_asset_version }}">
+    <style>
+        html {
+            --portal-primary-color: {{ primary_color }};
+            --portal-secondary-color: {{ secondary_color }};
+            --portal-menu-background-color: {{ menu_background_color }};
+            --portal-content-background-color: {{ content_background_color }};
+        }
+
+        {% if theme_preset == 'oem' %}
+        /* explicit class overrides — win regardless of cascade/layer ordering */
+        html.light .text-foreground,
+        html.light .text-card-foreground,
+        html.light .text-popover-foreground,
+        html.light .text-secondary-foreground { color: hsl(215 35% 12%) !important; }
+        html.light .text-muted-foreground     { color: hsl(215 18% 44%) !important; }
+        html.light .bg-background             { background-color: hsl(213 30% 93%) !important; }
+        html.light .bg-card                   { background-color: hsl(0 0% 100%) !important; }
+        html.light .bg-muted                  { background-color: hsl(213 25% 89%) !important; }
+        html.light .bg-secondary              { background-color: hsl(213 25% 89%) !important; }
+        html.light .border-border             { border-color: hsl(213 20% 80%) !important; }
+
+        /* OEM Light: CSS variable overrides — outside @layer so wins over compiled .light */
+        :root {
+            /* radius — key for rounding */
+            --radius: 0.6rem;
+            /* text */
+            --foreground:           215 35% 12%;
+            --card-foreground:      215 35% 12%;
+            --popover-foreground:   215 35% 12%;
+            --secondary-foreground: 215 35% 12%;
+            --muted-foreground:     215 18% 44%;
+            /* backgrounds */
+            --background:     213 30% 93%;
+            --card:           0 0% 100%;
+            --popover:        0 0% 100%;
+            --secondary:      213 25% 89%;
+            --muted:          213 25% 89%;
+            --sidebar-bg:     213 28% 87%;
+            --sidebar-border: 213 18% 79%;
+            /* primary → blue */
+            --primary:        221 83% 53%;
+            --primary-hover:  221 83% 44%;
+            --primary-foreground: 0 0% 100%;
+            --accent:         221 83% 53%;
+            --accent-foreground: 0 0% 100%;
+            --ring:           221 83% 53%;
+            --gradient-start: 221 83% 53%;
+            --gradient-end:   221 83% 44%;
+            /* borders */
+            --border:         213 20% 80%;
+            --input:          213 20% 80%;
+            /* destructive stays red */
+            --destructive:    0 72% 46%;
+            --destructive-foreground: 0 0% 100%;
+            /* charts — visible on light bg */
+            --chart-1: 221 83% 53%;
+            --chart-2: 142 71% 39%;
+            --chart-3: 32 95% 44%;
+            --chart-4: 280 65% 52%;
+            --chart-5: 346 77% 49%;
+        }
+        {% endif %}
+
+        {% if theme_preset == 'automotive' %}
+        html {
+            --radius: 0rem;
+        }
+
+        #root :is(
+            .rounded,
+            .rounded-sm,
+            .rounded-md,
+            .rounded-lg,
+            .rounded-xl,
+            .rounded-2xl,
+            .rounded-3xl,
+            .rounded-full,
+            [class*="rounded-"]
+        ),
+        #root button,
+        #root input,
+        #root textarea,
+        #root select,
+        #root [role="dialog"] {
+            border-radius: 0 !important;
+        }
+        {% endif %}
+    </style>
+    {{ extra_head|default('')|raw }}
+</head>
+<body class="min-h-screen bg-background text-foreground" style="background-color: {{ content_background_color }}; color: {{ is_light_theme ? '#1e293b' : '#ffffff' }}; color-scheme: {{ is_light_theme ? 'light' : 'dark' }}">
+    <div id="root"></div>
+    <script>
+        window.portalReactBootstrap = {{ reactBootstrap|default({})|json_encode|raw }};
+    </script>
+    <script src="{{ asset('assets/portals/no1tuningfiles/react/static/js/main.js') }}?v={{ react_asset_version }}" defer></script>
+    {{ extra_body_end|default('')|raw }}
+</body>
+</html>

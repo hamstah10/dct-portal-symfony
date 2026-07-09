@@ -1,0 +1,178 @@
+<div class="container-fluid px-0">
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('streamline:street-road-solid') }} Fahrten gesamt</div>
+                    <div class="display-6 fw-bold">{{ overview.totalTrips }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('gravity-ui:tachometer') }} Gefahrene km</div>
+                    <div class="display-6 fw-bold">{{ overview.totalKm|number_format(2, '.', '') }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('guidance:time') }} Gesamtstunden</div>
+                    <div class="display-6 fw-bold">{{ overview.totalHours|number_format(2, '.', '') }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('arcticons:my-apps-time') }} Sprints gesamt</div>
+                    <div class="display-6 fw-bold">{{ overview.totalSprints }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('fluent-mdl2:speed-high') }} Max km/h</div>
+                    <div class="display-6 fw-bold">{{ overview.maxSpeedKmh|number_format(1, '.', '') }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('solar:spedometer-max-outline') }} Max PS</div>
+                    <div class="display-6 fw-bold">{{ overview.maxPs }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('solar:bolt-circle-outline') }} Max Nm</div>
+                    <div class="display-6 fw-bold">{{ overview.maxNm }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">{{ ux_icon('fa6-solid:car') }} Fahrzeuge / Kunden</div>
+                    <div class="display-6 fw-bold">{{ overview.totalVehicles }} / {{ overview.totalCustomers }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">{{ ux_icon('material-symbols:car-crash-outline') }} Fahrten pro Fahrzeug</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Fahrzeug</th>
+                            <th class="text-end">Fahrten</th>
+                            <th class="text-end">km</th>
+                            <th class="text-end">Max km/h</th>
+                            <th class="text-end">Max PS</th>
+                            <th class="text-end">Max Nm</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if perVehicle is empty %}
+                            <tr><td colspan="6" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in perVehicle %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ row.vehicle_name }}</div>
+                                        <div class="small text-muted">{{ row.vehicle_id }}</div>
+                                    </td>
+                                    <td class="text-end">{{ row.total_trips }}</td>
+                                    <td class="text-end">{{ row.total_km|number_format(2, '.', '') }}</td>
+                                    <td class="text-end">{{ row.max_speed_kmh|number_format(1, '.', '') }}</td>
+                                    <td class="text-end">{{ row.max_ps }}</td>
+                                    <td class="text-end">{{ row.max_nm }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Sprint-Rangliste</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Fahrzeug</th>
+                            <th>Typ</th>
+                            <th class="text-end">Zeit (s)</th>
+                            <th class="text-end">Weg (m)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if bestlist is empty %}
+                            <tr><td colspan="4" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in bestlist %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ row.vehicle_name }}</div>
+                                        <div class="small text-muted">{{ row.vehicle_id }}</div>
+                                    </td>
+                                    <td>{{ row.sprint_type }}</td>
+                                    <td class="text-end">{{ row.time_seconds|number_format(2, '.', '') }}</td>
+                                    <td class="text-end">{{ row.distance_m|number_format(2, '.', '') }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">DTCs (letzte 20)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Beschreibung</th>
+                            <th class="text-end">Erstellt</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if dtcs is empty %}
+                            <tr><td colspan="3" class="text-muted">Keine DTCs vorhanden</td></tr>
+                        {% else %}
+                            {% for dtc in dtcs %}
+                                <tr>
+                                    <td class="fw-semibold">{{ dtc.code }}</td>
+                                    <td>{{ dtc.description ?? '—' }}</td>
+                                    <td class="text-end">{{ dtc.createdAt|date('d.m.Y H:i') }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

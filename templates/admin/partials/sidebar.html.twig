@@ -1,0 +1,47 @@
+<aside class="sidebar">
+
+<div class="logo">
+DCT POWER
+</div>
+
+<ul>
+
+<li>
+<a href="{{ path('admin') }}">
+Dashboard
+</a>
+</li>
+
+<li>
+<a href="{{ ea_url().setController('App\\Controller\\Admin\\OrderCrudController') }}">
+Orders
+</a>
+</li>
+
+<li>
+<a href="{{ ea_url().setController('App\\Controller\\Admin\\CustomerCrudController') }}">
+Customers
+</a>
+</li>
+
+<li>
+<a href="{{ ea_url().setController('App\\Controller\\Admin\\FileCrudController') }}">
+Files
+</a>
+</li>
+
+<li>
+<a href="#">
+Finance
+</a>
+</li>
+
+<li>
+<a href="#">
+Automation
+</a>
+</li>
+
+</ul>
+
+</aside>

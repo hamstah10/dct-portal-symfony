@@ -1,0 +1,45 @@
+- generic [ref=e1]:
+  - generic [ref=e5]:
+    - generic [ref=e7]:
+      - generic [ref=e8]:
+        - img "TFD Logo" [ref=e9]
+        - heading "TFD CRM" [level=1] [ref=e10]
+        - paragraph [ref=e11]: Login
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: E-Mail
+          - textbox "E-Mail" [active] [ref=e15]
+        - generic [ref=e16]:
+          - generic [ref=e17]: Passwort
+          - textbox "Passwort" [ref=e18]
+        - generic [ref=e19]:
+          - checkbox "Eingeloggt bleiben" [ref=e20]
+          - generic [ref=e21]: Eingeloggt bleiben
+        - button "Anmelden" [ref=e22] [cursor=pointer]
+    - generic [ref=e24]:
+      - heading "Frontend Debug" [level=2] [ref=e25]
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - strong [ref=e28]: "Bootstrap CSS (CDN):"
+          - code [ref=e29]: bootstrap@5.3.3
+        - generic [ref=e30]:
+          - strong [ref=e31]: "Bootstrap JS (CDN):"
+          - code [ref=e32]: bootstrap.bundle.min.js
+        - generic [ref=e33]:
+          - strong [ref=e34]: "Bootstrap JS geladen:"
+          - text: ja
+        - generic [ref=e35]:
+          - strong [ref=e36]: "Bootstrap CSS geladen:"
+          - text: ja
+      - separator [ref=e37]
+      - generic [ref=e38]: "{ \"env\": \"dev\", \"debug\": true, \"route\": \"app_login\", \"path\": \"\\/login\", \"method\": \"GET\", \"host\": \"127.0.0.1\", \"uri\": \"http:\\/\\/127.0.0.1:8093\\/login\", \"client_ip\": \"127.0.0.1\", \"user\": null, \"timestamp\": \"2026-04-23 06:06:14\" }"
+  - region "Symfony Web Debug Toolbar" [ref=e39]:
+    - generic [ref=e42]:
+      - link "Symfony Loading…" [ref=e44] [cursor=pointer]:
+        - /url: http://127.0.0.1:8093/_profiler/4c612d?panel=request
+        - generic [ref=e45]:
+          - img "Symfony" [ref=e46]
+          - generic [ref=e48]: Loading…
+      - button [expanded] [ref=e49] [cursor=pointer]:
+        - generic "Close Toolbar" [ref=e50]:
+          - img [ref=e51]

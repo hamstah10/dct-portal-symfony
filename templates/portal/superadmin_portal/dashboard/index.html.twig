@@ -1,0 +1,4 @@
+{% include 'portal/superadmin_portal/_react_host.html.twig' with {
+    title: title|default(portalConfig.name|default('DCT|TFD|CPT|NO1')),
+    reactBootstrap: reactBootstrap|default({})
+} %}

@@ -1,0 +1,182 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}NHTSA vPIC Explorer{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+    <style>
+        .vpic-code {
+            font-family: ui-monospace, SFMono-Regular, SFMono, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 12px 14px;
+            border-radius: 10px;
+            max-height: 360px;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+
+        .vpic-example {
+            background: #f8fafc;
+            border: 1px dashed #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #334155;
+        }
+    </style>
+
+    {% if errors is not empty %}
+        <div class="alert alert-danger">
+            {% for message in errors %}
+                <div>{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if result %}
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white fw-semibold">Antwort: {{ result.endpointTitle }}</div>
+            <div class="card-body">
+                <div class="small text-muted mb-2">URL: <code>{{ result.url }}</code></div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    {% if result.ok %}
+                        <span class="badge text-bg-success">Status {{ result.status }}</span>
+                    {% else %}
+                        <span class="badge text-bg-danger">Status {{ result.status }}</span>
+                    {% endif %}
+                    {% if result.contentType %}
+                        <span class="badge text-bg-light">{{ result.contentType }}</span>
+                    {% endif %}
+                </div>
+                {% if result.error %}
+                    <div class="alert alert-warning">{{ result.error }}</div>
+                {% endif %}
+                <div class="vpic-code">{{ result.display.body ?? result.raw }}</div>
+                {% if result.display is defined and result.display.isTruncated %}
+                    <div class="text-muted small mt-2">
+                        Ausgabe gekuerzt auf {{ result.display.maxChars }} Zeichen ({{ result.display.fullLength }} gesamt).
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="accordion" id="vpic-accordion">
+        {% for group in endpointGroups %}
+            {% set groupId = 'vpic-group-' ~ loop.index %}
+            {% set isOpen = activeGroupIndex is not null and activeGroupIndex == loop.index0 %}
+            <div class="accordion-item mb-2 border-0">
+                <h2 class="accordion-header" id="{{ groupId }}-header">
+                    <button class="accordion-button {% if not isOpen %}collapsed{% endif %}" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#{{ groupId }}-body"
+                            aria-expanded="{{ isOpen ? 'true' : 'false' }}"
+                            aria-controls="{{ groupId }}-body">
+                        {{ group.title }}
+                    </button>
+                </h2>
+                <div id="{{ groupId }}-body"
+                     class="accordion-collapse collapse {% if isOpen %}show{% endif %}"
+                     aria-labelledby="{{ groupId }}-header"
+                     data-bs-parent="#vpic-accordion">
+                    <div class="accordion-body">
+                        {% if group.description %}
+                            <div class="text-muted small mb-3">{{ group.description }}</div>
+                        {% endif %}
+                        <div class="row g-3">
+                            {% for endpoint in group.endpoints %}
+                                {% set isActive = submitted is not empty and submitted.endpointId == endpoint.id %}
+                                <div class="col-12 col-xl-6">
+                                    <div class="border rounded-3 p-3 h-100 bg-white">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <div class="fw-semibold">{{ endpoint.title }}</div>
+                                        </div>
+                                        {% if endpoint.description %}
+                                            <div class="text-muted small mb-2">{{ endpoint.description }}</div>
+                                        {% endif %}
+                                        {% if endpoint.example %}
+                                            <div class="vpic-example mb-2"><code>{{ endpoint.example }}</code></div>
+                                        {% endif %}
+                                        <form method="post" class="row g-2">
+                                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_vpic_explorer') }}">
+                                            <input type="hidden" name="endpoint_id" value="{{ endpoint.id }}">
+
+                                            {% for param in endpoint.pathParams %}
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label small fw-semibold">{{ param.label }}{% if param.required|default(false) %} *{% endif %}</label>
+                                                    {% set value = isActive ? (submitted.fields[param.name] ?? '') : (param.default ?? '') %}
+                                                    {% if param.type is defined and param.type == 'textarea' %}
+                                                        <textarea
+                                                            name="fields[{{ param.name }}]"
+                                                            class="form-control"
+                                                            rows="3"
+                                                            placeholder="{{ param.placeholder ?? '' }}"
+                                                        >{{ value }}</textarea>
+                                                    {% else %}
+                                                        <input
+                                                            type="text"
+                                                            name="fields[{{ param.name }}]"
+                                                            class="form-control"
+                                                            value="{{ value }}"
+                                                            placeholder="{{ param.placeholder ?? '' }}"
+                                                        >
+                                                    {% endif %}
+                                                </div>
+                                            {% endfor %}
+
+                                            {% for param in endpoint.queryParams %}
+                                                <div class="col-12 col-md-6">
+                                                    <label class="form-label small fw-semibold">{{ param.label }}{% if param.required|default(false) %} *{% endif %}</label>
+                                                    {% set qValue = isActive ? (submitted.query[param.name] ?? '') : (param.default ?? '') %}
+                                                    <input
+                                                        type="text"
+                                                        name="query[{{ param.name }}]"
+                                                        class="form-control"
+                                                        value="{{ qValue }}"
+                                                        placeholder="{{ param.placeholder ?? '' }}"
+                                                    >
+                                                </div>
+                                            {% endfor %}
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label small fw-semibold">Format</label>
+                                                {% set formatValue = isActive ? (submitted.query.format ?? 'json') : 'json' %}
+                                                <select name="query[format]" class="form-select">
+                                                    <option value="json" {% if formatValue == 'json' %}selected{% endif %}>json</option>
+                                                    <option value="xml" {% if formatValue == 'xml' %}selected{% endif %}>xml</option>
+                                                    <option value="csv" {% if formatValue == 'csv' %}selected{% endif %}>csv</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <label class="form-label small fw-semibold">Max Zeichen (Anzeige)</label>
+                                                {% set maxCharsValue = isActive ? (submitted.maxChars ?? '') : '' %}
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    name="query[max_chars]"
+                                                    class="form-control"
+                                                    value="{{ maxCharsValue }}"
+                                                    placeholder="z.B. 20000"
+                                                >
+                                            </div>
+
+                                            <div class="col-12">
+                                                <button class="btn btn-primary w-100" type="submit">
+                                                    Abfrage ausfuehren
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

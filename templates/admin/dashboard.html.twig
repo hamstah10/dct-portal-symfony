@@ -1,0 +1,340 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Dashboard{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('admin_auftrag_index') }}" class="btn btn-secondary">Aufträge</a>
+    <a href="{{ path('admin_vehicle_usage_statistics') }}" class="btn btn-primary">Statistik</a>
+    <a href="{{ path('admin_test_actions') }}" class="btn btn-secondary">TestActions</a>
+    <button type="button" class="btn btn-secondary" data-notify-test="1">Benachrichtigung testen</button>
+{% endblock %}
+
+{% block main %}
+    <div class="tfd-dashboard-shell">
+
+        {# ── Portal-Journal ───────────────────────────────────────────────── #}
+        {% if changelog is defined and changelog|length > 0 %}
+        <section class="tfd-journal">
+            <div class="tfd-journal__bar">
+                <span class="tfd-journal__label">Portal-Journal</span>
+                <div class="tfd-journal__entries" id="tfd-journal-body">
+                    {% for entry in changelog %}
+                    <div class="tfd-journal__entry tfd-journal__entry--{{ entry.type }}">
+                        <span class="tfd-journal__badge">
+                            {%- if entry.type == 'feature' %}✦ Neu
+                            {%- elseif entry.type == 'fix' %}⚑ Fix
+                            {%- elseif entry.type == 'change' %}↻ Änderung
+                            {%- elseif entry.type == 'remove' %}✕ Entfernt
+                            {%- else %}{{ entry.type }}{%- endif -%}
+                        </span>
+                        <span class="tfd-journal__entry-title">{{ entry.title }}</span>
+                        <span class="tfd-journal__entry-date">{{ entry.date|date('d.m.') }}</span>
+                        {% if entry.items is defined and entry.items|length > 0 %}
+                        <div class="tfd-journal__tooltip">
+                            <strong>{{ entry.title }}</strong>
+                            <ul>{% for item in entry.items %}<li>{{ item }}</li>{% endfor %}</ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="tfd-journal__toggle" id="tfd-journal-toggle" title="Journal ein-/ausblenden">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+            </div>
+        </section>
+        {% endif %}
+
+        <section class="tfd-dashboard-hero-panel">
+            <div class="tfd-dashboard-hero-copy">
+                <div class="tfd-dashboard-hero-eyebrow">Superadmin</div>
+                <h2 class="tfd-dashboard-hero-title">Operations, Umsatz und Fahrzeugdaten in einer Oberfläche.</h2>
+                <p class="tfd-dashboard-hero-text">
+                    Steuere aktive Aufträge, Credits, eCommerce, Abos und Fahrzeugnutzung in einem klaren Admin mit stabiler EasyAdmin-Basis.
+                </p>
+                <div class="tfd-dashboard-hero-actions">
+                    <a href="{{ path('admin_auftrag_index') }}" class="btn btn-primary">Aufträge öffnen</a>
+                    <a href="{{ path('admin_vehicle_database_overview') }}" class="btn btn-secondary">Fahrzeugdatenbank</a>
+                    <a href="{{ path('admin_statistics') }}" class="btn btn-secondary">Mehr Statistiken</a>
+                    <a href="{{ path('admin_test_actions') }}" class="btn btn-secondary">TestActions</a>
+                </div>
+            </div>
+            <div class="tfd-dashboard-hero-aside">
+                <div class="tfd-dashboard-hero-stat">
+                    <span class="tfd-dashboard-hero-stat__label">Offene Aufträge</span>
+                    <strong class="tfd-dashboard-hero-stat__value">{{ openOrderCount }}</strong>
+                    <span class="tfd-dashboard-hero-stat__meta">Aktuell in Bearbeitung oder offen</span>
+                </div>
+                <div class="tfd-dashboard-hero-stat">
+                    <span class="tfd-dashboard-hero-stat__label">Abgeschlossen</span>
+                    <strong class="tfd-dashboard-hero-stat__value">{{ completedOrderCount }}</strong>
+                    <span class="tfd-dashboard-hero-stat__meta">Quote {{ completionRate }}%</span>
+                </div>
+                <div class="tfd-dashboard-hero-stat">
+                    <span class="tfd-dashboard-hero-stat__label">Monatsumsatz netto</span>
+                    <strong class="tfd-dashboard-hero-stat__value">{{ revenueCurrentMonth|number_format(0, ',', '.') }} €</strong>
+                    <span class="tfd-dashboard-hero-stat__meta">Brutto {{ revenueCurrentMonthGross|number_format(0, ',', '.') }} €</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="tfd-dashboard-kpi-grid">
+            <article class="tfd-kpi-card">
+                <div class="tfd-kpi-card__label">Aufträge gesamt</div>
+                <div class="tfd-kpi-card__value">{{ auftragCount }}</div>
+                <div class="tfd-kpi-card__meta">Alle Datensätze im System</div>
+            </article>
+            <article class="tfd-kpi-card">
+                <div class="tfd-kpi-card__label">Offene Aufträge</div>
+                <div class="tfd-kpi-card__value">{{ openOrderCount }}</div>
+                <div class="tfd-kpi-card__meta">Sofortiger Arbeitsvorrat</div>
+            </article>
+            <article class="tfd-kpi-card">
+                <div class="tfd-kpi-card__label">Abgeschlossen</div>
+                <div class="tfd-kpi-card__value">{{ completedOrderCount }}</div>
+                <div class="tfd-kpi-card__meta">Erfolgsquote {{ completionRate }}%</div>
+            </article>
+            <article class="tfd-kpi-card">
+                <div class="tfd-kpi-card__label">Credits Umsatz</div>
+                <div class="tfd-kpi-card__value">{{ revenueCreditCurrentMonth|number_format(0, ',', '.') }} €</div>
+                <div class="tfd-kpi-card__meta">Brutto {{ revenueCreditCurrentMonthGross|number_format(0, ',', '.') }} €</div>
+            </article>
+            <article class="tfd-kpi-card">
+                <div class="tfd-kpi-card__label">eCommerce Umsatz</div>
+                <div class="tfd-kpi-card__value">{{ revenueEcommerceCurrentMonth|number_format(0, ',', '.') }} €</div>
+                <div class="tfd-kpi-card__meta">Brutto {{ revenueEcommerceCurrentMonthGross|number_format(0, ',', '.') }} €</div>
+            </article>
+            <article class="tfd-kpi-card">
+                <div class="tfd-kpi-card__label">Abos</div>
+                <div class="tfd-kpi-card__value">{{ aboCount }}</div>
+                <div class="tfd-kpi-card__meta">Abo Umsatz {{ revenueAboCurrentMonth|number_format(0, ',', '.') }} €</div>
+            </article>
+        </section>
+
+        <section class="tfd-dashboard-main-grid">
+            <div class="tfd-dashboard-main-column">
+                <article class="tfd-dashboard-panel">
+                    <div class="tfd-dashboard-panel__header">
+                        <div>
+                            <div class="tfd-dashboard-panel__eyebrow">Aktivität</div>
+                            <h3 class="tfd-dashboard-panel__title">Aktuelle Aufträge</h3>
+                        </div>
+                        <a href="{{ path('admin_auftrag_index') }}" class="btn btn-secondary">Alle anzeigen</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 tfd-admin-table">
+                            <thead>
+                            <tr>
+                                <th>Auftragsnr.</th>
+                                <th>Kunde / Firma</th>
+                                <th>Fahrzeug</th>
+                                <th>Status</th>
+                                <th class="text-end">Eingang</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if latestOrders is empty %}
+                                <tr>
+                                    <td colspan="5" class="text-muted">Keine Aufträge vorhanden.</td>
+                                </tr>
+                            {% else %}
+                                {% for order in latestOrders %}
+                                    {% set statusTone = 'muted' %}
+                                    {% if order.status == constant('App\\Entity\\Auftrag::STATUS_RECEIVED') %}
+                                        {% set statusTone = 'info' %}
+                                    {% elseif order.status == constant('App\\Entity\\Auftrag::STATUS_IN_PROGRESS') %}
+                                        {% set statusTone = 'warning' %}
+                                    {% elseif order.status == constant('App\\Entity\\Auftrag::STATUS_COMPLETED') %}
+                                        {% set statusTone = 'success' %}
+                                    {% elseif order.status == constant('App\\Entity\\Auftrag::STATUS_REJECTED') %}
+                                        {% set statusTone = 'danger' %}
+                                    {% endif %}
+                                    <tr class="dashboard-order-row" data-href="{{ path('admin_auftrag_detail', { entityId: order.id }) }}" role="link" tabindex="0">
+                                        <td class="fw-semibold">
+                                            <a class="text-decoration-none text-reset" href="{{ path('admin_auftrag_detail', { entityId: order.id }) }}">
+                                                {{ order.orderNumber }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div>{{ order.kunde ?: '-' }}</div>
+                                            <div class="small text-muted">{{ order.kunde and order.kunde.firma ? order.kunde.firma.name : '-' }}</div>
+                                        </td>
+                                        <td>{{ order.vehicleDisplay ?: (order.manufacturer ~ ' ' ~ order.model)|trim }}</td>
+                                        <td>
+                                            {% include 'admin/field/status_badge.html.twig' with {
+                                                label: order.status|replace({'_':' '})|title,
+                                                tone: statusTone
+                                            } only %}
+                                        </td>
+                                        <td class="text-end">{{ order.createdAt ? order.createdAt|date('d.m.Y H:i') : '-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="tfd-dashboard-panel">
+                    <div class="tfd-dashboard-panel__header">
+                        <div>
+                            <div class="tfd-dashboard-panel__eyebrow">Umsatz</div>
+                            <h3 class="tfd-dashboard-panel__title">Revenue Panel</h3>
+                        </div>
+                        <div class="tfd-dashboard-chip-row">
+                            {% include 'admin/field/money_card.html.twig' with { label: 'Gesamt netto', value: revenueTotal|number_format(2, ',', '.') ~ ' €' } only %}
+                            {% include 'admin/field/money_card.html.twig' with { label: 'Abo netto', value: revenueAboTotal|number_format(2, ',', '.') ~ ' €' } only %}
+                            {% include 'admin/field/money_card.html.twig' with { label: 'Credits netto', value: revenueCreditTotal|number_format(2, ',', '.') ~ ' €' } only %}
+                            {% include 'admin/field/money_card.html.twig' with { label: 'Shop netto', value: revenueEcommerceTotal|number_format(2, ',', '.') ~ ' €' } only %}
+                        </div>
+                    </div>
+                    <div class="tfd-dashboard-tabs nav nav-pills" role="tablist">
+                        <button class="nav-link active" id="revenue-net-tab" data-bs-toggle="pill" data-bs-target="#revenue-net" type="button" role="tab" aria-controls="revenue-net" aria-selected="true">Netto</button>
+                        <button class="nav-link" id="revenue-gross-tab" data-bs-toggle="pill" data-bs-target="#revenue-gross" type="button" role="tab" aria-controls="revenue-gross" aria-selected="false">Brutto ({{ revenueVatRate }}%)</button>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="revenue-net" role="tabpanel" aria-labelledby="revenue-net-tab">
+                            <div class="tfd-dashboard-chart-frame">
+                                {{ render_chart(revenueChartNet) }}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="revenue-gross" role="tabpanel" aria-labelledby="revenue-gross-tab">
+                            <div class="tfd-dashboard-chart-frame">
+                                {{ render_chart(revenueChartGross) }}
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="tfd-dashboard-subgrid">
+                    <article class="tfd-dashboard-panel">
+                        <div class="tfd-dashboard-panel__header">
+                            <div>
+                                <div class="tfd-dashboard-panel__eyebrow">Geo</div>
+                                <h3 class="tfd-dashboard-panel__title">Kundenkarte</h3>
+                            </div>
+                        </div>
+                        <div class="tfd-dashboard-map-frame">
+                            {{ ux_map(customersMap, { style: 'height: 100%; width: 100%;' }) }}
+                        </div>
+                        <div class="tfd-dashboard-panel__footer">
+                            <span><strong>Marker:</strong> {{ customerMapMarkerCount }}</span>
+                            {% if customerMapUnresolvedCount > 0 %}
+                                <span class="text-muted"><strong>Ohne Treffer:</strong> {{ customerMapUnresolvedCount }}</span>
+                            {% endif %}
+                        </div>
+                    </article>
+
+                    <article class="tfd-dashboard-panel">
+                        <div class="tfd-dashboard-panel__header">
+                            <div>
+                                <div class="tfd-dashboard-panel__eyebrow">Team</div>
+                                <h3 class="tfd-dashboard-panel__title">Kommunikation</h3>
+                            </div>
+                            <a href="{{ path('admin') }}" class="btn btn-secondary">Aktualisieren</a>
+                        </div>
+                        <div class="tfd-dashboard-list">
+                            {% if chatFirmen is empty %}
+                                <span class="text-muted">Keine Firmen fuer den Chat vorhanden.</span>
+                            {% else %}
+                                {% for firma in chatFirmen|slice(0, 6) %}
+                                    {% set firmaMessages = chatMessagesByFirma[firma.id]|default([]) %}
+                                    <div class="tfd-dashboard-list-row">
+                                        <div>
+                                            <div class="fw-semibold">{{ firma.name }}</div>
+                                            <div class="small text-muted">
+                                                {% if firmaMessages is not empty %}
+                                                    {{ firmaMessages|last.message|slice(0, 90) }}{% if (firmaMessages|last.message|length) > 90 %}...{% endif %}
+                                                {% else %}
+                                                    Noch keine Nachrichten
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% include 'admin/field/status_badge.html.twig' with {
+                                            label: firmaMessages|length,
+                                            tone: 'muted'
+                                        } only %}
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </article>
+                </div>
+            </div>
+
+            <aside class="tfd-dashboard-side-column">
+                <article class="tfd-dashboard-panel">
+                    <div class="tfd-dashboard-panel__header">
+                        <div>
+                            <div class="tfd-dashboard-panel__eyebrow">Status</div>
+                            <h3 class="tfd-dashboard-panel__title">Auftragsstatus</h3>
+                        </div>
+                    </div>
+                    <div class="tfd-dashboard-status-list">
+                        {% for item in orderStatusItems %}
+                            <div class="tfd-dashboard-status-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>{{ item.label }}</span>
+                                    <strong>{{ item.count }}</strong>
+                                </div>
+                                <div class="tfd-dashboard-progress">
+                                    <div class="tfd-dashboard-progress__bar tfd-dashboard-progress__bar--{{ item.tone }}" style="width: {{ item.percentage }}%;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </article>
+
+                <article class="tfd-dashboard-panel">
+                    <div class="tfd-dashboard-panel__header">
+                        <div>
+                            <div class="tfd-dashboard-panel__eyebrow">Insights</div>
+                            <h3 class="tfd-dashboard-panel__title">Abo-Status</h3>
+                        </div>
+                    </div>
+                    <div class="tfd-dashboard-chart-frame tfd-dashboard-chart-frame--compact">
+                        {{ render_chart(statusChart) }}
+                    </div>
+                </article>
+
+                <article class="tfd-dashboard-panel">
+                    <div class="tfd-dashboard-panel__header">
+                        <div>
+                            <div class="tfd-dashboard-panel__eyebrow">Kunden</div>
+                            <h3 class="tfd-dashboard-panel__title">Kunden nach Firmen</h3>
+                        </div>
+                    </div>
+                    <div class="tfd-dashboard-chart-frame tfd-dashboard-chart-frame--compact">
+                        {{ render_chart(kundenProFirmaChart) }}
+                    </div>
+                </article>
+
+                <article class="tfd-dashboard-panel">
+                    <div class="tfd-dashboard-panel__header">
+                        <div>
+                            <div class="tfd-dashboard-panel__eyebrow">News</div>
+                            <h3 class="tfd-dashboard-panel__title">APP</h3>
+                        </div>
+                    </div>
+                    <div class="tfd-dashboard-news">
+                        {{ component('app_media_slider', { folder: 'APP', limit: 12 }) }}
+                    </div>
+                </article>
+            </aside>
+        </section>
+    </div>
+
+    <script>
+    (function () {
+        const btn     = document.getElementById('tfd-journal-toggle');
+        const journal = document.querySelector('.tfd-journal');
+        if (!btn || !journal) return;
+        const KEY = 'tfd_journal_hidden';
+        if (localStorage.getItem(KEY) === '1') journal.classList.add('tfd-journal--hidden');
+        btn.addEventListener('click', function () {
+            const hidden = journal.classList.toggle('tfd-journal--hidden');
+            localStorage.setItem(KEY, hidden ? '1' : '0');
+        });
+    }());
+    </script>
+{% endblock %}

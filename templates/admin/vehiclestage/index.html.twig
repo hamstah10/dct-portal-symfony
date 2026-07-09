@@ -1,0 +1,15 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    <div class="mb-3">
+        <a href="{{ path('admin_admin_vehiclestage_wizard') }}" class="btn btn-dark">
+            {{ ux_icon('mdi:magic-staff') }} Neue Leistungsstufe (Wizard)
+        </a>
+    </div>
+
+    <div class="mb-4">
+        {{ component('vehicle_stage_search') }}
+    </div>
+
+    {{ parent() }}
+{% endblock %}

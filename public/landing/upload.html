@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GLB Hero Test – Effects Switcher</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <style>
+        :root {
+            --bg-top: #7a0008;
+            --bg-mid: #2b0005;
+            --bg-bottom: #020202;
+            --hex-glow: rgba(255, 40, 40, 0.22);
+            --glow-main: rgba(255, 0, 0, 0.62);
+            --glow-mid: rgba(255, 0, 0, 0.30);
+            --glow-soft: rgba(255, 0, 0, 0.12);
+            --panel-bg: rgba(10, 10, 12, 0.62);
+            --panel-border: rgba(255, 255, 255, 0.10);
+            --text-main: #ffffff;
+            --text-soft: rgba(255, 255, 255, 0.74);
+            --accent: #d31717;
+            --accent-2: #ff4b4b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            color: var(--text-main);
+        }
+
+        body {
+            position: relative;
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background:
+                linear-gradient(to top,
+                    var(--bg-bottom) 0%,
+                    #030303 16%,
+                    #0d0002 32%,
+                    var(--bg-mid) 58%,
+                    #520008 80%,
+                    var(--bg-top) 100%);
+        }
+
+        .scene::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            background:
+                radial-gradient(circle at 50% 22%, rgba(255, 0, 0, 0.22) 0%, rgba(255, 0, 0, 0.10) 24%, rgba(255, 0, 0, 0.02) 46%, transparent 64%),
+                linear-gradient(to top, rgba(0, 0, 0, 0.90) 0%, rgba(0, 0, 0, 0.46) 28%, rgba(0, 0, 0, 0.10) 58%, rgba(0, 0, 0, 0.00) 100%);
+        }
+
+        .brand {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .brand-logo {
+            display: none;
+            max-width: 220px;
+            max-height: 90px;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 22px rgba(0, 0, 0, .35));
+        }
+
+        .honeycomb,
+        .honeycomb.soft {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            will-change: opacity, filter, transform, background-position;
+        }
+
+        .honeycomb {
+            z-index: 2;
+            opacity: 0.24;
+            background-image:
+                radial-gradient(circle at 50% 34%, var(--hex-glow) 0%, transparent 46%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.18)' stroke-width='1'%3E%3Cpath d='M14 1 L42 1 L55 24.25 L42 47.5 L14 47.5 L1 24.25 Z'/%3E%3Cpath d='M14 49.5 L42 49.5 L55 72.75 L42 96 L14 96 L1 72.75 Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover, 56px 97px;
+            background-repeat: no-repeat, repeat;
+            transform: scale(1.05);
+            animation:
+                honeyMove 14s linear infinite,
+                honeyPulse 2.8s ease-in-out infinite;
+        }
+
+        .honeycomb.soft {
+            z-index: 2;
+            opacity: 0.14;
+            filter: blur(1.2px);
+            background-image:
+                radial-gradient(circle at 50% 38%, rgba(255, 0, 0, 0.10) 0%, transparent 52%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='1'%3E%3Cpath d='M14 1 L42 1 L55 24.25 L42 47.5 L14 47.5 L1 24.25 Z'/%3E%3Cpath d='M14 49.5 L42 49.5 L55 72.75 L42 96 L14 96 L1 72.75 Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover, 56px 97px;
+            background-repeat: no-repeat, repeat;
+            transform: scale(1.10);
+            animation:
+                honeyMoveReverse 24s linear infinite,
+                honeyPulseSoft 4.2s ease-in-out infinite;
+        }
+
+        .light-sweep {
+            position: absolute;
+            left: 50%;
+            top: -12%;
+            width: 34vw;
+            min-width: 280px;
+            max-width: 540px;
+            height: 125%;
+            transform: translateX(-50%) rotate(8deg);
+            z-index: 4;
+            pointer-events: none;
+            background: linear-gradient(to bottom,
+                    rgba(255, 255, 255, 0.10) 0%,
+                    rgba(255, 255, 255, 0.03) 16%,
+                    rgba(255, 255, 255, 0.00) 44%,
+                    rgba(255, 255, 255, 0.00) 100%);
+            filter: blur(18px);
+            opacity: 0.76;
+            animation: sweepFloat 7s ease-in-out infinite;
+        }
+
+        .car-glow {
+            position: absolute;
+            left: 50%;
+            bottom: 11%;
+            transform: translateX(-50%) scale(1);
+            width: min(70vw, 900px);
+            height: min(45vw, 420px);
+            z-index: 3;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center,
+                    var(--glow-main) 0%,
+                    var(--glow-mid) 24%,
+                    var(--glow-soft) 46%,
+                    rgba(255, 0, 0, 0.00) 72%);
+            filter: blur(42px);
+            opacity: 0.95;
+            animation: glowPulse 2.4s ease-in-out infinite;
+            will-change: transform, opacity, filter;
+        }
+
+        .bottom-fade {
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 38%;
+            z-index: 5;
+            pointer-events: none;
+            background: linear-gradient(to top,
+                    rgba(0, 0, 0, 0.98) 0%,
+                    rgba(0, 0, 0, 0.86) 24%,
+                    rgba(0, 0, 0, 0.48) 56%,
+                    rgba(0, 0, 0, 0.00) 100%);
+        }
+
+        .reflection {
+            position: absolute;
+            left: 50%;
+            bottom: 2%;
+            transform: translateX(-50%);
+            width: min(54vw, 760px);
+            height: 90px;
+            z-index: 6;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center,
+                    rgba(255, 255, 255, 0.10) 0%,
+                    rgba(255, 0, 0, 0.08) 24%,
+                    rgba(255, 0, 0, 0.03) 42%,
+                    rgba(255, 0, 0, 0) 72%);
+            filter: blur(24px);
+            opacity: 0.9;
+            animation: reflectionPulse 3.4s ease-in-out infinite;
+        }
+
+        .viewer-wrap {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+        }
+
+        .viewer-float {
+            width: 100%;
+            height: 100%;
+            animation: floatCar 5.5s ease-in-out infinite;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            --poster-color: transparent;
+        }
+
+        .panel-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            z-index: 50;
+            appearance: none;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: #fff;
+            background: rgba(10, 10, 12, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            cursor: pointer;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+
+        .panel-toggle:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(20, 20, 24, 0.72);
+        }
+
+        .control-panel {
+            position: absolute;
+            right: 24px;
+            top: 72px;
+            z-index: 40;
+            width: min(420px, calc(100vw - 32px));
+            max-height: calc(100vh - 96px);
+            overflow: auto;
+            padding: 16px;
+            border: 1px solid var(--panel-border);
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 18px;
+            box-shadow:
+                0 18px 50px rgba(0, 0, 0, 0.34),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
+        }
+
+        .control-panel.is-collapsed {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .control-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .control-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field label,
+        .group-title {
+            font-size: 12px;
+            color: var(--text-soft);
+            letter-spacing: 0.04em;
+        }
+
+        .field input[type="file"],
+        .field input[type="range"] {
+            width: 100%;
+        }
+
+        .field input[type="file"] {
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            outline: none;
+        }
+
+        .field input[type="range"] {
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            color: #fff;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform .18s ease, background .18s ease, border-color .18s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .btn.primary {
+            background: linear-gradient(180deg, var(--accent-2), var(--accent));
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 24px rgba(255, 0, 0, 0.18);
+        }
+
+        .status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.62);
+            line-height: 1.4;
+            min-height: 16px;
+        }
+
+        .theme-pills,
+        .toggle-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .theme-pill,
+        .toggle-chip {
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all .18s ease;
+            user-select: none;
+        }
+
+        .theme-pill.active,
+        .theme-pill:hover,
+        .toggle-chip.active,
+        .toggle-chip:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .hint {
+            position: absolute;
+            left: 24px;
+            bottom: 20px;
+            z-index: 35;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.62);
+            max-width: 520px;
+        }
+
+        .no-honey .honeycomb,
+        .no-honey .honeycomb.soft,
+        .no-glow .car-glow,
+        .no-sweep .light-sweep,
+        .no-bottom-fade .bottom-fade,
+        .no-reflection .reflection {
+            display: none !important;
+        }
+
+        .no-honey-pulse .honeycomb,
+        .no-honey-pulse .honeycomb.soft {
+            animation-name: honeyMove, none;
+        }
+
+        .no-honey-pulse.no-honey-motion .honeycomb,
+        .no-honey-pulse.no-honey-motion .honeycomb.soft {
+            animation: none;
+        }
+
+        .no-honey-motion .honeycomb {
+            animation-name: none, honeyPulse;
+        }
+
+        .no-honey-motion .honeycomb.soft {
+            animation-name: none, honeyPulseSoft;
+        }
+
+        .no-honey-motion.no-honey-pulse .honeycomb,
+        .no-honey-motion.no-honey-pulse .honeycomb.soft {
+            animation: none;
+        }
+
+        .no-float .viewer-float {
+            animation: none;
+        }
+
+        .no-glow .car-glow,
+        .no-sweep .light-sweep,
+        .no-reflection .reflection {
+            animation: none;
+        }
+
+        @keyframes honeyMove {
+            0% {
+                background-position: center center, 0 0;
+            }
+
+            100% {
+                background-position: center center, 0 97px;
+            }
+        }
+
+        @keyframes honeyMoveReverse {
+            0% {
+                background-position: center center, 0 0;
+            }
+
+            100% {
+                background-position: center center, 56px -97px;
+            }
+        }
+
+        @keyframes honeyPulse {
+
+            0%,
+            100% {
+                opacity: 0.14;
+                filter: brightness(0.85);
+                transform: scale(1.03);
+            }
+
+            50% {
+                opacity: 0.34;
+                filter: brightness(1.45);
+                transform: scale(1.07);
+            }
+        }
+
+        @keyframes honeyPulseSoft {
+
+            0%,
+            100% {
+                opacity: 0.08;
+                transform: scale(1.08);
+            }
+
+            50% {
+                opacity: 0.18;
+                transform: scale(1.12);
+            }
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                transform: translateX(-50%) scale(0.92);
+                opacity: 0.45;
+                filter: blur(34px);
+            }
+
+            50% {
+                transform: translateX(-50%) scale(1.12);
+                opacity: 1;
+                filter: blur(56px);
+            }
+        }
+
+        @keyframes reflectionPulse {
+
+            0%,
+            100% {
+                opacity: 0.45;
+                transform: translateX(-50%) scaleX(0.92);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: translateX(-50%) scaleX(1.08);
+            }
+        }
+
+        @keyframes sweepFloat {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(8deg);
+                opacity: 0.56;
+            }
+
+            50% {
+                transform: translateX(-48%) rotate(10deg);
+                opacity: 0.84;
+            }
+        }
+
+        @keyframes floatCar {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 980px) {
+            .panel-toggle {
+                top: 12px;
+                right: 12px;
+            }
+
+            .control-panel {
+                right: 12px;
+                top: 60px;
+                width: min(420px, calc(100vw - 24px));
+                max-height: calc(100vh - 72px);
+            }
+
+            .brand {
+                top: 14px;
+                left: 14px;
+            }
+
+            .hint {
+                left: 14px;
+                bottom: 14px;
+                right: 14px;
+                max-width: none;
+            }
+
+            .car-glow {
+                width: 86vw;
+                height: 30vh;
+                bottom: 14%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .control-panel {
+                width: calc(100vw - 16px);
+                left: 8px;
+                right: 8px;
+                top: 56px;
+            }
+
+            .hint {
+                font-size: 10px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="scene" id="scene">
+        <div class="brand">
+            <img id="brandLogo" class="brand-logo" alt="Logo Preview" />
+        </div>
+
+        <button class="panel-toggle" id="panelToggleBtn" type="button">Panel ausblenden</button>
+
+        <div class="honeycomb"></div>
+        <div class="honeycomb soft"></div>
+        <div class="light-sweep"></div>
+        <div class="car-glow"></div>
+        <div class="reflection"></div>
+        <div class="bottom-fade"></div>
+
+        <div class="viewer-wrap">
+            <div class="viewer-float">
+                <model-viewer id="carViewer" src="" alt="3D Fahrzeugmodell" camera-controls auto-rotate
+                    rotation-per-second="18deg" interaction-prompt="none" shadow-intensity="1" exposure="1"
+                    environment-image="neutral" camera-orbit="0deg 78deg 105%" min-camera-orbit="auto 65deg auto"
+                    max-camera-orbit="auto 95deg auto" field-of-view="32deg">
+                </model-viewer>
+            </div>
+        </div>
+
+        <div class="control-panel" id="controlPanel">
+            <div class="control-title">Hero Test Setup</div>
+
+            <div class="control-grid">
+                <div class="field">
+                    <label for="glbUpload">Auto / GLB hochladen</label>
+                    <input type="file" id="glbUpload" accept=".glb,.gltf,model/gltf-binary,model/gltf+json" />
+                </div>
+
+                <div class="field">
+                    <label for="logoUpload">Logo hochladen</label>
+                    <input type="file" id="logoUpload" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+                </div>
+
+                <div class="field">
+                    <div class="group-title">Themes</div>
+                    <div class="theme-pills" id="themePills"></div>
+                </div>
+
+                <div class="field">
+                    <div class="group-title">Effekte an / aus</div>
+                    <div class="toggle-grid" id="effectToggles"></div>
+                </div>
+
+                <div class="field">
+                    <label for="rotateSpeed">Drehgeschwindigkeit</label>
+                    <input type="range" id="rotateSpeed" min="2" max="40" step="1" value="18" />
+                </div>
+
+                <div class="field">
+                    <label for="exposureRange">Licht / Exposure</label>
+                    <input type="range" id="exposureRange" min="0.4" max="2" step="0.1" value="1" />
+                </div>
+
+                <div class="button-row">
+                    <button class="btn primary" id="resetViewBtn" type="button">View reset</button>
+                    <button class="btn" id="removeLogoBtn" type="button">Logo entfernen</button>
+                    <button class="btn" id="removeModelBtn" type="button">Modell entfernen</button>
+                </div>
+
+                <div class="status" id="statusText">Noch kein Modell geladen. Lade ein GLB hoch.</div>
+            </div>
+        </div>
+
+        <div class="hint">
+            Auto Rotate, Panel und alle Effekte lassen sich rechts einzeln an- und ausschalten.
+        </div>
+    </div>
+
+    <script>
+        const scene = document.getElementById("scene");
+        const viewer = document.getElementById("carViewer");
+        const glbUpload = document.getElementById("glbUpload");
+        const logoUpload = document.getElementById("logoUpload");
+        const brandLogo = document.getElementById("brandLogo");
+        const statusText = document.getElementById("statusText");
+        const rotateSpeed = document.getElementById("rotateSpeed");
+        const exposureRange = document.getElementById("exposureRange");
+        const resetViewBtn = document.getElementById("resetViewBtn");
+        const removeLogoBtn = document.getElementById("removeLogoBtn");
+        const removeModelBtn = document.getElementById("removeModelBtn");
+        const themePills = document.getElementById("themePills");
+        const effectToggles = document.getElementById("effectToggles");
+        const controlPanel = document.getElementById("controlPanel");
+        const panelToggleBtn = document.getElementById("panelToggleBtn");
+
+        let currentModelUrl = "";
+        let currentLogoUrl = "";
+        let panelOpen = true;
+
+        const themes = {
+            ferrari: {
+                label: "Ferrari Rot",
+                vars: {
+                    "--bg-top": "#7a0008",
+                    "--bg-mid": "#2b0005",
+                    "--bg-bottom": "#020202",
+                    "--hex-glow": "rgba(255, 40, 40, 0.22)",
+                    "--glow-main": "rgba(255, 0, 0, 0.62)",
+                    "--glow-mid": "rgba(255, 0, 0, 0.30)",
+                    "--glow-soft": "rgba(255, 0, 0, 0.12)",
+                    "--accent": "#d31717",
+                    "--accent-2": "#ff4b4b"
+                }
+            },
+            blue: {
+                label: "Midnight Blue",
+                vars: {
+                    "--bg-top": "#002145",
+                    "--bg-mid": "#00315f",
+                    "--bg-bottom": "#02060c",
+                    "--hex-glow": "rgba(0, 140, 255, 0.18)",
+                    "--glow-main": "rgba(0, 100, 255, 0.46)",
+                    "--glow-mid": "rgba(0, 100, 255, 0.22)",
+                    "--glow-soft": "rgba(0, 100, 255, 0.08)",
+                    "--accent": "#004d92",
+                    "--accent-2": "#2c78d1"
+                }
+            },
+            lime: {
+                label: "Performance Lime",
+                vars: {
+                    "--bg-top": "#3a4b00",
+                    "--bg-mid": "#1d2500",
+                    "--bg-bottom": "#040503",
+                    "--hex-glow": "rgba(203, 236, 1, 0.18)",
+                    "--glow-main": "rgba(203, 236, 1, 0.44)",
+                    "--glow-mid": "rgba(168, 203, 16, 0.24)",
+                    "--glow-soft": "rgba(168, 203, 16, 0.10)",
+                    "--accent": "#7b9e23",
+                    "--accent-2": "#cbec01"
+                }
+            },
+            graphite: {
+                label: "Graphite Red",
+                vars: {
+                    "--bg-top": "#3f1115",
+                    "--bg-mid": "#1b1112",
+                    "--bg-bottom": "#101010",
+                    "--hex-glow": "rgba(241, 28, 36, 0.16)",
+                    "--glow-main": "rgba(241, 28, 36, 0.34)",
+                    "--glow-mid": "rgba(206, 29, 36, 0.18)",
+                    "--glow-soft": "rgba(206, 29, 36, 0.07)",
+                    "--accent": "#ce1d24",
+                    "--accent-2": "#f11c24"
+                }
+            }
+            
+        };
+
+        const effects = {
+            autoRotate: { label: "Auto Rotate", className: null, enabled: true },
+            honey: { label: "Waben", className: "no-honey", enabled: true },
+            honeyPulse: { label: "Waben Puls", className: "no-honey-pulse", enabled: true },
+            honeyMotion: { label: "Waben Bewegung", className: "no-honey-motion", enabled: true },
+            glow: { label: "Glow", className: "no-glow", enabled: true },
+            sweep: { label: "Light Sweep", className: "no-sweep", enabled: true },
+            float: { label: "Car Float", className: "no-float", enabled: true },
+            reflection: { label: "Reflection", className: "no-reflection", enabled: true },
+            bottomFade: { label: "Bottom Fade", className: "no-bottom-fade", enabled: true }
+        };
+
+        function setStatus(text) {
+            statusText.textContent = text;
+        }
+
+        function revokeIfExists(url) {
+            if (url) URL.revokeObjectURL(url);
+        }
+
+        function applyTheme(themeKey) {
+            const theme = themes[themeKey];
+            if (!theme) return;
+
+            Object.entries(theme.vars).forEach(([key, value]) => {
+                document.documentElement.style.setProperty(key, value);
+            });
+
+            document.querySelectorAll(".theme-pill").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.theme === themeKey);
+            });
+        }
+
+        function buildThemeButtons() {
+            Object.entries(themes).forEach(([key, theme]) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "theme-pill";
+                btn.dataset.theme = key;
+                btn.textContent = theme.label;
+                btn.addEventListener("click", () => applyTheme(key));
+                themePills.appendChild(btn);
+            });
+            applyTheme("ferrari");
+        }
+
+        function updateEffectClasses() {
+            Object.entries(effects).forEach(([key, effect]) => {
+                if (key === "autoRotate") {
+                    if (effect.enabled) {
+                        viewer.setAttribute("auto-rotate", "");
+                    } else {
+                        viewer.removeAttribute("auto-rotate");
+                    }
+                    return;
+                }
+
+                if (effect.className) {
+                    scene.classList.toggle(effect.className, !effect.enabled);
+                }
+            });
+        }
+
+        function buildEffectToggles() {
+            Object.entries(effects).forEach(([key, effect]) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "toggle-chip active";
+                btn.dataset.effect = key;
+                btn.textContent = effect.label;
+
+                btn.addEventListener("click", () => {
+                    effect.enabled = !effect.enabled;
+                    btn.classList.toggle("active", effect.enabled);
+                    updateEffectClasses();
+                });
+
+                effectToggles.appendChild(btn);
+            });
+
+            updateEffectClasses();
+        }
+
+        function updatePanelState() {
+            controlPanel.classList.toggle("is-collapsed", !panelOpen);
+            panelToggleBtn.textContent = panelOpen ? "Panel ausblenden" : "Panel einblenden";
+        }
+
+        panelToggleBtn.addEventListener("click", () => {
+            panelOpen = !panelOpen;
+            updatePanelState();
+        });
+
+        glbUpload.addEventListener("change", (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            revokeIfExists(currentModelUrl);
+            currentModelUrl = URL.createObjectURL(file);
+            viewer.src = currentModelUrl;
+            setStatus(`GLB geladen: ${file.name}`);
+        });
+
+        logoUpload.addEventListener("change", (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            revokeIfExists(currentLogoUrl);
+            currentLogoUrl = URL.createObjectURL(file);
+            brandLogo.src = currentLogoUrl;
+            brandLogo.style.display = "block";
+            setStatus(`Logo geladen: ${file.name}`);
+        });
+
+        rotateSpeed.addEventListener("input", () => {
+            viewer.setAttribute("rotation-per-second", `${rotateSpeed.value}deg`);
+        });
+
+        exposureRange.addEventListener("input", () => {
+            viewer.setAttribute("exposure", exposureRange.value);
+        });
+
+        resetViewBtn.addEventListener("click", () => {
+            viewer.setAttribute("camera-orbit", "0deg 78deg 105%");
+            viewer.setAttribute("field-of-view", "32deg");
+            setStatus("Kameraansicht zurückgesetzt.");
+        });
+
+        removeLogoBtn.addEventListener("click", () => {
+            revokeIfExists(currentLogoUrl);
+            currentLogoUrl = "";
+            brandLogo.removeAttribute("src");
+            brandLogo.style.display = "none";
+            logoUpload.value = "";
+            setStatus("Logo entfernt.");
+        });
+
+        removeModelBtn.addEventListener("click", () => {
+            revokeIfExists(currentModelUrl);
+            currentModelUrl = "";
+            viewer.removeAttribute("src");
+            glbUpload.value = "";
+            setStatus("Modell entfernt.");
+        });
+
+        viewer.addEventListener("load", () => {
+            setStatus("3D Modell erfolgreich geladen.");
+        });
+
+        viewer.addEventListener("error", () => {
+            setStatus("Das Modell konnte nicht geladen werden. Bitte ein gültiges GLB testen.");
+        });
+
+        buildThemeButtons();
+        buildEffectToggles();
+        updatePanelState();
+    </script>
+</body>
+
+</html>

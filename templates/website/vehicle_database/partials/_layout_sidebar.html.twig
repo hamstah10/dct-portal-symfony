@@ -1,0 +1,131 @@
+<div class="vdb-layout-sidebar">
+    <div class="vdb-sidebar-bg" id="heroImageWrap" aria-hidden="true">
+        <div class="vdb-empty-image">Kein Bild</div>
+    </div>
+    <div class="vdb-sidebar-overlay" aria-hidden="true"></div>
+
+    <aside class="vdb-sidebar-nav" aria-label="Stage Navigation">
+        <div class="vdb-sidebar-brand">
+            <img
+                data-vdb-brand-badge
+                src="{{ asset('images/tuningfux-gelb.svg') }}"
+                data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                alt="Brand Logo"
+            >
+        </div>
+
+        <div class="vdb-sidebar-stages vdb-tabs" id="stageTabs"></div>
+    </aside>
+
+    <main class="vdb-sidebar-main">
+        <header class="vdb-sidebar-header">
+            <div class="vdb-sidebar-header-kicker">Chiptuning</div>
+            <div class="vdb-sidebar-header-title"><img
+                src="{{ asset('images/tuningfux-gelb.svg') }}"
+                data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                alt="Brand Logo"
+                width="250"
+            ></div>
+            <div class="vdb-sidebar-header-line" aria-hidden="true"></div>
+        </header>
+
+        <section class="vdb-sidebar-title">
+            <div class="vdb-sidebar-brand-name" id="brandName">-</div>
+            <div class="vdb-sidebar-series-name" id="seriesName">-</div>
+            <h2 class="vdb-sidebar-engine" id="engineName">-</h2>
+            <div class="vdb-sidebar-meta">
+                <span class="vdb-sidebar-meta-item">
+                    <span class="vdb-sidebar-meta-icon" aria-hidden="true">⛽</span>
+                    <span id="engineFuel">-</span>
+                </span>
+                <span class="vdb-sidebar-meta-sep" aria-hidden="true">|</span>
+                <span class="vdb-sidebar-meta-item" id="vdbStageName">STAGE 1</span>
+            </div>
+        </section>
+
+        <section class="vdb-sidebar-stats">
+            <div class="vdb-sidebar-card vdb-sidebar-card-original">
+                <div class="vdb-sidebar-card-label">Original</div>
+                <div class="vdb-sidebar-card-row">
+                    <div class="vdb-sidebar-card-value">
+                        <span id="origPs">-</span><span class="vdb-sidebar-unit">PS</span>
+                    </div>
+                    <div class="vdb-sidebar-card-value">
+                        <span id="origNm">-</span><span class="vdb-sidebar-unit">NM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vdb-sidebar-delta" aria-label="Tuning Delta">
+                <div class="vdb-sidebar-delta-text">
+                    <span id="deltaPs">+0</span> PS / <span id="deltaNm">+0</span> NM
+                </div>
+                <div class="vdb-sidebar-delta-line" aria-hidden="true">
+                    <span class="vdb-sidebar-delta-line-fill"></span>
+                    <span class="vdb-sidebar-delta-arrow">→</span>
+                </div>
+            </div>
+
+            <div class="vdb-sidebar-card vdb-sidebar-card-tuned">
+                <div class="vdb-sidebar-card-label">Nach Tuning</div>
+                <div class="vdb-sidebar-card-row">
+                    <div class="vdb-sidebar-card-value is-red">
+                        <span id="stagePs">-</span><span class="vdb-sidebar-unit">PS</span>
+                    </div>
+                    <div class="vdb-sidebar-card-value is-red">
+                        <span id="stageNm">-</span><span class="vdb-sidebar-unit">NM</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="vdb-sidebar-bars">
+            <div class="vdb-sidebar-bar">
+                <div class="vdb-sidebar-bar-head">
+                    <div class="vdb-sidebar-bar-title">Leistung</div>
+                    <div class="vdb-sidebar-bar-percent" id="vdbPsPercent">+0%</div>
+                </div>
+                <div class="vdb-sidebar-bar-track"><span id="psBar"></span></div>
+                <div class="vdb-sidebar-bar-foot">
+                    <span><span id="vdbPsOrigLabel">-</span> PS</span>
+                    <span><span id="vdbPsTunedLabel">-</span> PS</span>
+                </div>
+            </div>
+
+            <div class="vdb-sidebar-bar">
+                <div class="vdb-sidebar-bar-head">
+                    <div class="vdb-sidebar-bar-title">Drehmoment</div>
+                    <div class="vdb-sidebar-bar-percent" id="vdbNmPercent">+0%</div>
+                </div>
+                <div class="vdb-sidebar-bar-track"><span id="nmBar"></span></div>
+                <div class="vdb-sidebar-bar-foot">
+                    <span><span id="vdbNmOrigLabel">-</span> NM</span>
+                    <span><span id="vdbNmTunedLabel">-</span> NM</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="vdb-sidebar-footer">
+            <div class="vdb-sidebar-options">
+                <div class="vdb-sidebar-options-title">Tuning-Optionen</div>
+                <div class="vdb-ecu-manufacturers" id="ecuManufacturers"></div>
+                <ul class="vdb-sidebar-options-list" id="optionsList"></ul>
+            </div>
+
+            <a href="#" class="vdb-sidebar-cta">
+                <span>Jetzt Kontakt aufnehmen</span>
+                <span aria-hidden="true">→</span>
+            </a>
+        </section>
+
+        <div class="visually-hidden" aria-hidden="true">
+            <span id="enginePs">-</span>
+            <span id="engineNm">-</span>
+            <span id="bottomOrig">-</span>
+            <span id="bottomTuned">-</span>
+            <span id="stagePrice">-</span>
+            <span id="stageDescription">-</span>
+            <span id="improvementLine">-</span>
+        </div>
+    </main>
+</div>

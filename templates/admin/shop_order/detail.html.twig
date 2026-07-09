@@ -1,0 +1,41 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {% set order = entity.instance %}
+    {% set statusMap = {
+        0: ['Neu', 'muted'],
+        1: ['Offen', 'info'],
+        2: ['Bezahlt', 'success'],
+        3: ['In Bearbeitung', 'warning'],
+        4: ['Versandt', 'info'],
+        5: ['Abgeschlossen', 'success'],
+        6: ['Storniert', 'danger']
+    } %}
+    {% set statusData = statusMap[order.status] ?? ['Unbekannt', 'muted'] %}
+    {% set title = order.orderNumber ?: ('Bestellung #' ~ order.uid) %}
+    {% set meta = [
+        { label: 'Kunde', value: order.customerName ?: '—' },
+        { label: 'E-Mail', value: order.customerEmail ?: '—' },
+        { label: 'Erstellt', value: order.createdAt ? order.createdAt|date('d.m.Y H:i') : '—' },
+        { label: 'Lexoffice', value: order.lexofficeInvoiceId ?: '—' }
+    ] %}
+
+    <div class="tfd-detail-shell">
+        {% include 'admin/components/detail_hero.html.twig' with {
+            eyebrow: 'Shop-Bestellung',
+            title: title,
+            subtitle: order.customerCompany ?: order.customerName ?: null,
+            badges: [{ label: statusData[0], tone: statusData[1] }],
+            meta: meta
+        } only %}
+
+        <div class="tfd-money-grid">
+            {% include 'admin/field/money_card.html.twig' with { label: 'Gesamt', value: order.total is not null ? ('€' ~ order.total|number_format(2, ',', '.')) : '—' } only %}
+            {% include 'admin/field/money_card.html.twig' with { label: 'Zwischensumme', value: order.subtotal is not null ? ('€' ~ order.subtotal|number_format(2, ',', '.')) : '—' } only %}
+            {% include 'admin/field/money_card.html.twig' with { label: 'Versand', value: order.shippingCost is not null ? ('€' ~ order.shippingCost|number_format(2, ',', '.')) : '—' } only %}
+            {% include 'admin/field/money_card.html.twig' with { label: 'Steuer', value: order.taxAmount is not null ? ('€' ~ order.taxAmount|number_format(2, ',', '.')) : '—' } only %}
+        </div>
+
+        {{ parent() }}
+    </div>
+{% endblock %}

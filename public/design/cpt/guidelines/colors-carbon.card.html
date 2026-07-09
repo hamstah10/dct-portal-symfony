@@ -1,0 +1,31 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Carbon neutrals" subtitle="Cool graphite ramp — carries 90% of the UI" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; padding: 18px; background: var(--surface); font-family: var(--font-mono); }
+  .ramp { display: grid; grid-template-columns: repeat(13, 1fr); gap: 0; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .sw { aspect-ratio: 1 / 1.3; display: flex; align-items: flex-end; padding: 6px; }
+  .sw span { font-size: 9px; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+  <div class="ramp">
+    <div class="sw" style="background:var(--carbon-25)"><span style="color:var(--carbon-700)">25</span></div>
+    <div class="sw" style="background:var(--carbon-50)"><span style="color:var(--carbon-700)">50</span></div>
+    <div class="sw" style="background:var(--carbon-100)"><span style="color:var(--carbon-700)">100</span></div>
+    <div class="sw" style="background:var(--carbon-200)"><span style="color:var(--carbon-800)">200</span></div>
+    <div class="sw" style="background:var(--carbon-300)"><span style="color:var(--carbon-900)">300</span></div>
+    <div class="sw" style="background:var(--carbon-400)"><span style="color:var(--carbon-25)">400</span></div>
+    <div class="sw" style="background:var(--carbon-500)"><span style="color:var(--carbon-25)">500</span></div>
+    <div class="sw" style="background:var(--carbon-600)"><span style="color:var(--carbon-25)">600</span></div>
+    <div class="sw" style="background:var(--carbon-700)"><span style="color:var(--carbon-25)">700</span></div>
+    <div class="sw" style="background:var(--carbon-800)"><span style="color:var(--carbon-100)">800</span></div>
+    <div class="sw" style="background:var(--carbon-850)"><span style="color:var(--carbon-100)">850</span></div>
+    <div class="sw" style="background:var(--carbon-900)"><span style="color:var(--carbon-100)">900</span></div>
+    <div class="sw" style="background:var(--carbon-950)"><span style="color:var(--carbon-100)">950</span></div>
+  </div>
+</body>
+</html>

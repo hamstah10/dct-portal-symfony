@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    {% set react_asset_version = 'now'|date('U') %}
+    {% set portal_design = reactBootstrap.portalDesign|default({}) %}
+    {% set theme_preset = portal_design.themePreset|default('original') %}
+    {% set primary_color = portal_design.primaryColor|default('#b91c1c') %}
+    {% set secondary_color = portal_design.secondaryColor|default('#111111') %}
+    {% set menu_background_color = portal_design.menuBackgroundColor|default('#111111') %}
+    {% set content_background_color = portal_design.contentBackgroundColor|default('#050505') %}
+    {% set font_families = [] %}
+    {% for font_value in [portal_design.headingFont|default(''), portal_design.bodyFont|default('')] %}
+        {% set font_name = font_value|split(',')|first|replace({"'": '', '"': ''})|trim %}
+        {% if font_name is not empty and font_name|lower != 'averta' and font_name not in font_families %}
+            {% set font_families = font_families|merge([font_name]) %}
+        {% endif %}
+    {% endfor %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title|default('Superadmin Portal') }}</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    {% if font_families is not empty %}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family={% for font_name in font_families %}{{ font_name|replace({' ': '+'}) }}:400,500,600,700{% if not loop.last %}|{% endif %}{% endfor %}&display=swap">
+    {% endif %}
+    <link rel="stylesheet" href="{{ asset('assets/portals/superadmin-portal/react/static/css/main.css') }}?v={{ react_asset_version }}">
+    <style>
+        html {
+            --portal-primary-color: {{ primary_color }};
+            --portal-secondary-color: {{ secondary_color }};
+            --portal-menu-background-color: {{ menu_background_color }};
+            --portal-content-background-color: {{ content_background_color }};
+        }
+
+        {% if theme_preset == 'automotive' %}
+        html {
+            --radius: 0rem;
+        }
+
+        #root :is(
+            .rounded,
+            .rounded-sm,
+            .rounded-md,
+            .rounded-lg,
+            .rounded-xl,
+            .rounded-2xl,
+            .rounded-3xl,
+            .rounded-full,
+            [class*="rounded-"]
+        ),
+        #root button,
+        #root input,
+        #root textarea,
+        #root select,
+        #root [role="dialog"] {
+            border-radius: 0 !important;
+        }
+        {% endif %}
+    </style>
+</head>
+<body class="min-h-screen bg-background text-foreground" style="background-color: {{ content_background_color }}; color: #ffffff;">
+    <div id="root"></div>
+    <script>
+        window.portalReactBootstrap = {{ reactBootstrap|default({})|json_encode|raw }};
+    </script>
+    <script src="{{ asset('assets/portals/superadmin-portal/react/static/js/main.js') }}?v={{ react_asset_version }}" defer></script>
+</body>
+</html>

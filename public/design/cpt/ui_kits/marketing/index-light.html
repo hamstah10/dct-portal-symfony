@@ -1,0 +1,23 @@
+<!-- @dsCard group="Marketing site" viewport="1280x760" name="Marketing homepage (hell)" subtitle="Helle Variante \u2014 Hero, Fahrzeugsuche, Stages" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chiptuningfile — Marketing (hell)</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="marketing.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    const { MarketingSite } = window.ChiptuningfileDesignSystem_3beb42;
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(MarketingSite, { initialTheme: 'light' }));
+    setTimeout(() => window.lucide && window.lucide.createIcons(), 80);
+  </script>
+</body>
+</html>

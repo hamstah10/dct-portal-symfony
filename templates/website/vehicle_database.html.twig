@@ -1,0 +1,3245 @@
+{% extends 'base.html.twig' %}
+
+{% set apiTesterMode = apiTesterMode|default(false) %}
+{% set widgetMode = widgetMode|default(false) %}
+{% set websiteWidget = websiteWidget|default({}) %}
+
+{% block title %}{{ apiTesterMode ? 'Fahrzeugdatenbank API Test' : 'Fahrzeugdatenbank' }}{% endblock %}
+
+{% set rawTemplateVariant = frontendSettings.templateVariant|default('performance') %}
+{% set templateVariant = rawTemplateVariant == 'layout2' ? 'contrast' : rawTemplateVariant %}
+{% set templateClassVariant = templateVariant == 'contrast' ? 'layout2' : (templateVariant == 'widget_premium_dark' ? 'widget-premium-dark' : (templateVariant == 'widget_premium_light' ? 'widget-premium-light' : (templateVariant == 'widget_catalog_light' ? 'widget-catalog-light' : templateVariant))) %}
+{% set layoutPartials = {
+    'performance': 'website/vehicle_database/partials/_layout_performance.html.twig',
+    'widget_premium_dark': 'website/vehicle_database/partials/_layout_widget_premium_dark.html.twig',
+    'widget_premium_light': 'website/vehicle_database/partials/_layout_widget_premium_light.html.twig',
+    'widget_catalog_light': 'website/vehicle_database/partials/_layout_widget_catalog_light.html.twig',
+    'minimal': 'website/vehicle_database/partials/_layout_minimal.html.twig',
+    'contrast': 'website/vehicle_database/partials/_layout_contrast.html.twig',
+    'layout2': 'website/vehicle_database/partials/_layout_contrast.html.twig',
+    'layout3': 'website/vehicle_database/partials/_layout_sidebar.html.twig',
+    'layout4': 'website/vehicle_database/partials/_layout_download.html.twig',
+    'layout5': 'website/vehicle_database/partials/_layout_table.html.twig',
+    'layout6': 'website/vehicle_database/partials/_layout_sidebar_light.html.twig',
+} %}
+{% set activeLayoutPartial = layoutPartials[templateVariant] is defined ? layoutPartials[templateVariant] : layoutPartials['performance'] %}
+{% set activePoolKey = currentDataPoolKey|default('live') %}
+{% set activePoolName = 'Live' %}
+{% for pool in availableDataPools|default([]) %}
+    {% if pool.key == activePoolKey %}
+        {% set activePoolName = pool.name %}
+    {% endif %}
+{% endfor %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-default.min.css"
+        integrity="sha512-/k/mL9TQSZHAqtVqXJAiy5bt2w1P7gxdra0UlnFjVHF9a/LC2vxt7otx3BMcn79V/DZsPRwdw8tPlwbElMnIAw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('styles/vehicle_database.css') }}?v={{ vehicleDatabaseCssVersion|default('1') }}">
+    {% if widgetMode %}
+        <style>
+            html,
+            body {
+                min-height: 0 !important;
+                background: {{ websiteWidget.backgroundColor|default('#ffffff') }} !important;
+            }
+
+            body {
+                margin: 0;
+                overflow-x: hidden;
+            }
+
+            .vdb-page.vdb-widget-mode {
+                --vdb-bg: {{ websiteWidget.backgroundColor|default('#ffffff') }};
+                --vdb-text: {{ websiteWidget.textColor|default('#1a1a1a') }};
+                --vdb-red: {{ websiteWidget.primaryColor|default('#5a2116') }};
+                --vdb-primary-contrast: {{ websiteWidget.buttonTextColor|default(websiteWidget.backgroundColor|default('#ffffff')) }};
+                --vdb-panel: color-mix(in srgb, {{ websiteWidget.backgroundColor|default('#ffffff') }} 92%, {{ websiteWidget.textColor|default('#1a1a1a') }} 8%);
+                --vdb-panel-soft: color-mix(in srgb, {{ websiteWidget.backgroundColor|default('#ffffff') }} 86%, {{ websiteWidget.textColor|default('#1a1a1a') }} 14%);
+                --vdb-select-bg: {{ websiteWidget.selectBackgroundColor|default('#ffffff') }};
+                --vdb-select-open-bg: {{ websiteWidget.selectOpenBackgroundColor|default('#f3f4f6') }};
+                --vdb-line: color-mix(in srgb, {{ websiteWidget.textColor|default('#1a1a1a') }} 22%, transparent);
+                --vdb-line2: color-mix(in srgb, {{ websiteWidget.textColor|default('#1a1a1a') }} 14%, transparent);
+                background: {{ websiteWidget.backgroundColor|default('#ffffff') }};
+                color: {{ websiteWidget.textColor|default('#1a1a1a') }} !important;
+                min-height: auto;
+            }
+
+            .vdb-widget-mode .btn-tuningfux,
+            .vdb-widget-mode .vdb-selects .btn,
+            .vdb-widget-mode:not(.vdb-template-widget-catalog-light) .vdb-tab.active {
+                background: {{ websiteWidget.primaryColor|default('#5a2116') }} !important;
+                border-color: {{ websiteWidget.primaryColor|default('#5a2116') }} !important;
+                color: var(--vdb-primary-contrast) !important;
+            }
+
+            .vdb-widget-mode .form-select,
+            .vdb-widget-mode .form-control,
+            .vdb-widget-mode .select2-container .select2-selection--single,
+            .vdb-widget-mode .select2-dropdown {
+                background: {{ websiteWidget.selectBackgroundColor|default('#ffffff') }} !important;
+                background-color: {{ websiteWidget.selectBackgroundColor|default('#ffffff') }} !important;
+                color: {{ websiteWidget.textColor|default('#1a1a1a') }} !important;
+                border-color: color-mix(in srgb, {{ websiteWidget.textColor|default('#1a1a1a') }} 22%, transparent) !important;
+            }
+
+            .vdb-widget-mode .select2-container .select2-selection--single .select2-selection__rendered,
+            .vdb-widget-mode .select2-results__option {
+                color: {{ websiteWidget.textColor|default('#1a1a1a') }} !important;
+            }
+
+            .vdb-widget-mode .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable,
+            .vdb-widget-mode .select2-container--default .select2-results__option--selected,
+            .vdb-widget-mode .select2-container--default .select2-search--dropdown .select2-search__field {
+                background: {{ websiteWidget.selectOpenBackgroundColor|default('#f3f4f6') }} !important;
+                background-color: {{ websiteWidget.selectOpenBackgroundColor|default('#f3f4f6') }} !important;
+                color: {{ websiteWidget.textColor|default('#1a1a1a') }} !important;
+            }
+
+            .vdb-widget-mode .vdb-stage-card-red,
+            .vdb-widget-mode .vdb-option-check,
+            .vdb-widget-mode .vdb-stage-price,
+            .vdb-widget-mode .vdb-option-price {
+                color: {{ websiteWidget.primaryColor|default('#5a2116') }} !important;
+                border-color: {{ websiteWidget.primaryColor|default('#5a2116') }} !important;
+            }
+
+            .vdb-widget-header {
+                margin: 0 auto 1.25rem;
+                max-width: 1140px;
+                padding: 1.25rem 0.75rem 0;
+            }
+
+            .vdb-widget-title {
+                margin: 0;
+                font-size: clamp(1.35rem, 2.4vw, 2rem);
+                font-weight: 700;
+            }
+
+            .vdb-widget-subtitle {
+                margin: 0.35rem 0 0;
+                opacity: 0.78;
+            }
+
+            .vdb-widget-inquiry {
+                margin: 1.5rem auto 2rem;
+                max-width: 1140px;
+                padding: 0 0.75rem;
+            }
+
+            .vdb-widget-inquiry-box {
+                border: 1px solid color-mix(in srgb, {{ websiteWidget.textColor|default('#1a1a1a') }} 18%, transparent);
+                border-radius: 8px;
+                background: color-mix(in srgb, {{ websiteWidget.backgroundColor|default('#ffffff') }} 88%, {{ websiteWidget.textColor|default('#1a1a1a') }} 12%);
+                color: {{ websiteWidget.textColor|default('#1a1a1a') }};
+                padding: 1rem;
+            }
+
+            .vdb-widget-inquiry-form {
+                margin-top: 1rem;
+            }
+
+            .vdb-widget-inquiry-status {
+                min-height: 1.4rem;
+                margin-top: 0.75rem;
+                font-weight: 600;
+            }
+
+            {% if websiteWidget.typeIconColor|default('white') == 'black' %}
+            .vdb-widget-mode .vdb-type-option-icon--muted img { filter: brightness(0) !important; }
+            {% else %}
+            .vdb-widget-mode .vdb-type-option-icon--muted img { filter: brightness(0) invert(1) !important; }
+            {% endif %}
+
+            {{ websiteWidget.customCss|default('')|raw }}
+        </style>
+    {% endif %}
+    {% if apiTesterMode %}
+        <style>
+            .vdb-api-auth-box {
+                margin-bottom: 1rem;
+                padding: 1rem;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 0.5rem;
+                backdrop-filter: blur(4px);
+            }
+
+            .vdb-api-auth-label {
+                color: #f4f4f4;
+                font-size: 0.85rem;
+                margin-bottom: 0.35rem;
+                display: block;
+            }
+
+            .vdb-api-auth-status {
+                font-size: 0.85rem;
+                margin-top: 0.5rem;
+                min-height: 1.2rem;
+            }
+
+            .vdb-api-auth-status.text-danger {
+                color: #ffb4b4 !important;
+            }
+
+            .vdb-api-auth-status.text-success {
+                color: #8fe6ae !important;
+            }
+        </style>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+<div class="vdb-page vdb-template-{{ templateClassVariant }}{{ widgetMode ? ' vdb-widget-mode' : '' }}">
+    <div class="vdb-shell">
+        {% if widgetMode and (websiteWidget.title|default('') or websiteWidget.subtitle|default('')) %}
+            <div class="vdb-widget-header">
+                {% if websiteWidget.title|default('') %}
+                    <h1 class="vdb-widget-title">{{ websiteWidget.title }}</h1>
+                {% endif %}
+                {% if websiteWidget.subtitle|default('') %}
+                    <p class="vdb-widget-subtitle">{{ websiteWidget.subtitle }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        {% if not widgetMode %}
+            <div class="vdb-head">
+                <div class="vdb-head-logo-wrap" id="vdbHeadLogoWrap" data-logo-src="{{ asset('images/tuningfux-gelb.svg') }}">
+                    <img
+                        class="vdb-head-logo"
+                        src="{{ asset('images/tuningfux-gelb.svg') }}"
+                        alt="Tuningfux Logo"
+                        width="250"
+                    >
+                </div>
+                <div class="vdb-pool-badge-wrap">
+                    <span class="vdb-pool-badge">
+                        <span class="vdb-pool-badge-label">Aktiver Datenbestand</span>
+                        <span class="vdb-pool-badge-value">{{ activePoolName }}</span>
+                    </span>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if apiTesterMode %}
+            <div class="container">
+                <div class="vdb-api-auth-box">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-lg-3">
+                            <label for="apiTokenIdInput" class="vdb-api-auth-label">Token-ID (X-Token-Id)</label>
+                            <input id="apiTokenIdInput" type="text" class="form-control" placeholder="z. B. tok_abc123">
+                        </div>
+                        <div class="col-12 col-lg-5">
+                            <label for="apiTokenInput" class="vdb-api-auth-label">Bearer-Token</label>
+                            <input id="apiTokenInput" type="text" class="form-control" placeholder="Bearer-Token">
+                        </div>
+                        <div class="col-12 col-lg-4 d-grid d-lg-flex gap-2 justify-content-lg-end">
+                            <button type="button" id="apiAuthSaveBtn" class="btn btn-primary">Zugang speichern</button>
+                            <button type="button" id="apiAuthLoadBtn" class="btn btn-outline-light">Daten laden</button>
+                        </div>
+                    </div>
+                    <div id="apiAuthStatus" class="vdb-api-auth-status text-light">
+                        API-Testmodus aktiv: Bitte Token-ID und Bearer-Token eingeben.
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {{ include('website/vehicle_database/partials/_selects.html.twig') }}
+
+	        <div id="vdbFloatingControls" class="vdb-floating-controls d-none">
+	            {% if frontendSettings.layoutSwitcherEnabled|default(false) %}
+	                <div class="vdb-layout-switcher">
+	                    <label class="visually-hidden" for="layoutSwitcherSelect">Layout</label>
+	                    <select id="layoutSwitcherSelect" class="form-select form-select-sm vdb-layout-switcher-select" aria-label="Layout wählen">
+	                        <option value="performance" {{ templateVariant == 'performance' ? 'selected' : '' }}>Performance</option>
+	                        <option value="minimal" {{ templateVariant == 'minimal' ? 'selected' : '' }}>Minimal</option>
+	                        <option value="contrast" {{ templateVariant == 'contrast' ? 'selected' : '' }}>Contrast</option>
+	                        <option value="layout3" {{ templateVariant == 'layout3' ? 'selected' : '' }}>V3 Sidebar</option>
+	                        <option value="layout4" {{ templateVariant == 'layout4' ? 'selected' : '' }}>V4 Download</option>
+	                        <option value="layout5" {{ templateVariant == 'layout5' ? 'selected' : '' }}>V5 Tabelle</option>
+	                        <option value="layout6" {{ templateVariant == 'layout6' ? 'selected' : '' }}>V6 Sidebar Hell</option>
+	                        <option value="widget_catalog_light" {{ templateVariant == 'widget_catalog_light' ? 'selected' : '' }}>Widget Katalog Hell</option>
+	                    </select>
+	                </div>
+                    <button type="button" id="apiRawJsonBtn" class="btn vdb-api-raw-btn">
+                        API JSON
+                    </button>
+	            {% endif %}
+
+            <button type="button" id="resetSelectionFloatingBtn" class="btn btn-tuningfux vdb-reset-floating d-none">
+                Reset Auswahl
+            </button>
+        </div>
+
+        <div id="apiRawJsonModal" class="vdb-api-raw-modal d-none" role="dialog" aria-modal="true" aria-labelledby="apiRawJsonTitle">
+            <div class="vdb-api-raw-modal__backdrop" data-api-raw-close></div>
+            <div class="vdb-api-raw-modal__panel" tabindex="-1">
+                <div class="vdb-api-raw-modal__head">
+                    <div>
+                        <div class="vdb-api-raw-modal__eyebrow">API Vergleich</div>
+                        <h2 id="apiRawJsonTitle" class="vdb-api-raw-modal__title">Raw JSON Daten</h2>
+                    </div>
+                    <button type="button" class="btn vdb-api-raw-modal__close" data-api-raw-close aria-label="Schliessen">
+                        &times;
+                    </button>
+                </div>
+                <pre id="apiRawJsonOutput" class="vdb-api-raw-output">Noch keine API-Daten geladen.</pre>
+            </div>
+        </div>
+
+        <div id="resultArea" class="d-none">
+            {{ include(activeLayoutPartial) }}
+        </div>
+
+        {% if widgetMode %}
+            <div id="vdbWidgetInquiry" class="vdb-widget-inquiry d-none">
+                <div class="vdb-widget-inquiry-box">
+                    <a href="{{ vehicleWidgetInquiryPath|default('#') }}" id="vdbWidgetInquiryLink" class="btn btn-tuningfux">
+                        {{ websiteWidget.buttonText|default('Anfrage senden') }}
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if frontendSettings.layoutSwitcherEnabled|default(false) %}
+            <template id="vdbLayoutTpl-performance">
+                {{ include('website/vehicle_database/partials/_layout_performance.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-widget-premium-dark">
+                {{ include('website/vehicle_database/partials/_layout_widget_premium_dark.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-widget-premium-light">
+                {{ include('website/vehicle_database/partials/_layout_widget_premium_light.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-widget-catalog-light">
+                {{ include('website/vehicle_database/partials/_layout_widget_catalog_light.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-minimal">
+                {{ include('website/vehicle_database/partials/_layout_minimal.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-contrast">
+                {{ include('website/vehicle_database/partials/_layout_contrast.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-layout3">
+                {{ include('website/vehicle_database/partials/_layout_sidebar.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-layout4">
+                {{ include('website/vehicle_database/partials/_layout_download.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-layout5">
+                {{ include('website/vehicle_database/partials/_layout_table.html.twig') }}
+            </template>
+            <template id="vdbLayoutTpl-layout6">
+                {{ include('website/vehicle_database/partials/_layout_sidebar_light.html.twig') }}
+            </template>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+(() => {
+    const logoWrap = document.getElementById('vdbHeadLogoWrap');
+    if (!logoWrap) {
+        return;
+    }
+
+    const logoSrc = logoWrap.dataset.logoSrc || '';
+    if (!logoSrc) {
+        return;
+    }
+
+    window.fetch(logoSrc)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Logo SVG konnte nicht geladen werden.');
+            }
+
+            return response.text();
+        })
+        .then((svgMarkup) => {
+            const parser = new window.DOMParser();
+            const documentSvg = parser.parseFromString(svgMarkup, 'image/svg+xml');
+            const svg = documentSvg.querySelector('svg');
+            if (!svg) {
+                return;
+            }
+
+            svg.classList.add('vdb-head-logo', 'vdb-head-logo-svg');
+            svg.setAttribute('role', 'img');
+            svg.setAttribute('aria-label', 'Tuningfux Logo');
+            svg.removeAttribute('id');
+
+            const paths = svg.querySelectorAll('path');
+            paths.forEach((path, index) => {
+                path.style.setProperty('--i', String(index));
+            });
+
+            logoWrap.innerHTML = '';
+            logoWrap.appendChild(svg);
+        })
+        .catch(() => {
+            // Fallback bleibt das normale <img>.
+        });
+})();
+</script>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js"></script>
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
+<script src="https://unpkg.com/three@0.165.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.165.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+(() => {
+    const frontendSettings = {{ frontendSettings|json_encode|raw }};
+    const availableDataPools = {{ availableDataPools|default([])|json_encode|raw }};
+    const defaultDataPoolKey = '{{ currentDataPoolKey|default('live')|e('js') }}' || 'live';
+    const layoutSwitcherEnabled = Boolean(frontendSettings.layoutSwitcherEnabled);
+
+    const safeStorage = {
+        get(key) {
+            try {
+                return window.localStorage?.getItem(key) || '';
+            } catch (error) {
+                return '';
+            }
+        },
+        set(key, value) {
+            try {
+                window.localStorage?.setItem(key, value);
+            } catch (error) {
+                // Ignore.
+            }
+        },
+    };
+
+    const rawDefaultTemplateVariant = String(frontendSettings.templateVariant || '').trim().toLowerCase();
+    const allowedTemplateVariants = rawDefaultTemplateVariant === 'widget_premium_dark'
+        ? ['performance', 'minimal', 'contrast', 'layout3', 'layout4', 'layout5', 'layout6', 'widget_premium_dark']
+        : (rawDefaultTemplateVariant === 'widget_premium_light'
+            ? ['performance', 'minimal', 'contrast', 'layout3', 'layout4', 'layout5', 'layout6', 'widget_premium_light']
+            : (rawDefaultTemplateVariant === 'widget_catalog_light'
+                ? ['performance', 'minimal', 'contrast', 'layout3', 'layout4', 'layout5', 'layout6', 'widget_catalog_light']
+                : ['performance', 'minimal', 'contrast', 'layout3', 'layout4', 'layout5', 'layout6']));
+
+    const normalizeTemplateVariant = (variant, fallback) => {
+        const raw = String(variant || '').trim().toLowerCase();
+        const resolved = raw === 'layout2' ? 'contrast' : raw;
+
+        if (allowedTemplateVariants.includes(resolved)) {
+            return resolved;
+        }
+
+        return fallback;
+    };
+
+    const defaultTemplateVariant = normalizeTemplateVariant(frontendSettings.templateVariant || 'performance', 'performance');
+    let activeTemplateVariant = defaultTemplateVariant;
+
+    if (layoutSwitcherEnabled) {
+        activeTemplateVariant = normalizeTemplateVariant(safeStorage.get('vdb_layout_variant'), defaultTemplateVariant);
+    }
+
+    frontendSettings.templateVariant = activeTemplateVariant;
+
+    const getTemplateVariant = () => activeTemplateVariant;
+    const getTemplateClassVariant = () => {
+        if (getTemplateVariant() === 'contrast') {
+            return 'layout2';
+        }
+
+        if (getTemplateVariant() === 'widget_premium_dark') {
+            return 'widget-premium-dark';
+        }
+
+        if (getTemplateVariant() === 'widget_premium_light') {
+            return 'widget-premium-light';
+        }
+
+        if (getTemplateVariant() === 'widget_catalog_light') {
+            return 'widget-catalog-light';
+        }
+
+        return getTemplateVariant();
+    };
+    const isLayout2 = () => getTemplateVariant() === 'contrast';
+    const isLayout3 = () => getTemplateVariant() === 'layout3';
+    const isLayout4 = () => getTemplateVariant() === 'layout4';
+    const isLayout5 = () => getTemplateVariant() === 'layout5';
+    const isLayout6 = () => getTemplateVariant() === 'layout6';
+    const isCatalogLight = () => getTemplateVariant() === 'widget_catalog_light';
+    const isFullscreenLayout = () => isLayout2() || isLayout3() || isLayout4() || isLayout5() || isCatalogLight();
+
+    const defaultLayoutSettings = {
+        glbAutorotate: false,
+        showPrices: true,
+        showLogo: true,
+        showOnlyStage1: false,
+    };
+
+    const layoutSettingsByVariant = frontendSettings.layoutSettings && typeof frontendSettings.layoutSettings === 'object'
+        ? frontendSettings.layoutSettings
+        : {};
+
+    const resolveLayoutSettings = (variant) => {
+        const resolvedVariant = normalizeTemplateVariant(variant, defaultTemplateVariant);
+        const raw = layoutSettingsByVariant[resolvedVariant] && typeof layoutSettingsByVariant[resolvedVariant] === 'object'
+            ? layoutSettingsByVariant[resolvedVariant]
+            : {};
+
+        return {
+            glbAutorotate: Boolean(raw.glbAutorotate ?? defaultLayoutSettings.glbAutorotate),
+            showPrices: Boolean(raw.showPrices ?? defaultLayoutSettings.showPrices),
+            showLogo: Boolean(raw.showLogo ?? defaultLayoutSettings.showLogo),
+            showOnlyStage1: Boolean(raw.showOnlyStage1 ?? defaultLayoutSettings.showOnlyStage1),
+        };
+    };
+
+    const head = document.querySelector('.vdb-head');
+
+    const syncLogoVisibility = () => {
+        if (!head) {
+            return;
+        }
+
+        if (!frontendSettings.showLogo) {
+            head.style.display = 'none';
+            return;
+        }
+
+        head.style.display = isFullscreenLayout() ? 'block' : '';
+    };
+
+    const syncActiveLayoutSettings = () => {
+        const flags = resolveLayoutSettings(getTemplateVariant());
+        frontendSettings.glbAutorotate = flags.glbAutorotate;
+        frontendSettings.showPrices = flags.showPrices;
+        frontendSettings.showLogo = flags.showLogo;
+        frontendSettings.showOnlyStage1 = flags.showOnlyStage1;
+        syncLogoVisibility();
+    };
+
+    syncActiveLayoutSettings();
+
+    const apiTesterMode = {{ apiTesterMode ? 'true' : 'false' }};
+    const vehicleWidgetMode = {{ widgetMode ? 'true' : 'false' }};
+    const vehicleWidgetInquiryBaseUrl = '{{ vehicleWidgetInquiryPath|default('')|e('js') }}';
+    const configuredWidgetVehicleTypeId = Number('{{ websiteWidget.vehicleTypeId|default(0)|e('js') }}') || 0;
+    const widgetPerformanceChartEnabled = !vehicleWidgetMode || {{ websiteWidget.showPerformanceChart|default(true) ? 'true' : 'false' }};
+    let activeDataPoolKey = String(defaultDataPoolKey || 'live').trim() || 'live';
+    const configuredApiBasePrefix = '{{ vehicleDatabaseApiBasePath|default('')|e('js') }}';
+    const apiBasePrefix = configuredApiBasePrefix || (apiTesterMode
+        ? '{{ path('api_vehicle_database_types')|replace({"/types": ""}) }}'
+        : '{{ path('app_vehicle_database_types')|replace({"/types": ""}) }}');
+
+    const appendPoolKey = (path) => {
+        if (vehicleWidgetMode) {
+            return path;
+        }
+
+        const separator = path.includes('?') ? '&' : '?';
+        return `${path}${separator}poolKey=${encodeURIComponent(activeDataPoolKey)}`;
+    };
+
+    const endpoints = {
+        types: () => appendPoolKey(`${apiBasePrefix}/types`),
+        brands: (typeId) => appendPoolKey(`${apiBasePrefix}/brands/${typeId}`),
+        series: (brandId) => appendPoolKey(`${apiBasePrefix}/series/${brandId}`),
+        models: (seriesId) => appendPoolKey(`${apiBasePrefix}/models/${seriesId}`),
+        engines: (modelId) => appendPoolKey(`${apiBasePrefix}/engines/${modelId}`),
+        details: (engineId) => appendPoolKey(`${apiBasePrefix}/engine-details/${engineId}?templateVariant=${encodeURIComponent(getTemplateVariant())}`),
+        track: () => appendPoolKey(`${apiBasePrefix}/track`),
+    };
+
+    const apiTokenIdInput = document.getElementById('apiTokenIdInput');
+    const apiTokenInput = document.getElementById('apiTokenInput');
+    const apiAuthSaveBtn = document.getElementById('apiAuthSaveBtn');
+    const apiAuthLoadBtn = document.getElementById('apiAuthLoadBtn');
+    const apiAuthStatus = document.getElementById('apiAuthStatus');
+    const apiTokenStorageKey = 'vdb_api_test_token';
+    const apiTokenIdStorageKey = 'vdb_api_test_token_id';
+    const dataPoolSelect = document.getElementById('dataPoolSelect');
+
+    const setApiAuthStatus = (message, level = 'light') => {
+        if (!apiAuthStatus) {
+            return;
+        }
+
+        apiAuthStatus.classList.remove('text-light', 'text-success', 'text-danger');
+        apiAuthStatus.classList.add(`text-${level}`);
+        apiAuthStatus.textContent = String(message || '');
+    };
+
+    const getApiToken = () => String(apiTokenInput?.value || '').trim();
+    const getApiTokenId = () => String(apiTokenIdInput?.value || '').trim();
+    const hasApiCredentials = () => {
+        if (!apiTesterMode) {
+            return true;
+        }
+
+        return '' !== getApiToken() && '' !== getApiTokenId();
+    };
+
+    const initializeApiAuth = () => {
+        if (!apiTesterMode) {
+            return;
+        }
+
+        if (apiTokenIdInput) {
+            apiTokenIdInput.value = safeStorage.get(apiTokenIdStorageKey);
+        }
+
+        if (apiTokenInput) {
+            apiTokenInput.value = safeStorage.get(apiTokenStorageKey);
+        }
+
+        if (hasApiCredentials()) {
+            setApiAuthStatus('API-Zugang geladen.', 'success');
+        } else {
+            setApiAuthStatus('Bitte Token-ID und Bearer-Token eingeben.', 'light');
+        }
+
+        apiAuthSaveBtn?.addEventListener('click', () => {
+            safeStorage.set(apiTokenIdStorageKey, getApiTokenId());
+            safeStorage.set(apiTokenStorageKey, getApiToken());
+
+            if (hasApiCredentials()) {
+                setApiAuthStatus('API-Zugang gespeichert.', 'success');
+            } else {
+                setApiAuthStatus('Bitte Token-ID und Bearer-Token vollständig eingeben.', 'danger');
+            }
+        });
+    };
+
+    const initializeDataPoolSwitcher = () => {
+        if (!dataPoolSelect) {
+            return;
+        }
+
+        const knownPoolKeys = Array.isArray(availableDataPools)
+            ? availableDataPools
+                .map((pool) => String(pool && pool.key || '').trim())
+                .filter(Boolean)
+            : [];
+
+        if (!knownPoolKeys.includes(activeDataPoolKey) && knownPoolKeys.length > 0) {
+            activeDataPoolKey = knownPoolKeys[0];
+        }
+
+        dataPoolSelect.value = activeDataPoolKey;
+        dataPoolSelect.addEventListener('change', () => {
+            const nextPoolKey = String(dataPoolSelect.value || '').trim();
+            if (!nextPoolKey || nextPoolKey === activeDataPoolKey) {
+                return;
+            }
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('poolKey', nextPoolKey);
+            url.searchParams.delete('engineId');
+            url.searchParams.delete('stageId');
+            window.location.href = url.toString();
+        });
+    };
+
+    const buildRequestHeaders = ({ json = false } = {}) => {
+        const headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+        };
+
+        if (json) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        if (apiTesterMode) {
+            const token = getApiToken();
+            const tokenId = getApiTokenId();
+
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            if (tokenId) {
+                headers['X-Token-Id'] = tokenId;
+            }
+        }
+
+        return headers;
+    };
+
+    const unwrapApiData = (payload) => {
+        if (
+            payload
+            && typeof payload === 'object'
+            && !Array.isArray(payload)
+            && Object.prototype.hasOwnProperty.call(payload, 'data')
+        ) {
+            return payload.data;
+        }
+
+        return payload;
+    };
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const requestedPoolKey = String(queryParams.get('poolKey') || '').trim();
+    if (requestedPoolKey) {
+        activeDataPoolKey = requestedPoolKey;
+    }
+    const preselectedEngineId = Number.parseInt(queryParams.get('engineId') || '', 10);
+    const preselectedStageId = Number.parseInt(queryParams.get('stageId') || '', 10);
+
+	    const selectType = document.getElementById('typeSelect');
+	    const selectBrand = document.getElementById('brandSelect');
+	    const selectSeries = document.getElementById('seriesSelect');
+	    const selectModel = document.getElementById('modelSelect');
+		    const selectEngine = document.getElementById('engineSelect');
+		    const resetSelectionBtn = document.getElementById('resetSelectionBtn');
+		    const resetSelectionFloatingBtn = document.getElementById('resetSelectionFloatingBtn');
+            const selectRow = document.getElementById('vdbSelectRow');
+            const typeSelectField = document.getElementById('typeSelectField');
+            const resetSelectionField = document.getElementById('resetSelectionField');
+		    const pageRoot = document.querySelector('.vdb-page');
+	    const floatingControls = document.getElementById('vdbFloatingControls');
+	    const layoutSwitcherSelect = document.getElementById('layoutSwitcherSelect');
+        const apiRawJsonBtn = document.getElementById('apiRawJsonBtn');
+        const apiRawJsonModal = document.getElementById('apiRawJsonModal');
+        const apiRawJsonOutput = document.getElementById('apiRawJsonOutput');
+        const apiRawJsonPanel = apiRawJsonModal?.querySelector('.vdb-api-raw-modal__panel') || null;
+
+	    if (!selectType || !selectBrand || !selectSeries || !selectModel || !selectEngine || !resetSelectionBtn) {
+	        return;
+	    }
+
+		    const selectElements = [selectType, selectBrand, selectSeries, selectModel, selectEngine];
+            let fixedWidgetTypeId = null;
+
+	    const resultArea = document.getElementById('resultArea');
+	    const widgetInquiry = document.getElementById('vdbWidgetInquiry');
+	    const widgetInquiryLink = document.getElementById('vdbWidgetInquiryLink');
+
+	    const collectElements = () => ({
+	        engineName: document.getElementById('engineName'),
+	        brandName: document.getElementById('brandName'),
+	        seriesName: document.getElementById('seriesName'),
+	        enginePs: document.getElementById('enginePs'),
+	        engineNm: document.getElementById('engineNm'),
+	        engineFuel: document.getElementById('engineFuel'),
+	        brandBadgeImages: Array.from(document.querySelectorAll('[data-vdb-brand-badge]')),
+	        heroImageWrap: document.getElementById('heroImageWrap'),
+	        stageTabs: document.getElementById('stageTabs'),
+	        performanceChartPane: document.getElementById('performanceChartPane'),
+	        gearboxPane: document.getElementById('gearboxPane'),
+	        gearboxContent: Array.from(document.querySelectorAll('[data-vdb-gearbox-content]')),
+	        vdbStageName: document.getElementById('vdbStageName'),
+	        vdbCatalogChartStageName: document.getElementById('vdbCatalogChartStageName'),
+	        vdbPsPercent: document.getElementById('vdbPsPercent'),
+	        vdbNmPercent: document.getElementById('vdbNmPercent'),
+	        vdbPsOrigLabel: document.getElementById('vdbPsOrigLabel'),
+	        vdbPsTunedLabel: document.getElementById('vdbPsTunedLabel'),
+	        vdbNmOrigLabel: document.getElementById('vdbNmOrigLabel'),
+        vdbNmTunedLabel: document.getElementById('vdbNmTunedLabel'),
+        stageComparisonRows: document.getElementById('stageComparisonRows'),
+        origPs: document.getElementById('origPs'),
+	        stagePs: document.getElementById('stagePs'),
+	        origNm: document.getElementById('origNm'),
+	        stageNm: document.getElementById('stageNm'),
+	        deltaPs: document.querySelector('[data-vdb-performance-pane="metrics"] #deltaPs') || document.getElementById('deltaPs'),
+	        deltaNm: document.querySelector('[data-vdb-performance-pane="metrics"] #deltaNm') || document.getElementById('deltaNm'),
+	        psBar: document.getElementById('psBar'),
+	        nmBar: document.getElementById('nmBar'),
+	        stagePrice: document.getElementById('stagePrice'),
+	        stageDescription: document.getElementById('stageDescription'),
+	        ecuManufacturers: document.getElementById('ecuManufacturers'),
+	        optionsList: document.getElementById('optionsList'),
+	        bottomOrig: document.getElementById('bottomOrig'),
+	        bottomTuned: document.getElementById('bottomTuned'),
+	        improvementLine: document.getElementById('improvementLine'),
+	    });
+
+	    let element = collectElements();
+
+		    let currentPayload = null;
+            let currentRawDetailsPayload = null;
+            const apiRawHistory = [];
+            const selectedCatalogOptions = new Map();
+		    let activeStageIndex = 0;
+		    let lastTrackedStageKey = '';
+		    let performanceOptionsViewActive = false;
+		    let performanceChartViewActive = false;
+		    let performanceGearboxViewActive = false;
+		    const modelRotationDegreesPerSecond = 10;
+		    const threeRotationRadiansPerSecond = (modelRotationDegreesPerSecond * Math.PI) / 180;
+		    const threeViewerState = {
+		        animationFrameId: 0,
+	        renderer: null,
+        scene: null,
+        camera: null,
+        modelRoot: null,
+	        resizeHandler: null,
+	    };
+
+	    const hasEngineGearboxes = () => Array.isArray(currentPayload?.gearboxes) && currentPayload.gearboxes.length > 0;
+
+	    const syncPerformanceOptionsView = () => {
+	        if (!pageRoot) {
+	            return;
+	        }
+
+	        const isPerformanceFamily = getTemplateVariant() === 'performance' || getTemplateVariant() === 'minimal';
+	        const supportsChartView = widgetPerformanceChartEnabled && (isPerformanceFamily || isLayout2() || isCatalogLight());
+	        const supportsGearboxView = hasEngineGearboxes() && Boolean(element.gearboxPane);
+	        const optionsViewActive = Boolean(performanceOptionsViewActive) && isPerformanceFamily;
+	        const chartViewActive = (Boolean(performanceChartViewActive) || isCatalogLight()) && supportsChartView;
+	        const gearboxViewActive = Boolean(performanceGearboxViewActive) && supportsGearboxView;
+
+	        pageRoot.classList.toggle('vdb-performance-options-view', optionsViewActive);
+	        pageRoot.classList.toggle('vdb-performance-chart-view', chartViewActive);
+	        pageRoot.classList.toggle('vdb-performance-gearbox-view', gearboxViewActive);
+
+	        if (element.performanceChartPane) {
+	            element.performanceChartPane.style.display = chartViewActive ? '' : 'none';
+	        }
+
+	        if (element.gearboxPane) {
+	            element.gearboxPane.style.display = gearboxViewActive ? '' : 'none';
+	        }
+	    };
+
+    const hasSelect2 = () => Boolean(window.jQuery && window.jQuery.fn && window.jQuery.fn.select2);
+    const select2AnimationTimers = new WeakMap();
+    const select2CloseAnimationDuration = 160;
+
+    const getSelect2DropdownParent = () => {
+        if (!hasSelect2() || !pageRoot) {
+            return null;
+        }
+
+        return window.jQuery(pageRoot);
+    };
+
+    const bindSelect2OpenCloseAnimation = ($select) => {
+        if (!$select || typeof $select.on !== 'function') {
+            return;
+        }
+
+        const namespace = '.vdbSelect2Anim';
+        const animatedCloseKey = 'vdbSelect2AnimatedCloseActive';
+
+        $select.off(`select2:open${namespace}`);
+        $select.off(`select2:closing${namespace}`);
+        $select.off(`select2:close${namespace}`);
+
+        $select.on(`select2:open${namespace}`, () => {
+            const $openContainer = window.jQuery('.select2-container--open').last();
+            $openContainer.removeClass('vdb-select2-closing');
+            window.dispatchEvent(new CustomEvent('tuningfux-widget-height-refresh'));
+            window.setTimeout(() => window.dispatchEvent(new CustomEvent('tuningfux-widget-height-refresh')), 80);
+        });
+
+        $select.on(`select2:closing${namespace}`, (event) => {
+            if ($select.data(animatedCloseKey) === true) {
+                return;
+            }
+
+            const $openContainer = window.jQuery('.select2-container--open').last();
+            if ($openContainer.length === 0) {
+                return;
+            }
+
+            event.preventDefault();
+            $select.data(animatedCloseKey, true);
+            $openContainer.addClass('vdb-select2-closing');
+
+            const previousTimer = select2AnimationTimers.get($select[0]);
+            if (previousTimer) {
+                window.clearTimeout(previousTimer);
+            }
+
+            const timerId = window.setTimeout(() => {
+                select2AnimationTimers.delete($select[0]);
+                try {
+                    $select.select2('close');
+                } finally {
+                    $select.removeData(animatedCloseKey);
+                    window.jQuery('.select2-container.vdb-select2-closing').removeClass('vdb-select2-closing');
+                }
+            }, select2CloseAnimationDuration);
+
+            select2AnimationTimers.set($select[0], timerId);
+        });
+
+        $select.on(`select2:close${namespace}`, () => {
+            const previousTimer = select2AnimationTimers.get($select[0]);
+            if (previousTimer) {
+                window.clearTimeout(previousTimer);
+                select2AnimationTimers.delete($select[0]);
+            }
+
+            $select.removeData(animatedCloseKey);
+            window.jQuery('.select2-container.vdb-select2-closing').removeClass('vdb-select2-closing');
+            window.dispatchEvent(new CustomEvent('tuningfux-widget-height-refresh'));
+        });
+    };
+
+    const setText = (node, value) => {
+        if (node) {
+            node.textContent = value;
+        }
+    };
+
+    const toPositiveIntOrNull = (value) => {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) {
+            return null;
+        }
+
+        const rounded = Math.round(parsed);
+        return rounded > 0 ? rounded : null;
+    };
+
+    const odometers = new WeakMap();
+
+    const ensureOdometer = (node) => {
+        if (!node || !window.Odometer) {
+            return null;
+        }
+
+        if (odometers.has(node)) {
+            return odometers.get(node);
+        }
+
+        node.classList.add('odometer');
+        node.textContent = '0';
+
+        const odometer = new window.Odometer({
+            el: node,
+            value: 0,
+            format: '(ddd)',
+            duration: 700,
+        });
+
+        odometers.set(node, odometer);
+        return odometer;
+    };
+
+    const setAnimatedNumber = (node, value, fallback = '-') => {
+        if (!node) {
+            return;
+        }
+
+        const resolvedValue = toPositiveIntOrNull(value);
+        if (null === resolvedValue) {
+            setText(node, fallback);
+            return;
+        }
+
+        const odometer = ensureOdometer(node);
+        if (odometer) {
+            odometer.update(resolvedValue);
+            return;
+        }
+
+        setText(node, String(resolvedValue));
+    };
+
+    const setHtml = (node, html) => {
+        if (node) {
+            node.innerHTML = html;
+        }
+    };
+
+    const escapeHtml = (value) => String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    const containsLikelyHtml = (value) => /<\/?[a-z][\s\S]*>/i.test(String(value ?? ''));
+
+    const sanitizeDbHtml = (unsafeHtml) => {
+        const raw = String(unsafeHtml ?? '').trim();
+        if (!raw) {
+            return '';
+        }
+
+        if (!window.DOMParser) {
+            return escapeHtml(raw);
+        }
+
+        const allowedTags = new Set(['A', 'B', 'STRONG', 'I', 'EM', 'U', 'BR', 'P', 'UL', 'OL', 'LI', 'SPAN', 'SMALL']);
+        const allowedAttributeMap = {
+            A: new Set(['href', 'title', 'target', 'rel']),
+        };
+        const removedTagNames = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'TEMPLATE']);
+
+        const parser = new window.DOMParser();
+        const doc = parser.parseFromString(`<div>${raw}</div>`, 'text/html');
+        const container = doc.body.firstElementChild;
+        if (!container) {
+            return escapeHtml(raw);
+        }
+
+        const nodes = Array.from(container.querySelectorAll('*'));
+        for (let index = nodes.length - 1; index >= 0; index -= 1) {
+            const node = nodes[index];
+            if (!node || node.nodeType !== 1) {
+                continue;
+            }
+
+            const tagName = String(node.tagName || '').toUpperCase();
+            if (removedTagNames.has(tagName)) {
+                node.remove();
+                continue;
+            }
+
+            if (!allowedTags.has(tagName)) {
+                const parent = node.parentNode;
+                if (!parent) {
+                    node.remove();
+                    continue;
+                }
+
+                while (node.firstChild) {
+                    parent.insertBefore(node.firstChild, node);
+                }
+
+                parent.removeChild(node);
+                continue;
+            }
+
+            const allowedAttributes = allowedAttributeMap[tagName] || new Set();
+            Array.from(node.attributes || []).forEach((attribute) => {
+                const name = String(attribute?.name || '').toLowerCase();
+                if (!name) {
+                    return;
+                }
+
+                if (name.startsWith('on') || name === 'style') {
+                    node.removeAttribute(attribute.name);
+                    return;
+                }
+
+                if (!allowedAttributes.has(name)) {
+                    node.removeAttribute(attribute.name);
+                }
+            });
+
+            if ('A' === tagName) {
+                const href = String(node.getAttribute('href') || '').trim();
+                if (href) {
+                    const isSafeHref = href.startsWith('#')
+                        || href.startsWith('/')
+                        || /^(https?:|mailto:|tel:)/i.test(href);
+                    if (!isSafeHref) {
+                        node.removeAttribute('href');
+                    }
+                }
+
+                const target = String(node.getAttribute('target') || '').trim().toLowerCase();
+                if ('_blank' === target) {
+                    node.setAttribute('rel', 'noopener noreferrer');
+                } else if (target) {
+                    node.removeAttribute('target');
+                }
+            }
+        }
+
+        return container.innerHTML;
+    };
+
+    const formatDelta = (value) => `${value >= 0 ? '+' : ''}${value}`;
+
+    const buildTypeOptionTemplate = (state) => {
+        if (!state || !state.id) {
+            return state?.text || '';
+        }
+
+        const optionNode = state.element;
+        const iconPath = optionNode?.dataset?.icon || optionNode?.dataset?.image || '';
+        const iconUrl = resolveImageUrl(iconPath);
+        const text = escapeHtml(state.text || '');
+        const selectElement = optionNode?.closest ? optionNode.closest('select') : null;
+        const isTypeSelectOption = optionNode?.dataset?.vdbMutedIcon === '1'
+            || (selectElement && selectElement.id === 'typeSelect');
+        const iconClass = isTypeSelectOption ? 'vdb-type-option-icon vdb-type-option-icon--muted' : 'vdb-type-option-icon';
+
+        if (!iconUrl) {
+            return window.jQuery(`<span class="vdb-type-option-text">${text}</span>`);
+        }
+
+        return window.jQuery(`
+            <span class="vdb-type-option">
+                <span class="${iconClass}">
+                    <img src="${escapeHtml(iconUrl)}" alt="">
+                </span>
+                <span class="vdb-type-option-text">${text}</span>
+            </span>
+        `);
+    };
+
+    const isPlaceholderOptionState = (state) => {
+        if (!state || !state.element) {
+            return false;
+        }
+
+        if (!(state.element instanceof HTMLOptionElement)) {
+            return false;
+        }
+
+        return String(state.element.value || '').trim() === '';
+    };
+
+    const initSelect2 = () => {
+        if (!hasSelect2()) {
+            return;
+        }
+
+        const $ = window.jQuery;
+        selectElements.forEach((select) => {
+            const $select = $(select);
+            if ($select.data('select2')) {
+                $select.select2('destroy');
+            }
+
+            const config = {
+                width: '100%',
+                minimumResultsForSearch: 0,
+            };
+            const dropdownParent = getSelect2DropdownParent();
+            if (dropdownParent) {
+                config.dropdownParent = dropdownParent;
+            }
+
+            const templateResult = (state) => {
+                if (isPlaceholderOptionState(state)) {
+                    return null;
+                }
+
+                if (select === selectType || select === selectBrand) {
+                    return buildTypeOptionTemplate(state);
+                }
+
+                return state?.text || '';
+            };
+
+            config.templateResult = templateResult;
+
+            if (select === selectType || select === selectBrand) {
+                config.templateSelection = buildTypeOptionTemplate;
+            }
+
+            $select.select2(config);
+            bindSelect2OpenCloseAnimation($select);
+        });
+    };
+
+    const syncSelect2 = (select) => {
+        if (!hasSelect2()) {
+            return;
+        }
+
+        const $select = window.jQuery(select);
+        if (!$select.data('select2')) {
+            return;
+        }
+
+        $select.prop('disabled', select.disabled);
+        $select.trigger('change.select2');
+    };
+
+    const bindSelectChange = (select, handler) => {
+        if (hasSelect2()) {
+            window.jQuery(select).on('change', handler);
+            return;
+        }
+
+        select.addEventListener('change', handler);
+    };
+
+    const resetSelect = (select, placeholder) => {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = placeholder;
+        option.selected = true;
+
+        if (String(placeholder || '').trim() === 'Bitte wählen') {
+            option.hidden = true;
+            option.disabled = true;
+        }
+
+        select.innerHTML = '';
+        select.appendChild(option);
+        select.disabled = true;
+        syncSelect2(select);
+    };
+
+    const hasSelectableOptions = (select) => Array.from(select.options || [])
+        .some((option) => String(option?.value || '').trim() !== '');
+
+    const openSelectForChoice = (select) => {
+        if (!select || select.disabled || !hasSelectableOptions(select)) {
+            return;
+        }
+
+        if (hasSelect2()) {
+            const $select = window.jQuery(select);
+            if ($select.data('select2')) {
+                window.setTimeout(() => {
+                    if (!select.disabled) {
+                        $select.select2('open');
+                    }
+                }, 180);
+                return;
+            }
+        }
+
+        select.focus();
+        if (typeof select.showPicker === 'function') {
+            try {
+                select.showPicker();
+            } catch (_error) {
+                // Ignore if browser blocks picker opening.
+            }
+        }
+    };
+
+    const buildOption = (select, item) => {
+        const option = document.createElement('option');
+        option.value = item.id;
+
+        const baseName = String(item.name ?? '').trim();
+        const horsepower = Number(item.horsepower ?? 0);
+        if (select === selectEngine && Number.isFinite(horsepower) && horsepower > 0) {
+            option.textContent = `${baseName} (${horsepower} PS)`;
+        } else {
+            option.textContent = baseName;
+        }
+
+        const icon = String(item.icon ?? item.image ?? '').trim();
+        if ('' !== icon) {
+            option.dataset.icon = icon;
+            option.dataset.image = icon;
+        }
+
+        if (select === selectType) {
+            option.dataset.vdbMutedIcon = '1';
+        }
+
+        return option;
+    };
+
+    const preloadImages = (items) => {
+        items.forEach((item) => {
+            const src = resolveImageUrl(String(item.icon ?? item.image ?? '').trim());
+            if (src) {
+                const img = new Image();
+                img.src = src;
+            }
+        });
+    };
+
+    const fillBrandSelectWithGroups = (select, items, placeholder) => {
+        resetSelect(select, placeholder);
+
+        const frequent = [];
+        const rest = [];
+
+        items.forEach((item) => {
+            if (!item || !item.id) {
+                return;
+            }
+
+            if (item.showInTopMenu) {
+                frequent.push(item);
+                return;
+            }
+
+            rest.push(item);
+        });
+
+        if (frequent.length > 0) {
+            const group = document.createElement('optgroup');
+            group.label = 'Beliebte Marken';
+            frequent.forEach((item) => {
+                group.appendChild(buildOption(select, item));
+            });
+            select.appendChild(group);
+        }
+
+        if (rest.length > 0) {
+            const group = document.createElement('optgroup');
+            group.label = 'Andere Marken';
+            rest.forEach((item) => {
+                group.appendChild(buildOption(select, item));
+            });
+            select.appendChild(group);
+        }
+
+        select.disabled = (frequent.length + rest.length) === 0;
+        syncSelect2(select);
+
+        preloadImages(items);
+    };
+
+    const fillEngineSelectWithGroups = (select, items, placeholder) => {
+        resetSelect(select, placeholder);
+
+        const groups = new Map();
+
+        items.forEach((item) => {
+            if (!item || !item.id) {
+                return;
+            }
+
+            const rawGroup = String(item.fuel ?? item.antriebsart ?? '').trim();
+            const groupLabel = '' !== rawGroup ? rawGroup : 'Ohne Antriebsart';
+
+            if (!groups.has(groupLabel)) {
+                groups.set(groupLabel, []);
+            }
+
+            groups.get(groupLabel).push(item);
+        });
+
+        groups.forEach((groupItems, groupLabel) => {
+            const group = document.createElement('optgroup');
+            group.label = groupLabel;
+
+            groupItems.forEach((item) => {
+                group.appendChild(buildOption(select, item));
+            });
+
+            select.appendChild(group);
+        });
+
+        select.disabled = groups.size === 0;
+        syncSelect2(select);
+    };
+
+	    const fillSelect = (select, items, placeholder) => {
+	        if (select === selectBrand) {
+	            fillBrandSelectWithGroups(select, items, placeholder);
+	            return;
+	        }
+
+        if (select === selectEngine) {
+            fillEngineSelectWithGroups(select, items, placeholder);
+            return;
+        }
+
+        resetSelect(select, placeholder);
+
+        items.forEach((item) => {
+            select.appendChild(buildOption(select, item));
+        });
+
+	        select.disabled = items.length === 0;
+	        syncSelect2(select);
+	    };
+
+        const syncSingleTypeWidgetMode = (enabled) => {
+            if (!vehicleWidgetMode) {
+                return;
+            }
+
+            typeSelectField?.classList.toggle('d-none', enabled);
+            resetSelectionField?.classList.toggle('d-none', enabled);
+
+            selectRow?.querySelectorAll('[data-vdb-select-field]').forEach((field) => {
+                field.classList.toggle('col-lg-2', !enabled);
+                field.classList.toggle('col-xl-2', !enabled);
+                field.classList.toggle('col-lg-3', enabled);
+                field.classList.toggle('col-xl-3', enabled);
+            });
+        };
+
+    const fetchJson = async (url) => {
+        if (apiTesterMode && !hasApiCredentials()) {
+            throw new Error('Bitte zuerst Token-ID und Bearer-Token eingeben.');
+        }
+
+        const response = await fetch(url, { headers: buildRequestHeaders() });
+        if (!response.ok) {
+            let errorMessage = `Request failed (${response.status})`;
+
+            try {
+                const errorPayload = await response.json();
+                if (errorPayload && typeof errorPayload === 'object') {
+                    const message = errorPayload.message || errorPayload.error;
+                    if (message) {
+                        errorMessage = String(message);
+                    }
+                }
+            } catch (error) {
+                // Ignore JSON parse errors and keep generic message.
+            }
+
+            throw new Error(errorMessage);
+        }
+
+        const payload = await response.json();
+        rememberApiRawResponse(url, payload);
+
+        return payload;
+    };
+
+    const rememberApiRawResponse = (url, payload) => {
+        const normalizedUrl = String(url || '');
+        if (!normalizedUrl || normalizedUrl.includes('/track')) {
+            return;
+        }
+
+        apiRawHistory.unshift({
+            fetchedAt: new Date().toISOString(),
+            url: normalizedUrl,
+            payload,
+        });
+
+        if (apiRawHistory.length > 12) {
+            apiRawHistory.length = 12;
+        }
+    };
+
+    const buildApiRawSnapshot = () => ({
+        generatedAt: new Date().toISOString(),
+        templateVariant: getTemplateVariant(),
+        dataPoolKey: activeDataPoolKey,
+        selection: {
+            type: {
+                id: toId(selectType.value),
+                label: getSelectedOptionText(selectType),
+            },
+            brand: {
+                id: toId(selectBrand.value),
+                label: getSelectedOptionText(selectBrand),
+            },
+            series: {
+                id: toId(selectSeries.value),
+                label: getSelectedOptionText(selectSeries),
+            },
+            model: {
+                id: toId(selectModel.value),
+                label: getSelectedOptionText(selectModel),
+            },
+            engine: {
+                id: toId(selectEngine.value),
+                label: getSelectedOptionText(selectEngine),
+            },
+        },
+        currentDetailsRaw: currentRawDetailsPayload,
+        currentDetailsData: currentPayload,
+        recentResponses: apiRawHistory,
+    });
+
+    const syncApiRawOutput = () => {
+        if (!apiRawJsonOutput) {
+            return;
+        }
+
+        apiRawJsonOutput.textContent = JSON.stringify(buildApiRawSnapshot(), null, 2);
+    };
+
+    const openApiRawModal = () => {
+        if (!apiRawJsonModal) {
+            return;
+        }
+
+        if (apiRawJsonModal.parentElement !== document.body) {
+            document.body.appendChild(apiRawJsonModal);
+        }
+
+        syncApiRawOutput();
+        apiRawJsonModal.classList.remove('d-none');
+        document.body.classList.add('vdb-api-raw-modal-open');
+        window.setTimeout(() => apiRawJsonPanel?.focus(), 0);
+    };
+
+    const closeApiRawModal = () => {
+        if (!apiRawJsonModal) {
+            return;
+        }
+
+        apiRawJsonModal.classList.add('d-none');
+        document.body.classList.remove('vdb-api-raw-modal-open');
+        apiRawJsonBtn?.focus();
+    };
+
+    apiRawJsonBtn?.addEventListener('click', openApiRawModal);
+    apiRawJsonModal?.querySelectorAll('[data-api-raw-close]').forEach((node) => {
+        node.addEventListener('click', closeApiRawModal);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && apiRawJsonModal && !apiRawJsonModal.classList.contains('d-none')) {
+            closeApiRawModal();
+        }
+    });
+
+    const toId = (value) => {
+        const parsed = Number.parseInt(String(value || ''), 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
+
+	    const trackEvent = (eventName, payload = {}) => {
+	        const normalizedName = String(eventName || '').trim();
+	        if (!normalizedName) {
+	            return;
+	        }
+
+	        if (apiTesterMode && !hasApiCredentials()) {
+	            return;
+	        }
+
+	        const body = {
+	            event: normalizedName,
+	            templateVariant: getTemplateVariant(),
+	            ...payload,
+	        };
+
+        fetch(endpoints.track(), {
+            method: 'POST',
+            headers: buildRequestHeaders({ json: true }),
+            body: JSON.stringify(body),
+            credentials: 'same-origin',
+            keepalive: true,
+        }).catch(() => {});
+    };
+
+	    const loadIntoSelect = async (select, url, placeholder) => {
+	        try {
+	            const responsePayload = await fetchJson(url);
+	            const items = unwrapApiData(responsePayload);
+	            if (!Array.isArray(items)) {
+	                throw new Error('API-Antwort hat kein gueltiges Listenformat.');
+	            }
+
+	            fillSelect(select, items, placeholder);
+	            if (apiTesterMode) {
+	                setApiAuthStatus('Daten erfolgreich geladen.', 'success');
+	            }
+                return !select.disabled && hasSelectableOptions(select);
+	        } catch (error) {
+	            resetSelect(select, 'Laden fehlgeschlagen');
+	            if (apiTesterMode) {
+	                setApiAuthStatus(error.message || 'Laden fehlgeschlagen.', 'danger');
+	            }
+                return false;
+	        }
+	    };
+
+	    const syncFloatingControlsVisibility = (hasResult) => {
+	        if (!floatingControls) {
+	            return;
+	        }
+
+	        const shouldShow = Boolean(hasResult) && (layoutSwitcherEnabled || isFullscreenLayout());
+	        floatingControls.classList.toggle('d-none', !shouldShow);
+	    };
+
+	    const syncFullscreenState = (hasResult) => {
+	        const shouldFullscreen = Boolean(hasResult) && isFullscreenLayout();
+
+	        if (pageRoot) {
+	            pageRoot.classList.toggle('vdb-engine-selected', shouldFullscreen);
+	        }
+
+	        if (resetSelectionFloatingBtn) {
+	            resetSelectionFloatingBtn.classList.toggle('d-none', !shouldFullscreen);
+	        }
+	    };
+
+	    const hideResult = () => {
+	        stopThreeViewer();
+
+	        if (element.heroImageWrap) {
+	            element.heroImageWrap.classList.remove('is-model');
+            element.heroImageWrap.removeAttribute('data-active-model-url');
+            element.heroImageWrap.innerHTML = '<div class="vdb-empty-image">Kein Bild</div>';
+        }
+
+	        resultArea?.classList.add('d-none');
+	        widgetInquiry?.classList.add('d-none');
+	        currentPayload = null;
+            currentRawDetailsPayload = null;
+	        activeStageIndex = 0;
+	        syncFullscreenState(false);
+	        syncFloatingControlsVisibility(false);
+
+	        if (element.psBar) {
+	            element.psBar.style.width = '0%';
+	        }
+
+	        if (element.nmBar) {
+	            element.nmBar.style.width = '0%';
+	        }
+
+	        performanceOptionsViewActive = false;
+	        performanceChartViewActive = false;
+	        performanceGearboxViewActive = false;
+	        syncPerformanceOptionsView();
+	    };
+
+	    const showResult = () => {
+	        resultArea?.classList.remove('d-none');
+	        if (vehicleWidgetMode) {
+	            widgetInquiry?.classList.remove('d-none');
+	            syncWidgetInquiryLink();
+	        }
+	        syncFullscreenState(true);
+	        syncFloatingControlsVisibility(true);
+	    };
+
+	    const getSelectedOptionText = (select) => {
+	        const option = select?.selectedOptions?.[0];
+	        return String(option?.textContent || '').trim();
+	    };
+
+	    const getInquiryVehiclePayload = () => {
+	        const engine = currentPayload?.engine || {};
+	        const stages = getDisplayStages(engine, currentPayload?.stages);
+	        const stage = stages[activeStageIndex] || {};
+            const selectedOptions = Array.from(selectedCatalogOptions.values());
+
+	        return {
+	            type: getSelectedOptionText(selectType),
+	            brand: getSelectedOptionText(selectBrand),
+	            series: getSelectedOptionText(selectSeries),
+	            model: getSelectedOptionText(selectModel),
+	            engine: engine.name || getSelectedOptionText(selectEngine),
+	            stage: stage.name || '',
+	            engineId: toId(engine.id),
+	            stageId: toId(stage.id),
+                options: selectedOptions.map((option) => option.name).filter(Boolean).join(', '),
+                optionIds: selectedOptions.map((option) => option.id).filter(Boolean).join(','),
+	        };
+	    };
+
+	    const syncWidgetInquiryLink = () => {
+	        if (!widgetInquiryLink || !vehicleWidgetInquiryBaseUrl) {
+	            return;
+	        }
+
+	        const url = new URL(vehicleWidgetInquiryBaseUrl, window.location.href);
+	        Object.entries(getInquiryVehiclePayload()).forEach(([key, value]) => {
+	            const normalized = String(value || '').trim();
+	            if (normalized) {
+	                url.searchParams.set(key, normalized);
+	            }
+	        });
+	        widgetInquiryLink.href = url.toString();
+	    };
+
+    const layoutTemplateIds = {
+        performance: 'vdbLayoutTpl-performance',
+        widget_premium_dark: 'vdbLayoutTpl-widget-premium-dark',
+        widget_premium_light: 'vdbLayoutTpl-widget-premium-light',
+        widget_catalog_light: 'vdbLayoutTpl-widget-catalog-light',
+        minimal: 'vdbLayoutTpl-minimal',
+        contrast: 'vdbLayoutTpl-contrast',
+        layout3: 'vdbLayoutTpl-layout3',
+        layout4: 'vdbLayoutTpl-layout4',
+        layout5: 'vdbLayoutTpl-layout5',
+        layout6: 'vdbLayoutTpl-layout6',
+    };
+
+	    const syncTemplateClass = () => {
+	        if (!pageRoot) {
+	            return;
+	        }
+
+	        const nextVariant = getTemplateClassVariant();
+	        [...pageRoot.classList].forEach((className) => {
+	            if (className.startsWith('vdb-template-')) {
+	                pageRoot.classList.remove(className);
+	            }
+	        });
+		        pageRoot.classList.add(`vdb-template-${nextVariant}`);
+		    };
+
+		    const initLayoutSwitcherSelect = () => {
+		        if (!layoutSwitcherSelect) {
+		            return;
+		        }
+
+		        layoutSwitcherSelect.value = getTemplateVariant();
+
+		        if (hasSelect2()) {
+		            const $select = window.jQuery(layoutSwitcherSelect);
+		            if ($select.data('select2')) {
+		                $select.select2('destroy');
+		            }
+
+		            $select.select2({
+		                width: 'resolve',
+		                minimumResultsForSearch: Infinity,
+		                dropdownAutoWidth: true,
+                        dropdownParent: getSelect2DropdownParent() || undefined,
+		            });
+                    bindSelect2OpenCloseAnimation($select);
+		        }
+
+		        if (!layoutSwitcherSelect.dataset.bound) {
+		            bindSelectChange(layoutSwitcherSelect, () => {
+		                applyTemplateVariant(layoutSwitcherSelect.value);
+		            });
+		            layoutSwitcherSelect.dataset.bound = '1';
+		        }
+
+		        syncSelect2(layoutSwitcherSelect);
+		    };
+
+		    const syncLayoutSwitcherSelectValue = () => {
+		        if (!layoutSwitcherSelect) {
+		            return;
+		        }
+
+		        layoutSwitcherSelect.value = getTemplateVariant();
+		        syncSelect2(layoutSwitcherSelect);
+		    };
+
+	    const swapLayoutMarkup = (variant) => {
+	        if (!layoutSwitcherEnabled || !resultArea) {
+	            return false;
+	        }
+
+	        const templateId = layoutTemplateIds[variant];
+	        if (!templateId) {
+	            return false;
+	        }
+
+	        const tpl = document.getElementById(templateId);
+	        if (!tpl || !('content' in tpl)) {
+	            return false;
+	        }
+
+	        stopThreeViewer();
+	        resultArea.innerHTML = '';
+	        resultArea.appendChild(tpl.content.cloneNode(true));
+	        element = collectElements();
+	        return true;
+	    };
+
+		    const applyTemplateVariant = (nextVariant, { persist = true } = {}) => {
+		        if (!layoutSwitcherEnabled) {
+		            return;
+		        }
+
+		        const currentFlags = resolveLayoutSettings(getTemplateVariant());
+		        const resolved = normalizeTemplateVariant(nextVariant, getTemplateVariant());
+		        if (resolved === getTemplateVariant()) {
+		            syncLayoutSwitcherSelectValue();
+		            return;
+		        }
+
+			        const nextFlags = resolveLayoutSettings(resolved);
+			        activeTemplateVariant = resolved;
+			        frontendSettings.templateVariant = resolved;
+			        if (resolved !== 'performance' && resolved !== 'minimal') {
+			            performanceOptionsViewActive = false;
+			            performanceChartViewActive = false;
+			            performanceGearboxViewActive = false;
+			        }
+			        syncPerformanceOptionsView();
+			        syncActiveLayoutSettings();
+			        syncLayoutSwitcherSelectValue();
+
+		        if (persist) {
+		            safeStorage.set('vdb_layout_variant', resolved);
+		        }
+
+	        syncTemplateClass();
+
+		        if (!swapLayoutMarkup(resolved)) {
+		            return;
+		        }
+		        syncLayoutSwitcherSelectValue();
+
+		        const hasResult = Boolean(currentPayload);
+		        if (hasResult) {
+		            renderEngineHeader(currentPayload.engine || {}, currentPayload.brand || {}, currentPayload.series || {});
+	            showResult();
+	            renderSelectedStage();
+	            if (currentFlags.showPrices !== nextFlags.showPrices || currentFlags.showOnlyStage1 !== nextFlags.showOnlyStage1) {
+	                void reloadCurrentEngineDetails();
+	            }
+	        } else {
+	            syncFullscreenState(false);
+	            syncFloatingControlsVisibility(false);
+	        }
+	    };
+
+		    const initLayoutSwitcher = () => {
+		        syncTemplateClass();
+
+		        if (!layoutSwitcherEnabled) {
+		            return;
+		        }
+
+		        initLayoutSwitcherSelect();
+		        syncLayoutSwitcherSelectValue();
+
+		        if (getTemplateVariant() !== defaultTemplateVariant) {
+		            swapLayoutMarkup(getTemplateVariant());
+		        }
+
+		        syncTemplateClass();
+		        syncLayoutSwitcherSelectValue();
+		    };
+
+	    const toNum = (value) => {
+	        const parsed = Number(value);
+	        return Number.isFinite(parsed) ? parsed : 0;
+	    };
+
+    const isDieselEngine = (engine) => String(engine?.fuel || engine?.antriebsart || '')
+        .trim()
+        .toLowerCase()
+        .includes('diesel');
+
+    const isStageOne = (stage, index = 0) => {
+        const name = String(stage?.name || '').trim();
+        return /\bstage\s*1\b/i.test(name) || /^stage1\b/i.test(name) || index === 0;
+    };
+
+    const buildEcoStage = (stageOne) => {
+        const stageOnePs = toNum(stageOne?.hp);
+        const stageOneNm = toNum(stageOne?.nm);
+        if (stageOnePs <= 0 && stageOneNm <= 0) {
+            return null;
+        }
+
+        return {
+            ...stageOne,
+            id: `eco-${stageOne?.id || 'stage-1'}`,
+            isEcoStage: true,
+            name: 'Eco',
+            hp: stageOnePs > 0 ? Math.round(stageOnePs * 0.95) : stageOne?.hp,
+            nm: stageOneNm > 0 ? Math.round(stageOneNm * 0.95) : stageOne?.nm,
+            price: stageOne?.price ?? null,
+            description: stageOne?.description || '',
+        };
+    };
+
+    const getDisplayStages = (engine, stages) => {
+        const list = Array.isArray(stages) ? stages.filter(Boolean) : [];
+        if (!isDieselEngine(engine) || list.some((stage) => String(stage?.name || '').trim().toLowerCase() === 'eco')) {
+            return list;
+        }
+
+        const stageOne = list.find((stage, index) => isStageOne(stage, index));
+        const ecoStage = stageOne ? buildEcoStage(stageOne) : null;
+
+        return ecoStage ? [...list, ecoStage] : list;
+    };
+
+    const stripEdgeQuotes = (value) => String(value || '')
+        .trim()
+        .replace(/^[\s"'“”„‚‹›«»]+|[\s"'“”„‚‹›«»]+$/g, '');
+
+    const sanitizePath = (path) => stripEdgeQuotes(path).replace(/^\/+/, '');
+
+    const resolveImageUrl = (path) => {
+        const value = stripEdgeQuotes(path);
+        if (!value) {
+            return '';
+        }
+
+        if (/^https?:\/\//i.test(value) || value.startsWith('//')) {
+            return value;
+        }
+
+        return `/${sanitizePath(value)}`;
+    };
+
+    const getStageEcus = (stage, ecus) => {
+        if (!stage || !Array.isArray(ecus)) {
+            return [];
+        }
+
+        if (Array.isArray(stage.ecus) && stage.ecus.length > 0) {
+            return stage.ecus;
+        }
+
+        const stageEcuId = Number(stage.ecu || 0);
+        if (!stageEcuId) {
+            return ecus;
+        }
+
+        const filtered = ecus.filter((ecu) => Number(ecu.id) === stageEcuId);
+        return filtered.length > 0 ? filtered : ecus;
+    };
+
+    const renderGearboxes = (gearboxes) => {
+        const containers = Array.isArray(element?.gearboxContent) ? element.gearboxContent : [];
+        if (containers.length === 0) {
+            return;
+        }
+
+        const list = Array.isArray(gearboxes) ? gearboxes : [];
+        if (list.length === 0) {
+            containers.forEach((node) => {
+                setHtml(node, '<div class="vdb-gearbox-empty-text">Keine Getriebe hinterlegt.</div>');
+            });
+            return;
+        }
+
+        const html = list.map((gearbox) => {
+            const title = escapeHtml(gearbox?.title || gearbox?.name || 'Getriebe');
+            const descriptionRaw = String(gearbox?.description || '').trim();
+            const description = descriptionRaw
+                ? (containsLikelyHtml(descriptionRaw) ? sanitizeDbHtml(descriptionRaw) : escapeHtml(descriptionRaw))
+                : 'Keine Beschreibung hinterlegt.';
+            const images = Array.isArray(gearbox?.images)
+                ? gearbox.images
+                : (null != gearbox?.images ? [gearbox.images] : []);
+            const imagePath = images
+                .map((entry) => String(entry || '').trim())
+                .find((entry) => entry.length > 0) || '';
+            const imageUrl = resolveImageUrl(imagePath);
+            const hasImage = Boolean(imageUrl);
+            const iconUrl = resolveImageUrl(gearbox?.icon || '');
+            const iconMarkup = iconUrl
+                ? `<div class="vdb-gearbox-icon"><img src="${escapeHtml(iconUrl)}" alt="${title}"></div>`
+                : `<div class="vdb-gearbox-icon vdb-gearbox-icon--placeholder"><i class="fa fa-cogs" aria-hidden="true"></i></div>`;
+            const manufacturerName = String(gearbox?.manufacturer || '').trim();
+            const manufacturerLogo = resolveImageUrl(gearbox?.manufacturerLogo || '');
+            const manufacturerMarkup = manufacturerName || manufacturerLogo
+                ? `<div class="vdb-gearbox-meta-item vdb-gearbox-manufacturer">${manufacturerLogo ? `<img src="${escapeHtml(manufacturerLogo)}" alt="">` : ''}<span>${escapeHtml(manufacturerName || 'Hersteller')}</span></div>`
+                : '';
+            const typeMarkup = gearbox?.type
+                ? `<div class="vdb-gearbox-meta-item vdb-gearbox-type">${escapeHtml(gearbox.type)}</div>`
+                : '';
+            const metaMarkup = manufacturerMarkup || typeMarkup
+                ? `<div class="vdb-gearbox-meta">${manufacturerMarkup}${typeMarkup}</div>`
+                : '';
+
+            return `
+                <div class="${hasImage ? ' vdb-gearbox-card--with-image' : ''}">
+                    <div class="vdb-gearbox-head">
+                        ${iconMarkup}
+                        <div class="vdb-gearbox-title-wrap">
+                            <div class="vdb-gearbox-title">${title}</div>
+                        </div>
+                    </div>
+                    <div class="vdb-gearbox-body pt-3">
+                        <div class="vdb-gearbox-text">
+                            <div class="vdb-gearbox-description">${description}</div>
+                            ${metaMarkup}
+                        </div>
+                        ${hasImage ? `<div class="vdb-gearbox-media"><img src="${escapeHtml(imageUrl)}" alt="${title}"></div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        containers.forEach((node) => {
+            setHtml(node, html);
+        });
+    };
+
+    const renderEcuManufacturers = (stageEcus) => {
+        if (!element?.ecuManufacturers) {
+            return;
+        }
+
+        const list = Array.isArray(stageEcus) ? stageEcus : [];
+        const seen = new Set();
+        const manufacturers = [];
+
+        list.forEach((ecu) => {
+            const name = String(ecu?.manufacturer || '').trim();
+            const logo = String(ecu?.manufacturerLogo || '').trim();
+            if (!name && !logo) {
+                return;
+            }
+            const key = `${name}|${logo}`;
+            if (seen.has(key)) {
+                return;
+            }
+            seen.add(key);
+            manufacturers.push({ name, logo });
+        });
+
+        if (manufacturers.length === 0) {
+            element.ecuManufacturers.innerHTML = '';
+            element.ecuManufacturers.style.display = 'none';
+            return;
+        }
+
+        const itemsHtml = manufacturers.map((entry) => {
+            const logoUrl = resolveImageUrl(entry.logo || '');
+            const logoMarkup = logoUrl
+                ? `<img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(entry.name || 'ECU Hersteller')}">`
+                : '';
+            const label = escapeHtml(entry.name || 'ECU Hersteller');
+            return `<div class="vdb-ecu-manufacturer">${logoMarkup}<span>${label}</span></div>`;
+        }).join('');
+
+        element.ecuManufacturers.style.display = '';
+        element.ecuManufacturers.innerHTML = `
+            <div class="vdb-ecu-manufacturers-label">ECU Hersteller</div>
+            <div class="vdb-ecu-manufacturers-grid">
+                ${itemsHtml}
+            </div>
+        `;
+    };
+
+    const getLayout2BarWidth = (stageCount, stageIndex) => {
+        if (stageCount <= 0) {
+            return 0;
+        }
+
+        if (stageCount === 1) {
+            return 50;
+        }
+
+        const clampedIndex = Math.max(0, Math.min(stageCount - 1, stageIndex));
+        const step = 50 / (stageCount - 1);
+
+        return Math.min(100, Math.round(50 + (clampedIndex * step)));
+    };
+
+    const stopThreeViewer = () => {
+        if (threeViewerState.animationFrameId) {
+            window.cancelAnimationFrame(threeViewerState.animationFrameId);
+            threeViewerState.animationFrameId = 0;
+        }
+
+        if (threeViewerState.resizeHandler) {
+            window.removeEventListener('resize', threeViewerState.resizeHandler);
+            threeViewerState.resizeHandler = null;
+        }
+
+        if (threeViewerState.scene) {
+            threeViewerState.scene.traverse((child) => {
+                if (child?.geometry && typeof child.geometry.dispose === 'function') {
+                    child.geometry.dispose();
+                }
+
+                if (!child?.material) {
+                    return;
+                }
+
+                const materials = Array.isArray(child.material) ? child.material : [child.material];
+                materials.forEach((material) => {
+                    if (material && typeof material.dispose === 'function') {
+                        material.dispose();
+                    }
+                });
+            });
+        }
+
+        if (threeViewerState.renderer) {
+            threeViewerState.renderer.dispose();
+            threeViewerState.renderer = null;
+        }
+
+        threeViewerState.scene = null;
+        threeViewerState.camera = null;
+        threeViewerState.modelRoot = null;
+    };
+
+    const startThreeAnimation = () => {
+        let lastFrameTimestamp = 0;
+        const tick = (timestamp) => {
+            if (!threeViewerState.renderer || !threeViewerState.scene || !threeViewerState.camera) {
+                return;
+            }
+
+            const deltaSeconds = lastFrameTimestamp > 0 ? Math.max(0, (timestamp - lastFrameTimestamp) / 1000) : 0;
+            lastFrameTimestamp = timestamp;
+
+            if (frontendSettings.glbAutorotate && threeViewerState.modelRoot && deltaSeconds > 0) {
+                threeViewerState.modelRoot.rotation.y += threeRotationRadiansPerSecond * deltaSeconds;
+            }
+
+            threeViewerState.renderer.render(threeViewerState.scene, threeViewerState.camera);
+            threeViewerState.animationFrameId = window.requestAnimationFrame(tick);
+        };
+
+        if (!threeViewerState.animationFrameId) {
+            threeViewerState.animationFrameId = window.requestAnimationFrame(tick);
+        }
+    };
+
+    const renderGlbWithThree = (container, modelUrl) => {
+        if (!window.THREE || !window.THREE.GLTFLoader) {
+            return false;
+        }
+
+        stopThreeViewer();
+        container.classList.add('is-model');
+        setHtml(
+            container,
+            '<div class="vdb-media-model"><div class="vdb-three-host"></div><div class="vdb-model-loading">3D Modell wird geladen</div></div>'
+        );
+
+        const host = container.querySelector('.vdb-three-host');
+        const loadingInfo = container.querySelector('.vdb-model-loading');
+        if (!host) {
+            return false;
+        }
+
+        const scene = new window.THREE.Scene();
+        const camera = new window.THREE.PerspectiveCamera(38, 1, 0.1, 1000);
+        camera.position.set(0, 0.95, 3.35);
+
+        const renderer = new window.THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+        });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        host.appendChild(renderer.domElement);
+
+        const ambientLight = new window.THREE.AmbientLight(0xffffff, 1.1);
+        const keyLight = new window.THREE.DirectionalLight(0xffffff, 1.3);
+        keyLight.position.set(2, 3, 3);
+        const fillLight = new window.THREE.DirectionalLight(0xffffff, 0.8);
+        fillLight.position.set(-2, 2, -2);
+
+        scene.add(ambientLight, keyLight, fillLight);
+
+        const updateSize = () => {
+            const width = Math.max(220, host.clientWidth || 0);
+            const height = Math.max(220, host.clientHeight || 0);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height, false);
+        };
+
+        updateSize();
+        window.addEventListener('resize', updateSize);
+
+        threeViewerState.renderer = renderer;
+        threeViewerState.scene = scene;
+        threeViewerState.camera = camera;
+        threeViewerState.resizeHandler = updateSize;
+
+        const loader = new window.THREE.GLTFLoader();
+        loader.load(
+            modelUrl,
+            (gltf) => {
+                const model = gltf.scene;
+                const box = new window.THREE.Box3().setFromObject(model);
+                const size = box.getSize(new window.THREE.Vector3()).length() || 1;
+                const center = box.getCenter(new window.THREE.Vector3());
+
+                model.position.sub(center);
+                model.position.y -= 0.1;
+                const scaleFactor = 2.7 / size;
+                model.scale.setScalar(scaleFactor);
+
+                scene.add(model);
+                threeViewerState.modelRoot = model;
+                loadingInfo?.remove();
+                startThreeAnimation();
+            },
+            undefined,
+            () => {
+                setHtml(container, '<div class="vdb-empty-image">GLB konnte nicht geladen werden</div>');
+                container.classList.remove('is-model');
+                stopThreeViewer();
+            }
+        );
+
+        return true;
+    };
+
+    const renderGlbWithModelViewer = (container, modelUrl) => {
+        if (!window.customElements || !window.customElements.get('model-viewer')) {
+            return false;
+        }
+
+        container.classList.add('is-model');
+        setHtml(
+            container,
+	            `<div class="vdb-media-model">
+	                <model-viewer
+	                    src="${escapeHtml(modelUrl)}"
+	                    camera-controls
+	                    ${frontendSettings.glbAutorotate ? 'auto-rotate' : ''}
+	                    touch-action="pan-y"
+	                    camera-orbit="32.76deg 74.6deg 70%"
+	                    min-camera-orbit="auto auto 40%"
+	                    max-camera-orbit="auto auto 180%"
+	                    field-of-view="30deg"
+	                    interaction-prompt="none"
+	                    shadow-intensity="1"
+	                    exposure="1"
+	                    style="width:100%;height:100%;"
+	                ></model-viewer>
+	                <div class="vdb-model-loading">3D Modell wird geladen</div>
+	            </div>`
+        );
+
+        const viewer = container.querySelector('model-viewer');
+        const loadingInfo = container.querySelector('.vdb-model-loading');
+
+        if (!viewer) {
+            return false;
+        }
+
+        viewer.addEventListener('load', () => {
+            loadingInfo?.remove();
+        }, { once: true });
+
+        viewer.addEventListener('error', () => {
+            renderGlbWithThree(container, modelUrl);
+        }, { once: true });
+
+        return true;
+    };
+
+    const renderEngineMedia = (engine, stage) => {
+        if (!element.heroImageWrap) {
+            return;
+        }
+
+        const mediaMode = String(engine?.mediaDisplayMode || 'image').trim().toLowerCase();
+        const glbModel = resolveImageUrl(engine?.glbModel || '');
+        const stageImage = resolveImageUrl((stage?.images || [])[0] || '');
+        const engineImage = resolveImageUrl(engine?.image || '');
+        const fallbackImage = stageImage || engineImage;
+        const currentModelUrl = String(element.heroImageWrap.dataset.activeModelUrl || '').trim();
+
+        if ('glb' === mediaMode && glbModel && currentModelUrl === glbModel && element.heroImageWrap.classList.contains('is-model')) {
+            return;
+        }
+
+        stopThreeViewer();
+        element.heroImageWrap.classList.remove('is-model');
+        element.heroImageWrap.removeAttribute('data-active-model-url');
+
+        if ('glb' === mediaMode && glbModel) {
+            element.heroImageWrap.dataset.activeModelUrl = glbModel;
+
+            const renderedByModelViewer = renderGlbWithModelViewer(element.heroImageWrap, glbModel);
+            if (!renderedByModelViewer) {
+                const renderedByThree = renderGlbWithThree(element.heroImageWrap, glbModel);
+                if (!renderedByThree) {
+                    setHtml(element.heroImageWrap, '<div class="vdb-empty-image">3D Viewer nicht verfuegbar</div>');
+                }
+            }
+
+            if (window.customElements && typeof window.customElements.whenDefined === 'function' && !window.customElements.get('model-viewer')) {
+                window.customElements.whenDefined('model-viewer').then(() => {
+                    if (!element.heroImageWrap || element.heroImageWrap.dataset.activeModelUrl !== glbModel) {
+                        return;
+                    }
+
+                    stopThreeViewer();
+                    renderGlbWithModelViewer(element.heroImageWrap, glbModel);
+                }).catch(() => {});
+            }
+
+            return;
+        }
+
+        setHtml(
+            element.heroImageWrap,
+            fallbackImage
+                ? `<img src="${escapeHtml(fallbackImage)}" alt="Fahrzeug">`
+                : '<div class="vdb-empty-image">Kein Bild</div>'
+        );
+    };
+
+	    const renderStageTabs = (stages, engine) => {
+	        if (!element.stageTabs) {
+	            return;
+	        }
+
+        const wasHidden = element.stageTabs.classList.contains('d-none');
+
+	        if (!stages.length) {
+            element.stageTabs.innerHTML = '';
+            element.stageTabs.classList.add('d-none');
+            return;
+        }
+
+	        const isPerformanceFamily = getTemplateVariant() === 'performance' || getTemplateVariant() === 'minimal';
+		        const supportsChartView = widgetPerformanceChartEnabled && (isPerformanceFamily || isLayout2() || isCatalogLight());
+	        const supportsGearboxView = hasEngineGearboxes() && Boolean(element.gearboxPane);
+
+		        if (!isLayout2() && !isLayout3() && !isLayout4() && !isLayout5() && !isLayout6() && !isCatalogLight() && !isPerformanceFamily && (frontendSettings.showOnlyStage1 || stages.length <= 1)) {
+		            element.stageTabs.innerHTML = '';
+		            element.stageTabs.classList.add('d-none');
+		            return;
+		        }
+
+        element.stageTabs.classList.remove('d-none');
+
+			        const targetCount = stages.length;
+		        const stageButtons = [];
+	        const stageTabIcon = isPerformanceFamily
+	            ? '<i class="fa fa-list-ul" aria-hidden="true"></i>'
+	            : '<i class="fa fa-tachometer-alt" aria-hidden="true"></i>';
+	        const isOptionsView = isPerformanceFamily && performanceOptionsViewActive;
+	        const isChartView = supportsChartView && performanceChartViewActive;
+	        const isGearboxView = supportsGearboxView && performanceGearboxViewActive;
+		        const originalPs = toNum(engine?.horsepower);
+		        const originalNm = toNum(engine?.torque);
+
+        for (let index = 0; index < targetCount; index += 1) {
+            const stage = stages[index] || null;
+            const disabled = null === stage;
+            const label = stage?.name ? String(stage.name).toUpperCase() : `STAGE ${index + 1}`;
+	            const visibleLabel = stage?.isEcoStage ? 'ECO' : (isLayout3() || isLayout6() ? String(index + 1) : label);
+            const ariaLabel = escapeHtml(label);
+            const tunedPs = toNum(stage?.hp) || originalPs;
+            const tunedNm = toNum(stage?.nm) || originalNm;
+	            const plusPs = tunedPs - originalPs;
+	            const plusNm = tunedNm - originalNm;
+
+            if (isCatalogLight()) {
+                const stageTitle = stage?.isEcoStage ? 'Eco' : (stage?.name || `Stage ${index + 1}`);
+                const stageSubtitle = stage?.isEcoStage ? 'ECO' : String(stageTitle).replace(/\s+/g, '');
+                const stageModifier = stage?.isEcoStage ? 'is-eco' : `is-stage-${index + 1}`;
+                const stageBadge = '';
+                const stageIconUrl = stage?.isEcoStage
+                    ? ''
+                    : (index === 0
+                        ? '{{ asset('uploads/media/20260307161709-ce562f3ddb87.svg') }}'
+                        : (index === 1 ? '{{ asset('uploads/media/20260307161728-59d0f2f08ce6.svg') }}' : ''));
+                const stageSymbolMarkup = stageIconUrl
+                    ? `<img class="vdb-catalog-stage-symbol-img" src="${escapeHtml(stageIconUrl)}" alt="">`
+                    : `<span class="vdb-catalog-stage-symbol">${escapeHtml(stageSubtitle)}</span>`;
+
+                stageButtons.push(`
+                    <button
+                        class="vdb-tab vdb-catalog-stage-card ${stageModifier} ${index === activeStageIndex ? 'active' : ''} ${disabled ? 'is-disabled' : ''}"
+                        data-stage-index="${index}"
+                        type="button"
+                        ${disabled ? 'disabled' : ''}
+                        aria-label="${ariaLabel}"
+                    >
+                        ${stageBadge}
+                        <span class="vdb-catalog-stage-body">
+                            <span class="vdb-catalog-stage-label">${escapeHtml(stageSubtitle)}</span>
+                            <span class="vdb-catalog-stage-main">${disabled ? '-' : `${escapeHtml(String(tunedPs || '-'))} PS / ${escapeHtml(String(tunedNm || '-'))} Nm`}</span>
+                            <span class="vdb-catalog-stage-gain">${disabled ? '&nbsp;' : `${escapeHtml(formatDelta(plusPs))} PS &middot; ${escapeHtml(formatDelta(plusNm))} Nm`}</span>
+                        </span>
+                        <span class="vdb-catalog-stage-mark" aria-hidden="true">
+                            ${stageSymbolMarkup}
+                        </span>
+                    </button>
+                `);
+                continue;
+            }
+
+		            if (isLayout4()) {
+		                stageButtons.push(`
+		                    <div class="col">
+	                        <button
+                            class="vdb-tab btn-grad btn-tuningfux vdb-stage-tile ${index === activeStageIndex ? 'active' : ''} ${disabled ? 'is-disabled' : ''}"
+                            data-stage-index="${index}"
+                            type="button"
+                            ${disabled ? 'disabled' : ''}
+	                            aria-label="${ariaLabel}"
+	                        >
+	                            <span class="vdb-stage-tile-index" aria-hidden="true">${index + 1}</span>
+	                            <div class="vdb-stage-tile-title">${stageTabIcon} ${escapeHtml(label)}</div>
+	                            <div class="vdb-stage-tile-metrics">
+	                                <div class="vdb-stage-tile-metric">
+	                                    <div class="vdb-stage-tile-metric-label">PS</div>
+	                                    <div class="vdb-stage-tile-metric-value">${disabled ? '-' : escapeHtml(String(tunedPs || '-'))}</div>
+	                                </div>
+                                <div class="vdb-stage-tile-metric">
+                                    <div class="vdb-stage-tile-metric-label">NM</div>
+                                    <div class="vdb-stage-tile-metric-value">${disabled ? '-' : escapeHtml(String(tunedNm || '-'))}</div>
+                                </div>
+                            </div>
+                            <div class="vdb-stage-tile-delta">${disabled ? '&nbsp;' : `${escapeHtml(formatDelta(plusPs))} PS / ${escapeHtml(formatDelta(plusNm))} NM`}</div>
+                        </button>
+                    </div>
+                `);
+                continue;
+            }
+
+            if (isLayout6()) {
+                stageButtons.push(`
+                    <button
+                        class="vdb-tab btn-grad btn-tuningfux vdb-v6-stage-tab ${index === activeStageIndex ? 'active' : ''} ${disabled ? 'is-disabled' : ''}"
+                        data-stage-index="${index}"
+                        type="button"
+                        ${disabled ? 'disabled' : ''}
+                        aria-label="${ariaLabel}"
+                    >
+                        <span class="vdb-v6-stage-tab-kicker">Stufe</span>
+                        <span class="vdb-v6-stage-tab-name">${escapeHtml(visibleLabel)}</span>
+                        <span class="vdb-v6-stage-tab-gain">${disabled ? '&nbsp;' : `${escapeHtml(formatDelta(plusPs))} PS | ${escapeHtml(formatDelta(plusNm))} NM`}</span>
+                    </button>
+                `);
+                continue;
+            }
+
+		            stageButtons.push(`
+		                    <button
+		                        class="vdb-tab btn-grad btn-tuningfux ${!isOptionsView && !isChartView && !isGearboxView && index === activeStageIndex ? 'active' : ''} ${disabled ? 'is-disabled' : ''}"
+		                        data-stage-index="${index}"
+		                        type="button"
+		                        ${disabled ? 'disabled' : ''}
+			                        ${isLayout3() ? `aria-label="${ariaLabel}"` : ''}
+			                    >
+		                        ${stageTabIcon} ${escapeHtml(visibleLabel)}
+		                    </button>
+		                `);
+	        }
+
+        if (element.stageComparisonRows) {
+            const rows = [
+                `
+                    <tr class="vdb-v5-table-original">
+                        <td>Original</td>
+                        <td class="text-end">${escapeHtml(String(originalPs || '-'))}</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end">${escapeHtml(String(originalNm || '-'))}</td>
+                        <td class="text-end">-</td>
+                    </tr>
+                `,
+                ...stages.map((stage, index) => {
+                    const rowTunedPs = toNum(stage?.hp) || originalPs;
+                    const rowTunedNm = toNum(stage?.nm) || originalNm;
+                    const rowPlusPs = rowTunedPs - originalPs;
+                    const rowPlusNm = rowTunedNm - originalNm;
+                    const rowLabel = stage?.name ? String(stage.name).toUpperCase() : `STAGE ${index + 1}`;
+
+                    return `
+                        <tr class="${index === activeStageIndex ? 'is-active' : ''}" data-stage-index="${index}">
+                            <td>${escapeHtml(rowLabel)}</td>
+                            <td class="text-end">${escapeHtml(String(rowTunedPs || '-'))}</td>
+                            <td class="text-end">${escapeHtml(formatDelta(rowPlusPs))}</td>
+                            <td class="text-end">${escapeHtml(String(rowTunedNm || '-'))}</td>
+                            <td class="text-end">${escapeHtml(formatDelta(rowPlusNm))}</td>
+                        </tr>
+                    `;
+                }),
+            ];
+
+            element.stageComparisonRows.innerHTML = rows.join('');
+            element.stageComparisonRows.querySelectorAll('tr[data-stage-index]').forEach((row) => {
+                row.addEventListener('click', () => {
+                    const nextIndex = Number(row.dataset.stageIndex || 0);
+                    if (!Number.isFinite(nextIndex)) {
+                        return;
+                    }
+
+                    activeStageIndex = nextIndex;
+                    renderSelectedStage();
+                });
+            });
+        }
+
+	        if (supportsGearboxView) {
+	            stageButtons.push(`
+	                <button
+	                    class="vdb-tab btn-grad btn-tuningfux vdb-tab-gearbox ${isGearboxView ? 'active' : ''}"
+	                    type="button"
+	                    data-vdb-action="show-gearbox"
+	                >
+	                    <i class="fa fa-cogs" aria-hidden="true"></i> ${escapeHtml('Getriebe')}
+	                </button>
+	            `);
+	        }
+
+	        if (isPerformanceFamily) {
+	            stageButtons.push(`
+	                <button
+	                    class="vdb-tab btn-grad btn-tuningfux vdb-tab-options ${isOptionsView ? 'active' : ''}"
+		                    type="button"
+		                    data-vdb-action="show-options"
+		                >
+	                    <i class="fa fa-wrench" aria-hidden="true"></i> ${escapeHtml('Tuning-Optionen')}
+	                </button>
+	            `);
+	        }
+
+        if (supportsChartView && !isCatalogLight()) {
+            stageButtons.push(`
+                <button
+                    class="vdb-tab btn-grad btn-tuningfux vdb-tab-chart ${isChartView ? 'active' : ''}"
+                    type="button"
+                    data-vdb-action="show-chart"
+                >
+                    <i class="fa fa-chart-line" aria-hidden="true"></i> ${escapeHtml('Leistungskurve')}
+                </button>
+            `);
+        }
+
+        element.stageTabs.innerHTML = stageButtons.join('');
+        element.stageTabs.querySelectorAll('.vdb-tab').forEach((button, index) => {
+            button.style.setProperty('--vdb-tab-index', index);
+        });
+
+        if (isPerformanceFamily && wasHidden) {
+            element.stageTabs.classList.remove('vdb-tabs-animate');
+            void element.stageTabs.offsetWidth;
+            element.stageTabs.classList.add('vdb-tabs-animate');
+        } else {
+            element.stageTabs.classList.remove('vdb-tabs-animate');
+        }
+
+        element.stageTabs.querySelectorAll('.vdb-tab').forEach((button) => {
+            if (button.disabled) {
+                return;
+            }
+
+		            button.addEventListener('click', () => {
+		                const action = String(button.dataset.vdbAction || '');
+		                if ('show-options' === action) {
+		                    performanceOptionsViewActive = true;
+		                    performanceChartViewActive = false;
+		                    performanceGearboxViewActive = false;
+		                    syncPerformanceOptionsView();
+		                    renderSelectedStage();
+		                    return;
+		                }
+		                if ('show-chart' === action) {
+		                    performanceOptionsViewActive = false;
+		                    performanceChartViewActive = true;
+		                    performanceGearboxViewActive = false;
+		                    syncPerformanceOptionsView();
+		                    renderSelectedStage();
+		                    return;
+		                }
+		                if ('show-gearbox' === action) {
+		                    performanceOptionsViewActive = false;
+		                    performanceChartViewActive = false;
+		                    performanceGearboxViewActive = true;
+		                    syncPerformanceOptionsView();
+		                    renderSelectedStage();
+		                    return;
+		                }
+
+	                if (typeof button.dataset.stageIndex === 'undefined') {
+	                    return;
+	                }
+
+		                performanceOptionsViewActive = false;
+			                performanceChartViewActive = false;
+			                performanceGearboxViewActive = false;
+			                syncPerformanceOptionsView();
+                            selectedCatalogOptions.clear();
+			                activeStageIndex = Number(button.dataset.stageIndex || 0);
+			                renderSelectedStage();
+		            });
+		        });
+		    };
+
+	    const renderEngineHeader = (engine, brand, series) => {
+	        const brandName = String(brand?.name || '').trim();
+	        const brandImage = resolveImageUrl(brand?.image);
+
+	        if (Array.isArray(element.brandBadgeImages)) {
+	            element.brandBadgeImages.forEach((image) => {
+	                if (!image) {
+	                    return;
+	                }
+
+	                const fallbackBrandImage = image.dataset.defaultSrc || '';
+	                image.src = brandImage || fallbackBrandImage;
+	                image.alt = brandName ? `${brandName} Logo` : 'Brand Logo';
+	            });
+	        }
+
+	        const seriesName = String(series?.name || '').trim();
+	        const engineName = String(engine?.name || '').trim();
+
+	        setText(element.brandName, brandName || '-');
+	        setText(element.seriesName, seriesName || '-');
+	        setText(element.engineName, engineName || '-');
+	        setAnimatedNumber(element.enginePs, engine?.horsepower);
+	        setAnimatedNumber(element.engineNm, engine?.torque);
+	        setText(element.engineFuel, engine?.fuel || '-');
+	    };
+
+	    const renderPerformanceChart = (engine, stage) => {
+	        if (!widgetPerformanceChartEnabled || (!performanceChartViewActive && !isCatalogLight()) || typeof window.initPowerCurveChart !== 'function') {
+	            return;
+	        }
+
+	        const originalPs = toNum(engine?.horsepower);
+	        const originalNm = toNum(engine?.torque);
+	        const tunedPs = toNum(stage?.hp) || originalPs;
+	        const tunedNm = toNum(stage?.nm) || originalNm;
+
+	        if (originalPs <= 0 || originalNm <= 0 || tunedPs <= 0 || tunedNm <= 0) {
+	            return;
+	        }
+
+	        const fuelLabel = String(engine?.fuel || '').trim().toLowerCase();
+	        const engineType = fuelLabel.includes('diesel') ? 'diesel' : 'petrol';
+	        const fallbackRpmEnd = engineType === 'diesel' ? 5000 : 6500;
+	        const rpmStart = toPositiveIntOrNull(stage?.rpmStart ?? stage?.rpm_from ?? engine?.rpmStart ?? engine?.rpm_from) || 1200;
+	        const requestedRpmEnd = toPositiveIntOrNull(stage?.rpmEnd ?? stage?.rpm_to ?? engine?.rpmEnd ?? engine?.rpm_to) || fallbackRpmEnd;
+	        const rpmEnd = Math.max(rpmStart + 500, requestedRpmEnd);
+
+	        window.initPowerCurveChart({
+	            originalPs,
+	            originalNm,
+	            stagePs: tunedPs,
+	            stageNm: tunedNm,
+	            rpmStart,
+	            rpmEnd,
+	            engineType,
+	            theme: isCatalogLight() ? 'catalogLight' : 'default',
+	            stageLabel: stage?.name || 'Stage 1',
+	        });
+	    };
+
+	    const renderSelectedStage = () => {
+	        if (!currentPayload) {
+	            return;
+	        }
+
+	        const isPerformanceFamily = getTemplateVariant() === 'performance' || getTemplateVariant() === 'minimal';
+	        const supportsChartView = widgetPerformanceChartEnabled && (isPerformanceFamily || isLayout2() || isCatalogLight());
+	        const supportsGearboxView = hasEngineGearboxes() && Boolean(element.gearboxPane);
+	        if (!isPerformanceFamily && performanceOptionsViewActive) {
+	            performanceOptionsViewActive = false;
+	        }
+	        if (!supportsChartView && performanceChartViewActive) {
+	            performanceChartViewActive = false;
+	        }
+	        if (!supportsGearboxView && performanceGearboxViewActive) {
+	            performanceGearboxViewActive = false;
+	        }
+	        syncPerformanceOptionsView();
+
+        const engine = currentPayload.engine || {};
+        const stages = getDisplayStages(engine, currentPayload.stages);
+        const ecus = Array.isArray(currentPayload.ecus) ? currentPayload.ecus : [];
+
+        if (activeStageIndex >= stages.length) {
+            activeStageIndex = 0;
+        }
+
+        const stage = stages[activeStageIndex] || null;
+        const engineId = toId(engine?.id);
+        const stageId = toId(stage?.id);
+        const stageEcus = getStageEcus(stage, ecus);
+
+        renderStageTabs(stages, engine);
+
+        renderEcuManufacturers(stageEcus);
+
+        if (supportsGearboxView) {
+            renderGearboxes(currentPayload?.gearboxes);
+        }
+
+        if (supportsGearboxView && performanceGearboxViewActive) {
+            return;
+        }
+
+        const originalPs = toNum(engine.horsepower);
+        const originalNm = toNum(engine.torque);
+        const tunedPs = toNum(stage?.hp) || originalPs;
+        const tunedNm = toNum(stage?.nm) || originalNm;
+        const plusPs = tunedPs - originalPs;
+        const plusNm = tunedNm - originalNm;
+
+        setAnimatedNumber(element.origPs, originalPs);
+        setAnimatedNumber(element.stagePs, tunedPs);
+        setAnimatedNumber(element.origNm, originalNm);
+        setAnimatedNumber(element.stageNm, tunedNm);
+
+	        const shouldOmitUnitsInsideDelta = isLayout2() || isLayout3() || isLayout4() || isLayout5() || isLayout6();
+        setText(element.deltaPs, shouldOmitUnitsInsideDelta ? formatDelta(plusPs) : `${formatDelta(plusPs)} PS`);
+        setText(element.deltaNm, shouldOmitUnitsInsideDelta ? formatDelta(plusNm) : `${formatDelta(plusNm)} NM`);
+        setText(element.bottomOrig, `${originalPs || '-'} PS`);
+        setText(element.bottomTuned, `${tunedPs || '-'} PS`);
+
+        if (element.improvementLine) {
+            element.improvementLine.innerHTML = `Leistungssteigerung von <strong>${formatDelta(plusPs)} PS</strong> und <strong>${formatDelta(plusNm)} NM</strong>`;
+        }
+
+        if (element.vdbStageName) {
+            const stageLabel = stage?.name ? String(stage.name).toUpperCase() : `STAGE ${activeStageIndex + 1}`;
+            setText(element.vdbStageName, stageLabel);
+        }
+
+        if (element.vdbPsOrigLabel) {
+            setText(element.vdbPsOrigLabel, originalPs || '-');
+        }
+
+        if (element.vdbPsTunedLabel) {
+            setText(element.vdbPsTunedLabel, tunedPs || '-');
+        }
+
+        if (element.vdbNmOrigLabel) {
+            setText(element.vdbNmOrigLabel, originalNm || '-');
+        }
+
+        if (element.vdbNmTunedLabel) {
+            setText(element.vdbNmTunedLabel, tunedNm || '-');
+        }
+
+        const psPercentRaw = originalPs ? Math.round((plusPs / originalPs) * 100) : 0;
+        const nmPercentRaw = originalNm ? Math.round((plusNm / originalNm) * 100) : 0;
+
+        if (element.vdbPsPercent) {
+            setText(element.vdbPsPercent, `${formatDelta(psPercentRaw)}%`);
+        }
+
+        if (element.vdbNmPercent) {
+            setText(element.vdbNmPercent, `${formatDelta(nmPercentRaw)}%`);
+        }
+
+        let psWidth = tunedPs > 0 ? Math.max(8, Math.min(100, Math.round((originalPs / tunedPs) * 100))) : 0;
+        let nmWidth = tunedNm > 0 ? Math.max(8, Math.min(100, Math.round((originalNm / tunedNm) * 100))) : 0;
+
+	        if (isLayout2() || isLayout3()) {
+	            const layout2Width = getLayout2BarWidth(stages.length, activeStageIndex);
+	            psWidth = layout2Width;
+	            nmWidth = layout2Width;
+	        }
+
+        if (element.psBar) {
+            element.psBar.style.width = `${psWidth}%`;
+        }
+
+	        if (element.nmBar) {
+	            element.nmBar.style.width = `${nmWidth}%`;
+	        }
+
+	        const rawStageDescription = stage?.description || '';
+	        const stageDescription = String(rawStageDescription || '').trim();
+	        const canInterpretDescriptionHtml = getTemplateVariant() === 'performance' || getTemplateVariant() === 'minimal';
+
+	        if (isLayout4()) {
+	            setText(element.stageDescription, '');
+	        } else if (canInterpretDescriptionHtml && containsLikelyHtml(stageDescription)) {
+	            setHtml(element.stageDescription, sanitizeDbHtml(stageDescription));
+	        } else {
+	            setText(element.stageDescription, stageDescription || '-');
+	        }
+
+        if (element.vdbCatalogChartStageName) {
+            const catalogStageLabel = stage?.name ? String(stage.name) : `Stage ${activeStageIndex + 1}`;
+            setText(
+                element.vdbCatalogChartStageName,
+                stageDescription ? `${catalogStageLabel} - ${stageDescription}` : catalogStageLabel
+            );
+        }
+
+	        if (frontendSettings.showPrices && stage?.price) {
+	            setText(
+	                element.stagePrice,
+	                `Preis: ${Number(stage.price).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`
+            );
+        } else {
+            setText(element.stagePrice, '');
+        }
+
+	        if (element.optionsList) {
+	            const options = stageEcus.flatMap((ecu) => (Array.isArray(ecu.options) ? ecu.options : []));
+	            const isPerformanceFamily = getTemplateVariant() === 'performance' || getTemplateVariant() === 'minimal';
+
+	            if (!options.length) {
+	                element.optionsList.innerHTML = '<li>Keine ECU-Optionen fuer diese Stage gefunden.</li>';
+	            } else {
+	                element.optionsList.innerHTML = options.map((option) => {
+                            const optionId = String(option.id || option.name || '').trim();
+                            const optionName = String(option.name || '').trim();
+                            const isSelected = selectedCatalogOptions.has(optionId);
+		                    const price = frontendSettings.showPrices && option.price
+		                        ? (isLayout4()
+		                            ? `<div class="vdb-v4-option-price">${Number(option.price).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</div>`
+		                            : `<span class="vdb-option-price">${Number(option.price).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>`)
+	                        : '';
+	                    const iconUrl = resolveImageUrl(option?.icon || '');
+	                    const hasIcon = Boolean(iconUrl);
+	                    const iconMarkup = hasIcon
+	                        ? `<span class="vdb-option-icon" aria-hidden="true"><img src="${escapeHtml(iconUrl)}" alt=""></span>`
+	                        : '';
+	                    const optionNameMarkup = `<span class="vdb-option-label${hasIcon ? ' vdb-option-label-has-icon' : ''}">${iconMarkup}<span class="vdb-option-text">${escapeHtml(option.name || '')}</span></span>`;
+	                    const optionDescription = String(option.description || option.tooltipText || '').trim();
+	                    const optionDescriptionFallback = optionDescription || 'Keine Beschreibung hinterlegt.';
+	                    const optionDescriptionPlain = optionDescriptionFallback.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+	                    const optionDescriptionHtml = containsLikelyHtml(optionDescriptionFallback)
+	                        ? sanitizeDbHtml(optionDescriptionFallback)
+	                        : escapeHtml(optionDescriptionFallback);
+	                    const optionInfoMarkup = isCatalogLight()
+	                        ? `<span class="vdb-catalog-option-info" tabindex="0" aria-label="${escapeHtml(optionDescriptionPlain)}">?<span class="vdb-catalog-option-popover">${optionDescriptionHtml}</span></span>`
+	                        : '';
+
+	                    if (isLayout4()) {
+	                        return `
+	                            <li class="vdb-v4-option ${hasIcon ? 'vdb-option-has-icon' : ''}">
+	                                <span class="vdb-v4-option-check" aria-hidden="true">✓</span>
+                                <div class="vdb-v4-option-body">
+                                    <div class="vdb-v4-option-name">${optionNameMarkup}</div>
+                                </div>
+                                ${price}
+                            </li>
+                        `;
+                    }
+
+	                    if (isPerformanceFamily) {
+	                        return `<li class="${hasIcon ? 'vdb-option-has-icon' : ''}">${optionNameMarkup}<span class="vdb-option-end">${price}<i class="fa fa-check vdb-option-check" aria-hidden="true"></i></span></li>`;
+	                    }
+
+		                    return `<li class="${hasIcon ? 'vdb-option-has-icon' : ''} ${isSelected ? 'is-selected' : ''}" data-vdb-option-id="${escapeHtml(optionId)}" data-vdb-option-name="${escapeHtml(optionName)}" role="button" tabindex="0">${optionNameMarkup}<span class="vdb-catalog-option-end">${price}${optionInfoMarkup}</span></li>`;
+	                }).join('');
+
+                    if (isCatalogLight()) {
+                        element.optionsList.querySelectorAll('[data-vdb-option-id]').forEach((item) => {
+                            const toggleOption = () => {
+                                const optionId = String(item.dataset.vdbOptionId || '').trim();
+                                const optionName = String(item.dataset.vdbOptionName || '').trim();
+                                if (!optionId || !optionName) {
+                                    return;
+                                }
+
+                                if (selectedCatalogOptions.has(optionId)) {
+                                    selectedCatalogOptions.delete(optionId);
+                                    item.classList.remove('is-selected');
+                                } else {
+                                    selectedCatalogOptions.set(optionId, { id: optionId, name: optionName });
+                                    item.classList.add('is-selected');
+                                }
+
+                                syncWidgetInquiryLink();
+                            };
+
+                            item.addEventListener('click', (event) => {
+                                if (event.target?.closest?.('.vdb-catalog-option-info')) {
+                                    return;
+                                }
+                                toggleOption();
+                            });
+                            item.addEventListener('keydown', (event) => {
+                                if ('Enter' !== event.key && ' ' !== event.key) {
+                                    return;
+                                }
+                                event.preventDefault();
+                                toggleOption();
+                            });
+                        });
+                    }
+		            }
+	        }
+
+	        if (supportsChartView) {
+	            renderPerformanceChart(engine, stage);
+	        }
+
+        renderEngineMedia(engine, stage);
+
+        if (stageId) {
+            const stageTrackKey = `${engineId || 0}:${stageId}:${activeStageIndex}`;
+            if (stageTrackKey !== lastTrackedStageKey) {
+                lastTrackedStageKey = stageTrackKey;
+                trackEvent('select_stage', {
+                    typeId: toId(selectType.value),
+                    brandId: toId(selectBrand.value),
+                    seriesId: toId(selectSeries.value),
+                    modelId: toId(selectModel.value),
+                    engineId,
+                    stageId,
+                });
+            }
+        }
+
+        if (vehicleWidgetMode) {
+            syncWidgetInquiryLink();
+        }
+    };
+
+	    const renderDetails = (payload, { preferStageId = null, preferEcoStage = false } = {}) => {
+	        currentPayload = payload;
+            currentRawDetailsPayload = currentRawDetailsPayload || payload;
+	        const detailEngine = payload?.engine || {};
+	        const stages = getDisplayStages(detailEngine, payload?.stages);
+	        const explicitStageId = Number(preferStageId || 0);
+	        const desiredStageId = Number.isFinite(explicitStageId) && explicitStageId > 0
+	            ? explicitStageId
+	            : (Number.isFinite(preselectedStageId) && preselectedStageId > 0 ? preselectedStageId : 0);
+
+	        if (preferEcoStage) {
+	            const ecoIndex = stages.findIndex((stage) => true === stage?.isEcoStage || String(stage?.name || '').trim().toLowerCase() === 'eco');
+	            activeStageIndex = ecoIndex >= 0 ? ecoIndex : 0;
+	        } else if (desiredStageId > 0) {
+	            const desiredIndex = stages.findIndex((stage) => Number(stage?.id || 0) === desiredStageId);
+	            activeStageIndex = desiredIndex >= 0 ? desiredIndex : 0;
+		        } else {
+		            activeStageIndex = 0;
+		        }
+
+		        performanceOptionsViewActive = false;
+		        performanceChartViewActive = false;
+		        performanceGearboxViewActive = false;
+		        syncPerformanceOptionsView();
+
+		        const engine = payload.engine || {};
+		        const brand = payload.brand || {};
+		        const series = payload.series || {};
+		        renderEngineHeader(engine, brand, series);
+
+	        showResult();
+	        renderSelectedStage();
+	    };
+
+	    let detailsReloadRequestId = 0;
+
+	    const reloadCurrentEngineDetails = async () => {
+	        const engineId = Number(currentPayload?.engine?.id || 0);
+	        if (!Number.isFinite(engineId) || engineId <= 0) {
+	            return;
+	        }
+
+	        const stages = getDisplayStages(currentPayload?.engine || {}, currentPayload?.stages);
+	        const activeStage = stages[activeStageIndex] || null;
+	        const stageId = Number(activeStage?.id || 0);
+	        const preferStageId = Number.isFinite(stageId) && stageId > 0 ? stageId : null;
+	        const preferEcoStage = true === activeStage?.isEcoStage || String(activeStage?.name || '').trim().toLowerCase() === 'eco';
+
+	        const requestId = (detailsReloadRequestId += 1);
+	        try {
+	            const detailsResponse = await fetchJson(`${endpoints.details(engineId)}&noTrack=1`);
+                currentRawDetailsPayload = detailsResponse;
+	            const details = unwrapApiData(detailsResponse);
+	            if (requestId !== detailsReloadRequestId) {
+	                return;
+	            }
+
+	            renderDetails(details, { preferStageId, preferEcoStage });
+	        } catch (error) {
+	            // Ignorieren: Anzeige bleibt wie sie ist.
+	        }
+	    };
+
+    const loadBrandsForSelectedType = async (openBrand = true) => {
+        const loaded = await loadIntoSelect(selectBrand, endpoints.brands(selectType.value), 'Bitte wählen');
+        if (loaded && openBrand) {
+            openSelectForChoice(selectBrand);
+        }
+
+        return loaded;
+    };
+
+    const loadTypes = async () => {
+        try {
+            const responsePayload = await fetchJson(endpoints.types());
+            const types = unwrapApiData(responsePayload);
+            if (!Array.isArray(types)) {
+                throw new Error('API-Antwort hat kein gueltiges Listenformat.');
+            }
+
+            fillSelect(selectType, types, 'Bitte wählen');
+            fixedWidgetTypeId = vehicleWidgetMode && configuredWidgetVehicleTypeId > 0 && types.length === 1
+                ? String(types[0]?.id || '')
+                : null;
+            syncSingleTypeWidgetMode(null !== fixedWidgetTypeId && '' !== fixedWidgetTypeId);
+
+            if (fixedWidgetTypeId) {
+                selectType.value = fixedWidgetTypeId;
+                selectType.disabled = false;
+                syncSelect2(selectType);
+                resetSelect(selectBrand, 'Marke wählen');
+                resetSelect(selectSeries, 'Bitte erst Marke wählen');
+                resetSelect(selectModel, 'Bitte erst Baureihe wählen');
+                resetSelect(selectEngine, 'Bitte erst Modell wählen');
+                await loadBrandsForSelectedType(false);
+            }
+
+            if (apiTesterMode) {
+                setApiAuthStatus('Typen geladen.', 'success');
+            }
+        } catch (error) {
+            fixedWidgetTypeId = null;
+            syncSingleTypeWidgetMode(false);
+            resetSelect(selectType, 'Laden fehlgeschlagen');
+            if (apiTesterMode) {
+                setApiAuthStatus(error.message || 'Laden fehlgeschlagen.', 'danger');
+            }
+        }
+    };
+
+    const resetAll = async () => {
+        if (fixedWidgetTypeId) {
+            resetSelect(selectBrand, 'Marke wählen');
+        } else {
+            resetSelect(selectType, 'Typ wählen');
+            resetSelect(selectBrand, 'Bitte erst Typ wählen');
+        }
+        resetSelect(selectSeries, 'Bitte erst Marke wählen');
+        resetSelect(selectModel, 'Bitte erst Baureihe wählen');
+        resetSelect(selectEngine, 'Bitte erst Modell wählen');
+        hideResult();
+        await loadTypes();
+    };
+
+    bindSelectChange(selectType, async () => {
+        resetSelect(selectBrand, 'Bitte erst Typ wählen');
+        resetSelect(selectSeries, 'Bitte erst Marke wählen');
+        resetSelect(selectModel, 'Bitte erst Baureihe wählen');
+        resetSelect(selectEngine, 'Bitte erst Modell wählen');
+        hideResult();
+
+        const typeId = toId(selectType.value);
+        trackEvent(typeId ? 'select_type' : 'clear_type', {
+            typeId,
+        });
+
+        if (!selectType.value) {
+            return;
+        }
+
+        await loadBrandsForSelectedType(true);
+    });
+
+    bindSelectChange(selectBrand, async () => {
+        resetSelect(selectSeries, 'Bitte erst Marke wählen');
+        resetSelect(selectModel, 'Bitte erst Baureihe wählen');
+        resetSelect(selectEngine, 'Bitte erst Modell wählen');
+        hideResult();
+
+        const brandId = toId(selectBrand.value);
+        trackEvent(brandId ? 'select_brand' : 'clear_brand', {
+            typeId: toId(selectType.value),
+            brandId,
+        });
+
+        if (!selectBrand.value) {
+            return;
+        }
+
+        const loaded = await loadIntoSelect(selectSeries, endpoints.series(selectBrand.value), 'Bitte wählen');
+        if (loaded) {
+            openSelectForChoice(selectSeries);
+        }
+    });
+
+    bindSelectChange(selectSeries, async () => {
+        resetSelect(selectModel, 'Bitte erst Baureihe wählen');
+        resetSelect(selectEngine, 'Bitte erst Modell wählen');
+        hideResult();
+
+        const seriesId = toId(selectSeries.value);
+        trackEvent(seriesId ? 'select_series' : 'clear_series', {
+            typeId: toId(selectType.value),
+            brandId: toId(selectBrand.value),
+            seriesId,
+        });
+
+        if (!selectSeries.value) {
+            return;
+        }
+
+        const loaded = await loadIntoSelect(selectModel, endpoints.models(selectSeries.value), 'Bitte wählen');
+        if (loaded) {
+            openSelectForChoice(selectModel);
+        }
+    });
+
+    bindSelectChange(selectModel, async () => {
+        resetSelect(selectEngine, 'Bitte erst Modell wählen');
+        hideResult();
+
+        const modelId = toId(selectModel.value);
+        trackEvent(modelId ? 'select_model' : 'clear_model', {
+            typeId: toId(selectType.value),
+            brandId: toId(selectBrand.value),
+            seriesId: toId(selectSeries.value),
+            modelId,
+        });
+
+        if (!selectModel.value) {
+            return;
+        }
+
+        const loaded = await loadIntoSelect(selectEngine, endpoints.engines(selectModel.value), 'Bitte wählen');
+        if (loaded) {
+            openSelectForChoice(selectEngine);
+        }
+    });
+
+    bindSelectChange(selectEngine, async () => {
+        hideResult();
+        selectedCatalogOptions.clear();
+
+        const engineId = toId(selectEngine.value);
+        trackEvent(engineId ? 'select_engine' : 'clear_engine', {
+            typeId: toId(selectType.value),
+            brandId: toId(selectBrand.value),
+            seriesId: toId(selectSeries.value),
+            modelId: toId(selectModel.value),
+            engineId,
+        });
+
+        if (!selectEngine.value) {
+            return;
+        }
+
+        try {
+            const detailsResponse = await fetchJson(endpoints.details(selectEngine.value));
+            currentRawDetailsPayload = detailsResponse;
+            const details = unwrapApiData(detailsResponse);
+            renderDetails(details);
+            if (apiTesterMode) {
+                setApiAuthStatus('Motor-Details geladen.', 'success');
+            }
+        } catch (error) {
+            hideResult();
+            if (apiTesterMode) {
+                setApiAuthStatus(error.message || 'Motor-Details konnten nicht geladen werden.', 'danger');
+            }
+        }
+    });
+
+    resetSelectionBtn.addEventListener('click', async () => {
+        trackEvent('reset_filters', {
+            typeId: toId(selectType.value),
+            brandId: toId(selectBrand.value),
+            seriesId: toId(selectSeries.value),
+            modelId: toId(selectModel.value),
+            engineId: toId(selectEngine.value),
+        });
+        await resetAll();
+    });
+
+    resetSelectionFloatingBtn?.addEventListener('click', async () => {
+        trackEvent('reset_filters', {
+            typeId: toId(selectType.value),
+            brandId: toId(selectBrand.value),
+            seriesId: toId(selectSeries.value),
+            modelId: toId(selectModel.value),
+            engineId: toId(selectEngine.value),
+        });
+        await resetAll();
+    });
+
+    apiAuthLoadBtn?.addEventListener('click', async () => {
+        safeStorage.set(apiTokenIdStorageKey, getApiTokenId());
+        safeStorage.set(apiTokenStorageKey, getApiToken());
+
+        if (!hasApiCredentials()) {
+            setApiAuthStatus('Bitte Token-ID und Bearer-Token vollständig eingeben.', 'danger');
+            return;
+        }
+
+        setApiAuthStatus('Lade API-Daten...', 'light');
+        await resetAll();
+    });
+
+    const bootstrap = async () => {
+        initLayoutSwitcher();
+        initializeApiAuth();
+        initializeDataPoolSwitcher();
+        initSelect2();
+        hideResult();
+        trackEvent('page_open', {
+            engineId: Number.isFinite(preselectedEngineId) && preselectedEngineId > 0 ? preselectedEngineId : null,
+            stageId: Number.isFinite(preselectedStageId) && preselectedStageId > 0 ? preselectedStageId : null,
+        });
+
+        if (apiTesterMode && !hasApiCredentials()) {
+            resetSelect(selectType, 'Bitte API-Token eingeben');
+            resetSelect(selectBrand, 'Bitte erst Typ wählen');
+            resetSelect(selectSeries, 'Bitte erst Marke wählen');
+            resetSelect(selectModel, 'Bitte erst Baureihe wählen');
+            resetSelect(selectEngine, 'Bitte erst Modell wählen');
+            return;
+        }
+
+        await loadTypes();
+
+        if (Number.isFinite(preselectedEngineId) && preselectedEngineId > 0) {
+            try {
+                const detailsResponse = await fetchJson(endpoints.details(preselectedEngineId));
+                currentRawDetailsPayload = detailsResponse;
+                const details = unwrapApiData(detailsResponse);
+                renderDetails(details);
+            } catch (error) {
+                hideResult();
+            }
+        }
+    };
+
+void bootstrap();
+})();
+</script>
+{% if widgetMode %}
+    <script>
+        (() => {
+            const sendWidgetHeight = () => {
+                const shell = document.querySelector('.vdb-shell');
+                const page = document.querySelector('.vdb-page');
+                const root = shell || page || document.body;
+                if (!root) {
+                    return;
+                }
+
+                const rect = root.getBoundingClientRect();
+                let dropdownBottom = 0;
+                document.querySelectorAll('.select2-container--open .select2-dropdown, .select2-dropdown').forEach((dropdown) => {
+                    const dropdownRect = dropdown.getBoundingClientRect();
+                    const style = window.getComputedStyle(dropdown);
+                    if (style.display === 'none' || style.visibility === 'hidden' || dropdownRect.height <= 0) {
+                        return;
+                    }
+
+                    dropdownBottom = Math.max(dropdownBottom, Math.ceil(dropdownRect.bottom + window.scrollY));
+                });
+
+                const hasOpenDropdown = dropdownBottom > 0;
+                const height = Math.max(
+                    root.scrollHeight || 0,
+                    root.offsetHeight || 0,
+                    Math.ceil(rect.bottom + window.scrollY || rect.height || 0),
+                    dropdownBottom
+                );
+
+                window.parent?.postMessage({
+                    type: 'tuningfux-widget-height',
+                    height: height + (hasOpenDropdown ? 56 : 16),
+                }, '*');
+            };
+
+            let resizeFrame = 0;
+            const scheduleWidgetHeight = () => {
+                window.cancelAnimationFrame(resizeFrame);
+                resizeFrame = window.requestAnimationFrame(sendWidgetHeight);
+            };
+
+            window.addEventListener('load', scheduleWidgetHeight);
+            window.addEventListener('resize', scheduleWidgetHeight);
+            window.addEventListener('tuningfux-widget-height-refresh', scheduleWidgetHeight);
+            window.addEventListener('message', (event) => {
+                if (event.data?.type === 'tuningfux-widget-height-request') {
+                    scheduleWidgetHeight();
+                }
+            });
+
+            if ('ResizeObserver' in window) {
+                const observer = new ResizeObserver(scheduleWidgetHeight);
+                observer.observe(document.documentElement);
+                if (document.body) {
+                    observer.observe(document.body);
+                }
+            }
+
+            if ('MutationObserver' in window && document.body) {
+                new MutationObserver(scheduleWidgetHeight).observe(document.body, {
+                    attributes: true,
+                    childList: true,
+                    subtree: true,
+                });
+            }
+
+            [50, 250, 700, 1400, 2400].forEach((delay) => {
+                window.setTimeout(scheduleWidgetHeight, delay);
+            });
+        })();
+    </script>
+{% endif %}
+{% endblock %}

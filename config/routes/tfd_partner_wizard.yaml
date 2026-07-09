@@ -1,0 +1,5 @@
+# config/routes/tfd_partner_wizard.yaml
+
+tfd_partner_wizard:
+  resource: '../../tfd-partner-wizard-bundle/src/Controller/'
+  type: attribute

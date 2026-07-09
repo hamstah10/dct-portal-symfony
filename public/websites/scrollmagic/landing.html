@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chiptuning Storytelling Layout</title>
+    <meta name="description"
+        content="Ungewöhnliche Chiptuning Landingpage als Storytelling-Experience mit linkem Menü, ScrollMagic und szenischem Aufbau." />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --ink: #102742;
+            --muted: #5a6f89;
+            --line: #d7e1ee;
+            --blue: #1f4f8a;
+            --blue2: #3f82d6;
+            --soft: #e9f2ff;
+            --lime: #b6d400;
+            --dark: #0c1830;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0 !important
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--ink)
+        }
+
+        a {
+            text-decoration: none
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh
+        }
+
+        .side-nav {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--dark), #13294a);
+            color: #fff;
+            border-right: 1px solid rgba(255, 255, 255, .08);
+            padding: 28px 24px;
+            overflow: hidden;
+        }
+
+        .brand {
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            font-size: 1.05rem;
+            line-height: 1.3
+        }
+
+        .brand small {
+            display: block;
+            font-size: .72rem;
+            opacity: .7;
+            letter-spacing: .2em;
+            margin-top: 6px
+        }
+
+        .side-copy {
+            margin: 28px 0 24px;
+            color: #c7d6ea;
+            line-height: 1.75;
+            font-size: .95rem
+        }
+
+        .story-nav {
+            display: grid;
+            gap: 10px;
+            margin-top: 22px
+        }
+
+        .story-link {
+            opacity: .55;
+            transform: translateX(-18px);
+            transition: transform .35s ease, opacity .35s ease, color .25s ease;
+            display: grid;
+            grid-template-columns: 42px 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 0;
+            color: #d7e4f5;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: .83rem;
+            letter-spacing: .04em;
+        }
+
+        .story-link:last-child {
+            border-bottom: 1px solid rgba(255, 255, 255, .08)
+        }
+
+        .story-link .index {
+            color: var(--lime);
+            font-weight: 900;
+            font-size: .9rem
+        }
+
+        .story-link:hover {
+            opacity: 1;
+            transform: translateX(0)
+        }
+
+        .story-link.active {
+            color: #fff;
+            opacity: 1;
+            transform: translateX(10px)
+        }
+
+        .story-link.active .index {
+            transform: translateX(4px);
+            transition: transform .35s ease
+        }
+
+        .story-link.active .index {
+            background: var(--lime);
+            color: #111;
+            padding: 6px 8px;
+            text-align: center
+        }
+
+        .nav-footer {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 22px;
+            color: #9db0c9;
+            font-size: .82rem;
+            line-height: 1.6
+        }
+
+        .side-nav.revealed .story-link {
+            opacity: .55;
+            transform: translateX(0)
+        }
+
+        .side-nav.revealed .story-link:nth-child(1) {
+            transition-delay: .05s
+        }
+
+        .side-nav.revealed .story-link:nth-child(2) {
+            transition-delay: .12s
+        }
+
+        .side-nav.revealed .story-link:nth-child(3) {
+            transition-delay: .19s
+        }
+
+        .side-nav.revealed .story-link:nth-child(4) {
+            transition-delay: .26s
+        }
+
+        .side-nav.revealed .story-link:nth-child(5) {
+            transition-delay: .33s
+        }
+
+        .side-nav.revealed .story-link:nth-child(6) {
+            transition-delay: .40s
+        }
+
+        .brand,
+        .side-copy,
+        .nav-footer {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity .6s ease, transform .6s ease
+        }
+
+        .side-nav.revealed .brand,
+        .side-nav.revealed .side-copy,
+        .side-nav.revealed .nav-footer {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .side-nav.revealed .side-copy {
+            transition-delay: .08s
+        }
+
+        .side-nav.revealed .nav-footer {
+            transition-delay: .18s
+        }
+
+        .content {
+            overflow: hidden
+        }
+
+        .story-section {
+            min-height: 100vh;
+            display: grid;
+            align-items: center;
+            padding: 56px 72px;
+            position: relative;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .64), rgba(255, 255, 255, .18));
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 38px;
+            align-items: center;
+            width: 100%
+        }
+
+        .eyebrow {
+            display: inline-block;
+            background: var(--ink);
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .8rem;
+            letter-spacing: .08em;
+            margin-bottom: 18px
+        }
+
+        .typewriter-wrap {
+            min-height: 5.8rem;
+            display: flex;
+            align-items: flex-start
+        }
+
+        .typewriter {
+            display: inline-block;
+            white-space: normal
+        }
+
+        .typewriter-caret {
+            display: inline-block;
+            width: 14px;
+            height: 1em;
+            background: var(--lime);
+            margin-left: 8px;
+            vertical-align: baseline;
+            animation: blinkCaret .9s step-end infinite
+        }
+
+        @keyframes blinkCaret {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0
+            }
+        }
+
+        h1,
+        h2 {
+            margin: 0 0 18px;
+            font-weight: 900;
+            line-height: .95;
+            text-transform: uppercase;
+            letter-spacing: -.03em
+        }
+
+        h1 {
+            font-size: 5.2rem;
+            max-width: 760px
+        }
+
+        h2 {
+            font-size: 3.4rem;
+            max-width: 700px
+        }
+
+        .lead,
+        .copy {
+            color: var(--muted);
+            line-height: 1.9;
+            font-size: 1.05rem;
+            max-width: 720px
+        }
+
+        .copy {
+            font-size: 1rem
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 28px
+        }
+
+        .btn-main,
+        .btn-ghost {
+            padding: 14px 22px;
+            border: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .btn-main {
+            background: linear-gradient(90deg, var(--blue), var(--blue2));
+            color: #fff
+        }
+
+        .btn-main:hover {
+            color: #fff;
+            background: linear-gradient(90deg, var(--blue2), var(--blue))
+        }
+
+        .btn-ghost {
+            background: #fff;
+            border: 2px solid var(--blue2);
+            color: var(--ink)
+        }
+
+        .btn-ghost:hover {
+            background: var(--soft)
+        }
+
+        .scene,
+        .panel,
+        .metric,
+        .module,
+        .offer,
+        .chart-stage,
+        .quote-box {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            position: relative;
+        }
+
+        .scene {
+            min-height: 520px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #f9fbff, #eef4ff)
+        }
+
+        .scene:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(63, 130, 214, .06) 1px, transparent 1px), linear-gradient(rgba(63, 130, 214, .06) 1px, transparent 1px);
+            background-size: 44px 44px
+        }
+
+        .floating-label {
+            position: absolute;
+            top: 22px;
+            left: 22px;
+            background: var(--dark);
+            color: #fff;
+            padding: 10px 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .78rem;
+            z-index: 2
+        }
+
+        .car-shell {
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            bottom: 54px;
+            height: 230px;
+            z-index: 2
+        }
+
+        .dyno-floor {
+            position: absolute;
+            left: 4%;
+            right: 4%;
+            bottom: 0;
+            height: 6px;
+            background: #bcc8d9
+        }
+
+        .roller {
+            position: absolute;
+            bottom: 12px;
+            width: 120px;
+            height: 22px;
+            background: #627691;
+            border: 2px solid #90a3bc
+        }
+
+        .roller.left {
+            left: 18%
+        }
+
+        .roller.right {
+            right: 18%
+        }
+
+        .car {
+            position: absolute;
+            left: 50%;
+            bottom: 34px;
+            transform: translateX(-50%);
+            width: 72%;
+            max-width: 520px;
+            height: 112px;
+            background: linear-gradient(135deg, #24497d, #17345b 62%, #2e5f9d)
+        }
+
+        .car:before {
+            content: "";
+            position: absolute;
+            left: 104px;
+            top: 18px;
+            width: 180px;
+            height: 34px;
+            background: #a7bfdc
+        }
+
+        .wheel {
+            position: absolute;
+            bottom: -24px;
+            width: 60px;
+            height: 60px;
+            background: #111827;
+            border: 9px solid #394b62
+        }
+
+        .wheel.left {
+            left: 64px
+        }
+
+        .wheel.right {
+            right: 64px
+        }
+
+        .scan {
+            position: absolute;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--lime), transparent);
+            box-shadow: 0 0 22px rgba(182, 212, 0, .4)
+        }
+
+        .scan.s1 {
+            left: 10%;
+            top: 76px;
+            width: 38%
+        }
+
+        .scan.s2 {
+            left: 34%;
+            top: 142px;
+            width: 42%
+        }
+
+        .scan.s3 {
+            left: 18%;
+            top: 212px;
+            width: 30%
+        }
+
+        .hud {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            display: grid;
+            gap: 10px;
+            width: 150px;
+            z-index: 3
+        }
+
+        .metric {
+            padding: 12px;
+            background: rgba(255, 255, 255, .9)
+        }
+
+        .metric small {
+            display: block;
+            color: #667b95;
+            text-transform: uppercase;
+            font-weight: 700;
+            font-size: .74rem
+        }
+
+        .metric strong {
+            font-size: 1.55rem;
+            color: var(--ink)
+        }
+
+        .section-stack {
+            display: grid;
+            gap: 18px
+        }
+
+        .module {
+            padding: 22px;
+            background: linear-gradient(180deg, #fff, #f7fbff)
+        }
+
+        .module h3,
+        .offer h3 {
+            font-size: 1.35rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin: 0 0 10px;
+            color: var(--ink)
+        }
+
+        .module p,
+        .offer p,
+        .quote-box p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.8
+        }
+
+        .module .tag,
+        .offer .tag {
+            display: inline-block;
+            background: var(--soft);
+            color: var(--blue);
+            padding: 8px 10px;
+            font-size: .78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 12px
+        }
+
+        .stats-ribbon {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 28px
+        }
+
+        .odometer {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1
+        }
+
+        .stats-ribbon .metric {
+            background: #fff;
+            border-left: 4px solid var(--blue2)
+        }
+
+        .config-shell {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 22px;
+            margin-top: 30px
+        }
+
+        .config-panel {
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 24px
+        }
+
+        .form-label {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .84rem;
+            color: #3b5471;
+            margin-bottom: 8px
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 52px;
+            border: 1px solid var(--line);
+            background: #fff
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: none;
+            border-color: var(--blue2)
+        }
+
+        .button-block {
+            display: grid;
+            gap: 10px;
+            margin-top: 14px
+        }
+
+        .chart-stage {
+            min-height: 430px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #fff, #f6fbff)
+        }
+
+        .chart-stage:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(31, 79, 138, .05) 1px, transparent 1px), linear-gradient(rgba(31, 79, 138, .05) 1px, transparent 1px);
+            background-size: 46px 46px
+        }
+
+        .axis {
+            position: absolute;
+            background: #c7d3e2;
+            z-index: 2
+        }
+
+        .axis.x {
+            left: 62px;
+            right: 22px;
+            bottom: 42px;
+            height: 2px
+        }
+
+        .axis.y {
+            left: 62px;
+            top: 22px;
+            bottom: 42px;
+            width: 2px
+        }
+
+        .curve {
+            position: absolute;
+            z-index: 3
+        }
+
+        .curve.solid-blue {
+            left: 10%;
+            top: 52%;
+            width: 48%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--blue2), transparent);
+            transform: skewX(-18deg)
+        }
+
+        .curve.solid-lime {
+            left: 8%;
+            top: 64%;
+            width: 34%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--lime), transparent);
+            transform: skewX(-30deg)
+        }
+
+        .curve.dash-dark {
+            left: 14%;
+            top: 70%;
+            width: 42%;
+            height: 0;
+            border-top: 4px dashed var(--blue-dark);
+            transform: skewX(-11deg)
+        }
+
+        .curve.dash-lime {
+            left: 28%;
+            top: 44%;
+            width: 38%;
+            height: 0;
+            border-top: 4px dashed var(--lime);
+            transform: skewX(16deg)
+        }
+
+        .chart-card-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 18px;
+            border-top: 1px solid var(--line);
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, .96);
+            z-index: 4
+        }
+
+        .chart-mini {
+            border-left: 4px solid var(--green);
+            padding-left: 10px
+        }
+
+        .chart-mini small {
+            display: block;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #62768f;
+            font-size: .76rem
+        }
+
+        .chart-mini strong {
+            font-size: 1.5rem;
+            color: var(--ink)
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 28px
+        }
+
+        .offer {
+            padding: 0;
+            background: transparent;
+            border: none;
+            perspective: 1200px;
+            min-height: 420px
+        }
+
+        .offer.featured {
+            transform: translateY(-12px)
+        }
+
+        .offer-inner {
+            position: relative;
+            min-height: 420px;
+            transform-style: preserve-3d;
+            transition: transform .8s ease
+        }
+
+        .offer:hover .offer-inner {
+            transform: rotateY(180deg)
+        }
+
+        .offer-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border: 1px solid var(--line);
+            padding: 26px;
+            background: #fff
+        }
+
+        .offer-front {
+            border-top: 8px solid var(--blue)
+        }
+
+        .offer.featured .offer-front {
+            border-top-color: var(--lime);
+            background: linear-gradient(180deg, #fff, #f4f9ff)
+        }
+
+        .offer-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+            color: #fff;
+            border-top: 8px solid var(--lime)
+        }
+
+        .offer-back p,
+        .offer-back li {
+            color: #dfeaff
+        }
+
+        .offer-back .tag {
+            background: #fff;
+            color: var(--blue-dark)
+        }
+
+        .offer-back h3 {
+            color: #fff
+        }
+
+        .offer-back .list-clean li {
+            border-bottom: 1px solid rgba(255, 255, 255, .16);
+            color: #e6efff
+        }
+
+        .offer-back .back-cta {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 12px 14px;
+            background: var(--lime);
+            color: #102742;
+            font-weight: 900;
+            text-transform: uppercase
+        }
+
+        .price {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--ink);
+            margin: 12px 0 8px
+        }
+
+        .price small {
+            font-size: 1rem;
+            color: #6d829c
+        }
+
+        .list-clean {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0 0
+        }
+
+        .list-clean li {
+            padding: 9px 0;
+            border-bottom: 1px solid var(--line);
+            font-weight: 700;
+            color: #304864
+        }
+
+        .data-wall {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            margin-top: 30px
+        }
+
+        .search-box {
+            background: linear-gradient(180deg, #11223f, #18345e);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .08);
+            padding: 24px
+        }
+
+        .search-box .form-label {
+            color: #cfe0f6
+        }
+
+        .search-box .form-control,
+        .search-box .form-select {
+            background: #243f6a;
+            border-color: #3b5780;
+            color: #fff
+        }
+
+        .search-box .form-control::placeholder {
+            color: #b7c9df
+        }
+
+        .db-box {
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 18px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th,
+        td {
+            border: 1px solid var(--line);
+            padding: 12px;
+            text-align: left
+        }
+
+        th {
+            background: var(--dark);
+            color: #fff;
+            text-transform: uppercase;
+            font-size: .82rem;
+            letter-spacing: .04em
+        }
+
+        tr:nth-child(even) td {
+            background: #f8fbff
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .74rem
+        }
+
+        .status.ready {
+            background: var(--lime);
+            color: #112
+        }
+
+        .status.live {
+            background: var(--blue-dark);
+            color: #fff
+        }
+
+        .status.popular {
+            background: var(--blue2);
+            color: #fff
+        }
+
+        .quote-box {
+            padding: 34px;
+            background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+            color: #fff
+        }
+
+        .quote-box .eyebrow {
+            background: #fff;
+            color: var(--blue-dark)
+        }
+
+        .quote-box p {
+            color: #dbe8fb;
+            font-size: 1.15rem;
+            max-width: 760px
+        }
+
+        @media (max-width:1199.98px) {
+            .app {
+                grid-template-columns: 1fr
+            }
+
+            .side-nav {
+                position: relative;
+                height: auto
+            }
+
+            .nav-footer {
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                margin-top: 20px
+            }
+
+            .story-grid,
+            .config-shell,
+            .data-wall {
+                grid-template-columns: 1fr
+            }
+
+            .offers-grid {
+                grid-template-columns: 1fr
+            }
+
+            .stats-ribbon,
+            .chart-card-row {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            h1 {
+                font-size: 3.8rem
+            }
+
+            h2 {
+                font-size: 2.8rem
+            }
+
+            .story-section {
+                padding: 44px 28px
+            }
+        }
+
+        @media (max-width:767.98px) {
+
+            .stats-ribbon,
+            .chart-card-row {
+                grid-template-columns: 1fr
+            }
+
+            .story-link {
+                grid-template-columns: 36px 1fr
+            }
+
+            h1 {
+                font-size: 2.9rem
+            }
+
+            h2 {
+                font-size: 2.2rem
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="side-nav">
+            <div class="brand">Blue Performance<small>Storytelling Layout</small></div>
+            <div class="side-copy">Kein Standard-Header mit klassischem Aufbau. Diese Version funktioniert wie eine
+                Scroll-Story mit linkem Menü und Szenen statt gewöhnlicher Sektionen.</div>
+            <nav class="story-nav">
+                <a class="story-link active" href="#scene-1"><span class="index">01</span><span>Auftakt</span></a>
+                <a class="story-link" href="#scene-2"><span class="index">02</span><span>Warum Anbieter</span></a>
+                <a class="story-link" href="#scene-3"><span class="index">03</span><span>Konfigurator</span></a>
+                <a class="story-link" href="#scene-4"><span class="index">04</span><span>Pakete</span></a>
+                <a class="story-link" href="#scene-5"><span class="index">05</span><span>Fahrzeugdaten</span></a>
+                <a class="story-link" href="#scene-6"><span class="index">06</span><span>Finale</span></a>
+            </nav>
+            <div class="nav-footer">ScrollMagic + Szenenaufbau + linke Navigation. Ideal, wenn die Seite wie eine
+                geführte Produktpräsentation wirken soll.</div>
+        </aside>
+
+        <main class="content">
+            <section class="story-section" id="scene-1">
+                <div class="story-grid">
+                    <div>
+                        <div class="eyebrow reveal" data-effect="wipe">Story Kapitel 1</div>
+                        <div class="typewriter-wrap">
+                            <h1 class="typewriter" id="typewriterHeadline"
+                                data-text="Chiptuning als Scroll-Erlebnis statt Standard-Landingpage."></h1><span
+                                class="typewriter-caret" id="typewriterCaret"></span>
+                        </div>
+                        <p class="lead reveal" data-effect="fade">Diese Version ist bewusst nicht klassisch aufgebaut.
+                            Kein übliches Top-Menü, kein normaler Hero, kein Standard-Grid. Stattdessen führt ein linkes
+                            Story-Menü den Besucher durch eine szenische Präsentation mit Technik, Werten und visuellen
+                            Modulen.</p>
+                        <div class="button-row reveal" data-effect="fade-up">
+                            <a href="#scene-3" class="btn btn-main">In den Konfigurator</a>
+                            <a href="#scene-5" class="btn btn-ghost">Zur Datenbank</a>
+                        </div>
+                        <div class="stats-ribbon">
+                            <div class="metric reveal" data-effect="fade-up"><small>Mehrleistung</small><strong><span
+                                        class="odometer" id="odoPs">0</span> PS</strong></div>
+                            <div class="metric reveal" data-effect="fade-up"><small>Mehr Nm</small><strong><span
+                                        class="odometer" id="odoNm">0</span> Nm</strong></div>
+                            <div class="metric reveal" data-effect="fade-up"><small>Peak PS</small><strong><span
+                                        class="odometer" id="odoPeakPs">0</span></strong></div>
+                            <div class="metric reveal" data-effect="fade-up"><small>Peak Nm</small><strong><span
+                                        class="odometer" id="odoPeakNm">0</span></strong></div>
+                        </div>
+                    </div>
+                    <div class="scene pin-visual" id="hero-pin">
+                        <div class="floating-label">Dyno Story</div>
+                        <div class="hud">
+                            <div class="metric"><small>Stage</small><strong>1</strong></div>
+                            <div class="metric"><small>Power</small><strong>227</strong></div>
+                            <div class="metric"><small>Torque</small><strong>378</strong></div>
+                        </div>
+                        <div class="car-shell">
+                            <div class="scan s1"></div>
+                            <div class="scan s2"></div>
+                            <div class="scan s3"></div>
+                            <div class="car parallax-x">
+                                <div class="wheel left"></div>
+                                <div class="wheel right"></div>
+                            </div>
+                            <div class="roller left"></div>
+                            <div class="roller right"></div>
+                            <div class="dyno-floor"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="story-section" id="scene-2">
+                <div class="story-grid">
+                    <div class="section-stack">
+                        <div class="module reveal" data-effect="slide-left">
+                            <div class="tag">Kapitel 2A</div>
+                            <h3>Für Anbieter, die bei euch Files kaufen</h3>
+                            <p>Die Seite richtet sich an Chiptuning Anbieter, Werkstätten und Performance-Betriebe, die
+                                Tuningfiles einkaufen und ihre eigene Außendarstellung deutlich professioneller machen
+                                wollen.</p>
+                        </div>
+                        <div class="module reveal" data-effect="slide-left">
+                            <div class="tag">Kapitel 2B</div>
+                            <h3>Storytelling statt Standard</h3>
+                            <p>Der Besucher scrollt nicht durch eine normale Website, sondern durch Kapitel. Jedes
+                                Kapitel setzt einen anderen Fokus: Kompetenz, Werte, Pakete, Datenbank oder Kontakt.</p>
+                        </div>
+                        <div class="module reveal" data-effect="slide-left">
+                            <div class="tag">Kapitel 2C</div>
+                            <h3>Visuelle Führung</h3>
+                            <p>Das linke Menü bleibt sichtbar und vermittelt Struktur. Dadurch fühlt sich die Seite mehr
+                                wie eine Produkt-Showcase-Experience an als wie eine übliche Landingpage.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="eyebrow reveal" data-effect="wipe">Warum das wirkt</div>
+                        <h2 class="reveal" data-effect="rise">Die Seite erzählt eine Performance-Geschichte.</h2>
+                        <p class="copy reveal" data-effect="fade">Statt alle Inhalte direkt zu stapeln, wird jeder
+                            Bereich als eigenes Story-Kapitel inszeniert. Das ist stärker, wenn du einen Anbieter, ein
+                            System oder ein neues Website-Konzept emotionaler und hochwertiger präsentieren willst.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="story-section" id="scene-3">
+                <div>
+                    <div class="eyebrow reveal" data-effect="wipe">Kapitel 3</div>
+                    <h2 class="reveal" data-effect="rise">Konfigurator und Leistungsvergleich als Bühne.</h2>
+                    <p class="copy reveal" data-effect="fade">Hier erscheint der Konfigurator nicht als kleines Widget,
+                        sondern als zentrale Szene. Die Werte stehen auf einer eigenen visuellen Bühne und lassen sich
+                        direkt mit dem Diagramm verbinden.</p>
+                    <div class="config-shell">
+                        <div class="config-panel reveal" data-effect="slide-left">
+                            <label class="form-label" for="vehicle">Fahrzeug</label>
+                            <select id="vehicle" class="form-select">
+                                <option value="golf_gti">VW Golf 7 GTD 2.0 TDI</option>
+                                <option value="a6_3tdi">Audi A6 3.0 TDI</option>
+                                <option value="bmw_330d">BMW 330d</option>
+                                <option value="rs3">Audi RS3 2.5 TFSI</option>
+                            </select>
+                            <label class="form-label mt-3" for="stage">Stufe</label>
+                            <select id="stage" class="form-select">
+                                <option value="stage1">Stage 1</option>
+                                <option value="stage1plus">Stage 1+</option>
+                            </select>
+                            <label class="form-label mt-3" for="fuel">Kraftstoff</label>
+                            <select id="fuel" class="form-select">
+                                <option value="standard">Standard</option>
+                                <option value="premium">Premium / 102 Oktan</option>
+                            </select>
+                            <div class="button-block">
+                                <button id="calcBtn" class="btn btn-main">Werte laden</button>
+                                <button class="btn btn-ghost">Demo anfragen</button>
+                            </div>
+                        </div>
+                        <div class="chart-stage reveal" data-effect="slide-right">
+                            <div class="axis x"></div>
+                            <div class="axis y"></div>
+                            <div class="curve solid-blue parallax-x"></div>
+                            <div class="curve solid-lime parallax-x"></div>
+                            <div class="curve dash-dark parallax-x"></div>
+                            <div class="curve dash-lime parallax-x"></div>
+                            <div class="chart-card-row">
+                                <div class="chart-mini"><small>Serie PS</small><strong id="stockPs">184</strong></div>
+                                <div class="chart-mini"><small>Serie Nm</small><strong id="stockNm">380</strong></div>
+                                <div class="chart-mini"><small>Stage PS</small><strong id="tunedPs">225</strong></div>
+                                <div class="chart-mini"><small>Stage Nm</small><strong id="tunedNm">450</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="story-section" id="scene-4">
+                <div>
+                    <div class="eyebrow reveal" data-effect="wipe">Kapitel 4</div>
+                    <h2 class="reveal" data-effect="rise">Pakete werden zu Story-Modulen, nicht zu Standard-Preisboxen.
+                    </h2>
+                    <p class="copy reveal" data-effect="fade">Auch Preisbereiche lassen sich in Storyform aufbauen.
+                        Statt sterilem Preistable nutzt diese Version klare narrative Unterschiede zwischen Einstieg,
+                        Ausbau und vollständigem Händler-System.</p>
+                    <div class="offers-grid">
+                        <div class="offer reveal" data-effect="slide-up">
+                            <div class="offer-inner">
+                                <div class="offer-face offer-front">
+                                    <div class="tag">Start</div>
+                                    <h3>Landingpage Einstieg</h3>
+                                    <p>Für Anbieter, die zügig online gehen und ihre Leistungen in einem modernen
+                                        Storytelling-Layout zeigen wollen.</p>
+                                    <div class="price">499 € <small>einmalig</small></div>
+                                    <ul class="list-clean">
+                                        <li>Story-Hero</li>
+                                        <li>Linkes Menü</li>
+                                        <li>3 bis 4 Kapitel</li>
+                                        <li>Kontaktstrecke</li>
+                                    </ul>
+                                </div>
+                                <div class="offer-face offer-back">
+                                    <div class="tag">Was ist drin?</div>
+                                    <h3>Ideal für den Einstieg</h3>
+                                    <p>Die Rückseite erklärt den Nutzen der Karte direkt: ideal für erste Kampagnen,
+                                        lokale Werkstätten und einen sauberen Testauftritt.</p>
+                                    <ul class="list-clean">
+                                        <li>Fokus auf Storytelling</li>
+                                        <li>Klarer CTA-Aufbau</li>
+                                        <li>Perfekt als Demo-Seite</li>
+                                        <li>Schnell individualisierbar</li>
+                                    </ul>
+                                    <span class="back-cta">Als Startpaket nutzen</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="offer featured reveal" data-effect="zoom-in">
+                            <div class="offer-inner">
+                                <div class="offer-face offer-front">
+                                    <div class="tag">Empfohlen</div>
+                                    <h3>Konfigurator Pro</h3>
+                                    <p>Für Anbieter, die ihr Chiptuning visuell stärker verkaufen und Leistungswerte
+                                        direkt in die Story integrieren wollen.</p>
+                                    <div class="price">990 € <small>einmalig</small></div>
+                                    <ul class="list-clean">
+                                        <li>Alles aus Einstieg</li>
+                                        <li>Konfigurator-Szene</li>
+                                        <li>Diagramm-Bühne</li>
+                                        <li>mehr Story-Kapitel</li>
+                                    </ul>
+                                </div>
+                                <div class="offer-face offer-back">
+                                    <div class="tag">Warum empfohlen?</div>
+                                    <h3>Stärkstes Verkaufspaket</h3>
+                                    <p>Diese Karte dreht sich zur inhaltlichen Rückseite und zeigt, warum genau dieses
+                                        Paket für File-Kunden und Chiptuning-Anbieter am sinnvollsten ist.</p>
+                                    <ul class="list-clean">
+                                        <li>Mehr Technik-Wirkung</li>
+                                        <li>Stärkeres Vertrauen</li>
+                                        <li>Bessere Conversion</li>
+                                        <li>Klare Demo-Struktur</li>
+                                    </ul>
+                                    <span class="back-cta">Pro-Paket anfragen</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="offer reveal" data-effect="slide-up">
+                            <div class="offer-inner">
+                                <div class="offer-face offer-front">
+                                    <div class="tag">Ausbau</div>
+                                    <h3>Dealer System</h3>
+                                    <p>Für Partner, die Datenbank, Suchlogik, Fahrzeug-Module und weitere Seiten gezielt
+                                        nachrüsten möchten.</p>
+                                    <div class="price">1.790 € <small>ab</small></div>
+                                    <ul class="list-clean">
+                                        <li>Alles aus Pro</li>
+                                        <li>Fahrzeugdatenbank</li>
+                                        <li>Suche + Filter</li>
+                                        <li>mehrere Kapitel-Strecken</li>
+                                    </ul>
+                                </div>
+                                <div class="offer-face offer-back">
+                                    <div class="tag">Skalierung</div>
+                                    <h3>Für größere Systeme</h3>
+                                    <p>Auf der Rückseite wird das Ausbau-Potenzial gezeigt: perfekt für Partner, die
+                                        nicht nur eine Seite, sondern eine ausbaufähige Anbieter-Plattform möchten.</p>
+                                    <ul class="list-clean">
+                                        <li>Erweiterbar mit API</li>
+                                        <li>Mehr Marken / Modelle</li>
+                                        <li>Mehr Story-Kapitel</li>
+                                        <li>Ideal für Händlerstruktur</li>
+                                    </ul>
+                                    <span class="back-cta">System ausbauen</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="story-section" id="scene-5">
+                <div>
+                    <div class="eyebrow reveal" data-effect="wipe">Kapitel 5</div>
+                    <h2 class="reveal" data-effect="rise">Fahrzeugsuche und Datenbank als eigener Recherche-Raum.</h2>
+                    <p class="copy reveal" data-effect="fade">Die Fahrzeugdatenbank wirkt hier nicht wie eine einfache
+                        Tabelle, sondern wie ein eigenes Kapitel innerhalb der Story. Damit kann die Seite später sehr
+                        leicht in Richtung echter Anbieter-Plattform erweitert werden.</p>
+                    <div class="data-wall">
+                        <div class="search-box reveal" data-effect="slide-left">
+                            <label class="form-label" for="searchInput">Suche</label>
+                            <input id="searchInput" class="form-control" placeholder="Golf, BMW, RS3, 3.0 TDI">
+                            <label class="form-label mt-3" for="brandFilter">Marke</label>
+                            <select id="brandFilter" class="form-select">
+                                <option value="all">Alle Marken</option>
+                                <option value="VW">VW</option>
+                                <option value="Audi">Audi</option>
+                                <option value="BMW">BMW</option>
+                                <option value="Mercedes">Mercedes</option>
+                            </select>
+                            <label class="form-label mt-3" for="fuelFilter">Kraftstoff</label>
+                            <select id="fuelFilter" class="form-select">
+                                <option value="all">Alle</option>
+                                <option value="Benzin">Benzin</option>
+                                <option value="Diesel">Diesel</option>
+                            </select>
+                            <div class="button-block">
+                                <button id="filterBtn" class="btn btn-main">Filtern</button>
+                                <button class="btn btn-ghost">Datenbank ausbauen</button>
+                            </div>
+                        </div>
+                        <div class="db-box reveal" data-effect="slide-right">
+                            <div class="table-responsive">
+                                <table id="vehicleTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Marke</th>
+                                            <th>Modell</th>
+                                            <th>Motor</th>
+                                            <th>Serie</th>
+                                            <th>Stage 1</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="story-section" id="scene-6">
+                <div class="story-grid">
+                    <div>
+                        <div class="eyebrow reveal" data-effect="wipe">Finale</div>
+                        <h2 class="reveal" data-effect="rise">Das ist keine Standard-Landingpage. Es ist eine
+                            Chiptuning-Story.</h2>
+                        <p class="copy reveal" data-effect="fade">Mit linkem Story-Menü, Kapitelstruktur,
+                            ScrollMagic-Effekten und ungewöhnlichem Szenenaufbau hebt sich diese Version klar von
+                            typischen Tuning-Seiten ab. Sie fühlt sich eher wie eine Produktpräsentation oder
+                            Marken-Experience an.</p>
+                        <div class="button-row reveal" data-effect="fade-up">
+                            <a href="#" class="btn btn-main">Als Demo nutzen</a>
+                            <a href="#" class="btn btn-ghost">Website besprechen</a>
+                        </div>
+                    </div>
+                    <div class="quote-box reveal" data-effect="slide-right">
+                        <div class="eyebrow">Blue Performance Finale</div>
+                        <p>Wenn du bewusst kein Standard-Layout willst, ist ein Storytelling-Aufbau mit festem linken
+                            Menü, Kapitel-Szenen und Scroll-Effekten genau die richtige Richtung. Damit kann eine
+                            Tuning-Website deutlich hochwertiger, moderner und einprägsamer wirken.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/ScrollMagic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/plugins/animation.gsap.min.js"></script>
+    <script>
+        const vehicleData = {
+            golf_gti: { stockPs: 184, stockNm: 380, stage1: { ps: 225, nm: 450 }, stage1plus: { ps: 232, nm: 465 } },
+            a6_3tdi: { stockPs: 286, stockNm: 620, stage1: { ps: 340, nm: 700 }, stage1plus: { ps: 355, nm: 730 } },
+            bmw_330d: { stockPs: 265, stockNm: 580, stage1: { ps: 320, nm: 660 }, stage1plus: { ps: 335, nm: 690 } },
+            rs3: { stockPs: 400, stockNm: 500, stage1: { ps: 470, nm: 620 }, stage1plus: { ps: 500, nm: 650 } }
+        };
+
+        const dbVehicles = [
+            { brand: 'VW', model: 'Golf GTD', engine: '2.0 TDI', fuel: 'Diesel', stock: '184 PS / 380 Nm', stage: '225 PS / 450 Nm', status: 'live' },
+            { brand: 'Audi', model: 'RS3', engine: '2.5 TFSI', fuel: 'Benzin', stock: '400 PS / 500 Nm', stage: '470 PS / 620 Nm', status: 'popular' },
+            { brand: 'BMW', model: '330d', engine: '3.0 Diesel', fuel: 'Diesel', stock: '265 PS / 580 Nm', stage: '320 PS / 660 Nm', status: 'ready' },
+            { brand: 'Audi', model: 'A6', engine: '3.0 TDI', fuel: 'Diesel', stock: '286 PS / 620 Nm', stage: '340 PS / 700 Nm', status: 'live' },
+            { brand: 'Mercedes', model: 'C220d', engine: '2.0 Diesel', fuel: 'Diesel', stock: '200 PS / 440 Nm', stage: '240 PS / 520 Nm', status: 'ready' },
+            { brand: 'VW', model: 'Golf GTI', engine: '2.0 TSI', fuel: 'Benzin', stock: '245 PS / 370 Nm', stage: '300 PS / 460 Nm', status: 'popular' }
+        ];
+
+        function updateConfigurator() {
+            const vehicleKey = document.getElementById('vehicle').value;
+            const stageKey = document.getElementById('stage').value;
+            const fuel = document.getElementById('fuel').value;
+            const vehicle = vehicleData[vehicleKey];
+            const tuned = { ...vehicle[stageKey] };
+            if (fuel === 'premium') {
+                tuned.ps += Math.round(tuned.ps * 0.015);
+                tuned.nm += Math.round(tuned.nm * 0.015);
+            }
+            document.getElementById('stockPs').textContent = vehicle.stockPs;
+            document.getElementById('stockNm').textContent = vehicle.stockNm;
+            document.getElementById('tunedPs').textContent = tuned.ps;
+            document.getElementById('tunedNm').textContent = tuned.nm;
+        }
+
+        function renderDatabase(items) {
+            const tbody = document.querySelector('#vehicleTable tbody');
+            tbody.innerHTML = items.map(item => `
+        <tr>
+          <td>${item.brand}</td>
+          <td>${item.model}</td>
+          <td>${item.engine}</td>
+          <td>${item.stock}</td>
+          <td>${item.stage}</td>
+          <td><span class="status ${item.status}">${item.status}</span></td>
+        </tr>
+      `).join('');
+        }
+
+        function filterDatabase() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const brand = document.getElementById('brandFilter').value;
+            const fuel = document.getElementById('fuelFilter').value;
+            const filtered = dbVehicles.filter(v => {
+                const matchesSearch = !search || `${v.brand} ${v.model} ${v.engine}`.toLowerCase().includes(search);
+                const matchesBrand = brand === 'all' || v.brand === brand;
+                const matchesFuel = fuel === 'all' || v.fuel === fuel;
+                return matchesSearch && matchesBrand && matchesFuel;
+            });
+            renderDatabase(filtered);
+        }
+
+        document.getElementById('calcBtn').addEventListener('click', updateConfigurator);
+        document.getElementById('vehicle').addEventListener('change', updateConfigurator);
+        document.getElementById('stage').addEventListener('change', updateConfigurator);
+        document.getElementById('fuel').addEventListener('change', updateConfigurator);
+        document.getElementById('filterBtn').addEventListener('click', filterDatabase);
+        document.getElementById('searchInput').addEventListener('input', filterDatabase);
+        document.getElementById('brandFilter').addEventListener('change', filterDatabase);
+        document.getElementById('fuelFilter').addEventListener('change', filterDatabase);
+
+        updateConfigurator();
+        renderDatabase(dbVehicles);
+
+        let odometerStarted = false;
+        function startOdometers() {
+            if (odometerStarted) return;
+            odometerStarted = true;
+            setTimeout(() => {
+                const odoPs = document.getElementById('odoPs');
+                const odoNm = document.getElementById('odoNm');
+                const odoPeakPs = document.getElementById('odoPeakPs');
+                const odoPeakNm = document.getElementById('odoPeakNm');
+                if (odoPs) odoPs.innerHTML = 41;
+                if (odoNm) odoNm.innerHTML = 70;
+                if (odoPeakPs) odoPeakPs.innerHTML = 227.5;
+                if (odoPeakNm) odoPeakNm.innerHTML = 377.9;
+            }, 250);
+        }
+
+        function startTypewriter() {
+            const el = document.getElementById('typewriterHeadline');
+            const caret = document.getElementById('typewriterCaret');
+            if (!el || el.dataset.done === 'true') return;
+            const text = el.dataset.text || '';
+            el.textContent = '';
+            let i = 0;
+            const speed = 42;
+            const timer = setInterval(() => {
+                el.textContent = text.slice(0, i + 1);
+                i++;
+                if (i >= text.length) {
+                    clearInterval(timer);
+                    el.dataset.done = 'true';
+                    setTimeout(() => { if (caret) caret.style.opacity = '1'; }, 150);
+                }
+            }, speed);
+        }
+
+        const controller = new ScrollMagic.Controller();
+
+        const sideNav = document.querySelector('.side-nav');
+        if (sideNav) {
+            requestAnimationFrame(() => {
+                setTimeout(() => sideNav.classList.add('revealed'), 120);
+            });
+        }
+
+        new ScrollMagic.Scene({ triggerElement: '#scene-1', triggerHook: 0.72, reverse: false })
+            .on('enter', () => {
+                startTypewriter();
+                startOdometers();
+            })
+            .addTo(controller);
+
+        document.querySelectorAll('.reveal').forEach((el) => {
+            const effect = el.dataset.effect || 'fade';
+            let fromVars = { autoAlpha: 0, y: 40 };
+            if (effect === 'slide-left') fromVars = { autoAlpha: 0, x: -70 };
+            if (effect === 'slide-right') fromVars = { autoAlpha: 0, x: 70 };
+            if (effect === 'slide-up') fromVars = { autoAlpha: 0, y: 80 };
+            if (effect === 'rise') fromVars = { autoAlpha: 0, y: 90, scale: .96 };
+            if (effect === 'wipe') fromVars = { autoAlpha: 0, x: -30 };
+            if (effect === 'zoom-in') fromVars = { autoAlpha: 0, scale: .85 };
+            const tween = gsap.fromTo(el, fromVars, { autoAlpha: 1, x: 0, y: 0, scale: 1, duration: 0.9, ease: 'power2.out' });
+            new ScrollMagic.Scene({ triggerElement: el, triggerHook: 0.85, reverse: false }).setTween(tween).addTo(controller);
+        });
+
+        document.querySelectorAll('.parallax-x').forEach((el) => {
+            const tween = gsap.fromTo(el, { x: -30 }, { x: 30, ease: 'none' });
+            new ScrollMagic.Scene({ triggerElement: el.closest('.story-section'), duration: '140%', triggerHook: 1 })
+                .setTween(tween)
+                .addTo(controller);
+        });
+
+        const pinTarget = document.getElementById('hero-pin');
+        if (pinTarget) {
+            new ScrollMagic.Scene({ triggerElement: '#scene-1', triggerHook: 0, duration: '70%' })
+                .setPin('#hero-pin', { pushFollowers: false })
+                .addTo(controller);
+        }
+
+        const navLinks = [...document.querySelectorAll('.story-link')];
+        document.querySelectorAll('.story-link').forEach((link, idx) => {
+            const tween = gsap.fromTo(link, { autoAlpha: 0, x: -28 }, { autoAlpha: 1, x: 0, duration: .55, ease: 'power2.out' });
+            new ScrollMagic.Scene({ triggerElement: '.side-nav', triggerHook: 0.92, reverse: false, offset: idx * 18 })
+                .setTween(tween)
+                .addTo(controller);
+        });
+
+        document.querySelectorAll('.story-section').forEach((section, idx) => {
+            new ScrollMagic.Scene({ triggerElement: section, triggerHook: 0.45, duration: section.offsetHeight })
+                .on('enter', () => {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    if (navLinks[idx]) navLinks[idx].classList.add('active');
+                })
+                .addTo(controller);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

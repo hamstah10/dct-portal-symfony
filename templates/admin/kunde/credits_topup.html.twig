@@ -1,0 +1,154 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Credits aufladen{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ historyUrl }}" class="btn btn-secondary">
+        Historie
+    </a>
+    <a href="{{ detailUrl }}" class="btn btn-secondary">
+        Kunde anzeigen
+    </a>
+    <a href="{{ indexUrl }}" class="btn btn-secondary">
+        Zurück zur Liste
+    </a>
+{% endblock %}
+
+{% block main %}
+    <div class="card border-0 shadow-sm" style="max-width: 760px;">
+        <div class="card-body">
+            <h5 class="card-title mb-3">{{ kunde }}</h5>
+            <div class="mb-3 text-muted">
+                Aktueller Saldo: <strong>{{ kunde.credits }}</strong> Credits
+            </div>
+
+            <form method="post">
+                <input type="hidden" name="_token" value="{{ csrf_token('kunde_credits_topup_' ~ kunde.id) }}">
+
+                <div class="mb-3">
+                    <label for="credits-package" class="form-label">Credit-Paket</label>
+                    <select id="credits-package" name="packageId" class="form-select">
+                        <option value="">Bitte Paket waehlen</option>
+                        {% for package in packages %}
+                            <option value="{{ package.id }}" data-credits="{{ package.credits }}" data-price="{{ package.price }}">
+                                {{ package.title ?? ('Paket #' ~ package.id) }} ({{ package.credits }} Credits)
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div id="credits-package-hint" class="form-text">
+                        Preis wird aus dem Paketpreis (netto) berechnet. Ohne Paket wird nur eine Admin-Aufladung gebucht.
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                        <label for="credits-payment-method" class="form-label">Zahlart</label>
+                        <select id="credits-payment-method" name="paymentMethod" class="form-select">
+                            <option value="paypal" selected>PayPal</option>
+                            <option value="sepa">SEPA</option>
+                            <option value="bank">Bank</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label for="credits-tax-rate" class="form-label">MwSt %</label>
+                        <input
+                            id="credits-tax-rate"
+                            name="taxRate"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value="19"
+                            class="form-control"
+                        >
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="credits-amount" class="form-label">Credits aufladen</label>
+                    <input
+                        id="credits-amount"
+                        name="amount"
+                        type="number"
+                        min="1"
+                        step="1"
+                        class="form-control"
+                        required
+                    >
+                    <div class="form-text">Bei Paketwahl werden Credits automatisch gesetzt.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="credits-description" class="form-label">Notiz (optional)</label>
+                    <textarea id="credits-description" name="description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Credits buchen
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const packageSelect = document.getElementById('credits-package');
+            const amountInput = document.getElementById('credits-amount');
+            const taxInput = document.getElementById('credits-tax-rate');
+            const paymentSelect = document.getElementById('credits-payment-method');
+            const priceHint = document.getElementById('credits-package-hint');
+
+            if (!packageSelect || !amountInput || !taxInput || !paymentSelect || !priceHint) {
+                return;
+            }
+
+            const parseNumber = (value) => {
+                const normalized = String(value ?? '').replace(',', '.');
+                const parsed = Number.parseFloat(normalized);
+                return Number.isFinite(parsed) ? parsed : 0;
+            };
+
+            const formatEuro = (value) => {
+                return value.toLocaleString('de-DE', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                });
+            };
+
+            const updatePackageInfo = () => {
+                const selectedOption = packageSelect.options[packageSelect.selectedIndex];
+                const hasPackage = Boolean(packageSelect.value);
+                const credits = selectedOption ? parseInt(selectedOption.dataset.credits || '0', 10) : 0;
+                const priceNet = selectedOption ? parseNumber(selectedOption.dataset.price) : 0;
+                const taxRate = Math.max(0, parseNumber(taxInput.value));
+                const paymentMethod = (paymentSelect.value || '').toLowerCase();
+
+                if (hasPackage && credits > 0) {
+                    amountInput.value = credits;
+                    amountInput.readOnly = true;
+                } else {
+                    amountInput.readOnly = false;
+                }
+
+                if (hasPackage && priceNet > 0) {
+                    const priceGross = priceNet * (1 + (taxRate / 100));
+                    let hint = `Netto ${formatEuro(priceNet)} €, Brutto ${formatEuro(priceGross)} €`;
+                    if (paymentMethod === 'paypal') {
+                        const fee = (priceGross * 0.0249) + 0.35;
+                        hint += `, PayPal Gebuehr ${formatEuro(fee)} €`;
+                    }
+                    priceHint.textContent = hint;
+                } else if (!hasPackage) {
+                    priceHint.textContent = 'Ohne Paket wird nur eine Admin-Aufladung ohne Umsatz gebucht.';
+                } else {
+                    priceHint.textContent = 'Preis wird aus dem Paketpreis (netto) berechnet.';
+                }
+            };
+
+            packageSelect.addEventListener('change', updatePackageInfo);
+            taxInput.addEventListener('input', updatePackageInfo);
+            paymentSelect.addEventListener('change', updatePackageInfo);
+            updatePackageInfo();
+        })();
+    </script>
+{% endblock %}

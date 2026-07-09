@@ -1,0 +1,26 @@
+<div class="container-fluid px-0">
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Abo Umsatz pro Monat ({{ rangeLabel }})</div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(aboRevenueChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    <strong>Summe:</strong> {{ aboRevenueSum|number_format(2, ',', '.') }} EUR
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Einrichtungsgebuehr pro Monat ({{ rangeLabel }})</div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(setupRevenueChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    <strong>Summe:</strong> {{ setupRevenueSum|number_format(2, ',', '.') }} EUR
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

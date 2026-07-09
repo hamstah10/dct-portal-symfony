@@ -1,0 +1,33 @@
+<!-- @dsCard group="Colors" viewport="700x170" name="Ignition accent" subtitle="The single brand accent — primary actions & live data" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; padding: 18px; background: var(--surface); font-family: var(--font-mono); display:flex; gap:18px; align-items:stretch; }
+  .hero { flex: 0 0 200px; border-radius: var(--radius-md); background: var(--power-500); color:#fff; padding:14px; display:flex; flex-direction:column; justify-content:space-between; box-shadow: var(--glow-power); }
+  .hero b { font-family:var(--font-display); text-transform:uppercase; font-size:26px; letter-spacing:-.02em; line-height:1; }
+  .hero span { font-size:11px; opacity:.9; }
+  .ramp { flex:1; display:grid; grid-template-columns: repeat(8,1fr); border:1px solid var(--border); border-radius: var(--radius-md); overflow:hidden; }
+  .sw { display:flex; align-items:flex-end; padding:6px; aspect-ratio: 1/1.4; }
+  .sw span{ font-size:9px; }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <span>POWER&nbsp;/&nbsp;PRIMARY</span>
+    <div><b>#E11226</b><div style="font-size:10px;opacity:.85;margin-top:2px">--power-500&nbsp;·&nbsp;--accent</div></div>
+  </div>
+  <div class="ramp">
+    <div class="sw" style="background:var(--power-50)"><span style="color:var(--power-700)">50</span></div>
+    <div class="sw" style="background:var(--power-100)"><span style="color:var(--power-700)">100</span></div>
+    <div class="sw" style="background:var(--power-200)"><span style="color:var(--power-800)">200</span></div>
+    <div class="sw" style="background:var(--power-300)"><span style="color:var(--power-800)">300</span></div>
+    <div class="sw" style="background:var(--power-400)"><span style="color:#fff">400</span></div>
+    <div class="sw" style="background:var(--power-500)"><span style="color:#fff">500</span></div>
+    <div class="sw" style="background:var(--power-600)"><span style="color:#fff">600</span></div>
+    <div class="sw" style="background:var(--power-700)"><span style="color:#fff">700</span></div>
+  </div>
+</body>
+</html>

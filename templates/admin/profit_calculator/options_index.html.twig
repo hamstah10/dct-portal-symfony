@@ -1,0 +1,40 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block table_body %}
+    {% set visible_entities = entities|filter(e => e.isAccessible) %}
+    {% set has_batch_actions = batch_actions|length > 0 %}
+    {% set first_entity = visible_entities|first %}
+    {% set column_count = (first_entity ? (first_entity.fields|length) : 0) + (has_batch_actions ? 1 : 0) + 1 %}
+    {% set current_group_key = null %}
+
+    {% for entity in visible_entities %}
+        {% set vehicle_type = entity.instance.vehicleType %}
+        {% set group_key = vehicle_type ? vehicle_type.id : 'none' %}
+        {% set group_label = vehicle_type ? vehicle_type : 'Ohne Fahrzeugtyp' %}
+
+        {% if group_key != current_group_key %}
+            {% set current_group_key = group_key %}
+            <tr class="table-light">
+                {% for col in 1..column_count %}
+                    <td>
+                        {% if col == 1 %}
+                            <span class="fw-semibold">{{ group_label }}</span>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+        {% endif %}
+
+        {{ block('table_body_row') }}
+    {% else %}
+        {{ block('table_body_empty') }}
+    {% endfor %}
+
+    {% if some_results_are_hidden %}
+        <tr class="datagrid-row-empty">
+            <td class="text-center" colspan="100">
+                <span class="datagrid-row-empty-message"><twig:ea:Icon name="internal:lock" class="mr-1" /> {{ 'datagrid.hidden_results'|trans({}, 'EasyAdminBundle') }}</span>
+            </td>
+        </tr>
+    {% endif %}
+{% endblock table_body %}

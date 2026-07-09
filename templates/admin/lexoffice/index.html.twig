@@ -1,0 +1,677 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}Lexoffice API{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-xl">
+
+        <div class="page-header mb-4">
+            <div class="page-header-subtitle text-muted">Lexoffice API Werkzeuge</div>
+            <h1 class="page-title">
+                <i class="fa fa-file-invoice me-2"></i>
+                Lexoffice API
+            </h1>
+        </div>
+
+        {# ── API Test & Debug ─────────────────────────────────────────────── #}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">
+                    <i class="fa fa-plug me-2 text-primary"></i>
+                    API Test &amp; Debug
+                </h3>
+                <div class="text-muted small mt-1">Direkter Zugriff auf die Lexoffice API. Parameter: page/size (min. 25).</div>
+            </div>
+            <div class="card-body">
+                <div class="lexware-controls mb-3">
+                    <div class="lexware-field">
+                        <label for="lexware-page">Page</label>
+                        <input id="lexware-page" class="form-control form-control-sm" type="number" min="0" value="0" style="width:80px">
+                    </div>
+                    <div class="lexware-field">
+                        <label for="lexware-size">Size</label>
+                        <input id="lexware-size" class="form-control form-control-sm" type="number" min="25" max="200" value="25" style="width:80px">
+                    </div>
+                    <div class="lexware-field">
+                        <label for="lexware-voucher-type">Voucher Type</label>
+                        <select id="lexware-voucher-type" class="form-select form-select-sm" style="width:180px">
+                            <option value="any" selected>any</option>
+                            <option value="salesinvoice">salesinvoice</option>
+                            <option value="salescreditnote">salescreditnote</option>
+                            <option value="purchaseinvoice">purchaseinvoice</option>
+                            <option value="purchasecreditnote">purchasecreditnote</option>
+                            <option value="transaction">transaction</option>
+                        </select>
+                    </div>
+                    <div class="lexware-field">
+                        <label for="lexware-voucher-status">Voucher Status</label>
+                        <select id="lexware-voucher-status" class="form-select form-select-sm" style="width:160px">
+                            <option value="any" selected>any</option>
+                            <option value="draft">draft</option>
+                            <option value="open">open</option>
+                            <option value="overdue">overdue</option>
+                            <option value="paid">paid</option>
+                            <option value="paidoff">paidoff</option>
+                            <option value="voided">voided</option>
+                            <option value="transferred">transferred</option>
+                            <option value="sepadebit">sepadebit</option>
+                            <option value="accepted">accepted</option>
+                            <option value="rejected">rejected</option>
+                            <option value="unchecked">unchecked</option>
+                        </select>
+                    </div>
+                    <div class="lexware-field">
+                        <label for="lexware-invoice-id">Invoice ID</label>
+                        <input id="lexware-invoice-id" type="text" class="form-control form-control-sm" placeholder="z.B. 12345678-ABCD" style="width:220px">
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-primary" data-lexware-action="profile">
+                        <i class="fa fa-plug me-1"></i> Profil testen
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-lexware-action="contacts">
+                        <i class="fa fa-users me-1"></i> Kontakte laden
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-lexware-action="products">
+                        <i class="fa fa-box me-1"></i> Produkte laden
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-lexware-action="vouchers">
+                        <i class="fa fa-receipt me-1"></i> Vouchers laden
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-lexware-action="invoices">
+                        <i class="fa fa-file-invoice me-1"></i> Invoices laden
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-lexware-action="invoice-file">
+                        <i class="fa fa-file-pdf me-1"></i> Invoice PDF
+                    </button>
+                </div>
+
+                <div id="lexware-result" class="mt-4"></div>
+            </div>
+        </div>
+
+        {# ── Firma Kontakt-Prüfung ────────────────────────────────────────── #}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">
+                    <i class="fa fa-building me-2 text-success"></i>
+                    Firma: Lexoffice Kontakt-Prüfung
+                </h3>
+                <div class="text-muted small mt-1">
+                    Prüft für alle Kunden einer Firma, ob sie bereits einen Lexoffice-Kontakt haben. Fehlende werden per E-Mail/Name in Lexoffice gesucht.
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6 col-lg-4">
+                        <label for="firma-select" class="form-label fw-semibold">Firma auswählen</label>
+                        <select id="firma-select" class="form-select">
+                            <option value="">– Firma wählen –</option>
+                            {% for firma in firmen %}
+                                <option value="{{ firma.id }}">{{ firma.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-8 d-flex align-items-end gap-2">
+                        <button type="button" id="btn-check-firma" class="btn btn-success" disabled>
+                            <i class="fa fa-search me-1"></i> Kontakte prüfen
+                        </button>
+                        <button type="button" id="btn-link-all" class="btn btn-primary d-none">
+                            <i class="fa fa-link me-1"></i> Alle gefundenen verknüpfen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="firma-result" class="mt-2"></div>
+            </div>
+        </div>
+
+        {# ── Credit-Pakete → Lexoffice Artikel ───────────────────────────── #}
+        <div class="card mb-4">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="card-title mb-0">
+                        <i class="fa fa-box me-2 text-warning"></i>
+                        Credit-Pakete → Lexoffice Artikel
+                    </h3>
+                    <div class="text-muted small mt-1">Pakete als Produkte in Lexoffice anlegen oder aktualisieren. Preis = Netto, 19% MwSt.</div>
+                </div>
+                <button type="button" id="btn-sync-all-products" class="btn btn-sm btn-warning">
+                    <i class="fa fa-sync-alt me-1"></i> Alle synchronisieren
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Paket</th>
+                            <th>Kategorie</th>
+                            <th class="text-end">Credits</th>
+                            <th class="text-end">Netto</th>
+                            <th>Lexoffice Artikel-ID</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                    {% for pkg in creditPackages %}
+                        <tr data-package-id="{{ pkg.id }}">
+                            <td>{{ pkg.title }}</td>
+                            <td class="text-muted small">{{ pkg.category ? pkg.category.title : '–' }}</td>
+                            <td class="text-end">{{ pkg.credits }}</td>
+                            <td class="text-end">{{ pkg.price|number_format(2, ',', '.') }} €</td>
+                            <td class="small font-monospace text-break pkg-article-id" style="max-width:220px;font-size:10px">
+                                {{ pkg.lexwareArticleId ?? '–' }}
+                            </td>
+                            <td class="pkg-status">
+                                {% if pkg.lexwareArticleId %}
+                                    <span class="badge bg-success">Verknüpft</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Nicht angelegt</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-xs btn-outline-primary btn-sync-product"
+                                    data-package-id="{{ pkg.id }}">
+                                    {% if pkg.lexwareArticleId %}
+                                        <i class="fa fa-sync-alt"></i> Update
+                                    {% else %}
+                                        <i class="fa fa-cloud-upload-alt"></i> Sync
+                                    {% endif %}
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div id="products-result" class="p-3"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    const escHtml = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const fmt = (v) => (v === null || v === undefined) ? '-' : (typeof v === 'object' ? escHtml(JSON.stringify(v)) : escHtml(v));
+
+    // ── API Debug ─────────────────────────────────────────────────────────
+    const resultEl = document.getElementById('lexware-result');
+    const pageEl   = document.getElementById('lexware-page');
+    const sizeEl   = document.getElementById('lexware-size');
+    const vtypeEl  = document.getElementById('lexware-voucher-type');
+    const vstatEl  = document.getElementById('lexware-voucher-status');
+    const invIdEl  = document.getElementById('lexware-invoice-id');
+
+    const endpoints = {
+        profile:      '{{ path('admin_lexoffice_profile') }}',
+        contacts:     '{{ path('admin_lexoffice_contacts') }}',
+        products:     '{{ path('admin_lexoffice_products') }}',
+        vouchers:     '{{ path('admin_lexoffice_vouchers') }}',
+        invoices:     '{{ path('admin_lexoffice_invoices') }}'
+    };
+    const invoiceFileUrl = '{{ path('admin_lexoffice_invoice_file', {id: 'INVOICE_ID'}) }}';
+
+    const renderTable = (rows) => {
+        if (!Array.isArray(rows) || rows.length === 0) return '<p class="text-muted mb-0">Keine Daten.</p>';
+        const cols = Object.keys(rows.find(r => r && typeof r === 'object') || {});
+        if (!cols.length) return `<pre class="lexware-pre">${escHtml(JSON.stringify(rows, null, 2))}</pre>`;
+        const body = rows.slice(0, 25).map(r => `<tr>${cols.map(c => `<td>${fmt(r[c])}</td>`).join('')}</tr>`).join('');
+        const note = rows.length > 25 ? `<p class="text-muted small mt-1">Zeige 25 von ${rows.length} Einträgen</p>` : '';
+        return `<div class="table-responsive"><table class="table table-sm table-hover mb-1"><thead class="table-light"><tr>${cols.map(c => `<th>${escHtml(c)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>${note}</div>`;
+    };
+
+    const renderKv = (data) => {
+        const entries = Object.entries(data || {});
+        if (!entries.length) return '<p class="text-muted">Keine Daten.</p>';
+        return `<dl class="row mb-0">${entries.map(([k,v]) => `<dt class="col-sm-4 col-lg-3 text-truncate">${escHtml(k)}</dt><dd class="col-sm-8 col-lg-9 mb-1">${fmt(v)}</dd>`).join('')}</dl>`;
+    };
+
+    const renderApiResult = (payload, isErr) => {
+        const success = payload?.success;
+        const data    = payload?.data;
+        const msg     = payload?.message;
+        const details = payload?.details;
+
+        let body = '';
+        if (!success) {
+            body = `<div class="alert alert-danger mb-0"><i class="fa fa-exclamation-circle me-2"></i><strong>Fehler:</strong> ${escHtml(msg || 'Unbekannter Fehler')}${details ? `<div class="small text-danger-emphasis mt-1">${escHtml(details)}</div>` : ''}</div>`;
+        } else if (Array.isArray(data)) {
+            body = renderTable(data);
+        } else if (data && typeof data === 'object') {
+            const list = data.content ?? data.items ?? data.data;
+            body = Array.isArray(list) ? renderTable(list) : renderKv(data);
+        } else {
+            body = `<pre class="lexware-pre">${escHtml(JSON.stringify(payload, null, 2))}</pre>`;
+        }
+
+        const count = Array.isArray(data?.content) ? data.content.length : (Array.isArray(data?.items) ? data.items.length : null);
+        const meta  = count !== null ? `<span class="badge bg-secondary ms-2">${count} Einträge</span>` : '';
+
+        resultEl.innerHTML = `
+            <div class="card border-${success ? 'success' : 'danger'}">
+                <div class="card-header d-flex align-items-center justify-content-between py-2">
+                    <span class="fw-semibold">Lexoffice Antwort${meta}</span>
+                    <button type="button" class="btn btn-xs btn-outline-secondary" onclick="this.closest('.card').querySelector('.lexware-raw').classList.toggle('d-none')">Raw</button>
+                </div>
+                <div class="card-body">${body}</div>
+                <div class="card-footer lexware-raw d-none p-2">
+                    <pre class="lexware-pre mb-0">${escHtml(JSON.stringify(payload, null, 2))}</pre>
+                </div>
+            </div>`;
+    };
+
+    document.querySelectorAll('[data-lexware-action]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const action = btn.dataset.lexwareAction;
+            if (action === 'invoice-file') {
+                const id = invIdEl?.value.trim() ?? '';
+                if (!id) { renderApiResult({success:false, message:'Bitte eine Invoice-ID eingeben.'}, true); return; }
+                window.open(invoiceFileUrl.replace('INVOICE_ID', encodeURIComponent(id)), '_blank', 'noopener');
+                return;
+            }
+            if (!endpoints[action]) return;
+            resultEl.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin me-2"></i>Lexoffice Anfrage läuft…</div>';
+            try {
+                const res = await fetch(endpoints[action], {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+                    body: JSON.stringify({
+                        page: pageEl?.value ?? '',
+                        size: sizeEl?.value ?? '',
+                        voucherType: vtypeEl?.value ?? '',
+                        voucherStatus: vstatEl?.value ?? ''
+                    })
+                });
+                renderApiResult(await res.json(), !res.ok);
+            } catch (e) {
+                renderApiResult({success:false, message:e.message}, true);
+            }
+        });
+    });
+
+    // ── Firma Kontakt-Prüfung ─────────────────────────────────────────────
+    const firmaSelect  = document.getElementById('firma-select');
+    const btnCheck     = document.getElementById('btn-check-firma');
+    const btnLinkAll   = document.getElementById('btn-link-all');
+    const firmaResult  = document.getElementById('firma-result');
+
+    let lastFoundItems = [];
+
+    firmaSelect?.addEventListener('change', () => {
+        btnCheck.disabled = !firmaSelect.value;
+        btnLinkAll.classList.add('d-none');
+        firmaResult.innerHTML = '';
+        lastFoundItems = [];
+    });
+
+    const statusBadge = (status) => {
+        const map = {
+            linked:  ['bg-success',   'fa-link',          'Verknüpft'],
+            found:   ['bg-warning text-dark', 'fa-search', 'Gefunden'],
+            missing: ['bg-danger',     'fa-times',         'Fehlt'],
+            error:   ['bg-secondary',  'fa-exclamation',   'Fehler'],
+        };
+        const [cls, icon, label] = map[status] || ['bg-secondary', 'fa-question', status];
+        return `<span class="badge ${cls}"><i class="fa ${icon} me-1"></i>${escHtml(label)}</span>`;
+    };
+
+    const renderFirmaResult = (payload) => {
+        if (!payload.success) {
+            firmaResult.innerHTML = `<div class="alert alert-danger">${escHtml(payload.message || 'Fehler')}</div>`;
+            return;
+        }
+
+        const { data, summary, firma } = payload;
+        lastFoundItems = data.filter(r => r.status === 'found');
+
+        const summaryHtml = `
+            <div class="d-flex flex-wrap gap-3 mb-3">
+                <div class="border rounded px-3 py-2 text-center">
+                    <div class="fs-4 fw-bold">${summary.total}</div>
+                    <div class="text-muted small">Gesamt</div>
+                </div>
+                <div class="border rounded px-3 py-2 text-center border-success">
+                    <div class="fs-4 fw-bold text-success">${summary.linked}</div>
+                    <div class="text-muted small">Verknüpft</div>
+                </div>
+                <div class="border rounded px-3 py-2 text-center border-warning">
+                    <div class="fs-4 fw-bold text-warning">${summary.found}</div>
+                    <div class="text-muted small">Gefunden (nicht verknüpft)</div>
+                </div>
+                <div class="border rounded px-3 py-2 text-center border-danger">
+                    <div class="fs-4 fw-bold text-danger">${summary.missing}</div>
+                    <div class="text-muted small">Nicht in Lexoffice</div>
+                </div>
+            </div>`;
+
+        if (!data.length) {
+            firmaResult.innerHTML = summaryHtml + '<p class="text-muted">Keine Kunden gefunden.</p>';
+            return;
+        }
+
+        const rows = data.map(r => `
+            <tr>
+                <td class="text-muted small font-monospace">${escHtml(r.kundennummer || '–')}</td>
+                <td>${escHtml(r.name || '–')}</td>
+                <td><a href="mailto:${escHtml(r.email)}">${escHtml(r.email || '–')}</a></td>
+                <td>${statusBadge(r.status)}</td>
+                <td class="small font-monospace text-nowrap">${escHtml(r.lexNumber || '–')}</td>
+                <td class="small font-monospace text-break" style="max-width:220px;font-size:10px">${escHtml(r.lexwareContactId || '–')}</td>
+                <td class="small">${escHtml(r.lexName || '–')}</td>
+                <td class="small">${escHtml(r.lexEmail || '–')}</td>
+                <td class="text-nowrap">
+                    ${r.status === 'found' ? `
+                        <button type="button" class="btn btn-xs btn-outline-primary btn-link-one"
+                            data-kunde-id="${r.kundeId}"
+                            data-lex-id="${escHtml(r.lexwareContactId)}">
+                            <i class="fa fa-link"></i> Verknüpfen
+                        </button>` : ''}
+                    ${r.status === 'missing' ? `
+                        <button type="button" class="btn btn-xs btn-outline-success btn-sync-one"
+                            data-kunde-id="${r.kundeId}">
+                            <i class="fa fa-cloud-upload-alt"></i> Sync
+                        </button>` : ''}
+                    ${r.status === 'linked' ? `
+                        <button type="button" class="btn btn-xs btn-outline-secondary btn-update-one"
+                            data-kunde-id="${r.kundeId}">
+                            <i class="fa fa-sync-alt"></i> Update
+                        </button>` : ''}
+                </td>
+            </tr>`).join('');
+
+        firmaResult.innerHTML = summaryHtml + `
+            <div class="table-responsive">
+                <table class="table table-sm table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Kunden-Nr.</th>
+                            <th>Name</th>
+                            <th>E-Mail</th>
+                            <th>Status</th>
+                            <th>Lex-Nr.</th>
+                            <th>Lexoffice ID</th>
+                            <th>Lex-Name</th>
+                            <th>Lex-E-Mail</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+
+        // Einzelne Verknüpfung
+        firmaResult.querySelectorAll('.btn-link-one').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const kundeId = parseInt(btn.dataset.kundeId, 10);
+                const lexId   = btn.dataset.lexId;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                try {
+                    const fd = new FormData();
+                    fd.append('kundeId', String(kundeId));
+                    fd.append('lexwareContactId', lexId);
+                    const res = await fetch('{{ path('admin_lexoffice_link_contact') }}', {method:'POST', body:fd});
+                    const data = await res.json();
+                    if (data.success) {
+                        btn.closest('td').innerHTML = '<span class="badge bg-success"><i class="fa fa-check"></i> OK</span>';
+                        btn.closest('tr').querySelector('td:nth-child(3)').innerHTML = statusBadge('linked');
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Fehler';
+                    }
+                } catch {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Fehler';
+                }
+            });
+        });
+
+        // Sync-Button: fehlenden Kontakt in Lexoffice anlegen
+        firmaResult.querySelectorAll('.btn-sync-one').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const kundeId = parseInt(btn.dataset.kundeId, 10);
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                try {
+                    const fd = new FormData();
+                    fd.append('kundeId', String(kundeId));
+                    const res = await fetch('{{ path('admin_lexoffice_sync_contact') }}', {method: 'POST', body: fd});
+                    const data = await res.json();
+                    if (data.success) {
+                        const row = btn.closest('tr');
+                        // Status-Badge auf "linked" setzen
+                        row.querySelector('td:nth-child(4)').innerHTML = statusBadge('linked');
+                        // Lex-Nr. eintragen
+                        row.querySelector('td:nth-child(5)').textContent = data.lexNumber || '–';
+                        // Lexoffice ID eintragen
+                        row.querySelector('td:nth-child(6)').textContent = data.lexwareContactId || '–';
+                        btn.closest('td').innerHTML = '<span class="badge bg-success"><i class="fa fa-check"></i> Angelegt</span>';
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Fehler';
+                        btn.title = data.message || 'Fehler';
+                    }
+                } catch (e) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Fehler';
+                    btn.title = e.message;
+                }
+            });
+        });
+
+        // Update-Button: bestehenden Lexoffice-Kontakt mit CRM-Daten abgleichen
+        firmaResult.querySelectorAll('.btn-update-one').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const kundeId = parseInt(btn.dataset.kundeId, 10);
+                const origHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                try {
+                    const fd = new FormData();
+                    fd.append('kundeId', String(kundeId));
+                    const res = await fetch('{{ path('admin_lexoffice_update_contact') }}', {method: 'POST', body: fd});
+                    const data = await res.json();
+                    if (data.success) {
+                        const changesText = data.changes && data.changes.length
+                            ? data.changes.join(', ')
+                            : 'keine Änderungen';
+                        btn.disabled = false;
+                        btn.innerHTML = origHtml;
+                        btn.title = data.message;
+                        // Kurze Erfolgs-Rückmeldung in der Zelle
+                        const cell = btn.closest('td');
+                        const flash = document.createElement('span');
+                        flash.className = 'badge bg-success ms-1';
+                        flash.textContent = changesText === 'keine Änderungen' ? '✓ aktuell' : '✓ ' + changesText;
+                        cell.appendChild(flash);
+                        setTimeout(() => flash.remove(), 4000);
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = origHtml;
+                        btn.title = data.message || 'Fehler';
+                        const cell = btn.closest('td');
+                        const flash = document.createElement('span');
+                        flash.className = 'badge bg-danger ms-1';
+                        flash.textContent = '✗ Fehler';
+                        flash.title = data.message || '';
+                        cell.appendChild(flash);
+                        setTimeout(() => flash.remove(), 5000);
+                    }
+                } catch (e) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                    btn.title = e.message;
+                }
+            });
+        });
+
+        if (lastFoundItems.length > 0) {
+            btnLinkAll.classList.remove('d-none');
+        }
+    };
+
+    btnCheck?.addEventListener('click', async () => {
+        const firmaId = firmaSelect?.value;
+        if (!firmaId) return;
+        firmaResult.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin me-2"></i>Prüfe Kontakte in Lexoffice… (kann bei vielen Kunden etwas dauern)</div>';
+        btnLinkAll.classList.add('d-none');
+        lastFoundItems = [];
+        try {
+            const fd = new FormData();
+            fd.append('firmaId', firmaId);
+            const res = await fetch('{{ path('admin_lexoffice_check_firma_contacts') }}', {method:'POST', body:fd});
+            renderFirmaResult(await res.json());
+        } catch (e) {
+            firmaResult.innerHTML = `<div class="alert alert-danger"><i class="fa fa-exclamation-circle me-2"></i>${escHtml(e.message)}</div>`;
+        }
+    });
+
+    btnLinkAll?.addEventListener('click', async () => {
+        if (!lastFoundItems.length) return;
+        if (!confirm(`${lastFoundItems.length} Kunden mit Lexoffice verknüpfen?`)) return;
+        btnLinkAll.disabled = true;
+        btnLinkAll.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Wird gespeichert…';
+        try {
+            const res = await fetch('{{ path('admin_lexoffice_link_all_contacts') }}', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+                body: JSON.stringify({items: lastFoundItems})
+            });
+            const data = await res.json();
+            const alertCls = data.success ? 'alert-success' : 'alert-danger';
+            firmaResult.insertAdjacentHTML('afterbegin', `<div class="alert ${alertCls} mb-3"><i class="fa fa-check-circle me-2"></i>${escHtml(data.message || 'Fertig.')}</div>`);
+            // Neu laden
+            btnLinkAll.classList.add('d-none');
+            lastFoundItems = [];
+        } catch (e) {
+            firmaResult.insertAdjacentHTML('afterbegin', `<div class="alert alert-danger mb-3">${escHtml(e.message)}</div>`);
+        }
+        btnLinkAll.disabled = false;
+        btnLinkAll.innerHTML = '<i class="fa fa-link me-1"></i> Alle gefundenen verknüpfen';
+    });
+}());
+
+// ── Credit-Pakete Sync ────────────────────────────────────────────────────
+(function () {
+    'use strict';
+
+    const escHtml = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const productsResult = document.getElementById('products-result');
+
+    const updateRow = (row, articleId, action) => {
+        row.querySelector('.pkg-article-id').textContent = articleId || '–';
+        row.querySelector('.pkg-status').innerHTML = articleId
+            ? '<span class="badge bg-success">Verknüpft</span>'
+            : '<span class="badge bg-secondary">Nicht angelegt</span>';
+        const btn = row.querySelector('.btn-sync-product');
+        if (btn && articleId) {
+            btn.innerHTML = '<i class="fa fa-sync-alt"></i> Update';
+        }
+    };
+
+    const showResult = (msg, success) => {
+        productsResult.innerHTML = `<div class="alert alert-${success ? 'success' : 'danger'} mb-0">${escHtml(msg)}</div>`;
+        setTimeout(() => { productsResult.innerHTML = ''; }, 5000);
+    };
+
+    document.querySelectorAll('.btn-sync-product').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const packageId = btn.dataset.packageId;
+            const origHtml  = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+            try {
+                const fd = new FormData();
+                fd.append('packageId', packageId);
+                const res  = await fetch('{{ path('admin_lexoffice_sync_product') }}', {method: 'POST', body: fd});
+                const data = await res.json();
+                if (data.success) {
+                    updateRow(btn.closest('tr'), data.articleId, data.action);
+                    btn.innerHTML = '<i class="fa fa-sync-alt"></i> Update';
+                    showResult(data.message + ' ID: ' + data.articleId, true);
+                } else {
+                    btn.innerHTML = origHtml;
+                    showResult(data.message || 'Fehler', false);
+                }
+            } catch (e) {
+                btn.innerHTML = origHtml;
+                showResult(e.message, false);
+            }
+            btn.disabled = false;
+        });
+    });
+
+    document.getElementById('btn-sync-all-products')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btn-sync-all-products');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Wird synchronisiert…';
+        productsResult.innerHTML = '<div class="alert alert-info mb-0"><i class="fa fa-spinner fa-spin me-2"></i>Alle Pakete werden synchronisiert…</div>';
+        try {
+            const res  = await fetch('{{ path('admin_lexoffice_sync_all_products') }}', {method: 'POST'});
+            const data = await res.json();
+            if (data.success) {
+                // Tabelle aktualisieren
+                (data.results || []).forEach(r => {
+                    if (!r.success || !r.articleId) return;
+                    const row = document.querySelector(`tr[data-package-id="${r.id}"]`);
+                    if (row) updateRow(row, r.articleId, r.action);
+                });
+                const errors = (data.results || []).filter(r => !r.success).map(r => r.title + ': ' + r.message);
+                let msg = data.message;
+                if (errors.length) msg += ' Fehler: ' + errors.join('; ');
+                showResult(msg, errors.length === 0);
+            } else {
+                showResult(data.message || 'Fehler', false);
+            }
+        } catch (e) {
+            showResult(e.message, false);
+        }
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-sync-alt me-1"></i> Alle synchronisieren';
+    });
+}());
+</script>
+
+<style>
+.lexware-pre {
+    font-size: 11px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 400px;
+    overflow: auto;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 0;
+}
+.lexware-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.lexware-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lexware-field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.btn-xs {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+</style>
+{% endblock %}

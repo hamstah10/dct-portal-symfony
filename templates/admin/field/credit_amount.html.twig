@@ -1,0 +1,10 @@
+{% set amountNum = (field.value ?? 0) + 0 %}
+{% set amountLabel = amountNum|number_format(0, '.', '') %}
+
+{% if amountNum > 0 %}
+    <span class="text-success fw-semibold">+{{ amountLabel }}</span>
+{% elseif amountNum < 0 %}
+    <span class="text-danger fw-semibold">{{ amountLabel }}</span>
+{% else %}
+    <span class="text-muted">0</span>
+{% endif %}

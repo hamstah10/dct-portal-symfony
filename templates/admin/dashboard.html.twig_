@@ -1,0 +1,215 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}TFD CRM Dashboard{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+   
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Kunden</div>
+                    <div class="display-6 fw-bold">{{ kundenCount }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Software-Eintraege</div>
+                    <div class="display-6 fw-bold">{{ softwareCount }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Abos</div>
+                    <div class="display-6 fw-bold">{{ aboCount }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Uebersicht</div>
+                <div class="card-body" style="height: 360px;">
+                    {{ render_chart(overviewChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    {% for label, value in overviewValues %}
+                        <span class="me-3"><strong>{{ label }}:</strong> {{ value }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Abo-Status</div>
+                <div class="card-body" style="height: 360px;">
+                    {{ render_chart(statusChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    {% set sumStatus = 0 %}
+                    {% for value in statusValues %}{% set sumStatus = sumStatus + value %}{% endfor %}
+                    {% if sumStatus == 0 %}
+                        <span class="text-muted">Noch keine Daten vorhanden.</span>
+                    {% else %}
+                        {% for label, value in statusValues %}
+                            <span class="me-3"><strong>{{ label }}:</strong> {{ value }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Abos pro Monat (letzte 12 Monate)</div>
+                <div class="card-body" style="height: 360px;">
+                    {{ render_chart(aboPerMonthChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    {% set sumAboMonth = 0 %}
+                    {% for value in aboMonthlyValues %}{% set sumAboMonth = sumAboMonth + value %}{% endfor %}
+                    {% if sumAboMonth == 0 %}
+                        <span class="text-muted">Noch keine Daten vorhanden.</span>
+                    {% else %}
+                        <span><strong>Gesamt neue Abos:</strong> {{ sumAboMonth }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Umsatz pro Monat</div>
+                <div class="card-body" style="height: 360px;">
+                    {{ render_chart(revenueChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    {% set sumAboRevenue = 0 %}
+                    {% for value in revenueAboValues %}{% set sumAboRevenue = sumAboRevenue + value %}{% endfor %}
+                    <span><strong>Abo:</strong> {{ sumAboRevenue|number_format(2, ',', '.') }} EUR</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Zahlungsarten (Aktiv/Inaktiv)</div>
+                <div class="card-body" style="height: 320px;">
+                    {{ render_chart(zahlungsartenChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    {% for label, value in zahlungsartenValues %}
+                        <span class="me-3"><strong>{{ label }}:</strong> {{ value }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Kundenkarte</div>
+                <div class="card-body">
+                    {{ ux_map(customersMap, { style: 'height: 320px; width: 100%; border-radius: 8px;' }) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    <span class="me-3"><strong>Marker:</strong> {{ customerMapMarkerCount }}</span>
+                    {% if customerMapUnresolvedCount > 0 %}
+                        <span class="text-muted"><strong>Ohne Treffer:</strong> {{ customerMapUnresolvedCount }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Kunden nach Firmen</div>
+                <div class="card-body" style="height: 320px;">
+                    {{ render_chart(kundenProFirmaChart) }}
+                </div>
+                <div class="card-footer bg-white small">
+                    {% for label, value in kundenProFirmaValues %}
+                        <span class="me-3"><strong>{{ label }}:</strong> {{ value }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold">Kunden-Chat nach Firmen</div>
+                <div class="card-body">
+                    {% if chatFirmen is empty %}
+                        <span class="text-muted">Keine Firmen vorhanden.</span>
+                    {% else %}
+                        <div class="accordion" id="firmChatAccordion">
+                            {% for firma in chatFirmen %}
+                                {% set collapseId = 'chatFirma' ~ firma.id %}
+                                {% set headingId = 'chatHeading' ~ firma.id %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="{{ headingId }}">
+                                        <button class="accordion-button {{ loop.first ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#{{ collapseId }}" aria-expanded="{{ loop.first ? 'true' : 'false' }}" aria-controls="{{ collapseId }}">
+                                            {{ firma.name }}
+                                        </button>
+                                    </h2>
+                                    <div id="{{ collapseId }}" class="accordion-collapse collapse {{ loop.first ? 'show' : '' }}" aria-labelledby="{{ headingId }}" data-bs-parent="#firmChatAccordion">
+                                        <div class="accordion-body">
+                                            <div class="row g-3">
+                                                <div class="col-12 col-xl-7">
+                                                    <div class="border rounded p-3" style="max-height: 300px; overflow-y: auto; background: #f8f9fb;">
+                                                        {% set firmaMessages = chatMessagesByFirma[firma.id]|default([]) %}
+                                                        {% if firmaMessages is empty %}
+                                                            <span class="text-muted">Noch keine Nachrichten fuer diese Firma.</span>
+                                                        {% else %}
+                                                            {% for item in firmaMessages %}
+                                                                <div class="mb-2 p-2 rounded {{ item.senderType == 'admin' ? 'bg-white border' : 'bg-light border' }}">
+                                                                    <div class="small text-muted">
+                                                                        <strong>{{ item.senderName }}</strong>
+                                                                        {% if item.kundeName %}
+                                                                            an {{ item.kundeName }}
+                                                                        {% endif %}
+                                                                        <span class="ms-2">{{ item.createdAt }}</span>
+                                                                    </div>
+                                                                    <div>{{ item.message }}</div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-xl-5">
+                                                    <form method="post" action="{{ path('admin_chat_send') }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_chat_send') }}">
+                                                        <input type="hidden" name="firmaId" value="{{ firma.id }}">
+                                                        <div class="mb-2">
+                                                            <label class="form-label mb-1">Kunde (optional)</label>
+                                                            <select name="kundeId" class="form-select">
+                                                                <option value="0">Alle Kunden der Firma</option>
+                                                                {% for kunde in firma.kunden %}
+                                                                    <option value="{{ kunde.id }}">{{ kunde.name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="form-label mb-1">Nachricht</label>
+                                                            <textarea name="message" rows="4" class="form-control" required></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Nachricht senden</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

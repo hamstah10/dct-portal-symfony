@@ -1,0 +1,916 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profitcalculator{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/themes/odometer-theme-default.min.css"
+        integrity="sha512-/k/mL9TQSZHAqtVqXJAiy5bt2w1P7gxdra0UlnFjVHF9a/LC2vxt7otx3BMcn79V/DZsPRwdw8tPlwbElMnIAw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"
+    >
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" integrity="sha512-c42qTSw/wPZ3/5LBzD+Bw5f7bSF2oxou6wEb+I/lqeaKV5FDIfMvvRp772y4jcJLKuGUOpbJMdg/BTl50fJYAw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ asset('styles/profit_calculator.css') }}?v={{ profitCalculatorCssVersion|default('1') }}">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js" integrity="sha512-Eak/29OTpb36LLo2r47IpVzPBLXnAMPAVypbSZiZ4Qkf8p/7S/XRG5xp7OKWPPYfJT6metI+IORkR5G8F900+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+              new WOW().init();
+              </script>
+{% endblock %}
+
+{% block body %}
+<div class="pc-page" data-vat-rate="{{ vatRate|default(0) }}" data-purchase-include-vat="{{ calculator and calculator.purchasePriceIncludeVat ? '1' : '0' }}" data-default-layout="classic">
+    <div class="pc-shell">
+        <header class="pc-header">
+            <div>
+                <div class="pc-logo-wrap wow bounceInUp">
+                    <img class="pc-logo" src="{{ asset('images/tuningfux-gelb.svg') }}" alt="Tuningfux">
+                </div>
+                
+                
+
+
+
+            </div>
+            <div class="pc-header-actions wow bounceInUp">
+                <div class="pc-layout-switch" role="group" aria-label="Layout">
+                    <button type="button" class="pc-layout-btn" data-layout-btn="classic">Klassik</button>
+                    <button type="button" class="pc-layout-btn" data-layout-btn="alt">Karten</button>
+                </div>
+                <div class="pc-header__badge">
+                    <span>inkl. MwSt.</span>
+                    <strong>{{ vatRate|default(0)|number_format(2, ',', '.') }}%</strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="pc-layout wow bounceInUp" data-layout>
+            <section class="pc-summary pc-summary--bar">
+                <div class="pc-summary-card pc-summary-card--bar">
+                    <div class="pc-summary-head">Zusammenfassung</div>
+                    <div id="pcSummaryItems" class="pc-summary-items"></div>
+
+                    <div class="pc-summary-totals">
+                        <div>
+                            <span>Zwischensumme</span>
+                            <strong data-summary-subtotal>0,00 €</strong>
+                        </div>
+                        <div>
+                            <span>MwSt. ({{ vatRate|default(0)|number_format(0, ',', '.') }}%)</span>
+                            <strong data-summary-vat>0,00 €</strong>
+                        </div>
+                        <div>
+                            <span>Profit (Netto)</span>
+                            <strong data-summary-profit>0,00 €</strong>
+                        </div>
+                        <div class="pc-summary-total">
+                            <span>Gesamt</span>
+                            <strong data-summary-total>0,00 €</strong>
+                        </div>
+                    </div>
+
+                    <div class="pc-summary-actions">
+                        <button type="button" class="pc-btn pc-btn-muted rounded-0" data-reset>Zurücksetzen</button>
+                        <button type="button" class="pc-btn pc-btn-primary rounded-0" data-calc>Berechnen</button>
+                    </div>
+                </div>
+            </section>
+
+            <main class="pc-main pc-main--grid">
+                {% if vehicleTypes is empty %}
+                    <div class="pc-empty">
+                        <h2>Keine Fahrzeugtypen gefunden</h2>
+                        <p>Bitte im Backend unter <strong>Profitcalculator → Fahrzeugtypen</strong> Daten hinterlegen.</p>
+                    </div>
+                {% endif %}
+
+                {% for vehicleType in vehicleTypes %}
+                    {% set heroImage = vehicleType.image ? asset(vehicleType.image) : '' %}
+                    {% set typeUxIcon = vehicleType.icon ? vehicleType.icon|trim : '' %}
+                    <section
+                        class="wow slideInLeft pc-vehicle-card is-options-collapsed {{ loop.first ? 'is-active' : '' }}"
+                        data-wow-duration="2s" data-wow-delay="5s"
+                        data-vehicle-id="{{ vehicleType.id }}"
+                        data-title="{{ vehicleType.title }}"
+                        data-sorting="{{ vehicleType.sorting }}"
+                        data-price="{{ vehicleType.endPrice }}"
+                        data-purchase-price="{{ vehicleType.purchasePrice }}"
+                        data-purchase-include-vat="{{ vehicleType.purchasePriceIncludeVat ? '1' : '0' }}"
+                        data-include-vat="{{ vehicleType.endPriceIncludeVat ? '1' : '0' }}"
+                        style="--pc-hero-image: {{ heroImage ? 'url(' ~ heroImage ~ ')' : 'none' }};"
+                    >
+                        <div class="pc-vehicle-hero">
+                            <div class="pc-vehicle-title audiowide-regular">
+                                {% if typeUxIcon %}
+                                    <span class="pc-vehicle-icon">
+                                        {{ ux_icon(typeUxIcon) }}
+                                    </span>
+                                {% endif %}
+                                <span class="pc-vehicle-title-text">{{ vehicleType.title }}</span>
+                            </div>
+                            <div class="pc-vehicle-price">
+                                <span>inkl. {{ vatRate|default(0)|number_format(0, ',', '.') }}%</span>
+                                <strong>{{ vehicleType.endPrice|number_format(2, ',', '.') }} €</strong>
+                            </div>
+                        </div>
+
+                        <div class="pc-vehicle-controls">
+                            <div class="pc-range-wrap rounded-0">
+                                <span class="pc-range-label rounded-0" data-vehicle-qty>{{ loop.first ? '1x' : '0x' }}</span>
+                                <input
+                                    class="pc-range"
+                                    type="range"
+                                    min="0"
+                                    max="20"
+                                    step="1"
+                                    value="{{ loop.first ? 1 : 0 }}"
+                                    aria-label="Anzahl {{ vehicleType.title }}"
+                                >
+                                <span class="pc-range-max">20 x</span>
+                            </div>
+                            <div class="pc-vehicle-total rounded-0">
+                                <span data-vehicle-total>0,00 €</span>
+                            </div>
+                        </div>
+
+                        <div class="pc-vehicle-options">
+                            <button class="pc-options-toggle rounded-0" type="button" data-options-toggle>
+                                <span class="pc-options-label">
+                                    {% if typeUxIcon %}
+                                        <span class="pc-options-icon">
+                                            {{ ux_icon(typeUxIcon) }}
+                                        </span>
+                                    {% endif %}
+                                    <span>Zusatzoptionen {{ vehicleType.title }}</span>
+                                </span>
+                                <span class="pc-options-arrow"></span>
+                            </button>
+
+                            <div class="pc-options-grid">
+                                {% if vehicleType.options is empty %}
+                                    <div class="pc-options-empty">Keine Zusatzoptionen hinterlegt.</div>
+                                {% endif %}
+
+                                {% for option in vehicleType.options %}
+                                    {% set optionIcon = option.resolvedIconPath ?? option.image %}
+                                    <button
+                                        type="button"
+                                        class="pc-option"
+                                        data-option-id="{{ option.id }}"
+                                        data-title="{{ option.title }}"
+                                        data-price="{{ option.endPrice }}"
+                                        data-purchase-price="{{ option.purchasePrice }}"
+                                        data-purchase-include-vat="{{ calculator and calculator.purchasePriceIncludeVat ? '1' : '0' }}"
+                                        data-include-vat="{{ option.endPriceIncludeVat ? '1' : '0' }}"
+                                    >
+                                        <span class="pc-option-icon">
+                                            {% if optionIcon %}
+                                                <img src="{{ asset(optionIcon) }}" alt="">
+                                            {% else %}
+                                                <span class="pc-option-glyph">+</span>
+                                            {% endif %}
+                                        </span>
+                                        <span class="pc-option-title">{{ option.title }}</span>
+                                        <span class="pc-option-price">{{ option.endPrice|number_format(2, ',', '.') }} €</span>
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+                {% endfor %}
+            </main>
+
+            <section class="pc-tier-bar">
+                <div class="pc-tier-card pc-tier-card--wide">
+                    <div class="pc-tier-head">Preisstufen</div>
+                    <div class="pc-tier-list">
+                        {% if priceTiers is empty %}
+                            <div class="pc-tier-empty">Keine Preisstaffeln hinterlegt.</div>
+                        {% endif %}
+                        {% for tier in priceTiers %}
+                            <button
+                                type="button"
+                                class="pc-tier {{ tier.isDefaultPrice ? 'is-selected' : '' }}"
+                                data-tier
+                                data-tier-id="{{ tier.id }}"
+                                data-default="{{ tier.isDefaultPrice ? '1' : '0' }}"
+                                data-credits="{{ tier.credits }}"
+                                data-price-per-file="{{ tier.pricePerFile }}"
+                                data-purchase-price="{{ tier.purchasePrice }}"
+                                data-include-vat="{{ calculator and calculator.purchasePriceIncludeVat ? '1' : '0' }}"
+                            >
+                                <span class="pc-tier-credits">{{ tier.credits }} Credits</span>
+                                <span class="pc-tier-price">{{ tier.pricePerFile|number_format(2, ',', '.') }} €</span>
+                                <small>pro File</small>
+                            </button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section id="pcResult" class="pc-result is-hidden" aria-live="polite">
+            <div class="pc-result-card">
+                <div class="pc-result-head">
+                    <div>
+                        <span class="pc-result-kicker">Berechnungsergebnisse</span>
+                        <h2>Ergebnis</h2>
+                        <p>Gewinnszenarien je Preisstaffel und detaillierte Aufschlüsselung.</p>
+                    </div>
+                    <button type="button" class="pc-btn pc-btn-muted" data-result-close>Neue Berechnung</button>
+                </div>
+
+                <div class="pc-result-metrics">
+                    <div class="pc-metric pc-metric-revenue rounded-0">
+                        <span>Gesamtumsatz</span>
+                        <strong data-result-revenue>0,00 €</strong>
+                    </div>
+                    <div class="pc-metric pc-metric-profit rounded-0">
+                        <span>Gesamtgewinn</span>
+                        <strong data-result-profit>0,00 €</strong>
+                    </div>
+                </div>
+
+                <div class="pc-result-section">
+                    <h3>Gewinnszenarien nach Preisstaffel</h3>
+                    <div id="pcScenarioBlocks" class="pc-scenario-blocks"></div>
+                </div>
+
+                <div class="pc-result-section">
+                    <h3>Detaillierte Aufschlüsselung</h3>
+                    <div id="pcBreakdownBlocks" class="pc-breakdown-grid rounded-0"></div>
+                </div>
+
+                <div class="pc-result-section">
+                    <h3>Optionen-Details</h3>
+                    <div id="pcOptionBlocks" class="pc-option-grid rounded-0"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.7/odometer.min.js" integrity="sha512-v3fZyWIk7kh9yGNQZf1SnSjIxjAKsYbg6UQ+B+QxAZqJQLrN3jMjrdNwcxV6tis6S0s1xyVDZrDz9UoRLfRpWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(() => {
+    const page = document.querySelector('.pc-page');
+    if (!page) {
+        return;
+    }
+
+    const layout = page.querySelector('[data-layout]');
+    const layoutButtons = Array.from(page.querySelectorAll('[data-layout-btn]'));
+    const layoutStorageKey = 'pc_profit_layout';
+    const defaultLayout = (page.dataset.defaultLayout || 'classic').toLowerCase();
+    const normalizeLayout = (value) => (value === 'alt' ? 'alt' : 'classic');
+
+    const applyLayout = (value) => {
+        if (!layout) {
+            return;
+        }
+
+        const mode = normalizeLayout(value);
+        layout.classList.toggle('pc-layout--alt', mode === 'alt');
+        layoutButtons.forEach((btn) => {
+            btn.classList.toggle('is-active', btn.dataset.layoutBtn === mode);
+        });
+        page.dataset.layout = mode;
+    };
+
+    const storedLayout = normalizeLayout(localStorage.getItem(layoutStorageKey) || defaultLayout);
+    applyLayout(storedLayout);
+
+    layoutButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const mode = normalizeLayout(btn.dataset.layoutBtn || defaultLayout);
+            localStorage.setItem(layoutStorageKey, mode);
+            applyLayout(mode);
+        });
+    });
+
+    const vatRate = Number.parseFloat(page.dataset.vatRate || '0') || 0;
+    const vatMultiplier = 1 + vatRate / 100;
+    const purchaseIncludeVatDefault = page.dataset.purchaseIncludeVat === '1';
+
+    const formatCurrency = (value) => {
+        try {
+            return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+        } catch (error) {
+            return value.toFixed(2).replace('.', ',') + ' €';
+        }
+    };
+
+    const odometerStates = new WeakMap();
+
+    const ensureCurrencyOdometer = (node) => {
+        if (!node) {
+            return null;
+        }
+
+        if (odometerStates.has(node)) {
+            return odometerStates.get(node);
+        }
+
+        const valueSpan = document.createElement('span');
+        valueSpan.className = 'pc-amount-value';
+        valueSpan.textContent = '0';
+
+        const decimalsSpan = document.createElement('span');
+        decimalsSpan.className = 'pc-amount-decimals';
+        decimalsSpan.textContent = ',00';
+
+        const currencySpan = document.createElement('span');
+        currencySpan.className = 'pc-amount-currency';
+        currencySpan.textContent = '€';
+
+        node.textContent = '';
+        node.classList.add('pc-amount');
+        node.append(valueSpan, decimalsSpan, currencySpan);
+
+        let odometer = null;
+        if (window.Odometer) {
+            odometer = new window.Odometer({
+                el: valueSpan,
+                value: 0,
+                duration: 700,
+                format: '(.ddd)',
+            });
+        }
+
+        const state = { odometer, valueSpan, decimalsSpan };
+        odometerStates.set(node, state);
+        return state;
+    };
+
+    const formatInteger = (value) => {
+        try {
+            return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(value);
+        } catch (error) {
+            return String(value);
+        }
+    };
+
+    const splitCurrencyParts = (value) => {
+        const safe = Number.isFinite(value) ? value : 0;
+        const rounded = Math.round(safe * 100) / 100;
+        const integerPart = Math.trunc(rounded);
+        const decimals = Math.abs(Math.round((rounded - integerPart) * 100)).toString().padStart(2, '0');
+
+        return { integerPart, decimals };
+    };
+
+    const setAnimatedCurrency = (node, value) => {
+        if (!node) {
+            return;
+        }
+
+        const state = ensureCurrencyOdometer(node);
+        const parts = splitCurrencyParts(value);
+
+        if (state) {
+            if (state.odometer) {
+                state.odometer.update(parts.integerPart);
+            } else if (state.valueSpan) {
+                state.valueSpan.textContent = formatInteger(parts.integerPart);
+            }
+            if (state.decimalsSpan) {
+                state.decimalsSpan.textContent = `,${parts.decimals}`;
+            }
+            return;
+        }
+
+        node.textContent = formatCurrency(value);
+    };
+
+    const computeTotals = (price, includeVat) => {
+        const gross = price;
+        if (includeVat) {
+            const net = gross / vatMultiplier;
+            return { net, vat: gross - net, gross };
+        }
+
+        const net = gross;
+        const vat = net * (vatRate / 100);
+        return { net, vat, gross: net + vat };
+    };
+
+    const vehicles = Array.from(document.querySelectorAll('.pc-vehicle-card'));
+    const summaryItems = document.getElementById('pcSummaryItems');
+    const subtotalEl = document.querySelector('[data-summary-subtotal]');
+    const vatEl = document.querySelector('[data-summary-vat]');
+    const totalEl = document.querySelector('[data-summary-total]');
+    const profitEl = document.querySelector('[data-summary-profit]');
+
+    const tierButtons = Array.from(document.querySelectorAll('[data-tier]'));
+
+    const parseNumber = (value) => Number.parseFloat(value || '0') || 0;
+    const parseIntSafe = (value) => Number.parseInt(value || '0', 10) || 0;
+
+    const getTierDataFromButton = (button) => {
+        if (!button) {
+            return null;
+        }
+
+        const credits = Number.parseInt(button.dataset.credits || '0', 10) || 0;
+        const purchasePrice = parseNumber(button.dataset.purchasePrice);
+        const pricePerFile = parseNumber(button.dataset.pricePerFile);
+        let pricePerCreditGross = 0;
+
+        if (credits > 0 && purchasePrice > 0) {
+            pricePerCreditGross = purchasePrice / credits;
+        } else if (pricePerFile > 0) {
+            pricePerCreditGross = pricePerFile;
+        }
+
+        return {
+            id: button.dataset.tierId || '',
+            credits,
+            purchasePrice,
+            pricePerFile,
+            pricePerCreditGross,
+            isDefault: button.dataset.default === '1',
+        };
+    };
+
+    const getAllTiers = () => tierButtons
+        .map(getTierDataFromButton)
+        .filter((tier) => tier)
+        .sort((a, b) => a.credits - b.credits);
+
+    const getDefaultTierData = () => {
+        const fallback = tierButtons[0] || null;
+        const defaultBtn = tierButtons.find((btn) => btn.dataset.default === '1') || fallback;
+        return getTierDataFromButton(defaultBtn);
+    };
+
+    const getSelectedTierData = () => {
+        const selected = tierButtons.find((btn) => btn.classList.contains('is-selected')) || tierButtons[0] || null;
+        return getTierDataFromButton(selected);
+    };
+
+    const getBaseTierData = () => getSelectedTierData() || getDefaultTierData();
+
+    const getPricePerCreditNet = (pricePerCreditGross, purchaseIncludeVat) => {
+        if (pricePerCreditGross <= 0) {
+            return 0;
+        }
+
+        return purchaseIncludeVat ? (pricePerCreditGross / vatMultiplier) : pricePerCreditGross;
+    };
+
+    const getCostNet = (creditsNeeded, pricePerCreditGross, purchaseIncludeVat) => {
+        const pricePerCreditNet = getPricePerCreditNet(pricePerCreditGross, purchaseIncludeVat);
+        if (pricePerCreditNet > 0) {
+            return creditsNeeded * pricePerCreditNet;
+        }
+
+        return creditsNeeded;
+    };
+
+    const collectSelections = () => {
+        const items = [];
+
+        vehicles.forEach((card, index) => {
+            const qty = Number.parseInt(card.querySelector('.pc-range').value, 10) || 0;
+            if (qty <= 0) {
+                return;
+            }
+
+            const unitPrice = parseNumber(card.dataset.price);
+            const includeVat = card.dataset.includeVat === '1';
+            const totals = computeTotals(unitPrice * qty, includeVat);
+            const unitTotals = computeTotals(unitPrice, includeVat);
+            const creditsNeeded = parseNumber(card.dataset.purchasePrice);
+            const purchaseIncludeVat = card.dataset.purchaseIncludeVat
+                ? card.dataset.purchaseIncludeVat === '1'
+                : purchaseIncludeVatDefault;
+
+            items.push({
+                type: 'vehicle',
+                id: card.dataset.vehicleId || '',
+                title: card.dataset.title || 'Fahrzeug',
+                qty,
+                unitTotals,
+                totals,
+                creditsNeeded,
+                purchaseIncludeVat,
+                sorting: parseIntSafe(card.dataset.sorting) || index,
+            });
+        });
+
+        const selectedOptions = Array.from(document.querySelectorAll('.pc-option.is-selected'));
+        selectedOptions.forEach((option) => {
+            const price = parseNumber(option.dataset.price);
+            const includeVat = option.dataset.includeVat === '1';
+            const totals = computeTotals(price, includeVat);
+            const unitTotals = computeTotals(price, includeVat);
+            const creditsNeeded = parseNumber(option.dataset.purchasePrice);
+            const purchaseIncludeVat = option.dataset.purchaseIncludeVat
+                ? option.dataset.purchaseIncludeVat === '1'
+                : purchaseIncludeVatDefault;
+
+            items.push({
+                type: 'option',
+                id: option.dataset.optionId || '',
+                title: option.dataset.title || 'Option',
+                qty: 1,
+                unitTotals,
+                totals,
+                creditsNeeded,
+                purchaseIncludeVat,
+                sorting: 9999,
+            });
+        });
+
+        return items;
+    };
+
+    const buildSummary = (items, tier) => {
+        if (!summaryItems) {
+            return;
+        }
+
+        summaryItems.innerHTML = '';
+        let netTotal = 0;
+        let vatTotal = 0;
+        let grossTotal = 0;
+        let profitNetTotal = 0;
+        const pricePerCreditGross = tier?.pricePerCreditGross || 0;
+
+        const sortedItems = [...items].sort((a, b) => {
+            if (a.type !== b.type) {
+                return a.type === 'vehicle' ? -1 : 1;
+            }
+
+            if (a.sorting !== b.sorting) {
+                return a.sorting - b.sorting;
+            }
+
+            return a.title.localeCompare(b.title, 'de');
+        });
+
+        sortedItems.forEach((item) => {
+            netTotal += item.totals.net;
+            vatTotal += item.totals.vat;
+            grossTotal += item.totals.gross;
+            const costNet = getCostNet(item.creditsNeeded, pricePerCreditGross, item.purchaseIncludeVat) * item.qty;
+            profitNetTotal += (item.totals.net - costNet);
+
+            const row = document.createElement('div');
+            if (item.type === 'option') {
+                row.className = 'pc-summary-item pc-summary-item--option';
+                row.innerHTML = `
+                    <div class="pc-summary-label">
+                        <span class="pc-summary-title">${item.title}</span>
+                        <small>Option</small>
+                    </div>
+                    <div class="pc-summary-price">${formatCurrency(item.totals.gross)}</div>
+                    <button class="pc-summary-remove" type="button" data-remove-option="${item.id || ''}">&times;</button>
+                `;
+            } else {
+                row.className = 'pc-summary-item';
+                row.innerHTML = `
+                    <div class="pc-summary-label">
+                        <span class="pc-summary-title">${item.title}</span>
+                        <small>${item.qty}x</small>
+                    </div>
+                    <div class="pc-summary-price">${formatCurrency(item.totals.gross)}</div>
+                `;
+            }
+            summaryItems.appendChild(row);
+        });
+
+        if (summaryItems.children.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'pc-summary-empty';
+            empty.textContent = 'Keine Auswahl getroffen.';
+            summaryItems.appendChild(empty);
+        }
+
+        if (subtotalEl) {
+            setAnimatedCurrency(subtotalEl, netTotal);
+        }
+        if (vatEl) {
+            setAnimatedCurrency(vatEl, vatTotal);
+        }
+        if (totalEl) {
+            setAnimatedCurrency(totalEl, grossTotal);
+        }
+        if (profitEl) {
+            setAnimatedCurrency(profitEl, profitNetTotal);
+        }
+
+        summaryItems.querySelectorAll('[data-remove-option]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const optionId = btn.dataset.removeOption;
+                const option = document.querySelector(`.pc-option[data-option-id="${optionId}"]`);
+                if (option) {
+                    option.classList.remove('is-selected');
+                    render();
+                }
+            });
+        });
+    };
+
+    const buildResult = (items, tier, tiers, defaultTier) => {
+        const revenueEl = document.querySelector('[data-result-revenue]');
+        const profitMetricEl = document.querySelector('[data-result-profit]');
+        const scenarioBlocks = document.getElementById('pcScenarioBlocks');
+        const breakdownBlocks = document.getElementById('pcBreakdownBlocks');
+        const optionBlocks = document.getElementById('pcOptionBlocks');
+
+        if (!scenarioBlocks || !breakdownBlocks || !optionBlocks) {
+            return;
+        }
+
+        const pricePerCreditSelected = tier?.pricePerCreditGross || 0;
+        const pricePerCreditDefault = defaultTier?.pricePerCreditGross || pricePerCreditSelected;
+
+        const vehicleItems = items
+            .filter((item) => item.type === 'vehicle')
+            .sort((a, b) => a.sorting - b.sorting || a.title.localeCompare(b.title, 'de'));
+        const optionItems = items
+            .filter((item) => item.type === 'option')
+            .sort((a, b) => a.title.localeCompare(b.title, 'de'));
+
+        let revenueGrossTotal = 0;
+        let profitNetTotal = 0;
+
+        items.forEach((item) => {
+            revenueGrossTotal += item.totals.gross;
+            const costNet = getCostNet(item.creditsNeeded, pricePerCreditSelected, item.purchaseIncludeVat) * item.qty;
+            profitNetTotal += (item.totals.net - costNet);
+        });
+
+        if (revenueEl) {
+            setAnimatedCurrency(revenueEl, revenueGrossTotal);
+        }
+        if (profitMetricEl) {
+            setAnimatedCurrency(profitMetricEl, profitNetTotal);
+        }
+
+        scenarioBlocks.innerHTML = '';
+        if (vehicleItems.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'pc-result-empty';
+            empty.textContent = 'Keine Fahrzeugtypen gewählt.';
+            scenarioBlocks.appendChild(empty);
+        }
+
+        vehicleItems.forEach((vehicle) => {
+            const block = document.createElement('div');
+            block.className = 'pc-scenario-block';
+            block.innerHTML = `
+                <div class="pc-scenario-head">
+                    <span class="pc-scenario-title">${vehicle.title}</span>
+                    <span class="pc-scenario-sub">Menge: ${vehicle.qty} • Verkaufspreis netto: ${formatCurrency(vehicle.unitTotals.net)}</span>
+                </div>
+                <div class="pc-scenario-table">
+                    <div class="pc-scenario-row pc-scenario-row--head">
+                        <span>Credits</span>
+                        <span>Preis pro Credit</span>
+                        <span>Einkaufspreis</span>
+                        <span>Gewinn pro Datei</span>
+                        <span>Gesamtgewinn</span>
+                        <span>vs. Standard</span>
+                    </div>
+                </div>
+            `;
+
+            const table = block.querySelector('.pc-scenario-table');
+
+            tiers.forEach((tierRow) => {
+                const pricePerCreditGross = tierRow.pricePerCreditGross || 0;
+                const pricePerCreditNet = getPricePerCreditNet(pricePerCreditGross, vehicle.purchaseIncludeVat);
+                const costPerFile = getCostNet(vehicle.creditsNeeded, pricePerCreditGross, vehicle.purchaseIncludeVat);
+                const profitPerFile = vehicle.unitTotals.net - costPerFile;
+                const totalProfit = profitPerFile * vehicle.qty;
+
+                const standardCost = getCostNet(vehicle.creditsNeeded, pricePerCreditDefault, vehicle.purchaseIncludeVat);
+                const standardProfit = (vehicle.unitTotals.net - standardCost) * vehicle.qty;
+                const vsStandard = totalProfit - standardProfit;
+
+                const row = document.createElement('div');
+                row.className = 'pc-scenario-row';
+                row.innerHTML = `
+                    <span>${tierRow.credits}</span>
+                    <span>${pricePerCreditNet > 0 ? pricePerCreditNet.toFixed(2).replace('.', ',') : '—'} €</span>
+                    <span>${formatCurrency(costPerFile)}</span>
+                    <span>${formatCurrency(profitPerFile)}</span>
+                    <span>${formatCurrency(totalProfit)}</span>
+                    <span class="${vsStandard >= 0 ? 'pc-pill pc-pill--positive' : 'pc-pill pc-pill--negative'}">${vsStandard >= 0 ? '+' : ''}${formatCurrency(vsStandard)}</span>
+                `;
+                table.appendChild(row);
+
+                if (optionItems.length > 0) {
+                    const optionsRow = document.createElement('div');
+                    optionsRow.className = 'pc-scenario-options';
+                    const optionTags = optionItems.map((option) => {
+                        const optionCost = getCostNet(option.creditsNeeded, pricePerCreditGross, option.purchaseIncludeVat);
+                        const optionProfit = option.unitTotals.net - optionCost;
+                        return `<span class="pc-option-tag">${option.title} • ${formatCurrency(optionProfit)}</span>`;
+                    });
+                    optionsRow.innerHTML = `
+                        <div class="pc-scenario-options-title">Optionen für diese Preisstaffel</div>
+                        <div class="pc-scenario-options-list">${optionTags.join('')}</div>
+                    `;
+                    table.appendChild(optionsRow);
+                }
+            });
+
+            scenarioBlocks.appendChild(block);
+        });
+
+        breakdownBlocks.innerHTML = '';
+        if (vehicleItems.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'pc-result-empty';
+            empty.textContent = 'Keine detaillierte Aufschlüsselung verfügbar.';
+            breakdownBlocks.appendChild(empty);
+        }
+
+        vehicleItems.forEach((vehicle) => {
+            const pricePerCreditNet = getPricePerCreditNet(pricePerCreditSelected, vehicle.purchaseIncludeVat);
+            const costPerFile = getCostNet(vehicle.creditsNeeded, pricePerCreditSelected, vehicle.purchaseIncludeVat);
+            const profitPerFile = vehicle.unitTotals.net - costPerFile;
+            const totalProfit = profitPerFile * vehicle.qty;
+
+            const card = document.createElement('div');
+            card.className = 'pc-breakdown-card';
+            card.innerHTML = `
+                <div class="pc-breakdown-head">${vehicle.title}</div>
+                <div class="pc-breakdown-row"><span>Menge</span><strong>${vehicle.qty}</strong></div>
+                <div class="pc-breakdown-row"><span>Verkaufspreis (netto)</span><strong>${formatCurrency(vehicle.unitTotals.net)}</strong></div>
+                <div class="pc-breakdown-row"><span>Einkaufspreis (netto)</span><strong>${formatCurrency(costPerFile)}</strong></div>
+                <div class="pc-breakdown-row"><span>Gewinn pro Datei</span><strong class="pc-text-positive">${formatCurrency(profitPerFile)}</strong></div>
+                <div class="pc-breakdown-row"><span>Gesamtgewinn</span><strong class="pc-text-positive">${formatCurrency(totalProfit)}</strong></div>
+                <div class="pc-breakdown-row"><span>Benötigte Credits</span><strong>${vehicle.creditsNeeded}</strong></div>
+                <div class="pc-breakdown-row"><span>Preis pro Credit</span><strong>${pricePerCreditNet > 0 ? pricePerCreditNet.toFixed(2).replace('.', ',') + ' €' : '—'}</strong></div>
+            `;
+            breakdownBlocks.appendChild(card);
+        });
+
+        optionBlocks.innerHTML = '';
+        if (optionItems.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'pc-result-empty';
+            empty.textContent = 'Keine Optionen ausgewählt.';
+            optionBlocks.appendChild(empty);
+        }
+
+        optionItems.forEach((option) => {
+            const costPerOption = getCostNet(option.creditsNeeded, pricePerCreditSelected, option.purchaseIncludeVat);
+            const profitPerOption = option.unitTotals.net - costPerOption;
+            const totalProfit = profitPerOption * option.qty;
+
+            const card = document.createElement('div');
+            card.className = 'pc-option-card';
+            card.innerHTML = `
+                <div class="pc-option-card-head">${option.title}</div>
+                <div class="pc-breakdown-row"><span>Menge</span><strong>${option.qty}</strong></div>
+                <div class="pc-breakdown-row"><span>Gewinn pro Datei</span><strong class="pc-text-positive">${formatCurrency(profitPerOption)}</strong></div>
+                <div class="pc-breakdown-row"><span>Gesamtgewinn</span><strong class="pc-text-positive">${formatCurrency(totalProfit)}</strong></div>
+            `;
+            optionBlocks.appendChild(card);
+        });
+    };
+
+    const render = () => {
+        const items = collectSelections();
+        const baseTier = getBaseTierData();
+        const tiers = getAllTiers();
+        const defaultTier = getDefaultTierData() || baseTier;
+
+        buildSummary(items, baseTier);
+        buildResult(items, baseTier, tiers, defaultTier);
+    };
+
+    if (tierButtons.length > 0 && !tierButtons.some((btn) => btn.classList.contains('is-selected'))) {
+        const defaultButton = tierButtons.find((btn) => btn.dataset.default === '1') || tierButtons[0];
+        if (defaultButton) {
+            defaultButton.classList.add('is-selected');
+        }
+    }
+
+    const updateVehicleTotals = (card) => {
+        const qty = Number.parseInt(card.querySelector('.pc-range').value, 10) || 0;
+        const unitPrice = Number.parseFloat(card.dataset.price || '0') || 0;
+        const includeVat = card.dataset.includeVat === '1';
+        const totals = computeTotals(unitPrice * qty, includeVat);
+
+        const qtyLabel = card.querySelector('[data-vehicle-qty]');
+        if (qtyLabel) {
+            qtyLabel.textContent = `${qty}x`;
+        }
+
+        const totalLabel = card.querySelector('[data-vehicle-total]');
+        if (totalLabel) {
+            setAnimatedCurrency(totalLabel, totals.gross);
+        }
+    };
+
+    const updateOptionsGrid = (card) => {
+        const grid = card.querySelector('.pc-options-grid');
+        if (!grid) {
+            return;
+        }
+
+        if (card.classList.contains('is-options-collapsed')) {
+            grid.style.maxHeight = '0px';
+            return;
+        }
+
+        grid.style.maxHeight = `${grid.scrollHeight}px`;
+    };
+
+    vehicles.forEach((card) => {
+        updateOptionsGrid(card);
+        const range = card.querySelector('.pc-range');
+        if (range) {
+            range.addEventListener('input', () => {
+                updateVehicleTotals(card);
+                render();
+            });
+        }
+
+        card.querySelectorAll('.pc-option').forEach((option) => {
+            option.addEventListener('click', () => {
+                option.classList.toggle('is-selected');
+                render();
+            });
+        });
+
+        const toggle = card.querySelector('[data-options-toggle]');
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                card.classList.toggle('is-options-collapsed');
+                updateOptionsGrid(card);
+            });
+        }
+    });
+
+    const resetBtn = document.querySelector('[data-reset]');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            vehicles.forEach((card) => {
+                const range = card.querySelector('.pc-range');
+                if (range) {
+                    range.value = 0;
+                }
+                card.querySelectorAll('.pc-option.is-selected').forEach((option) => {
+                    option.classList.remove('is-selected');
+                });
+                updateVehicleTotals(card);
+            });
+            render();
+
+            const resultWrap = document.getElementById('pcResult');
+            if (resultWrap) {
+                resultWrap.classList.add('is-hidden');
+            }
+        });
+    }
+
+    const calcBtn = document.querySelector('[data-calc]');
+    if (calcBtn) {
+        calcBtn.addEventListener('click', () => {
+            render();
+            calcBtn.blur();
+            const resultWrap = document.getElementById('pcResult');
+            if (resultWrap) {
+                resultWrap.classList.remove('is-hidden');
+                resultWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+
+    const closeBtn = document.querySelector('[data-result-close]');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            const resultWrap = document.getElementById('pcResult');
+            if (resultWrap) {
+                resultWrap.classList.add('is-hidden');
+            }
+        });
+    }
+
+    tierButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            tierButtons.forEach((item) => item.classList.remove('is-selected'));
+            btn.classList.add('is-selected');
+            render();
+        });
+    });
+
+    window.addEventListener('resize', () => {
+        vehicles.forEach((card) => updateOptionsGrid(card));
+    });
+
+    vehicles.forEach((card) => updateVehicleTotals(card));
+    render();
+})();
+</script>
+{% endblock %}

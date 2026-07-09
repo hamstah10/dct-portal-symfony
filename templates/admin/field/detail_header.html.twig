@@ -1,0 +1,8 @@
+{% include 'admin/components/detail_hero.html.twig' with {
+    eyebrow: eyebrow|default(null),
+    title: title|default('Datensatz'),
+    subtitle: subtitle|default(null),
+    badges: badges|default([]),
+    meta: meta|default([]),
+    actions: actions|default([])
+} only %}

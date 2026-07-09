@@ -1,0 +1,29 @@
+<!-- @dsCard group="Slides" viewport="1280x720" name="Section / quote slide" subtitle="Divider with big statement" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0;}
+  .slide{width:1280px;height:720px;box-sizing:border-box;padding:80px 96px;font-family:var(--font-sans);
+    display:flex;flex-direction:column;justify-content:center;position:relative;}
+  .num{position:absolute;top:64px;right:88px;font-family:var(--font-mono);font-size:15px;letter-spacing:.16em;color:var(--carbon-500);}
+  .ey{font-family:var(--font-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--power-400);margin-bottom:30px;}
+  .q{font-family:var(--font-display);text-transform:uppercase;font-weight:700;letter-spacing:-.02em;line-height:.98;
+    font-size:84px;color:#fff;margin:0;max-width:20ch;}
+  .q .accent{color:var(--power-500);}
+  .by{margin-top:36px;font-family:var(--font-mono);font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--carbon-400);
+    display:flex;align-items:center;gap:14px;}
+  .rule{width:48px;height:2px;background:var(--power-500);}
+</style>
+</head>
+<body>
+  <div class="slide grid-surface" data-theme="dark">
+    <span class="num">02 / 04</span>
+    <div class="ey">Unser Versprechen</div>
+    <p class="q">Engineering, <span class="accent">kein</span> Marketing.</p>
+    <div class="by"><span class="rule"></span>Jede Datei auf dem Prüfstand abgestimmt.</div>
+  </div>
+</body>
+</html>

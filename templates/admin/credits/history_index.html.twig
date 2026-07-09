@@ -1,0 +1,367 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block entity_row_attributes %}
+    {% set instance = entity.instance %}
+    {% set typeLabelMap = {
+        'admin_topup': 'Admin Aufladung',
+        'customer_topup': 'Kunde Aufladung',
+        'usage': 'Verbrauch',
+        'manual_adjustment': 'Manuelle Anpassung',
+        'reversal': 'Storno'
+    } %}
+    {% set typeLabel = typeLabelMap[instance.transactionType] ?? (instance.transactionType ?? '-') %}
+    {% set amountNum = instance.amount ?? 0 %}
+    {% set amountLabel = amountNum >= 0 ? '+' ~ amountNum : amountNum %}
+    {% set amountClass = amountNum > 0 ? 'text-success' : (amountNum < 0 ? 'text-danger' : 'text-muted') %}
+    {% set priceNetLabel = instance.priceNet is not empty ? (instance.priceNet|number_format(2, ',', '.') ~ ' €') : '-' %}
+    {% set priceGrossLabel = instance.priceGross is not empty ? (instance.priceGross|number_format(2, ',', '.') ~ ' €') : '-' %}
+    {% set taxRateLabel = instance.taxRate is not empty ? (instance.taxRate|number_format(2, ',', '.') ~ ' %') : '-' %}
+    {% set paymentFeeLabel = instance.paymentFee is not empty ? (instance.paymentFee|number_format(2, ',', '.') ~ ' €') : '-' %}
+
+    {% set preview = {
+        id: instance.id,
+        createdAt: instance.createdAt ? instance.createdAt|date('d.m.Y H:i') : '-',
+        kunde: instance.kunde ? (instance.kunde ~ '') : '-',
+        firma: (instance.kunde and instance.kunde.firma) ? (instance.kunde.firma ~ '') : '-',
+        amountLabel: amountLabel,
+        amountClass: amountClass,
+        transactionTypeLabel: typeLabel,
+        balanceBefore: instance.balanceBefore ?? 0,
+        balanceAfter: instance.balanceAfter ?? 0,
+        paymentMethod: instance.paymentMethod ? instance.paymentMethod : '-',
+        priceNet: priceNetLabel,
+        priceGross: priceGrossLabel,
+        taxRate: taxRateLabel,
+        paymentFee: paymentFeeLabel,
+        description: instance.description ? instance.description : '-',
+        createdBy: instance.createdBy ? (instance.createdBy ~ '') : '-'
+    } %}
+    data-preview="{{ preview|json_encode|e('html_attr') }}"
+{% endblock %}
+
+{% block main %}
+    <style>
+        .credit-kpi-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 14px 16px;
+            height: 100%;
+        }
+
+        .credit-kpi-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .credit-kpi-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .credit-history-row.is-active td {
+            background: #f8fafc;
+        }
+
+        .credit-preview-card {
+            position: sticky;
+            top: 86px;
+        }
+
+        .credit-preview-notes {
+            white-space: pre-wrap;
+        }
+    </style>
+
+    <div class="mb-3">
+        {{ component('credit_history_search') }}
+    </div>
+
+    {% set kpi = kpi ?? {} %}
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Buchungen</div>
+                <div class="credit-kpi-value">{{ kpi.total ?? 0 }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Credits geladen</div>
+                <div class="credit-kpi-value text-success">+{{ kpi.creditsIn ?? 0 }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Credits verbraucht</div>
+                <div class="credit-kpi-value text-danger">-{{ kpi.creditsOut ?? 0 }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Netto</div>
+                <div class="credit-kpi-value">{{ kpi.net ?? 0 }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Aufladung heute</div>
+                <div class="credit-kpi-value text-success">+{{ kpi.topupToday ?? 0 }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Aufladung 7 Tage</div>
+                <div class="credit-kpi-value text-success">+{{ kpi.topupLast7Days ?? 0 }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="credit-kpi-card rounded-0">
+                <div class="credit-kpi-label">Aufladung Monat</div>
+                <div class="credit-kpi-value text-success">+{{ kpi.topupMonth ?? 0 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-8">
+            <div class="credit-history-table">
+                {{ parent() }}
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm credit-preview-card">
+                <div class="card-header bg-white fw-semibold d-flex align-items-center justify-content-between">
+                    <span>Vorschau</span>
+                    <span class="badge text-bg-light" id="credit-preview-id-badge">-</span>
+                </div>
+                <div class="card-body">
+                    <div id="credit-preview-empty" class="text-muted small">Zeile anklicken, um Details zu sehen.</div>
+                    <dl class="row small mb-0" id="credit-preview" style="display:none;">
+                        <dt class="col-5">Datum</dt>
+                        <dd class="col-7" data-field="createdAt">-</dd>
+
+                        <dt class="col-5">Kunde</dt>
+                        <dd class="col-7" data-field="kunde">-</dd>
+
+                        <dt class="col-5">Firma</dt>
+                        <dd class="col-7" data-field="firma">-</dd>
+
+                        <dt class="col-5">Typ</dt>
+                        <dd class="col-7" data-field="transactionTypeLabel">-</dd>
+
+                        <dt class="col-5">Betrag</dt>
+                        <dd class="col-7 fw-semibold" data-field="amountLabel">-</dd>
+
+                        <dt class="col-5">Saldo vor</dt>
+                        <dd class="col-7" data-field="balanceBefore">-</dd>
+
+                        <dt class="col-5">Saldo nach</dt>
+                        <dd class="col-7" data-field="balanceAfter">-</dd>
+
+                        <dt class="col-5">Zahlart</dt>
+                        <dd class="col-7" data-field="paymentMethod">-</dd>
+
+                        <dt class="col-5">Preis netto</dt>
+                        <dd class="col-7" data-field="priceNet">-</dd>
+
+                        <dt class="col-5">Preis brutto</dt>
+                        <dd class="col-7" data-field="priceGross">-</dd>
+
+                        <dt class="col-5">MwSt</dt>
+                        <dd class="col-7" data-field="taxRate">-</dd>
+
+                        <dt class="col-5">Gebuehr</dt>
+                        <dd class="col-7" data-field="paymentFee">-</dd>
+
+                        <dt class="col-5">Notiz</dt>
+                        <dd class="col-7 credit-preview-notes" data-field="description">-</dd>
+
+                        <dt class="col-5">Rechnung</dt>
+                        <dd class="col-7">
+                            <a href="#" target="_blank" rel="noopener" data-field="invoiceLink" style="display:none;">PDF öffnen</a>
+                            <span data-field="invoiceLinkEmpty">-</span>
+                        </dd>
+
+                        <dt class="col-5">Erstellt von</dt>
+                        <dd class="col-7" data-field="createdBy">-</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const tableWrapper = document.querySelector('.credit-history-table');
+                if (!tableWrapper) {
+                    return;
+                }
+
+                const rows = Array.from(tableWrapper.querySelectorAll('tbody tr[data-preview]'));
+                const preview = document.getElementById('credit-preview');
+                const emptyState = document.getElementById('credit-preview-empty');
+                const idBadge = document.getElementById('credit-preview-id-badge');
+
+                const updatePreview = (row) => {
+                    const payload = row.dataset.preview;
+                    if (!payload || !preview) {
+                        return;
+                    }
+
+                    let data = {};
+                    try {
+                        data = JSON.parse(payload);
+                    } catch (e) {
+                        data = {};
+                    }
+
+                    if (emptyState) {
+                        emptyState.style.display = 'none';
+                    }
+                    preview.style.display = 'block';
+
+                    preview.querySelectorAll('[data-field]').forEach((el) => {
+                        const key = el.dataset.field;
+                        if (!key) {
+                            return;
+                        }
+                        const value = data[key];
+                        el.textContent = value !== undefined && value !== null && value !== '' ? value : '-';
+                    });
+
+                    const amountEl = preview.querySelector('[data-field="amountLabel"]');
+                    if (amountEl) {
+                        amountEl.classList.remove('text-success', 'text-danger', 'text-muted');
+                        if (data.amountClass) {
+                            amountEl.classList.add(data.amountClass);
+                        }
+                    }
+
+                    if (idBadge) {
+                        idBadge.textContent = data.id ? `#${data.id}` : '-';
+                    }
+
+                    const invoiceLink = preview.querySelector('[data-field="invoiceLink"]');
+                    const invoiceLinkEmpty = preview.querySelector('[data-field="invoiceLinkEmpty"]');
+                    if (invoiceLink instanceof HTMLAnchorElement && invoiceLinkEmpty instanceof HTMLElement) {
+                        const description = String(data.description || '');
+                        const match = description.match(/PDF:\s*(\S+)/i);
+                        const invoiceUrl = match && match[1] ? String(match[1]).trim() : '';
+
+                        if (invoiceUrl !== '') {
+                            invoiceLink.href = invoiceUrl;
+                            invoiceLink.style.display = 'inline';
+                            invoiceLinkEmpty.style.display = 'none';
+                        } else {
+                            invoiceLink.href = '#';
+                            invoiceLink.style.display = 'none';
+                            invoiceLinkEmpty.style.display = 'inline';
+                        }
+                    }
+                };
+
+                const selectRow = (row) => {
+                    rows.forEach((item) => item.classList.remove('is-active', 'credit-history-row'));
+                    row.classList.add('is-active', 'credit-history-row');
+                    updatePreview(row);
+                };
+
+                rows.forEach((row) => {
+                    row.addEventListener('click', (event) => {
+                        if (event.target instanceof Element && event.target.closest('a, button, input, .actions')) {
+                            return;
+                        }
+                        selectRow(row);
+                    });
+                });
+
+                if (rows.length > 0) {
+                    selectRow(rows[0]);
+                }
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const tableWrapper = document.querySelector('.credit-history-table');
+                if (!tableWrapper) {
+                    return;
+                }
+
+                const rows = Array.from(tableWrapper.querySelectorAll('tbody tr[data-preview]'));
+                const preview = document.getElementById('credit-preview');
+                const emptyState = document.getElementById('credit-preview-empty');
+                const idBadge = document.getElementById('credit-preview-id-badge');
+
+                const updatePreview = (row) => {
+                    const payload = row.dataset.preview;
+                    if (!payload || !preview) {
+                        return;
+                    }
+
+                    let data = {};
+                    try {
+                        data = JSON.parse(payload);
+                    } catch (e) {
+                        data = {};
+                    }
+
+                    if (emptyState) {
+                        emptyState.style.display = 'none';
+                    }
+                    preview.style.display = 'block';
+
+                    preview.querySelectorAll('[data-field]').forEach((el) => {
+                        const key = el.dataset.field;
+                        if (!key) {
+                            return;
+                        }
+                        const value = data[key];
+                        el.textContent = value !== undefined && value !== null && value !== '' ? value : '-';
+                    });
+
+                    const amountEl = preview.querySelector('[data-field="amountLabel"]');
+                    if (amountEl) {
+                        amountEl.classList.remove('text-success', 'text-danger', 'text-muted');
+                        if (data.amountClass) {
+                            amountEl.classList.add(data.amountClass);
+                        }
+                    }
+
+                    if (idBadge) {
+                        idBadge.textContent = data.id ? `#${data.id}` : '-';
+                    }
+                };
+
+                const selectRow = (row) => {
+                    rows.forEach((item) => item.classList.remove('is-active', 'credit-history-row'));
+                    row.classList.add('is-active', 'credit-history-row');
+                    updatePreview(row);
+                };
+
+                rows.forEach((row) => {
+                    row.addEventListener('click', (event) => {
+                        if (event.target instanceof Element && event.target.closest('a, button, input, .actions')) {
+                            return;
+                        }
+                        selectRow(row);
+                    });
+                });
+
+                if (rows.length > 0) {
+                    selectRow(rows[0]);
+                }
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

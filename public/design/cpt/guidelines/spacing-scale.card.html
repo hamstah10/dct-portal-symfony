@@ -1,0 +1,30 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Spacing scale" subtitle="8px grid with half-steps for dense data UIs" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; padding: 18px 24px; background: var(--surface); font-family: var(--font-mono); }
+  .row { display:flex; align-items:flex-end; gap:14px; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .bar { background:var(--accent); border-radius:var(--radius-xs); width:18px; }
+  .lab { font-size:9px; color:var(--text-muted); }
+  .lab b { display:block; color:var(--text); font-size:10px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item"><div class="bar" style="height:4px"></div><div class="lab"><b>1</b>4px</div></div>
+    <div class="item"><div class="bar" style="height:8px"></div><div class="lab"><b>2</b>8</div></div>
+    <div class="item"><div class="bar" style="height:12px"></div><div class="lab"><b>3</b>12</div></div>
+    <div class="item"><div class="bar" style="height:16px"></div><div class="lab"><b>4</b>16</div></div>
+    <div class="item"><div class="bar" style="height:24px"></div><div class="lab"><b>5</b>24</div></div>
+    <div class="item"><div class="bar" style="height:32px"></div><div class="lab"><b>6</b>32</div></div>
+    <div class="item"><div class="bar" style="height:40px"></div><div class="lab"><b>7</b>40</div></div>
+    <div class="item"><div class="bar" style="height:48px"></div><div class="lab"><b>8</b>48</div></div>
+    <div class="item"><div class="bar" style="height:64px"></div><div class="lab"><b>9</b>64</div></div>
+    <div class="item"><div class="bar" style="height:80px"></div><div class="lab"><b>10</b>80</div></div>
+  </div>
+</body>
+</html>

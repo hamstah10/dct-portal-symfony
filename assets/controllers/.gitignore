@@ -1,0 +1,5 @@
+# Auto-generierte UX-Package-Controller ignorieren (werden von Symfony generiert)
+# Eigene Controller (*_controller.js) werden getrackt
+*
+!.gitignore
+!*_controller.js

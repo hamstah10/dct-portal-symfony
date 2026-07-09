@@ -1,0 +1,10 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{% set ea = ea() %}
+{% extends null != ea ? ea.templatePath('layout') : '@EasyAdmin/layout.html.twig' %}
+{% trans_default_domain null != ea ? ea.i18n.translationDomain : (translation_domain is defined ? translation_domain ?? 'messages') %}
+
+{% block body_class %}page-content tfd-admin-shell xintra-admin-shell{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block main %}{% endblock %}

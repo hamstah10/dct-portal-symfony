@@ -1,0 +1,40 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Instagram Profil{% endblock %}
+
+{% block main %}
+    <div class="mb-3">
+        <a href="{{ path('admin_instagram_index') }}" class="btn btn-secondary">Zurück</a>
+    </div>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Lokale ID</th>
+                <td>{{ account.id }}</td>
+            </tr>
+            <tr>
+                <th>Instagram User ID</th>
+                <td>{{ profile.user_id ?? '-' }}</td>
+            </tr>
+            <tr>
+                <th>Username</th>
+                <td>{{ profile.username ?? '-' }}</td>
+            </tr>
+            <tr>
+                <th>Account-Typ</th>
+                <td>{{ profile.account_type ?? '-' }}</td>
+            </tr>
+            <tr>
+                <th>Profilbild</th>
+                <td>
+                    {% if profile.profile_picture_url is defined and profile.profile_picture_url %}
+                        <img src="{{ profile.profile_picture_url }}" alt="" style="max-width: 120px; border-radius: 12px;">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}

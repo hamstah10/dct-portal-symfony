@@ -1,0 +1,31 @@
+{% block configured_head_contents %}{% endblock %}
+{% block configured_body_contents %}{% endblock %}
+{% block configured_stylesheets %}{% endblock %}
+{% block configured_javascripts %}{% endblock %}
+{% block head %}{% endblock %}
+<style>
+    svg { width: 1em; height: 1em; vertical-align: middle; }
+    .page-actions { display: flex; align-items: center; gap: 8px; }
+    .page-actions a, .page-actions button { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+</style>
+
+{% block body %}
+    <div class="ea-embedded">
+        <div class="">
+            <article class="content">
+                <section class="content-header">
+                    <div class="content-header-title">
+                        <h1 class="title">{% block content_title %}{% endblock %}</h1>
+                    </div>
+                    <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+                </section>
+
+                <section id="main" class="content-body">
+                    {% block main %}{% endblock %}
+                </section>
+            </article>
+        </div>
+    </div>
+
+    {% block body_javascript %}{% endblock %}
+{% endblock %}

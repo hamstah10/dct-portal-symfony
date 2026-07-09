@@ -1,0 +1,28 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {% set user = entity.instance %}
+    {% set displayName = [user.vorname ?? '', user.nachname ?? '']|join(' ')|trim %}
+    {% set title = displayName ?: (user.email ?? ('Benutzer #' ~ user.id)) %}
+    {% set badges = [
+        { label: user.isActive ? 'Aktiv' : 'Inaktiv', tone: user.isActive ? 'success' : 'muted' }
+    ] %}
+    {% set meta = [
+        { label: 'E-Mail', value: user.email ?: '—' },
+        { label: 'Gruppe', value: user.gruppe ? user.gruppe : '—' },
+        { label: 'ID', value: user.id ?: '—' },
+        { label: 'Letzter Login', value: user.lastLoginAt ? user.lastLoginAt|date('d.m.Y H:i') : '—' }
+    ] %}
+
+    <div class="tfd-detail-shell">
+        {% include 'admin/components/detail_hero.html.twig' with {
+            eyebrow: 'Benutzerprofil',
+            title: title,
+            subtitle: displayName and user.email ? user.email : null,
+            badges: badges,
+            meta: meta
+        } only %}
+
+        {{ parent() }}
+    </div>
+{% endblock %}

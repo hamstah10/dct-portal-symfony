@@ -1,0 +1,292 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Chat Suche{% endblock %}
+
+{% block configured_stylesheets %}
+    {{ parent() }}
+    <style>
+        .chat-search {
+            margin-top: 1rem;
+            border: 1px solid #1f2937;
+            border-radius: 1rem;
+            background: #020617;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        .chat-head {
+            padding: 1rem;
+            border-bottom: 1px solid #1f2937;
+            background: linear-gradient(110deg, rgba(15, 23, 42, 0.95), rgba(8, 47, 73, 0.45));
+        }
+        .chat-head small { color: #94a3b8; }
+        .chat-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: .75rem;
+            margin-top: .75rem;
+        }
+        .chat-input, .chat-select {
+            width: 100%;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: .6rem;
+            padding: .55rem .7rem;
+        }
+        .chat-body {
+            height: min(62vh, 720px);
+            overflow: auto;
+            padding: 1rem;
+            display: grid;
+            gap: .7rem;
+            background: #020617;
+        }
+        .bubble {
+            max-width: 88%;
+            border-radius: .75rem;
+            padding: .6rem .75rem;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            font-size: .93rem;
+        }
+        .bubble.user { margin-left: auto; background: #0e7490; color: #ecfeff; }
+        .bubble.assistant { background: #111827; border: 1px solid #374151; }
+        .bubble.system { background: #1e293b; color: #cbd5e1; font-size: .83rem; }
+        .chat-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: .6rem;
+            padding: .9rem;
+            border-top: 1px solid #1f2937;
+            background: #0b1220;
+        }
+        .chat-send {
+            border: 1px solid #22d3ee;
+            background: #22d3ee;
+            color: #082f49;
+            border-radius: .65rem;
+            padding: 0 .95rem;
+            font-weight: 600;
+        }
+        .chat-help {
+            padding: .6rem .9rem;
+            border-top: 1px solid #1f2937;
+            color: #93c5fd;
+            font-size: .8rem;
+            background: #0b1220;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <section class="chat-search">
+        <header class="chat-head">
+            <h2 style="margin:0; font-size:1.15rem;">Meilisearch Chat Suche</h2>
+            <small>Conversational Search via <code>/chats/{workspace}/chat/completions</code> (streaming)</small>
+            <div class="chat-meta">
+                <label>
+                    <small>Workspace</small>
+                    <input id="chat-workspace" class="chat-input" value="{{ workspace|e }}" placeholder="cloud">
+                </label>
+                <label>
+                    <small>Model</small>
+                    <input id="chat-model" class="chat-input" value="{{ model|e }}" placeholder="z.B. gpt-4.1-mini">
+                </label>
+            </div>
+        </header>
+
+        <div id="chat-body" class="chat-body">
+            <div class="bubble system">Bereit. Stelle eine Frage zur indexierten Datenbasis.</div>
+        </div>
+
+        <form id="chat-form" class="chat-form" onsubmit="return false">
+            <input id="chat-message" class="chat-input" placeholder="Frage eingeben ..." autocomplete="off">
+            <button id="chat-send" type="submit" class="chat-send">Senden</button>
+        </form>
+
+        <div class="chat-help">
+            Setup-Doku: <a href="{{ docsUrl }}" target="_blank" rel="noopener noreferrer">{{ docsUrl }}</a>
+        </div>
+    </section>
+
+    <script>
+    (function () {
+        const apiUrl = {{ path('admin_search_chat_api')|json_encode|raw }};
+        const form = document.getElementById('chat-form');
+        const input = document.getElementById('chat-message');
+        const body = document.getElementById('chat-body');
+        const sendBtn = document.getElementById('chat-send');
+        const workspaceEl = document.getElementById('chat-workspace');
+        const modelEl = document.getElementById('chat-model');
+
+        const messages = [];
+        let running = false;
+
+        const meiliTools = [
+            {
+                type: 'function',
+                function: {
+                    name: '_meiliSearchProgress',
+                    description: 'Provides information about the current Meilisearch search operation',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            call_id: { type: 'string' },
+                            function_name: { type: 'string' },
+                            function_parameters: { type: 'string' }
+                        },
+                        required: ['call_id', 'function_name', 'function_parameters'],
+                        additionalProperties: false
+                    },
+                    strict: true
+                }
+            },
+            {
+                type: 'function',
+                function: {
+                    name: '_meiliSearchSources',
+                    description: 'Provides sources of the search',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            call_id: { type: 'string' },
+                            documents: { type: 'array', items: { type: 'object' } }
+                        },
+                        required: ['call_id', 'documents'],
+                        additionalProperties: false
+                    },
+                    strict: true
+                }
+            },
+            {
+                type: 'function',
+                function: {
+                    name: '_meiliAppendConversationMessage',
+                    description: 'Append a new message to the conversation based on what happened internally',
+                    parameters: {
+                        type: 'object',
+                        properties: {
+                            role: { type: 'string' },
+                            content: { type: 'string' },
+                            tool_calls: { type: ['array', 'null'] },
+                            tool_call_id: { type: ['string', 'null'] }
+                        },
+                        required: ['role', 'content', 'tool_calls', 'tool_call_id'],
+                        additionalProperties: false
+                    },
+                    strict: true
+                }
+            }
+        ];
+
+        function addBubble(text, cls) {
+            const el = document.createElement('div');
+            el.className = `bubble ${cls}`;
+            el.textContent = text;
+            body.appendChild(el);
+            body.scrollTop = body.scrollHeight;
+            return el;
+        }
+
+        function setRunning(next) {
+            running = next;
+            input.disabled = next;
+            sendBtn.disabled = next;
+            sendBtn.textContent = next ? 'Laeuft ...' : 'Senden';
+        }
+
+        async function sendMessage(text) {
+            const workspace = workspaceEl.value.trim() || 'cloud';
+            const model = modelEl.value.trim();
+            if (!model) {
+                addBubble('Bitte zuerst ein Modell angeben (z.B. gpt-4.1-mini).', 'system');
+                return;
+            }
+
+            messages.push({ role: 'user', content: text });
+            addBubble(text, 'user');
+            const assistantBubble = addBubble('', 'assistant');
+
+            setRunning(true);
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        workspace,
+                        model,
+                        stream: true,
+                        messages,
+                        tools: meiliTools
+                    })
+                });
+
+                if (!response.ok || !response.body) {
+                    const err = await response.text();
+                    assistantBubble.textContent = `Fehler: ${err}`;
+                    return;
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let answer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+
+                    let splitIndex;
+                    while ((splitIndex = buffer.indexOf('\n\n')) !== -1) {
+                        const block = buffer.slice(0, splitIndex);
+                        buffer = buffer.slice(splitIndex + 2);
+                        const line = block.split('\n').find(l => l.startsWith('data:'));
+                        if (!line) continue;
+
+                        const payload = line.slice(5).trim();
+                        if (!payload || payload === '[DONE]') continue;
+
+                        let json;
+                        try {
+                            json = JSON.parse(payload);
+                        } catch (_) {
+                            continue;
+                        }
+
+                        if (json.error) {
+                            assistantBubble.textContent = `Fehler: ${json.error}`;
+                            continue;
+                        }
+
+                        const delta = json?.choices?.[0]?.delta;
+                        if (delta?.content) {
+                            answer += delta.content;
+                            assistantBubble.textContent = answer;
+                            body.scrollTop = body.scrollHeight;
+                        }
+                    }
+                }
+
+                if (!answer.trim()) {
+                    assistantBubble.textContent = '(Keine Antwort empfangen)';
+                }
+                messages.push({ role: 'assistant', content: answer || '(leer)' });
+            } catch (error) {
+                assistantBubble.textContent = `Netzwerkfehler: ${error instanceof Error ? error.message : 'Unbekannt'}`;
+            } finally {
+                setRunning(false);
+                input.focus();
+            }
+        }
+
+        form.addEventListener('submit', function () {
+            if (running) return;
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            sendMessage(text);
+        });
+    })();
+    </script>
+{% endblock %}

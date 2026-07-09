@@ -1,0 +1,202 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}AI DALL-E{% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0 tfd-ai-dalle">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <strong>Verlauf</strong>
+                    </div>
+                    <div class="list-group list-group-flush tfd-ai-dalle-list">
+                        {% if runs is empty %}
+                            <div class="p-3 text-muted">Noch keine Bilder.</div>
+                        {% else %}
+                            {% for run in runs %}
+                                <a href="{{ path('admin_ai_dalle', { run: run.id }) }}"
+                                   class="list-group-item list-group-item-action {{ run.id == activeRunId ? 'active' : '' }}">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <span class="badge bg-secondary">{{ run.aspect == '16:9' ? '16:9' : 'Quadrat' }}</span>
+                                        <small class="text-muted text-nowrap">{{ run.updatedAt|date('d.m.Y H:i') }}</small>
+                                    </div>
+                                    <div class="fw-semibold text-truncate">{{ run.preview }}</div>
+                                    <div class="small text-muted">Anzahl: {{ run.count }}</div>
+                                    {% if run.imagePath %}
+                                        <div class="tfd-ai-dalle-thumb mt-2">
+                                            <img src="{{ run.imagePath }}" alt="Preview" class="img-fluid">
+                                        </div>
+                                    {% endif %}
+                                </a>
+                                {% if run.id == activeRunId %}
+                                    <div class="d-flex gap-2 p-3 border-bottom">
+                                        <a href="{{ path('admin_ai_dalle_download', { id: run.id }) }}" class="btn btn-outline-secondary btn-sm">Download</a>
+                                        <form method="post" class="m-0">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('admin_ai_dalle') }}">
+                                            <input type="hidden" name="runId" value="{{ run.id }}">
+                                            <input type="hidden" name="delete_run" value="1">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Löschen</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <strong id="model-title">DALL-E 3</strong>
+                        <div class="text-muted small">Bildgenerierung über OpenAI Platform</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token('admin_ai_dalle') }}">
+                            <div class="mb-3">
+                                <label class="form-label">Modell</label>
+                                <select name="model" class="form-select" id="model-select" onchange="updateModelUI()">
+                                    <option value="dall-e-3" {{ model == 'dall-e-3' ? 'selected' : '' }}>DALL-E 3</option>
+                                    <option value="dall-e-2" {{ model == 'dall-e-2' ? 'selected' : '' }}>DALL-E 2</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Prompt</label>
+                                <textarea name="prompt" class="form-control" rows="5" placeholder="Beschreibe das Bild…">{{ prompt }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Seitenverhältnis</label>
+                                <select 
+                                    id="aspect-select"
+                                    name="aspect" 
+                                    class="form-select" 
+                                    onchange="updateSize()"
+                                >
+                                    {% for category, sizes in aspectOptions %}
+                                        <optgroup label="{{ category }}">
+                                            {% for size_option in sizes %}
+                                                <option value="{{ size_option.value }}" {{ aspect == size_option.value ? 'selected' : '' }}>
+                                                    {{ size_option.label }}
+                                                </option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Aktuelle Größe: <span id="size-display">{{ size }}</span></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Anzahl</label>
+                                <input type="number" name="count" class="form-control" min="1" max="10" value="{{ count }}">
+                                <div class="form-text" id="count-hint">DALL-E 3: max. 4</div>
+                            </div>
+                            <div id="dalle3-options" style="{{ isModel2 ? 'display: none;' : '' }}">
+                                <div class="mb-3">
+                                    <label class="form-label">Qualität</label>
+                                    <select name="quality" class="form-select">
+                                        <option value="hd" {{ quality == 'hd' ? 'selected' : '' }}>HD</option>
+                                        <option value="standard" {{ quality == 'standard' ? 'selected' : '' }}>Standard</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Style</label>
+                                    <select name="style" class="form-select">
+                                        <option value="vivid" {{ style == 'vivid' ? 'selected' : '' }}>Vivid</option>
+                                        <option value="natural" {{ style == 'natural' ? 'selected' : '' }}>Natural</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Response Format</label>
+                                <select name="format" class="form-select">
+                                    <option value="url" {{ format == 'url' ? 'selected' : '' }}>URL</option>
+                                    <option value="b64_json" {{ format == 'b64_json' ? 'selected' : '' }}>Base64</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-tuningfux">Bild generieren</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header">
+                        <strong>Ergebnis</strong>
+                    </div>
+                    <div class="card-body">
+                        {% if imagePaths is not empty %}
+                            <div class="tfd-ai-dalle-grid">
+                                {% for path in imagePaths %}
+                                    <div class="tfd-ai-dalle-preview">
+                                        <img src="{{ path }}" alt="DALL-E 3 Ergebnis">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% elseif imageUrl or imageData %}
+                            <div class="tfd-ai-dalle-preview">
+                                <img src="{{ imageUrl ?: imageData }}" alt="DALL-E 3 Ergebnis">
+                            </div>
+                        {% else %}
+                            <div class="text-muted">Noch kein Bild generiert.</div>
+                        {% endif %}
+
+                        {% if revisedPrompt %}
+                            <hr>
+                            <div class="small text-muted mb-1">Revised Prompt</div>
+                            <div class="tfd-ai-agent-response">{{ revisedPrompt }}</div>
+                        {% endif %}
+
+                        {% if metadata %}
+                            <hr>
+                            <div class="small text-muted mb-2">Metadata</div>
+                            <pre class="tfd-ai-agent-metadata">{{ metadata|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sizeMap = {
+            {% for category, sizes in aspectOptions %}
+                {% for size_option in sizes %}
+                    '{{ size_option.value }}': '{{ size_option.label }}',
+                {% endfor %}
+            {% endfor %}
+        };
+
+        function updateModelUI() {
+            const select = document.getElementById('model-select');
+            const isModel2 = select.value === 'dall-e-2';
+            const title = document.getElementById('model-title');
+            const dalle3Options = document.getElementById('dalle3-options');
+            const countHint = document.getElementById('count-hint');
+
+            title.textContent = isModel2 ? 'DALL-E 2' : 'DALL-E 3';
+            dalle3Options.style.display = isModel2 ? 'none' : 'block';
+            countHint.textContent = isModel2 ? 'DALL-E 2: max. 10' : 'DALL-E 3: max. 4';
+        }
+
+        function updateSize() {
+            const aspectSelect = document.getElementById('aspect-select');
+            const sizeDisplay = document.getElementById('size-display');
+            const selected = aspectSelect.value;
+            const label = sizeMap[selected] || '{{ size }}';
+            const dims = label.match(/\((\d+x\d+)\)/);
+            if (dims) {
+                sizeDisplay.textContent = dims[1];
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSize();
+        });
+    </script>
+{% endblock %}

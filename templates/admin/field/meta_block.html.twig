@@ -1,0 +1,17 @@
+{% set items = items|default([]) %}
+
+{% if items is not empty %}
+    <div class="tfd-meta-grid">
+        {% for item in items %}
+            {% include 'admin/field/meta_info.html.twig' with {
+                label: item.label|default('Wert'),
+                value: item.value|default('—')
+            } only %}
+        {% endfor %}
+    </div>
+{% else %}
+    {% include 'admin/field/meta_info.html.twig' with {
+        label: label|default('Wert'),
+        value: value|default('—')
+    } only %}
+{% endif %}

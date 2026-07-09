@@ -1,0 +1,961 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Website Widget – Konfiguration{% endblock %}
+
+{% block body_attributes %}{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  /* ─── RESET & BASE ───────────────────────────────────────────── */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ─── DESIGN TOKENS ─────────────────────────────────────────── */
+  :root {
+    --bg:               hsl(222, 35%, 5%);
+    --card:             hsl(222, 30%, 7%);
+    --surface-elevated: hsl(222, 28%, 9%);
+    --muted-fill:       hsl(222, 22%, 11%);
+    --hairline:         hsl(222, 20%, 18%);
+    --border-hover:     hsl(75, 100%, 50%, 0.40);
+    --fg1:              hsl(210, 20%, 96%);
+    --fg2:              hsl(215, 15%, 60%);
+    --fg3:              hsl(215, 12%, 40%);
+    --lime:             hsl(75, 100%, 50%);
+    --lime-glow:        hsl(75, 100%, 60%);
+    --lime-subtle:      hsl(75, 100%, 50%, 0.10);
+    --lime-border:      hsl(75, 100%, 50%, 0.30);
+    --lime-text:        hsl(222, 40%, 6%);
+    --gradient-card:    linear-gradient(180deg, hsl(222 28% 9%) 0%, hsl(222 32% 6%) 100%);
+    --glow-lime:        0 0 40px hsl(75 100% 50% / 0.35), 0 0 80px hsl(75 100% 50% / 0.15);
+    --shadow-card:      0 1px 0 0 hsl(0 0% 100% / 0.04) inset, 0 20px 50px -20px hsl(0 0% 0% / 0.6);
+    --radius-sm:        10px;
+    --radius-md:        12px;
+    --radius-lg:        14px;
+    --radius-pill:      9999px;
+    --ease-smooth:      cubic-bezier(0.22, 1, 0.36, 1);
+    --font-body:        'Inter', system-ui, sans-serif;
+    --font-mono:        'JetBrains Mono', ui-monospace, monospace;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+    --space-5: 20px; --space-6: 24px; --space-7: 28px; --space-8: 32px;
+    --text-h3: 1.25rem;
+  }
+
+  /* ─── LIGHT THEME OVERRIDES ─────────────────────────────────── */
+  body.light-theme {
+    --bg:               hsl(0 0% 98%);
+    --card:             hsl(0 0% 100%);
+    --surface-elevated: hsl(0 0% 97%);
+    --muted-fill:       hsl(0 0% 95%);
+    --hairline:         hsl(0 0% 85%);
+    --fg1:              hsl(220 20% 15%);
+    --fg2:              hsl(220 10% 45%);
+    --fg3:              hsl(220 5% 60%);
+    --border-hover:     hsl(75 100% 50%, 0.50);
+    --gradient-card:    linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
+    --shadow-card:      0 1px 3px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.12);
+  }
+  body.light-theme .ww-header {
+    background: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 0% 97%) 100%);
+    border-bottom-color: hsl(0 0% 90%);
+  }
+  body.light-theme .logo-text h1 { color: hsl(220 20% 15%); }
+  body.light-theme .logo-text p  { color: hsl(220 10% 45%); }
+  body.light-theme .user-badge   { background: hsl(0 0% 92%); color: hsl(220 10% 40%); }
+  body.light-theme .btn-logout   { background: hsl(0 0% 93%); color: hsl(220 20% 20%); border-color: hsl(0 0% 82%); }
+  body.light-theme input[type="text"],
+  body.light-theme input[type="email"],
+  body.light-theme input[type="number"],
+  body.light-theme textarea,
+  body.light-theme select {
+    background: hsl(0 0% 100%);
+    border-color: hsl(0 0% 85%);
+    color: hsl(220 20% 15%);
+  }
+  body.light-theme input[type="text"]:focus,
+  body.light-theme input[type="email"]:focus,
+  body.light-theme input[type="number"]:focus,
+  body.light-theme textarea:focus,
+  body.light-theme select:focus {
+    background: hsl(0 0% 100%);
+    border-color: var(--lime);
+  }
+  body.light-theme .code-block {
+    background: hsl(0 0% 97%);
+    border-color: hsl(0 0% 85%);
+    color: hsl(220 20% 15%);
+  }
+  body.light-theme .code-block code { color: hsl(220 20% 15%); }
+
+  /* ─── BODY ──────────────────────────────────────────────────── */
+  body {
+    background: var(--bg);
+    color: var(--fg1);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    overflow-x: hidden;
+    transition: background 300ms ease, color 300ms ease;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────────────────── */
+  .ww-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6);
+    background: linear-gradient(180deg, hsl(222 28% 9%) 0%, hsl(222 32% 6%) 100%);
+    border-bottom: 1px solid var(--hairline);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-area { display: flex; align-items: center; gap: var(--space-3); }
+  .logo-icon {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--lime-subtle);
+    border: 1px solid var(--lime-border);
+    border-radius: var(--radius-md);
+    font-weight: 700; color: var(--lime); font-size: 0.875rem;
+  }
+  .logo-text h1 { font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; }
+  .logo-text p { font-size: 0.75rem; color: var(--fg2); margin-top: 2px; }
+  .header-actions { display: flex; align-items: center; gap: var(--space-4); }
+  .user-badge {
+    font-size: 0.875rem; color: var(--fg2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--muted-fill);
+  }
+  .btn-preview {
+    background: var(--lime); color: var(--lime-text);
+    padding: var(--space-2) var(--space-4);
+    border: none; border-radius: var(--radius-md);
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    transition: all 200ms var(--ease-smooth);
+    box-shadow: 0 0 20px hsl(75 100% 50% / 0.25);
+    text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .btn-preview:hover { transform: translateY(-2px); box-shadow: var(--glow-lime); }
+  .btn-logout {
+    background: var(--muted-fill); color: var(--fg1);
+    border: 1px solid var(--hairline);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem; font-weight: 500; cursor: pointer;
+    text-decoration: none; display: inline-flex; align-items: center;
+    transition: all 200ms ease;
+  }
+  .btn-logout:hover { border-color: var(--lime-border); color: var(--fg1); }
+
+  /* ─── FLASH MESSAGES ────────────────────────────────────────── */
+  .ww-flash {
+    margin: var(--space-4) var(--space-6) 0;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .ww-flash-success { background: hsl(152 60% 45% / 0.15); border: 1px solid hsl(152 60% 45% / 0.3); color: hsl(152 60% 60%); }
+  .ww-flash-error, .ww-flash-danger { background: hsl(0 75% 55% / 0.15); border: 1px solid hsl(0 75% 55% / 0.3); color: hsl(0 75% 70%); }
+  .ww-flash-warning { background: hsl(38 92% 50% / 0.15); border: 1px solid hsl(38 92% 50% / 0.3); color: hsl(38 92% 65%); }
+  .ww-flash-info { background: hsl(210 80% 55% / 0.15); border: 1px solid hsl(210 80% 55% / 0.3); color: hsl(210 80% 70%); }
+
+  /* ─── FORM ERRORS ───────────────────────────────────────────── */
+  .form-error {
+    color: hsl(0 75% 65%);
+    font-size: 0.75rem;
+    margin-top: var(--space-1);
+    display: block;
+  }
+
+  /* ─── MAIN CONTAINER ─────────────────────────────────────────── */
+  .ww-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--space-6);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+  @media (max-width: 1024px) { .ww-container { grid-template-columns: 1fr; } }
+
+  /* ─── TABS ──────────────────────────────────────────────────── */
+  .tabs {
+    display: flex; gap: var(--space-1);
+    margin-bottom: var(--space-6);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .tab {
+    padding: var(--space-3) var(--space-4);
+    background: none; border: none;
+    color: var(--fg2); font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; position: relative;
+    transition: color 200ms ease;
+    font-family: var(--font-body);
+  }
+  .tab:hover { color: var(--fg1); }
+  .tab.active { color: var(--lime); }
+  .tab.active::after {
+    content: ''; position: absolute;
+    bottom: -1px; left: 0; right: 0; height: 2px;
+    background: var(--lime);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+  .tab-content { display: none; animation: fadeIn 300ms var(--ease-smooth); }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── CARDS ─────────────────────────────────────────────────── */
+  .ww-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-card);
+    transition: all 300ms var(--ease-smooth);
+  }
+  .ww-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-4px);
+    box-shadow: 0 1px 0 0 hsl(0 0% 100% / 0.04) inset, 0 30px 60px -20px hsl(75 100% 50% / 0.2);
+  }
+  .card-title {
+    font-size: var(--text-h3); font-weight: 700;
+    margin-bottom: var(--space-4);
+    display: flex; align-items: center; gap: var(--space-2);
+  }
+  .card-badge {
+    display: inline-flex; align-items: center; gap: var(--space-1);
+    background: hsl(152 60% 50% / 0.15); color: hsl(152 60% 60%);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-left: auto;
+  }
+
+  /* ─── FORM GROUPS ────────────────────────────────────────────── */
+  .form-group { margin-bottom: var(--space-5); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  .form-row.single { grid-template-columns: 1fr; }
+  @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+
+  label {
+    display: block; font-size: 0.875rem; font-weight: 600;
+    margin-bottom: var(--space-2); color: var(--fg1);
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--surface-elevated);
+    border: 1px solid var(--hairline);
+    color: var(--fg1);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    transition: all 200ms ease;
+  }
+  input[type="text"]::placeholder,
+  input[type="number"]::placeholder,
+  textarea::placeholder { color: var(--fg3); }
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="number"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--lime);
+    background: hsl(222 28% 11%);
+    box-shadow: 0 0 0 3px hsl(75 100% 50% / 0.12);
+  }
+  textarea { resize: vertical; min-height: 100px; font-family: var(--font-body); }
+  select { cursor: pointer; }
+  select option { background: hsl(222, 30%, 7%); }
+
+  /* ─── TOGGLES ────────────────────────────────────────────────── */
+  .toggle-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+  .toggle-switch {
+    position: relative; width: 44px; height: 24px;
+    background: var(--muted-fill);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-pill);
+    cursor: pointer; transition: all 200ms ease;
+    flex-shrink: 0;
+  }
+  .toggle-switch.active { background: var(--lime); border-color: var(--lime); }
+  .toggle-switch::after {
+    content: ''; position: absolute;
+    top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    background: var(--fg1);
+    border-radius: var(--radius-pill);
+    transition: all 200ms ease;
+  }
+  .toggle-switch.active::after { left: 22px; background: var(--lime-text); }
+  .toggle-label { font-size: 0.875rem; font-weight: 500; color: var(--fg1); }
+  .toggle-native { position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; }
+
+  /* ─── CHECKBOXES ─────────────────────────────────────────────── */
+  .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3); margin-top: var(--space-3);
+  }
+  .checkbox-item { display: flex; align-items: center; gap: var(--space-2); }
+  input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--lime); flex-shrink: 0; }
+  .checkbox-label { font-size: 0.875rem; cursor: pointer; }
+
+  /* ─── COLOR PICKERS ──────────────────────────────────────────── */
+  .color-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-4); margin-top: var(--space-3); }
+  .color-item { display: flex; flex-direction: column; gap: var(--space-2); }
+  input[type="color"].color-preview {
+    width: 100%; height: 48px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    cursor: pointer;
+    transition: all 200ms ease;
+    padding: 2px;
+    background: transparent;
+  }
+  input[type="color"].color-preview:hover { border-color: var(--lime); box-shadow: 0 0 20px var(--lime-subtle); }
+  .color-label { font-size: 0.75rem; color: var(--fg2); font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ─── CODE BLOCKS ────────────────────────────────────────────── */
+  .code-block {
+    background: hsl(222 35% 4%);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--fg2);
+    overflow-x: auto;
+    position: relative;
+    margin-top: var(--space-3);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .code-block code { color: var(--fg2); font-family: var(--font-mono); }
+  .copy-btn {
+    position: absolute; top: var(--space-3); right: var(--space-3);
+    background: var(--lime); color: var(--lime-text);
+    border: none;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    transition: all 200ms ease; z-index: 10;
+    font-family: var(--font-body);
+  }
+  .copy-btn:hover { transform: translateY(-2px); box-shadow: var(--glow-lime); }
+  .copy-btn:active { transform: scale(0.95); }
+  .copy-btn.copied { background: hsl(152 60% 50%); color: white; }
+
+  /* ─── PREVIEW CONTAINER ──────────────────────────────────────── */
+  .preview-container {
+    background: var(--gradient-card);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-card);
+  }
+  .preview-title { font-size: var(--text-h3); font-weight: 700; margin-bottom: var(--space-4); }
+  .preview-iframe {
+    width: 100%; border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    display: block;
+  }
+
+  /* ─── STATIC MOCK PREVIEW ────────────────────────────────────── */
+  #widget-mock {
+    width: 100%; background: #1a1a1a;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    min-height: 400px;
+    display: flex; flex-direction: column;
+    padding: var(--space-4);
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .mock-header { font-size: 1.125rem; font-weight: 700; margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .mock-section { margin-bottom: var(--space-4); }
+  .mock-label { font-size: 0.75rem; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); font-weight: 600; }
+  .mock-select {
+    width: 100%; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; padding: var(--space-3);
+    border-radius: var(--radius-sm); font-size: 0.875rem;
+    font-family: inherit;
+  }
+  .preview-hint { color: var(--fg2); font-size: 0.8rem; margin-top: var(--space-4); text-align: center; }
+
+  /* ─── BUTTONS ────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border: none; border-radius: var(--radius-md);
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    transition: all 200ms var(--ease-smooth);
+    font-family: var(--font-body);
+  }
+  .btn-primary {
+    background: var(--lime); color: var(--lime-text);
+    box-shadow: 0 0 20px hsl(75 100% 50% / 0.25);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow-lime); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-actions { display: flex; justify-content: flex-end; margin-top: var(--space-6); }
+
+  /* ─── SECTION HEADINGS IN TABS ───────────────────────────────── */
+  .section-heading { font-size: 1rem; font-weight: 700; margin-bottom: var(--space-4); color: var(--fg1); }
+
+  /* ─── SNIPPET LABEL ──────────────────────────────────────────── */
+  .snippet-label {
+    display: block; margin-bottom: var(--space-2);
+    color: var(--fg2); font-size: 0.75rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  /* ─── THEME TOGGLE ───────────────────────────────────────────── */
+  .theme-toggle-btn {
+    position: fixed; bottom: var(--space-4); right: var(--space-4);
+    width: 56px; height: 56px;
+    border-radius: var(--radius-pill);
+    background: var(--lime); color: var(--lime-text);
+    border: none; cursor: pointer; font-size: 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px hsl(75 100% 50% / 0.4);
+    transition: all 200ms var(--ease-smooth);
+    z-index: 200;
+  }
+  .theme-toggle-btn:hover { transform: scale(1.1); box-shadow: var(--glow-lime); }
+  .theme-toggle-btn:active { transform: scale(0.95); }
+
+  /* ─── ACCENT COLOR PICKER ────────────────────────────────────── */
+  .accent-picker {
+    position: fixed; bottom: var(--space-4); right: 80px;
+    display: flex; align-items: center; gap: var(--space-2);
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    z-index: 200;
+    animation: slideIn 300ms var(--ease-smooth);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .accent-picker label {
+    font-size: 0.75rem; font-weight: 600; color: var(--fg1);
+    text-transform: uppercase; letter-spacing: 0.05em; margin: 0; white-space: nowrap;
+  }
+  #accent-color {
+    width: 44px; height: 44px;
+    border: 2px solid var(--lime);
+    border-radius: var(--radius-md);
+    cursor: pointer; transition: all 200ms ease;
+    padding: 2px; background: transparent;
+  }
+  #accent-color:hover { transform: scale(1.08); box-shadow: 0 0 20px var(--lime-subtle); }
+  .accent-hint { font-size: 0.75rem; color: var(--fg2); min-width: 80px; }
+
+  /* ─── RADIO OPTION GROUP ─────────────────────────────────────── */
+  .radio-group { display: flex; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-1); }
+  .radio-option { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; font-size: 0.875rem; color: var(--fg1); margin: 0; }
+  .radio-option input[type="radio"] { accent-color: var(--lime); width: 1rem; height: 1rem; cursor: pointer; flex-shrink: 0; }
+
+  @media (max-width: 768px) {
+    .ww-header { flex-direction: column; gap: var(--space-4); padding: var(--space-4); }
+    .header-actions { width: 100%; justify-content: space-between; }
+    .ww-card { padding: var(--space-4); }
+    .ww-container { padding: var(--space-4); gap: var(--space-4); }
+    .accent-picker { right: var(--space-4); bottom: 80px; flex-direction: column; padding: var(--space-3); }
+    .accent-picker label { text-align: center; width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="ww-flash ww-flash-{{ label == 'error' ? 'danger' : label }}">{{ message }}</div>
+    {% endfor %}
+  {% endfor %}
+
+  <!-- HEADER -->
+  <div class="ww-header">
+    <div class="logo-area">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <h1>Website Widget</h1>
+        <p>Chiptuning Konfigurator</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="user-badge">{{ customer }}</span>
+      {% if widgetUrl %}
+        <a href="{{ widgetUrl }}" class="btn-preview" target="_blank" rel="noopener">Vorschau</a>
+      {% endif %}
+      <a href="{{ path('customer_widget_logout') }}" class="btn-logout">Logout</a>
+    </div>
+  </div>
+
+  {{ form_start(form) }}
+
+  <!-- MAIN CONTENT -->
+  <div class="ww-container">
+
+    <!-- LEFT COLUMN: CONFIGURATION + EMBED CODE -->
+    <div>
+      <div class="ww-card">
+        <!-- TAB NAVIGATION -->
+        <div class="tabs">
+          <button type="button" class="tab active" data-tab="basics">Grundlagen</button>
+          <button type="button" class="tab" data-tab="styling">Styling</button>
+          <button type="button" class="tab" data-tab="form">Formular</button>
+          <button type="button" class="tab" data-tab="security">Sicherheit</button>
+        </div>
+
+        <!-- BASICS TAB -->
+        <div class="tab-content active" id="tab-basics">
+          <div class="form-group">
+            <div class="toggle-row">
+              <div class="toggle-switch" data-toggle-for="{{ form.active.vars.id }}"></div>
+              {{ form_widget(form.active, { attr: { class: 'toggle-native' } }) }}
+              <span class="toggle-label">Widget aktiviert</span>
+              <span class="card-badge">
+                {% if isNew %}Neu{% elseif widget.active %}Aktiv{% else %}Inaktiv{% endif %}
+              </span>
+            </div>
+            {{ form_errors(form.active) }}
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              {{ form_label(form.title) }}
+              {{ form_widget(form.title) }}
+              {{ form_errors(form.title) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.subtitle) }}
+              {{ form_widget(form.subtitle) }}
+              {{ form_errors(form.subtitle) }}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              {{ form_label(form.buttonText) }}
+              {{ form_widget(form.buttonText) }}
+              {{ form_errors(form.buttonText) }}
+            </div>
+            <div class="form-group">
+              {{ form_label(form.successTitle) }}
+              {{ form_widget(form.successTitle) }}
+              {{ form_errors(form.successTitle) }}
+            </div>
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.templateVariant) }}
+              {{ form_widget(form.templateVariant) }}
+              {{ form_errors(form.templateVariant) }}
+            </div>
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.iframeHeight) }}
+              {{ form_widget(form.iframeHeight) }}
+              {{ form_errors(form.iframeHeight) }}
+            </div>
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.successMessage) }}
+              {{ form_widget(form.successMessage) }}
+              {{ form_errors(form.successMessage) }}
+            </div>
+          </div>
+
+          <div class="btn-actions">
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </div>
+
+        <!-- STYLING TAB -->
+        <div class="tab-content" id="tab-styling">
+          <div class="form-group">
+            <h3 class="section-heading">Branding und Farben</h3>
+            <div class="color-row">
+              <div class="color-item">
+                {{ form_widget(form.primaryColor, { attr: { class: 'color-preview' } }) }}
+                <span class="color-label">{{ form.primaryColor.vars.label }}</span>
+                {{ form_errors(form.primaryColor) }}
+              </div>
+              <div class="color-item">
+                {{ form_widget(form.backgroundColor, { attr: { class: 'color-preview' } }) }}
+                <span class="color-label">{{ form.backgroundColor.vars.label }}</span>
+                {{ form_errors(form.backgroundColor) }}
+              </div>
+              <div class="color-item">
+                {{ form_widget(form.textColor, { attr: { class: 'color-preview' } }) }}
+                <span class="color-label">{{ form.textColor.vars.label }}</span>
+                {{ form_errors(form.textColor) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <h3 class="section-heading">Selectbox Styling</h3>
+            <div class="color-row">
+              <div class="color-item">
+                {{ form_widget(form.selectBackgroundColor, { attr: { class: 'color-preview' } }) }}
+                <span class="color-label">{{ form.selectBackgroundColor.vars.label }}</span>
+                {{ form_errors(form.selectBackgroundColor) }}
+              </div>
+              <div class="color-item">
+                {{ form_widget(form.selectOpenBackgroundColor, { attr: { class: 'color-preview' } }) }}
+                <span class="color-label">{{ form.selectOpenBackgroundColor.vars.label }}</span>
+                {{ form_errors(form.selectOpenBackgroundColor) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <h3 class="section-heading">Fahrzeugtyp-Icons</h3>
+            <div class="radio-group">
+              {% for choice in form.typeIconColor %}
+                <label class="radio-option">
+                  {{ form_widget(choice) }}
+                  <span>{{ choice.vars.label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            {{ form_errors(form.typeIconColor) }}
+          </div>
+
+          <div class="form-group">
+            {{ form_label(form.customCss) }}
+            {{ form_widget(form.customCss, { attr: { style: 'font-family: var(--font-mono); font-size: 0.8rem;' } }) }}
+            {{ form_errors(form.customCss) }}
+          </div>
+
+          <div class="btn-actions">
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </div>
+
+        <!-- FORM TAB -->
+        <div class="tab-content" id="tab-form">
+	          <div class="form-group">
+	            <label>Anzuzeigende Felder im Anfrageformular</label>
+	            <div class="checkbox-group">
+              {% for field in [form.showPhone, form.showEmail, form.showFinVin, form.showMileage, form.showLicensePlate, form.phoneRequired, form.emailRequired] %}
+                <div class="checkbox-item">
+                  {{ form_widget(field) }}
+                  {{ form_label(field, null, { label_attr: { class: 'checkbox-label' } }) }}
+                  {{ form_errors(field) }}
+                </div>
+              {% endfor %}
+	            </div>
+	          </div>
+
+              <div class="form-group">
+                <h3 class="section-heading">Empfaenger fuer Anfragen</h3>
+                <div class="radio-group">
+                  {% for choice in form.recipientEmailMode %}
+                    <label class="radio-option">
+                      {{ form_widget(choice) }}
+                      <span>{{ choice.vars.label }}</span>
+                    </label>
+                  {% endfor %}
+                </div>
+                {{ form_errors(form.recipientEmailMode) }}
+              </div>
+
+              <div class="form-row single">
+                <div class="form-group">
+                  {{ form_label(form.customRecipientEmail) }}
+                  {{ form_widget(form.customRecipientEmail, { attr: { placeholder: 'anfrage@example.de' } }) }}
+                  {{ form_errors(form.customRecipientEmail) }}
+                </div>
+              </div>
+
+	          <div class="form-group">
+	            <label>Datenschutz</label>
+            <div class="toggle-row">
+              <div class="toggle-switch" data-toggle-for="{{ form.privacyRequired.vars.id }}"></div>
+              {{ form_widget(form.privacyRequired, { attr: { class: 'toggle-native' } }) }}
+              <span class="toggle-label">Datenschutz-Checkbox erforderlich</span>
+            </div>
+            {{ form_errors(form.privacyRequired) }}
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.privacyUrl) }}
+              {{ form_widget(form.privacyUrl, { attr: { placeholder: 'https://example.de/datenschutz' } }) }}
+              {{ form_errors(form.privacyUrl) }}
+            </div>
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.redirectAfterSubmit) }}
+              {{ form_widget(form.redirectAfterSubmit, { attr: { placeholder: 'https://example.de/danke' } }) }}
+              {{ form_errors(form.redirectAfterSubmit) }}
+            </div>
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.privacyTextHtml) }}
+              {{ form_widget(form.privacyTextHtml) }}
+              {{ form_errors(form.privacyTextHtml) }}
+            </div>
+          </div>
+
+          <div class="btn-actions">
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </div>
+
+        <!-- SECURITY TAB -->
+        <div class="tab-content" id="tab-security">
+          <div class="form-group">
+            <div class="toggle-row">
+              <div class="toggle-switch" data-toggle-for="{{ form.sendTrackingEvents.vars.id }}"></div>
+              {{ form_widget(form.sendTrackingEvents, { attr: { class: 'toggle-native' } }) }}
+              <span class="toggle-label">Tracking-Events senden</span>
+            </div>
+            {{ form_errors(form.sendTrackingEvents) }}
+          </div>
+
+          <div class="form-row single">
+            <div class="form-group">
+              {{ form_label(form.allowedDomains) }}
+              {{ form_widget(form.allowedDomains, { attr: { placeholder: "example.com\n*.example.com" } }) }}
+              {{ form_errors(form.allowedDomains) }}
+            </div>
+          </div>
+
+          <p style="color: var(--fg2); font-size: 0.875rem; margin: var(--space-4) 0;">
+            Nur diese Domains dürfen das Widget einbetten. Eine pro Zeile. Leer lassen, um alle Domains zu erlauben.
+          </p>
+
+          <div class="btn-actions">
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMBED CODE SECTION -->
+      {% if not isNew %}
+        <div class="ww-card" style="margin-top: var(--space-6);">
+          <h3 class="card-title">Einbettungscode</h3>
+
+          <div style="margin-bottom: var(--space-5);">
+            <span class="snippet-label">JavaScript-Snippet</span>
+            <div class="code-block">
+              <button type="button" class="copy-btn" data-copy-source="js-snippet">Kopieren</button>
+              <code id="js-snippet">{{ javascriptSnippet }}</code>
+            </div>
+          </div>
+
+          <div>
+            <span class="snippet-label">iFrame-Code</span>
+            <div class="code-block">
+              <button type="button" class="copy-btn" data-copy-source="iframe-snippet">Kopieren</button>
+              <code id="iframe-snippet">{{ iframeSnippet }}</code>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT COLUMN: LIVE PREVIEW -->
+    <div>
+      <div class="preview-container">
+        <h3 class="preview-title">Live-Vorschau</h3>
+        {% if widgetUrl %}
+          {% set previewHeight = widget.iframeHeight > 400 ? widget.iframeHeight : 400 %}
+          <iframe
+            src="{{ widgetUrl }}"
+            width="100%"
+            height="{{ previewHeight }}"
+            frameborder="0"
+            class="preview-iframe"
+          ></iframe>
+        {% else %}
+          <div id="widget-mock">
+            <div class="mock-header">Chiptuning Datenbank</div>
+            <div class="mock-section">
+              <div class="mock-label">Fahrzeugtyp</div>
+              <select class="mock-select"><option>Bitte wählen</option></select>
+            </div>
+            <div class="mock-section">
+              <div class="mock-label">Marke</div>
+              <select class="mock-select"><option>Bitte wählen</option></select>
+            </div>
+            <div class="mock-section">
+              <div class="mock-label">Baureihe</div>
+              <select class="mock-select"><option>Bitte wählen</option></select>
+            </div>
+            <div class="mock-section">
+              <div class="mock-label">Modell</div>
+              <select class="mock-select"><option>Bitte wählen</option></select>
+            </div>
+            <div class="mock-section">
+              <div class="mock-label">Motor</div>
+              <select class="mock-select"><option>Bitte wählen</option></select>
+            </div>
+          </div>
+          <p class="preview-hint">Nach dem ersten Speichern wird die Live-Vorschau hier angezeigt.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  {{ form_rest(form) }}
+  {{ form_end(form, { render_rest: false }) }}
+
+  <!-- THEME TOGGLE BUTTON -->
+  <button type="button" class="theme-toggle-btn" id="theme-toggle" title="Hell/Dunkel umschalten">🌙</button>
+
+  <!-- ACCENT COLOR PICKER -->
+  <div class="accent-picker">
+    <label for="accent-color">Akzentfarbe</label>
+    <input type="color" id="accent-color" value="#bfff00" title="Hauptfarbe anpassen">
+    <span class="accent-hint">Neon Lime</span>
+  </div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+  // Runs immediately in <head> — only touches CSS variables, no DOM queries
+  function applyAccentColor(color) {
+    var root = document.documentElement;
+    root.style.setProperty('--lime', color);
+    root.style.setProperty('--lime-glow', color);
+    root.style.setProperty('--lime-subtle', color + '19');
+    root.style.setProperty('--lime-border', color + '4d');
+  }
+  var _savedAccent = localStorage.getItem('crmfux-accent-color') || '#bfff00';
+  applyAccentColor(_savedAccent);
+
+  // Everything else waits for the DOM
+  document.addEventListener('DOMContentLoaded', function () {
+
+    // ─── THEME TOGGLE ─────────────────────────────────────────────
+    var savedTheme = localStorage.getItem('crmfux-widget-theme') || 'dark';
+    if (savedTheme === 'light') document.body.classList.add('light-theme');
+
+    var themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.textContent = savedTheme === 'light' ? '☀️' : '🌙';
+      themeToggle.addEventListener('click', function () {
+        var isLight = document.body.classList.toggle('light-theme');
+        localStorage.setItem('crmfux-widget-theme', isLight ? 'light' : 'dark');
+        themeToggle.textContent = isLight ? '☀️' : '🌙';
+      });
+    }
+
+    // ─── ACCENT COLOR PICKER ──────────────────────────────────────
+    var accentPresets = {
+      '#bfff00': 'Neon Lime', '#ff3333': 'Rot', '#00cce3': 'Cyan',
+      '#bb7dfa': 'Lila', '#f2711c': 'Orange', '#00ff88': 'Grün',
+      '#ffff00': 'Gelb', '#ff00ff': 'Magenta'
+    };
+    var accentInput = document.getElementById('accent-color');
+    var accentHint  = document.querySelector('.accent-hint');
+    if (accentInput) {
+      accentInput.value = _savedAccent;
+      if (accentHint) accentHint.textContent = accentPresets[_savedAccent.toUpperCase()] || _savedAccent;
+      accentInput.addEventListener('input', function (e) {
+        var color = e.target.value;
+        applyAccentColor(color);
+        localStorage.setItem('crmfux-accent-color', color);
+        if (accentHint) accentHint.textContent = accentPresets[color.toUpperCase()] || color.toUpperCase();
+      });
+    }
+
+    // ─── TAB SWITCHING ────────────────────────────────────────────
+    var tabs = document.querySelectorAll('.tab');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var tabName = tab.dataset.tab;
+        document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function (c) { c.classList.remove('active'); });
+        tab.classList.add('active');
+        var panel = document.getElementById('tab-' + tabName);
+        if (panel) panel.classList.add('active');
+      });
+    });
+
+    // ─── TOGGLE SWITCHES (synced to native checkboxes) ────────────
+    document.querySelectorAll('.toggle-switch[data-toggle-for]').forEach(function (toggle) {
+      var checkbox = document.getElementById(toggle.dataset.toggleFor);
+      if (!checkbox) return;
+      // Initialise visual state from actual DOM checkbox (DB value)
+      if (checkbox.checked) toggle.classList.add('active');
+      toggle.addEventListener('click', function () {
+        toggle.classList.toggle('active');
+        checkbox.checked = toggle.classList.contains('active');
+      });
+    });
+
+    // ─── COPY TO CLIPBOARD ────────────────────────────────────────
+    document.querySelectorAll('.copy-btn[data-copy-source]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var source = document.getElementById(btn.dataset.copySource);
+        if (!source) return;
+        var text = source.textContent;
+        var reset = function () {
+          setTimeout(function () {
+            btn.textContent = 'Kopieren';
+            btn.classList.remove('copied');
+          }, 2000);
+        };
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = '✓ Kopiert!';
+            btn.classList.add('copied');
+            reset();
+          });
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.textContent = '✓ Kopiert!';
+          btn.classList.add('copied');
+          reset();
+        }
+      });
+    });
+
+  }); // end DOMContentLoaded
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }} | {{ brandName }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ct-red: {{ portal and portal.primaryColor ? portal.primaryColor : '#dc2626' }};
+            --ct-dark: {{ portal and portal.secondaryColor ? portal.secondaryColor : '#0f172a' }};
+            --ct-slate-50: #f8fafc;
+            --ct-slate-100: #f1f5f9;
+            --ct-slate-200: #e2e8f0;
+            --ct-slate-400: #94a3b8;
+            --ct-slate-600: #475569;
+            --ct-slate-900: #0f172a;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            color: var(--ct-slate-900);
+            background:
+                radial-gradient(circle at top left, rgba(220, 38, 38, 0.08), transparent 24rem),
+                linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Sora', sans-serif;
+        }
+
+        .legal-header {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--ct-slate-200);
+        }
+
+        .legal-logo {
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--ct-slate-900);
+            text-decoration: none;
+        }
+
+        .legal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(220, 38, 38, 0.16);
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--ct-red);
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+        }
+
+        .legal-shell {
+            padding: 5rem 0 4rem;
+        }
+
+        .legal-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 1.5rem 4rem rgba(15, 23, 42, 0.08);
+            border-radius: 1.75rem;
+        }
+
+        .legal-muted {
+            color: var(--ct-slate-600);
+        }
+
+        .legal-footer {
+            border-top: 1px solid var(--ct-slate-200);
+            color: var(--ct-slate-600);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <header class="legal-header sticky-top">
+        <div class="container py-3 d-flex justify-content-between align-items-center gap-3">
+            <a href="{{ path('cpt_website_home') }}" class="legal-logo fs-4">{{ brandName }}</a>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ path('cpt_website_impressum') }}" class="text-decoration-none text-dark small">Impressum</a>
+                <a href="{{ path('cpt_website_datenschutz') }}" class="text-decoration-none text-dark small">Datenschutz</a>
+                <a href="{{ path('cpt_website_home') }}" class="btn btn-sm text-white" style="background: var(--ct-red); border-color: var(--ct-red);">Zur Website</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="legal-shell">
+        <div class="container">
+            <div class="legal-card p-4 p-lg-5">
+                {% block legal_body %}{% endblock %}
+            </div>
+        </div>
+    </main>
+
+    <footer class="legal-footer py-4">
+        <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
+            <div>{{ brandName }}</div>
+            <div>{{ "now"|date("Y") }} | CRM-basierte Rechtstexte</div>
+        </div>
+    </footer>
+{% endblock %}

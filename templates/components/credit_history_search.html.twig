@@ -1,0 +1,50 @@
+<div {{ attributes }} class="card border-0 shadow-sm credit-history-search">
+    {% set showResults = query|length >= 2 %}
+    <div class="card-body">
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+            <div class="flex-grow-1">
+                <input type="search"
+                       class="form-control"
+                       placeholder="Credits durchsuchen (Kunde, Firma, Kundennr., E-Mail, Typ, Notiz)..."
+                       autocomplete="off"
+                       data-model="query">
+            </div>
+            {% if query|length >= 2 %}
+                <span class="badge bg-body-secondary text-secondary">{{ computed.results|length }} Treffer</span>
+            {% else %}
+                <span class="small text-muted">Mindestens 2 Zeichen</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="list-group list-group-flush credit-history-search-results {{ showResults ? '' : 'd-none' }}" data-loading="addClass(opacity-50)">
+        {% if showResults %}
+            {% for item in computed.results %}
+                <a href="{{ item.url }}" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="fw-semibold">{{ item.label }}</div>
+                            {% if item.subLabel %}
+                                <div class="small text-muted">{{ item.subLabel }}</div>
+                            {% endif %}
+                            {% if item.meta %}
+                                <div class="small text-muted">{{ item.meta }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            {% if item.amount %}
+                                <div class="fw-semibold text-{{ item.amountTone|default('secondary') }}">{{ item.amount }}</div>
+                            {% endif %}
+                            {% if item.badge %}
+                                <div class="mt-1">
+                                    <span class="badge text-bg-{{ item.badgeTone|default('secondary') }}">{{ item.badge }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            {% else %}
+                <div class="list-group-item text-muted">Keine Treffer.</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,9 @@
+/* ============================================================
+   FONTS — loaded from Google Fonts CDN
+   Display : Saira Condensed  (condensed mechanical headlines)
+   UI/Body : Archivo          (neutral engineering grotesk)
+   Mono    : IBM Plex Mono    (ECU readouts, specs, figures)
+   NOTE: swap these @import URLs for self-hosted @font-face
+   rules + local files for full offline / production use.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700;800;900&family=Saira+Condensed:wght@500;600;700;800&display=swap');

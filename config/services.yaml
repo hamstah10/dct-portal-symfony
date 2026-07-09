@@ -1,0 +1,156 @@
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+# See also https://symfony.com/doc/current/service_container/import.html
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    api_access_token_ttl: '%env(int:API_ACCESS_TOKEN_TTL)%'
+    api_refresh_token_ttl: '%env(int:API_REFRESH_TOKEN_TTL)%'
+    api_token: '%env(string:API_TOKEN)%'
+    winols.api_token: '%env(string:WINOLS_API_TOKEN)%'
+    openclaw.api_token: '%env(string:OPENCLAW_API_TOKEN)%'
+    portal.upload_dir: '%kernel.project_dir%/%env(string:PORTAL_UPLOAD_DIR)%'
+    portal.mailer_from: '%env(string:PORTAL_MAILER_FROM)%'
+    portal.registration_notify_to: '%env(string:PORTAL_REGISTRATION_NOTIFY_TO)%'
+    dyno.remote_api_base: '%env(string:DYNO_REMOTE_API_BASE)%'
+    dyno.remote_api_token: '%env(string:DYNO_REMOTE_API_TOKEN)%'
+    dyno.remote_api_token_name: '%env(string:DYNO_REMOTE_API_TOKEN_NAME)%'
+    app.frontend_url: 'https://www.chiptuning-konfigurator.digital'
+    admin_page_access_default_groups: []
+    instagram.graph_version: '%env(INSTAGRAM_GRAPH_VERSION)%'
+    paypal.client_id_default: ''
+    paypal.client_secret_default: ''
+    paypal.base_url_default: 'https://api-m.sandbox.paypal.com'
+    paypal.client_id: '%env(default:paypal.client_id_default:PAYPAL_CLIENT_ID)%'
+    paypal.client_secret: '%env(default:paypal.client_secret_default:PAYPAL_CLIENT_SECRET)%'
+    paypal.base_url: '%env(default:paypal.base_url_default:PAYPAL_BASE_URL)%'
+    vehicle_api_base_url_default: 'https://verwaltung.tuningfux.de'
+    vehicle_api_base_url: '%env(default:vehicle_api_base_url_default:VEHICLE_API_BASE_URL)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\Api\CustomerApiAuthService:
+        arguments:
+            $accessTokenTtl: '%api_access_token_ttl%'
+            $refreshTokenTtl: '%api_refresh_token_ttl%'
+
+    App\Service\Api\MobileApiAuthService:
+        arguments:
+            $accessTokenTtl: '%api_access_token_ttl%'
+            $refreshTokenTtl: '%api_refresh_token_ttl%'
+
+    App\Controller\Api\CustomerController:
+        arguments:
+            $apiToken: '%api_token%'
+
+    App\Controller\Api\LeadController:
+        arguments:
+            $apiToken: '%api_token%'
+
+    App\Controller\Api\OrderController:
+        arguments:
+            $apiToken: '%api_token%'
+
+    App\Controller\Api\AutoModJobApiController:
+        arguments:
+            $apiToken: '%winols.api_token%'
+            $projectDir: '%kernel.project_dir%'
+
+    Tuningfux\InstagramBundle\Service\InstagramClient:
+        arguments:
+            $httpClient: '@http_client'
+            $appId: '%env(INSTAGRAM_APP_ID)%'
+            $appSecret: '%env(INSTAGRAM_APP_SECRET)%'
+            $graphVersion: '%instagram.graph_version%'
+    App\Controller\Admin\InstagramAdminController:
+        autowire: true
+        autoconfigure: true
+
+    App\Controller\Admin\InstagramProfileController:
+        autowire: true
+        autoconfigure: true
+
+    App\Controller\Admin\InstagramMediaController:
+        autowire: true
+        autoconfigure: true
+
+    App\Controller\Admin\InstagramPublishController:
+        autowire: true
+        autoconfigure: true
+
+    App\Controller\Admin\InstagramRefreshTokenController:
+        autowire: true
+        autoconfigure: true
+
+    App\Controller\Admin\InstagramAccountCrudController:
+        autowire: true
+        autoconfigure: true
+    
+    App\Controller\Admin\:
+        resource: '../src/Controller/Admin/'
+        autowire: true
+        autoconfigure: true
+        bind:
+            $frontendUrl: '%app.frontend_url%'
+
+    App\Portals\Chiptuningfile\Service\PaypalOrderService:
+        arguments:
+            $paypalClientId: '%paypal.client_id%'
+            $paypalClientSecret: '%paypal.client_secret%'
+            $paypalBaseUrl: '%paypal.base_url%'
+
+    App\Portals\No1tuningfiles\Service\PaypalOrderService:
+        arguments:
+            $paypalClientId: '%paypal.client_id%'
+            $paypalClientSecret: '%paypal.client_secret%'
+            $paypalBaseUrl: '%paypal.base_url%'
+    # Override buggy vendor definition: constructor arg order changed in pentiminax/ux-datatables.
+    datatables.maker.datatable:
+        class: Pentiminax\UX\DataTables\Maker\MakeDataTable
+        arguments:
+            $propertyNameHumanizer: '@datatables.column.property_name_humanizer'
+            $managerRegistry: '@doctrine'
+        tags: ['maker.command']
+        public: false
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+    App\Service\SpaAssetLocator:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Websites\No1tuningfiles\Controller\HomeController:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+        tags: ['controller.service_arguments']
+
+    App\Service\VehicleApiProxy:
+        arguments:
+            $apiBaseUrl: '%vehicle_api_base_url%'
+
+    # Replace the Meilisearch Doctrine subscriber with a fault-tolerant version
+    # that catches exceptions so a save does not fail when Meilisearch is unreachable.
+    meilisearch.search_indexer_subscriber:
+        class: App\EventSubscriber\MeilisearchFaultTolerantSubscriber
+        arguments:
+            $searchManager: '@Meilisearch\Bundle\SearchManagerInterface'
+            $logger: '@logger'
+        tags:
+            - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: postUpdate }
+            - { name: doctrine.event_listener, event: preRemove }

@@ -1,0 +1,164 @@
+<div class="vdb-layout-contrast">
+    <section class="vdb-contrast-media" aria-label="Fahrzeugbild">
+        <div class="vdb-contrast-logo-wrap">
+            <div class="vdb-contrast-logo">
+                <img
+                    data-vdb-brand-badge
+                    src="{{ asset('images/tuningfux-gelb.svg') }}"
+                    data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                    alt="Brand Logo"
+                    style="fill: #ffffff"
+                    class="shadow"
+                >
+            </div>
+        </div>
+
+        <div class="vdb-contrast-image" id="heroImageWrap">
+            <div class="vdb-empty-image">Kein Bild</div>
+        </div>
+
+            <div class="vdb-contrast-branding" aria-hidden="true">
+                <div class="vdb-contrast-branding-kicker">Chiptuning Konfigurator</div>
+                <div class="vdb-contrast-branding-name"><img
+                src="{{ asset('images/tuningfux-gelb.svg') }}"
+                data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                alt="Brand Logo"
+                width="250"
+            ></div>
+        </div>
+    </section>
+
+    <section class="vdb-contrast-panel">
+        <div class="vdb-contrast-top">
+            <div>
+                <div class="vdb-contrast-overline" id="brandName">-</div>
+                <h2 class="vdb-contrast-model" id="seriesName">-</h2>
+                <div class="vdb-contrast-engine" id="engineName">-</div>
+                <div class="vdb-contrast-model-line"></div>
+            </div>
+        </div>
+
+        <div class="vdb-contrast-stage-label">Leistungsstufe</div>
+        <div class="vdb-tabs" id="stageTabs"></div>
+
+        <div id="performanceChartPane" class="vdb-performance-chart-pane vdb-contrast-chart-pane" style="display: none;">
+            <div class="vdb-contrast-chart-head">
+                <span>Leistungsdiagramm</span>
+                <i class="fa fa-chart-line vdb-stage-head-icon" aria-hidden="true"></i>
+            </div>
+            <div class="vdb-chart-container vdb-chart-container-contrast">
+                <canvas id="powerChart"></canvas>
+            </div>
+            <div class="vdb-chart-stats vdb-chart-stats-contrast">
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Mehrleistung</div>
+                    <div class="vdb-chart-stat-value" id="chartDeltaPs">-</div>
+                    <div class="vdb-chart-stat-note">Stage 1 minus Serie</div>
+                </div>
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Mehrdrehmoment</div>
+                    <div class="vdb-chart-stat-value" id="chartDeltaNm">-</div>
+                    <div class="vdb-chart-stat-note">zusätzlicher Durchzug</div>
+                </div>
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Peak Leistung</div>
+                    <div class="vdb-chart-stat-value" id="peakPs">-</div>
+                    <div class="vdb-chart-stat-note" id="peakPsNote">-</div>
+                </div>
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Peak Drehmoment</div>
+                    <div class="vdb-chart-stat-value" id="peakNm">-</div>
+                    <div class="vdb-chart-stat-note" id="peakNmNote">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gearboxPane" class="vdb-performance-chart-pane vdb-contrast-chart-pane" style="display: none;">
+            <div class="vdb-contrast-chart-head">
+                <span>Getriebe</span>
+                <i class="fa fa-cogs vdb-stage-head-icon" aria-hidden="true"></i>
+            </div>
+            <div class="vdb-gearbox-list vdb-gearbox-list-contrast vdb-chart-container-contrast vdb-gearbox-empty" data-vdb-gearbox-content></div>
+        </div>
+
+        <div class="vdb-contrast-main-content" data-vdb-contrast-pane="metrics">
+            <div class="vdb-contrast-stat">
+                <div class="vdb-contrast-stat-title">Leistung</div>
+                <div class="vdb-contrast-stat-values">
+                    <div class="vdb-contrast-side">
+                        <div class="vdb-contrast-side-label">Original</div>
+                        <div class="vdb-contrast-side-number" id="origPs">-</div>
+                        <div class="vdb-contrast-side-unit">PS</div>
+                    </div>
+                    <div class="vdb-contrast-center">
+                        <div class="vdb-contrast-arrow">→</div>
+                        <div class="vdb-contrast-delta" id="deltaPs">+0 PS</div>
+                    </div>
+                    <div class="vdb-contrast-side vdb-contrast-side-end">
+                        <div class="vdb-contrast-side-label">Getunt</div>
+                        <div class="vdb-contrast-side-number is-red" id="stagePs">-</div>
+                        <div class="vdb-contrast-side-unit">PS</div>
+                    </div>
+                </div>
+                <div class="vdb-bar vdb-bar-contrast"><span id="psBar"></span></div>
+            </div>
+
+            <div class="vdb-contrast-stat">
+                <div class="vdb-contrast-stat-title">Drehmoment</div>
+                <div class="vdb-contrast-stat-values">
+                    <div class="vdb-contrast-side">
+                        <div class="vdb-contrast-side-label">Original</div>
+                        <div class="vdb-contrast-side-number" id="origNm">-</div>
+                        <div class="vdb-contrast-side-unit">NM</div>
+                    </div>
+                    <div class="vdb-contrast-center">
+                        <div class="vdb-contrast-arrow">→</div>
+                        <div class="vdb-contrast-delta" id="deltaNm">+0 NM</div>
+                    </div>
+                    <div class="vdb-contrast-side vdb-contrast-side-end">
+                        <div class="vdb-contrast-side-label">Getunt</div>
+                        <div class="vdb-contrast-side-number is-red" id="stageNm">-</div>
+                        <div class="vdb-contrast-side-unit">NM</div>
+                    </div>
+                </div>
+                <div class="vdb-bar vdb-bar-contrast"><span id="nmBar"></span></div>
+            </div>
+
+            <div class="vdb-contrast-options">
+                <div class="vdb-contrast-options-title">Inkludierte Optionen</div>
+                <div class="vdb-stage-price" id="stagePrice"></div>
+                <div class="vdb-contrast-description" id="stageDescription">-</div>
+                <div class="vdb-ecu-manufacturers" id="ecuManufacturers"></div>
+                <ul class="vdb-options-list" id="optionsList"></ul>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <span class="fw-bold">Preis:</span><span class="">€</span>
+                </div>
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <a href="#" class="vdb-contact vdb-contrast-contact">
+                        <span>Kontakt</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="visually-hidden" aria-hidden="true">
+            <span id="enginePs">-</span>
+            <span id="engineNm">-</span>
+            <span id="engineFuel">-</span>
+            <span id="bottomOrig">-</span>
+            <span id="bottomTuned">-</span>
+            <span id="improvementLine">-</span>
+        </div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script type="module">
+    import { initPowerCurveChart } from '{{ asset('js/powercurve-chart.js') }}';
+
+    window.initPowerCurveChart = initPowerCurveChart;
+</script>

@@ -1,0 +1,209 @@
+body.ea:not(.page-login).page-content {
+    background: #eef2f7;
+}
+
+body.ea:not(.page-login).page-content .content-wrapper,
+body.ea:not(.page-login).page-content .ea-content,
+body.ea:not(.page-login).page-content .content,
+body.ea:not(.page-login).page-content .main-content {
+    background: transparent;
+}
+
+body.ea:not(.page-login) .tfd-dashboard {
+    padding-bottom: 24px;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .card,
+body.ea:not(.page-login) .tfd-dashboard .chart-card,
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-card {
+    background: #ffffff !important;
+    border: 1px solid #d9e2ec !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+    overflow: hidden;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .card-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5eaf2 !important;
+    padding: 0.95rem 1.1rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .card-body {
+    padding: 1.15rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .card-footer {
+    background: #ffffff !important;
+    border-top: 1px solid #e5eaf2 !important;
+    padding: 0.9rem 1.1rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-dashboard-hero {
+    background: linear-gradient(135deg, #f7fafc 0%, #e8eff8 100%) !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-dashboard-hero .card-body {
+    padding: 1.35rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-card .card-body {
+    padding: 1.15rem 1.2rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-card .card-body .d-flex {
+    gap: 0.9rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-card .display-6 {
+    font-size: 1.5rem;
+    line-height: 1.1;
+    margin-top: 0.45rem !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-icon {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-bottom: 0 !important;
+    padding: 0.55rem !important;
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+    color: #2563eb !important;
+    flex: 0 0 auto;
+    line-height: 1 !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-icon > *,
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-icon i,
+body.ea:not(.page-login) .tfd-dashboard .tfd-kpi-icon svg {
+    display: block !important;
+    margin: auto !important;
+    font-size: 1rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    line-height: 1 !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .tfd-summary-box {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 0.9rem !important;
+}
+
+body.ea:not(.page-login) .table,
+body.ea:not(.page-login) .tfd-admin-table,
+body.ea:not(.page-login) table.datagrid {
+    --bs-table-bg: #ffffff;
+    --bs-table-striped-bg: #f8fafc;
+    --bs-table-hover-bg: #f8fbff;
+    border-color: #e2e8f0 !important;
+    margin-bottom: 0 !important;
+}
+
+body.ea:not(.page-login) .table thead th,
+body.ea:not(.page-login) .tfd-admin-table thead th,
+body.ea:not(.page-login) table.datagrid thead th {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #d9e2ec !important;
+    color: #334155 !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em;
+    padding: 1rem 1rem !important;
+    vertical-align: middle;
+}
+
+body.ea:not(.page-login) .table tbody td,
+body.ea:not(.page-login) .table tbody th,
+body.ea:not(.page-login) .table > :not(caption) > * > *,
+body.ea:not(.page-login) .tfd-admin-table tbody td,
+body.ea:not(.page-login) .tfd-admin-table tbody th,
+body.ea:not(.page-login) table.datagrid tbody td,
+body.ea:not(.page-login) table.datagrid tbody th {
+    padding: 1.1rem 1rem !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e8eef5 !important;
+    vertical-align: middle !important;
+}
+
+body.ea:not(.page-login) .table.table-sm thead th,
+body.ea:not(.page-login) .tfd-admin-table.table-sm thead th,
+body.ea:not(.page-login) table.datagrid thead th {
+    padding: 1rem 1rem !important;
+}
+
+body.ea:not(.page-login) .table.table-sm tbody td,
+body.ea:not(.page-login) .table.table-sm tbody th,
+body.ea:not(.page-login) .tfd-admin-table.table-sm tbody td,
+body.ea:not(.page-login) .tfd-admin-table.table-sm tbody th,
+body.ea:not(.page-login) table.datagrid tbody td,
+body.ea:not(.page-login) table.datagrid tbody th {
+    padding: 1.05rem 1rem !important;
+}
+
+body.ea:not(.page-login) .table-responsive {
+    border-radius: 0 0 14px 14px;
+}
+
+body.ea:not(.page-login) .table tbody tr:hover > *,
+body.ea:not(.page-login) .tfd-admin-table tbody tr:hover > *,
+body.ea:not(.page-login) table.datagrid tbody tr:hover > * {
+    background: #f8fbff !important;
+}
+
+body.ea:not(.page-login) .dt-container {
+    padding: 0.95rem 1.1rem 1.1rem !important;
+}
+
+body.ea:not(.page-login) .dt-container .row {
+    --bs-gutter-y: 0.85rem;
+    --bs-gutter-x: 0.85rem;
+}
+
+body.ea:not(.page-login) .dt-container .dt-search input,
+body.ea:not(.page-login) .dt-container .dt-input,
+body.ea:not(.page-login) .dt-container .dt-length select {
+    min-height: 42px;
+    border-radius: 10px;
+    border: 1px solid #d9e2ec;
+    background: #ffffff;
+    padding: 0.55rem 0.8rem;
+    box-shadow: none;
+}
+
+body.ea:not(.page-login) .dt-container .dt-search label,
+body.ea:not(.page-login) .dt-container .dt-length label,
+body.ea:not(.page-login) .dt-container .dt-info {
+    color: #64748b;
+    font-size: 0.92rem;
+}
+
+body.ea:not(.page-login) .dt-container .dt-paging .pagination {
+    gap: 0.35rem;
+}
+
+body.ea:not(.page-login) .dt-container .dt-paging .page-link {
+    border-radius: 10px !important;
+    border: 1px solid #d9e2ec !important;
+    padding: 0.5rem 0.8rem !important;
+    color: #334155 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+body.ea:not(.page-login) .dt-container .dt-paging .page-item.active .page-link {
+    background: #eff6ff !important;
+    border-color: #bfdbfe !important;
+    color: #2563eb !important;
+}
+
+body.ea:not(.page-login) .tfd-dashboard .text-muted,
+body.ea:not(.page-login) .tfd-dashboard .text-light-emphasis,
+body.ea:not(.page-login) .tfd-dashboard .small.text-muted {
+    color: #64748b !important;
+}

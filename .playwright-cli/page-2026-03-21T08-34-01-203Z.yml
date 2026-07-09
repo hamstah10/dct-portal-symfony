@@ -1,0 +1,254 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - heading "Symfony Symfony Profiler" [level=1] [ref=e4]:
+      - link "Symfony Symfony Profiler" [ref=e5] [cursor=pointer]:
+        - /url: /_profiler/
+        - img "Symfony" [ref=e6]
+        - text: Symfony Profiler
+    - generic [ref=e10]:
+      - searchbox "Search on symfony.com" [ref=e11]
+      - button "Search" [ref=e12]
+  - generic [ref=e14]:
+    - heading "GET https://chiptuningfile.tuningfux.de/" [level=2] [ref=e15]:
+      - generic [ref=e16]: GET
+      - link "https://chiptuningfile.tuningfux.de/" [ref=e17] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/
+    - generic [ref=e18]:
+      - term [ref=e19]: "Response:"
+      - definition [ref=e20]:
+        - generic [ref=e21]: "200"
+        - text: OK
+      - term [ref=e22]: "IP:"
+      - definition [ref=e23]:
+        - link "162.158.95.120" [ref=e24] [cursor=pointer]:
+          - /url: /_profiler/cc858d/search/results?limit=10&ip=162.158.95.120
+      - term [ref=e25]: "Profiled on:"
+      - definition [ref=e26]:
+        - time [ref=e27]: March 21, 2026 at 9:33:49 AM
+      - term [ref=e28]: "Token:"
+      - definition [ref=e29]: cc858d
+  - generic [ref=e31]:
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e35]:
+          - link "Search profiles" [ref=e36] [cursor=pointer]:
+            - /url: /_profiler/search?limit=10&type=request
+            - img [ref=e37]
+            - text: Search profiles
+          - link "Latest" [ref=e41] [cursor=pointer]:
+            - /url: /_profiler/latest?type=request&panel=security
+        - list [ref=e42]:
+          - listitem [ref=e43]:
+            - link "Request / Response" [ref=e44] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=request&type=request
+              - generic [ref=e45]:
+                - img [ref=e47]
+                - strong [ref=e50]: Request / Response
+          - listitem [ref=e51]:
+            - link "Time Performance" [ref=e52] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=time&type=request
+              - generic [ref=e53]:
+                - img "Time" [ref=e55]
+                - strong [ref=e59]: Performance
+          - listitem [ref=e60]:
+            - link "Validator" [ref=e61] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=validator&type=request
+              - generic [ref=e62]:
+                - img [ref=e64]
+                - strong [ref=e68]: Validator
+          - listitem [ref=e69]:
+            - link "Cache Forms" [ref=e70] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=form&type=request
+              - generic [ref=e71]:
+                - img "Cache" [ref=e73]
+                - strong [ref=e79]: Forms
+          - listitem [ref=e80]:
+            - link "Exception Exception" [ref=e81] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=exception&type=request
+              - generic [ref=e82]:
+                - img "Exception" [ref=e84]
+                - strong [ref=e88]: Exception
+          - listitem [ref=e89]:
+            - link "Logger Logs 7" [ref=e90] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=logger&type=request
+              - generic [ref=e91]:
+                - img "Logger" [ref=e93]
+                - strong [ref=e97]: Logs
+                - generic [ref=e98]: "7"
+          - listitem [ref=e99]:
+            - link "Events" [ref=e100] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=events&type=request
+              - generic [ref=e101]:
+                - img [ref=e103]
+                - strong [ref=e109]: Events
+          - listitem [ref=e110]:
+            - link "Routing" [ref=e111] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=router&type=request
+              - generic [ref=e112]:
+                - img [ref=e114]
+                - strong [ref=e118]: Routing
+          - listitem [ref=e119]:
+            - link "Cache Cache" [ref=e120] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=cache&type=request
+              - generic [ref=e121]:
+                - img "Cache" [ref=e123]
+                - strong [ref=e128]: Cache
+          - listitem [ref=e129]:
+            - link "Translation" [ref=e130] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=translation&type=request
+              - generic [ref=e131]:
+                - img [ref=e133]
+                - strong [ref=e138]: Translation
+          - listitem [ref=e139]:
+            - link "Security Security" [ref=e140] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=security&type=request
+              - generic [ref=e141]:
+                - img "Security" [ref=e143]
+                - strong [ref=e147]: Security
+          - listitem [ref=e148]:
+            - link "Twig Twig" [ref=e149] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=twig&type=request
+              - generic [ref=e150]:
+                - img "Twig" [ref=e152]
+                - strong [ref=e156]: Twig
+          - listitem [ref=e157]:
+            - link "Twig Components" [ref=e158] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=twig_component&type=request
+              - generic [ref=e159]:
+                - img [ref=e161]
+                - strong [ref=e163]: Twig Components
+          - listitem [ref=e164]:
+            - link "HTTP Client" [ref=e165] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=http_client&type=request
+              - generic [ref=e166]:
+                - img [ref=e168]
+                - strong [ref=e176]: HTTP Client
+          - listitem [ref=e177]:
+            - link "Doctrine" [ref=e178] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=db&type=request
+              - generic [ref=e179]:
+                - img [ref=e181]
+                - strong [ref=e186]: Doctrine
+          - listitem [ref=e187]:
+            - link "Debug" [ref=e188] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=dump&type=request
+              - generic [ref=e189]:
+                - img [ref=e191]
+                - strong [ref=e194]: Debug
+          - listitem [ref=e195]:
+            - link "Messages" [ref=e196] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=messenger&type=request
+              - generic [ref=e197]:
+                - img [ref=e199]
+                - strong [ref=e204]: Messages
+          - listitem [ref=e205]:
+            - link "Emails" [ref=e206] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=mailer&type=request
+              - generic [ref=e207]:
+                - img [ref=e209]
+                - strong [ref=e213]: Emails
+          - listitem [ref=e214]:
+            - link "Notifications" [ref=e215] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=notifier&type=request
+              - generic [ref=e216]:
+                - img [ref=e218]
+                - strong [ref=e224]: Notifications
+          - listitem [ref=e225]:
+            - link "Serializer" [ref=e226] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=serializer&type=request
+              - generic [ref=e227]:
+                - img [ref=e229]
+                - strong [ref=e233]: Serializer
+          - listitem [ref=e234]:
+            - link "EasyAdmin" [ref=e235] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=easyadmin&type=request
+              - generic [ref=e236]:
+                - img [ref=e238]
+                - strong [ref=e241]: EasyAdmin
+          - listitem [ref=e242]:
+            - link "Mercure" [ref=e243] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=mercure&type=request
+              - generic [ref=e244]:
+                - img [ref=e246]
+                - strong [ref=e249]: Mercure
+          - listitem [ref=e250]:
+            - link "Symfony AI 0" [ref=e251] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=ai&type=request
+              - generic [ref=e252]:
+                - img [ref=e254]
+                - strong [ref=e257]: Symfony AI
+                - generic [ref=e258]: "0"
+          - listitem [ref=e259]:
+            - link "MCP 0" [ref=e260] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=mcp&type=request
+              - generic [ref=e261]:
+                - img [ref=e263]
+                - strong [ref=e268]: MCP
+                - generic [ref=e269]: "0"
+          - listitem [ref=e270]:
+            - link "Config Configuration" [ref=e271] [cursor=pointer]:
+              - /url: /_profiler/cc858d?panel=config&type=request
+              - generic [ref=e272]:
+                - img "Config" [ref=e274]
+                - strong [ref=e279]: Configuration
+      - link "Profiler settings" [ref=e280] [cursor=pointer]:
+        - /url: "#"
+        - img [ref=e282]
+        - text: Profiler settings
+    - generic [ref=e287]:
+      - heading "Security" [level=2] [ref=e288]
+      - generic [ref=e289]:
+        - tablist [ref=e290]:
+          - tab "Token" [selected] [ref=e291] [cursor=pointer]
+          - tab "Firewall" [ref=e292] [cursor=pointer]
+          - tab "Listeners" [ref=e293] [cursor=pointer]
+          - tab "Authenticators" [ref=e294] [cursor=pointer]
+          - tab "Access Decision" [ref=e295] [cursor=pointer]
+        - 'tabpanel "dummy.chip08@example.com Username Authenticated 263fbc From Property Value Roles [▼ \"ROLE_PORTAL_CUSTOMER\" ] Inherited Roles none Token Symfony\\Component\\Security\\Http\\Authenticator\\Token\\PostAuthenticationToken {#1032 ▼ -user: App\\Portals\\Chiptuningfile\\Security \\ PortalCustomerUser {#1077 …} -roleNames: [▶ ] -attributes: [] -firewallName: \"chiptuningfile_portal\" }" [ref=e296]':
+          - generic [ref=e297]:
+            - generic [ref=e298]:
+              - generic [ref=e299]:
+                - generic [ref=e300]: dummy.chip08@example.com
+                - generic [ref=e301]: Username
+              - generic [ref=e302]:
+                - img [ref=e304]
+                - generic [ref=e307]: Authenticated
+              - generic [ref=e308]:
+                - link "263fbc" [ref=e310] [cursor=pointer]:
+                  - /url: /_profiler/263fbc?panel=security
+                - generic [ref=e311]: From
+            - table [ref=e312]:
+              - rowgroup [ref=e313]:
+                - row "Property Value" [ref=e314]:
+                  - columnheader "Property" [ref=e315]
+                  - columnheader "Value" [ref=e316]
+              - rowgroup [ref=e317]:
+                - row "Roles [▼ \"ROLE_PORTAL_CUSTOMER\" ]" [ref=e318]:
+                  - rowheader "Roles" [ref=e319]
+                  - cell "[▼ \"ROLE_PORTAL_CUSTOMER\" ]" [ref=e320]:
+                    - generic [ref=e321]:
+                      - text: "["
+                      - generic "[Ctrl+click] Expand all children" [ref=e322] [cursor=pointer]: ▼
+                      - generic [ref=e323]: "\"ROLE_PORTAL_CUSTOMER\""
+                      - text: "]"
+                - row "Inherited Roles none" [ref=e324]:
+                  - rowheader "Inherited Roles" [ref=e325]
+                  - cell "none" [ref=e326]
+                - 'row "Token Symfony\\Component\\Security\\Http\\Authenticator\\Token\\PostAuthenticationToken {#1032 ▼ -user: App\\Portals\\Chiptuningfile\\Security \\ PortalCustomerUser {#1077 …} -roleNames: [▶ ] -attributes: [] -firewallName: \"chiptuningfile_portal\" }" [ref=e327]':
+                  - rowheader "Token" [ref=e328]
+                  - 'cell "Symfony\\Component\\Security\\Http\\Authenticator\\Token\\PostAuthenticationToken {#1032 ▼ -user: App\\Portals\\Chiptuningfile\\Security \\ PortalCustomerUser {#1077 …} -roleNames: [▶ ] -attributes: [] -firewallName: \"chiptuningfile_portal\" }" [ref=e329]':
+                    - generic [ref=e330]:
+                      - link "Symfony\\Component\\Security\\Http\\Authenticator\\Token\\PostAuthenticationToken" [ref=e331] [cursor=pointer]:
+                        - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/security-http/Authenticator/Token/PostAuthenticationToken.php#L17
+                      - text: "{"
+                      - generic "[Ctrl+click] Expand all children" [ref=e332] [cursor=pointer]: "#1032 ▼"
+                      - generic [ref=e333]:
+                        - text: "-user:"
+                        - generic "App\\Portals\\Chiptuningfile\\Security\\PortalCustomerUser" [ref=e334]:
+                          - generic [ref=e335]: App\Portals\Chiptuningfile\Security
+                          - generic [ref=e336]: \
+                          - generic [ref=e337]: PortalCustomerUser
+                        - text: "{#1077 …} -roleNames: ["
+                        - generic "[Ctrl+click] Expand all children" [ref=e338] [cursor=pointer]: ▶
+                        - text: "] -attributes: [] -firewallName: \"chiptuningfile_portal\""
+                      - text: "}"

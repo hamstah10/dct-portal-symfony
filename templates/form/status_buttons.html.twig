@@ -1,0 +1,115 @@
+{% block status_buttons_widget %}
+    <div class="status-buttons-container">
+        {% set status_colors = {
+            'eingegangen': 'info',
+            'in_bearbeitung': 'warning',
+            'parked': 'secondary',
+            'abgeschlossen': 'success',
+            'abgelehnt': 'danger'
+        } %}
+
+        {% for choice_value, choice_label in choices %}
+            {% set status_key = choice_value|lower %}
+            {% set color_class = status_colors[status_key] ?? 'secondary' %}
+            {% set is_selected = choice_value == value %}
+
+            <label class="status-button-label">
+                <input
+                    type="radio"
+                    name="{{ full_name }}"
+                    value="{{ choice_value }}"
+                    class="status-button-input"
+                    {% if is_selected %}checked="checked"{% endif %}
+                    {% if disabled %}disabled{% endif %}
+                />
+                <span class="status-button {% if is_selected %}status-button--active status-button--{{ color_class }}{% else %}status-button--inactive{% endif %}">
+                    {{ choice_label }}
+                </span>
+            </label>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+<style>
+    .status-buttons-container {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .status-button-label {
+        display: block;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .status-button-input {
+        display: none;
+    }
+
+    .status-button {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 52px;
+        padding: 12px 16px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        background: linear-gradient(180deg, rgba(24, 37, 74, 0.92), rgba(16, 25, 49, 0.92));
+        color: #dbe6ff;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .status-button:hover {
+        border-color: rgba(187, 207, 78, 0.28);
+        background: linear-gradient(180deg, rgba(30, 47, 92, 0.96), rgba(20, 31, 63, 0.96));
+        color: #f3f7ff;
+    }
+
+    .status-button--active {
+        border-color: transparent;
+        color: #0f172a;
+    }
+
+    .status-button--active.status-button--info {
+        background: linear-gradient(180deg, #8fc2ff, #69a9f7);
+    }
+
+    .status-button--active.status-button--warning {
+        background: linear-gradient(180deg, #ffd879, #ffbd49);
+    }
+
+    .status-button--active.status-button--secondary {
+        background: linear-gradient(180deg, #cad6ef, #aab9d8);
+    }
+
+    .status-button--active.status-button--success {
+        background: linear-gradient(180deg, #c5ffd9, #97f1b7);
+    }
+
+    .status-button--active.status-button--danger {
+        background: linear-gradient(180deg, #ffb3b3, #ff8f8f);
+    }
+
+    .status-button-input:checked + .status-button {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(5, 12, 31, 0.28);
+    }
+
+    .status-button-input:disabled + .status-button {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 767px) {
+        .status-buttons-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

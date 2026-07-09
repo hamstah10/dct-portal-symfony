@@ -1,0 +1,810 @@
+[
+  {
+    "brand_slug": "aebi-schmidt-agri",
+    "brand_name": "Aebi Schmidt",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/aebi_schmidt_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/aebi-schmidt-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "agco-agri",
+    "brand_name": "Agco",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/agco_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/agco-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "agrale-agri",
+    "brand_name": "Agrale",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/agrale_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/agrale-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "agrifac-agri",
+    "brand_name": "Agrifac",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/agrifac_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/agrifac-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "albach-agri",
+    "brand_name": "Albach",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/albach_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/albach-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "amazone-agri",
+    "brand_name": "Amazone",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/amazone_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/amazone-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "antonio-carraro-agri",
+    "brand_name": "Antonio Carraro",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/antonio_carraro_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/antonio-carraro-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "arbos-agri",
+    "brand_name": "Arbos",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/arbos_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/arbos-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "artec-agri",
+    "brand_name": "Artec",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/artec_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/artec-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "avant-agri",
+    "brand_name": "Avant",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/avant_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/avant-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "bateman-agri",
+    "brand_name": "Bateman",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/bateman_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/bateman-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "belarus-agri",
+    "brand_name": "Belarus",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/belarus_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/belarus-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "berthoud-agri",
+    "brand_name": "Berthoud",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/berthoud_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/berthoud-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "bobard-agri",
+    "brand_name": "Bobard",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/bobard_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/bobard-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "bombardier-agri",
+    "brand_name": "Bombardier",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/bombardier_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/bombardier-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "bourgoin-agri",
+    "brand_name": "Bourgoin",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/bourgoin_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/bourgoin-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "buhler-versatile-agri",
+    "brand_name": "Buhler Versatile",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/buhler_versatile_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/buhler-versatile-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "caffini-agri",
+    "brand_name": "Caffini",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/caffini_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/caffini-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "camox-agri",
+    "brand_name": "Camox",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/camox_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/camox-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "caron-agri",
+    "brand_name": "Caron",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/caron_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/caron-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "case-construction-agri",
+    "brand_name": "Case Construction",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/case_construction_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/case-construction-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "case-ih-agri",
+    "brand_name": "Case IH",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/case_ih_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/case-ih-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "caterpillar-agri",
+    "brand_name": "Caterpillar",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/caterpillar_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/caterpillar-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "challenger-agri",
+    "brand_name": "Challenger",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/challenger_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/challenger-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "claas-agri",
+    "brand_name": "Claas",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/claas_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/claas-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "cmi-agri",
+    "brand_name": "CMI",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/cmi_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/cmi-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "cml-agri",
+    "brand_name": "CML",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/cml_agricultural.jpg",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/cml-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "deutz-agri",
+    "brand_name": "Deutz",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/deutz_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/deutz-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "dieci-agri",
+    "brand_name": "Dieci",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/dieci_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/dieci-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "doosan-agri",
+    "brand_name": "Doosan",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/doosan_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/doosan-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "doppstadt-agri",
+    "brand_name": "Doppstadt",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/doppstadt_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/doppstadt-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "eco-log-agri",
+    "brand_name": "Eco Log",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/eco_log_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/eco-log-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "energreen-agri",
+    "brand_name": "Energreen",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/energreen_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/energreen-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "erkunt-agri",
+    "brand_name": "Erkunt",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/erkunt_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/erkunt-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "everun-agri",
+    "brand_name": "Everun",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/everun_agricultural.jpg",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/everun-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "faresin-agri",
+    "brand_name": "Faresin",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/faresin_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/faresin-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "farmtrac-agri",
+    "brand_name": "Farmtrac",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/farmtrac_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/farmtrac-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "fendt-agri",
+    "brand_name": "Fendt",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/fendt_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/fendt-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "gleaner-agri",
+    "brand_name": "Gleaner",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/gleaner_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/gleaner-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "gremo-agri",
+    "brand_name": "Gremo",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/gremo_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/gremo-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "grimme-agri",
+    "brand_name": "Grimme",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/grimme_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/grimme-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "guaresi-agri",
+    "brand_name": "Guaresi",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/guaresi_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/guaresi-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hagie-agri",
+    "brand_name": "Hagie",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hagie_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hagie-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "halcon-agri",
+    "brand_name": "Halcon",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/halcon_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/halcon-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hardi-agri",
+    "brand_name": "Hardi",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hardi_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hardi-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hitachi-agri",
+    "brand_name": "Hitachi",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hitachi_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hitachi-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "holmer-agri",
+    "brand_name": "Holmer",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/holmer_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/holmer-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "horsch-agri",
+    "brand_name": "Horsch",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/horsch_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/horsch-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hortech-agri",
+    "brand_name": "Hortech",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hortech_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hortech-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hurlimann-agri",
+    "brand_name": "Hurlimann",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hurlimann_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hurlimann-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hyster-agri",
+    "brand_name": "Hyster",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hyster_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hyster-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hyundai-trucks-agri",
+    "brand_name": "Hyundai (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hyundai_trucks_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/hyundai-trucks-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "italmix-agri",
+    "brand_name": "Italmix",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/italmix_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/italmix-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "jacto-agri",
+    "brand_name": "Jacto",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/jacto_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/jacto-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "jarraff-agri",
+    "brand_name": "Jarraff",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/jarraff_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/jarraff-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "jcb-agri",
+    "brand_name": "JCB",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/jcb_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/jcb-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "jenz-agri",
+    "brand_name": "Jenz",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/jenz_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/jenz-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "john-deere-agri",
+    "brand_name": "John Deere",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/john_deere_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/john-deere-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "kioti-agri",
+    "brand_name": "Kioti",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/kioti_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/kioti-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "kobelco-agri",
+    "brand_name": "Kobelco",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/kobelco_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/kobelco-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "kubota-agri",
+    "brand_name": "Kubota",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/kubota_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/kubota-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "kuhn-agri",
+    "brand_name": "Kuhn",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/kuhn_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/kuhn-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "lamborghini-agri",
+    "brand_name": "Lamborghini",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/lamborghini_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/lamborghini-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "landini-agri",
+    "brand_name": "Landini",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/landini_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/landini-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "laverda-agri",
+    "brand_name": "Laverda",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/laverda_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/laverda-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "linde-agri",
+    "brand_name": "Linde",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/linde_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/linde-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "lindner-agri",
+    "brand_name": "Lindner",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/lindner_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/lindner-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "logset-agri",
+    "brand_name": "Logset",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/logset_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/logset-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "ls-tractor-agri",
+    "brand_name": "LS tractor",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/ls_tractor_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/ls-tractor-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "lundberg-agri",
+    "brand_name": "Lundberg",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/lundberg_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/lundberg-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "lannen-agri",
+    "brand_name": "Lännen",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/lannen_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/lannen-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "macdon-agri",
+    "brand_name": "MacDON",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/macdon_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/macdon-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "manitou-agri",
+    "brand_name": "Manitou",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/manitou_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/manitou-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "massey-ferguson-agri",
+    "brand_name": "Massey Ferguson",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/massey_ferguson_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/massey-ferguson-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "matrot-agri",
+    "brand_name": "Matrot",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/matrot_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/matrot-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "mazzotti-agri",
+    "brand_name": "MAzzotti",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/mazzotti_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/mazzotti-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "mc-cormick-agri",
+    "brand_name": "Mc Cormick",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/mc_cormick_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/mc-cormick-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "mecalac-agri",
+    "brand_name": "Mecalac",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/mecalac_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/mecalac-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "merlo-agri",
+    "brand_name": "Merlo",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/merlo_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/merlo-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "new-holland-agri",
+    "brand_name": "New Holland",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/new_holland_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/new-holland-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "pellenc-agri",
+    "brand_name": "Pellenc",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/pellenc_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/pellenc-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "ponsse-agri",
+    "brand_name": "Ponsse",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/ponsse_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/ponsse-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "pouchain-agri",
+    "brand_name": "Pouchain",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/pouchain_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/pouchain-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "rostselmash-agri",
+    "brand_name": "Rostselmash",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/rostselmash_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/rostselmash-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "rottne-agri",
+    "brand_name": "Rottne",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/rottne_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/rottne-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "same-agri",
+    "brand_name": "Same",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/same_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/same-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "sany-agri",
+    "brand_name": "Sany",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/sany_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/sany-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "sennebogen-agri",
+    "brand_name": "Sennebogen",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/sennebogen_agricultural.jpg",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/sennebogen-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "steyr-agri",
+    "brand_name": "Steyr",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/steyr_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/steyr-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "storti-agri",
+    "brand_name": "Storti",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/storti_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/storti-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "takeuchi-agri",
+    "brand_name": "Takeuchi",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/takeuchi_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/takeuchi-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "tecnoma-agri",
+    "brand_name": "Tecnoma",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/tecnoma_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/tecnoma-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "tigercat-agri",
+    "brand_name": "Tigercat",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/tigercat_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/tigercat-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "valtra-agri",
+    "brand_name": "Valtra",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/valtra_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/valtra-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "vermeer-agri",
+    "brand_name": "Vermeer",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/vermeer_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/vermeer-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "versa-agri",
+    "brand_name": "Versa",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/versa_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/versa-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "volvo-agri",
+    "brand_name": "Volvo",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/volvo_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/volvo-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "weidemann-agri",
+    "brand_name": "Weidemann",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/weidemann_agricultural.jpg",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/weidemann-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "yale-agri",
+    "brand_name": "Yale",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/yale_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/yale-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "yanmar-agri",
+    "brand_name": "Yanmar",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/yanmar_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/yanmar-agri",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "zetor-agri",
+    "brand_name": "Zetor",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/zetor_agricultural.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/agricultural/zetor-agri",
+    "model_count": 0,
+    "models": []
+  }
+]

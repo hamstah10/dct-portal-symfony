@@ -1,0 +1,22 @@
+<h2>Neue Partner Wizard Anfrage</h2>
+
+<p><strong>Client:</strong> {{ client.name }}</p>
+
+<h3>Kontakt</h3>
+<ul>
+  <li><strong>Name:</strong> {{ lead.name }}</li>
+  <li><strong>Firma:</strong> {{ lead.company }}</li>
+  <li><strong>E-Mail:</strong> {{ lead.email }}</li>
+  <li><strong>Telefon:</strong> {{ lead.phone }}</li>
+  <li><strong>Website:</strong> {{ lead.website }}</li>
+</ul>
+
+<h3>Empfehlung</h3>
+<ul>
+  <li><strong>Status:</strong> {{ lead.recommendationStatus }}</li>
+  <li><strong>Paket:</strong> {{ lead.recommendedPackageTitle }}</li>
+  <li><strong>Nächster Schritt:</strong> {{ lead.nextStep }}</li>
+  <li><strong>Umsatzpotenzial:</strong> {{ lead.estimatedMonthlyRevenue }} €</li>
+</ul>
+
+<p><strong>Tool-Empfehlung:</strong><br>{{ lead.toolDirection }}</p>

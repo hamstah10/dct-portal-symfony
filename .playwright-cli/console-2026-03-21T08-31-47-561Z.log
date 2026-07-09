@@ -1,0 +1,12 @@
+[    1364ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[    1438ms] ReferenceError: clearNavDropdown is not defined
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/main.js:88:9
+[    1445ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+[    5364ms] ReferenceError: checkHoriMenu is not defined
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/main.js:92:9
+[   26246ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+[   26261ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[  122357ms] TypeError: Cannot read properties of null (reading 'addEventListener')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/defaultmenu.min.js?v=1774082029:1349:40
+[  122810ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[  122814ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0

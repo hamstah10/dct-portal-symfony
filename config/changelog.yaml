@@ -1,0 +1,258 @@
+entries:
+  - date: "2026-07-06"
+    version: "v2026.07.06.2"
+    type: "fix"
+    portals: ["easyadmin"]
+    title: "Leistungsstufen: Wizard-Button besser sichtbar"
+    description: "Der Button zum Anlegen einer neuen Leistungsstufe per Wizard war auf der Übersichtsseite kaum auffindbar."
+    items:
+      - "Button „Neue Leistungsstufe (Wizard)“ ist jetzt farblich hervorgehoben"
+
+  - date: "2026-07-06"
+    version: "v2026.07.06.1"
+    type: "fix"
+    portals: ["easyadmin"]
+    title: "Media Manager: Drag & Drop beim Upload repariert"
+    description: "Im Media Manager funktionierte das Ablegen von Dateien per Drag & Drop in die Upload-Fläche nicht — die Dateien wurden nicht übernommen und der Upload-Button blieb inaktiv."
+    items:
+      - "Dateien per Drag & Drop in die Upload-Fläche ziehen funktioniert jetzt zuverlässig"
+
+  - date: "2026-07-06"
+    version: "v2026.07.06.0"
+    type: "fix"
+    portals: ["api"]
+    title: "Mobile-API: vollständiger Datenbestand und Motor-Details"
+    description: "Die Mobile-App-API lieferte bislang nur einen eingeschränkten Fahrzeug-Datenpool und bei Motor-Details deutlich weniger Informationen als die öffentliche Fahrzeugdatenbank-API."
+    items:
+      - "Mobile-API (/api/mobile/vehicle/*) nutzt jetzt standardmäßig den vollständigen Datenbestand (Pool „complete“) statt nur den Live-Pool"
+      - "Datenbestand kann weiterhin gezielt über poolKey/contextKey-Parameter wie bei der öffentlichen API gewählt werden"
+      - "Motor-Details in der Mobile-API liefern jetzt dieselben vollständigen Daten wie die öffentliche API: ECUs inkl. Tool-Optionen, Getriebe, Einbauhinweise, Marke/Baureihe/Modell und Layout-Einstellungen"
+      - "Gemeinsame Mapping-Logik für Fahrzeugdaten in einen zentralen Dienst zusammengeführt, damit öffentliche API und Mobile-API dauerhaft dieselben Daten liefern"
+
+  - date: "2026-07-04"
+    version: "v2026.07.04.1"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "ECU Intelligence: automatische ECU-Erkennung aus Tool-Anbieter-News"
+    description: "Neuer EasyAdmin-Bereich „ECU Intelligence“: News von Tool-Anbietern (Autotuner, MagicMotorsport) werden automatisch gescraped, importiert und nach Hersteller, ECU, MCU, Lese-/Schreibmethode, Protokoll und Fahrzeug-Hinweis durchsucht."
+    items:
+      - "Neuer Scraper-Workflow für Anbieter-News: Tool-Anbieter, News-Quellen und Anbieter-News verwaltbar im EasyAdmin unter ECU Intelligence"
+      - "Automatische Erkennung von ECU-Hersteller, ECU-Familie/-Name, MCU, Lese-/Schreibmethode, Protokoll und Fahrzeug-Hinweis direkt aus dem News-Text, inkl. Konfidenz-Wert"
+      - "Erkannte ECUs landen als eigene Liste „Erkannte ECUs“ mit Status Neu/Bestätigt/Abgelehnt/Ignoriert und direktem Link zur Original-News"
+      - "Eigene Erkennungsmuster (Regex oder Suchtext) im EasyAdmin unter „Erkennungsmuster“ pflegbar, ergänzend zu den eingebauten Standard-Regeln"
+      - "„ECU analysieren“-Button direkt an jeder Anbieter-News, sowie Konsolen-Befehle zum Scrapen (app:tool-news:run), Importieren (app:tool-news:import) und Analysieren (app:tool-news:analyze)"
+
+  - date: "2026-07-04"
+    version: "v2026.07.04.0"
+    type: "feature"
+    portals: ["easyadmin", "widget", "no1tuningfiles"]
+    title: "Partner Wizard: neuer Händler-Fragebogen mit Tool-Empfehlung"
+    description: "Neues eigenständiges Partner-Wizard-Widget für eigene Websites und Portale: Interessenten beantworten einen Fragebogen zu Fahrzeugarten, Leistungen und vorhandenem Tool und bekommen live eine passende Tool- und Partner-Empfehlung. Anfragen landen als Lead im EasyAdmin."
+    items:
+      - "Neues Bundle tfd-partner-wizard-bundle mit Clients, Tools, Paketen, Kombinationen und Leads, verwaltbar im EasyAdmin unter Tools → Partner Wizard"
+      - "Fahrzeugarten sind jetzt direkt mit der echten Fahrzeugdatenbank verknüpft (PKW/LKW/Motorrad/Agrar/Quad/Boot/Jetski) statt freiem Text"
+      - "Admin kann Fahrzeug-Kombinationen (z.B. „LKW & Agrar“) anlegen und dafür gezielt mehrere Tools zuordnen"
+      - "Tools können mit einem Produkt aus dem Shop verknüpft werden — Preis und Kauf-Link erscheinen automatisch in der Empfehlung"
+      - "Tool-Empfehlung zeigt nur noch Tools, die wirklich zur gewählten Fahrzeugart passen, statt einer langen Liste"
+      - "Eingebettet als Web Component <tfd-partner-wizard> unter /widgets/partner-wizard/"
+      - "Jetzt auf no1tuningfiles.com als eigene Partner-Wizard-Seite eingebunden und vom Bereich „Händler werden“ verlinkt"
+
+  - date: "2026-07-03"
+    version: "v2026.07.03.1"
+    type: "fix"
+    portals: ["no1tuningfiles"]
+    title: "No1TuningFiles: fehlende Abstände in Karten behoben"
+    description: "Auf allen Seiten des No1TuningFiles-Portals fehlte teilweise der obere Innenabstand in Karten (Dashboard, DTC Codes, Auftrags-Wizard) — Titel und Inhalt wirkten zu eng bzw. überlappten sich."
+    items:
+      - "Ursache: eine CSS-Klassenkollision im Karten-Grundbaustein sorgte dafür, dass individuell gesetzte Abstände auf Desktop-Breite ignoriert wurden"
+      - "Karten-Baustein vereinheitlicht, damit eigene Abstands-Angaben zuverlässig greifen"
+      - "Betrifft u.a. Dashboard-Kacheln, Auftragsübersicht, Tabellen-Kopfzeilen und den Bestell-Wizard"
+
+  - date: "2026-07-03"
+    version: "v2026.07.03.0"
+    type: "feature"
+    portals: ["chiptuningfile", "no1tuningfiles"]
+    title: "AutoMod: WinOLS-Integration in Chiptuningfile & No1TuningFiles"
+    description: "Aufträge aus den Portalen ChiptuningFile und No1TuningFiles können jetzt automatisch von WinOLS verarbeitet werden — vom Wizard-Submit bis zum fertigen Download, live sichtbar für den Kunden."
+    items:
+      - "Neue AutoMod Job API (/api/v1/job) — WinOLS holt Aufträge ab und liefert Ergebnisse zurück"
+      - "Wizard-Submit markiert Aufträge mit echter Datei automatisch als AutoMod-fähig"
+      - "Live-Status-Seite nach dem Absenden zeigt echten Fortschritt statt Simulation"
+      - "Auftragsstatus und Download-Link aktualisieren sich live über Mercure, kein Reload nötig"
+      - "Fehlgeschlagene AutoMod-Läufe benachrichtigen den Admin per E-Mail automatisch"
+
+  - date: "2026-07-02"
+    version: "v2026.07.02.0"
+    type: "feature"
+    portals: ["marketingfux"]
+    title: "MarketingFUX: neues Tool unter social.tuningfux.de"
+    description: "Weiteres eigenständiges Tool für Social-Media-Marketing, erreichbar unter https://social.tuningfux.de/. Läuft separat vom CRM."
+    items:
+      - "Neues Tool MarketingFUX unter social.tuningfux.de erstellt"
+
+  - date: "2026-07-01"
+    version: "v2026.07.01.4"
+    type: "feature"
+    portals: ["socialfux"]
+    title: "Socialfux: Design-Editor für Social-Media-Grafiken"
+    description: "Neues eigenständiges Tool unter /socialfux zum Erstellen von Social-Media-Grafiken mit Vorlagen, Icons und eigenen Bildern."
+    items:
+      - "Design-Editor als React-App unter /socialfux"
+      - "Designs speichern, laden, bearbeiten und löschen (API unter /api/socialfux/designs)"
+      - "Vorlagen mit Kategorien zur Wiederverwendung (/api/socialfux/templates)"
+      - "Icon-Suche und eigener Bild-Upload direkt im Editor"
+      - "Marken-Verwaltung für konsistente Logos/Farben in den Designs"
+
+  - date: "2026-07-01"
+    version: "v2026.07.01.3"
+    type: "feature"
+    portals: ["superadmin"]
+    title: "Superadmin Portal: Login-Absicherung"
+    description: "Der Superadmin ist jetzt mit einem eigenen Login geschützt. Benutzer sind die gleichen wie im EasyAdmin (ROLE_ADMIN)."
+    items:
+      - "Eigener Firewall superadmin_portal mit custom Authenticator"
+      - "Login-Seite im Dark-Design unter /login"
+      - "Logout unter /logout mit Redirect zur Login-Seite"
+      - "Zusätzlich jetzt auch ein helles Theme verfügbar"
+      - "Remember-Me für 7 Tage"
+
+  - date: "2026-07-01"
+    version: "v2026.07.01.2"
+    type: "feature"
+    portals: ["no1tuningfiles", "superadmin"]
+    title: "Einbauhinweise: Wasserzeichen auf Bildern"
+    description: "Das konfigurierte Wasserzeichen-Preset für ECU-Einbauhinweise wird jetzt clientseitig auf alle Hinweis-Bilder gezeichnet — im no1tuningfiles Konfigurator und im Superadmin."
+    items:
+      - "Canvas-Renderer liest /api/watermark/config/ecu_hint einmalig beim Laden"
+      - "Unterstützt Bild-Wasserzeichen (imagePath) und Text-Wasserzeichen"
+      - "Position, Opacity und Größe aus dem EasyAdmin-Preset"
+      - "Gilt für Grid-Ansicht und Lightbox im Superadmin"
+
+  - date: "2026-07-01"
+    version: "v2026.07.01.1"
+    type: "feature"
+    portals: ["chiptuningfile", "no1tuningfiles"]
+    title: "Credits: Stripe Checkout Session"
+    description: "Stripe-Zahlung nutzt jetzt Stripe Checkout Sessions statt eigenem Payment Element. Klick auf 'Jetzt kaufen' führt zur Zahlungsauswahl (Stripe / PayPal / Vorkasse)."
+    items:
+      - "Stripe Checkout Session wird serverseitig erstellt, Redirect zu Stripe"
+      - "Kein eigenes JS-Formular mehr — Stripe hostet die Zahlungsseite"
+      - "Success-Route verifiziert Session-Status vor Credit-Buchung"
+      - "Jetzt-kaufen-Button leitet zur Checkout-Zwischenseite"
+
+  - date: "2026-07-01"
+    version: "v2026.07.01.0"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "EasyAdmin: diverse Verbesserungen"
+    description: "Mehrere kleine Verbesserungen im EasyAdmin-Backoffice."
+    items:
+      - "EinbauHinweis-Liste: Marken-Spalte (via getBrandsLabel() auf Entity)"
+      - "EinbauHinweis-Liste: ID ausgeblendet, Aktiv-Spalte ans Ende"
+      - "Credit-Pakete: PayPal-Gebühr und Netto-Betrag in der Liste"
+      - "Textbaustein-Picker im Einbauhinweis-Formular"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.8"
+    type: "feature"
+    portals: ["superadmin"]
+    title: "ECU: Tool-Hersteller & Methoden in API + Superadmin"
+    description: "Tool-Hersteller und Lese-/Schreibmethoden pro ECU sind jetzt in der API-Ausgabe enthalten und im Superadmin als eigener Tab sichtbar."
+    items:
+      - "API gibt toolManufacturer, toolManufacturerLogo und toolMethods[] pro ECU zurück"
+      - "Superadmin Fahrzeugdatenbank: neuer Tab 'Tools' mit Tool-Hersteller (Logo) und Methoden-Badges"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.7"
+    type: "feature"
+    portals: ["no1tuningfiles", "superadmin"]
+    title: "Einbauhinweise: Annotationen in Portal & Superadmin"
+    description: "Im EasyAdmin erstellte Bildannotationen (Rechtecke, Texte) werden jetzt im Superadmin und auf der no1tuningfiles.com Website auf den Einbauhinweis-Bildern angezeigt."
+    items:
+      - "API liefert Annotationsdaten ({src, annotations}) pro Bild statt nur Pfad"
+      - "Canvas-Renderer AnnotatedImage in Website- und Superadmin-Frontend"
+      - "Koordinatensystem korrekt: absolute Pixel (naturalWidth/naturalHeight)"
+      - "Bild-Domain auf superadmin.dct-files.de umgestellt (von superadmin.tuningfux.de)"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.6"
+    type: "feature"
+    portals: ["no1tuningfiles"]
+    title: "no1tuningfiles.com: Konfigurator-Demo"
+    description: "Geführte Demo im Konfigurator der no1tuningfiles.com Website — zeigt BMW 330d schrittweise mit echten API-Calls durch alle Dropdowns, Stages, Optionen und Hinweise."
+    items:
+      - "Demo starten / Wiederholen / Abbrechen Button"
+      - "Jede Dropdown-Selektion per API geladen und animiert geöffnet"
+      - "Stages-Highlight, Optionen-Tab mit Popover, ECU-Tab, Hinweise-Tab"
+      - "Demo-Banner mit Schritt-Beschreibung und Puls-Indikator"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.5"
+    type: "fix"
+    portals: ["no1tuningfiles"]
+    title: "No1tuningfiles Portal: Logo & Icons"
+    description: "Logo und SVG-Icons im No1tuningfiles-Portal korrigiert."
+    items:
+      - "Sidebar-Logo dynamisch aus Portal-Design (kein Hardcode), weiß gefärbt via CSS filter"
+      - "Lesemethode-Icons (OBD/Bench/Boot) schwarz gefärbt (fill #1a1a1a), Größe erhöht"
+      - "Wasserzeichen entfernt: logo_path in DB geleert, Firma-Logo wird genutzt"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.4"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "Portal-Journal"
+    description: "Changelog-Leiste im Dashboard und eigene Journal-Seite zur Übersicht aller Portal-Änderungen."
+    items:
+      - "Kompakte Changelog-Leiste oben im Dashboard"
+      - "Eigene Journal-Seite mit Timeline-Design"
+      - "Einträge in config/changelog.yaml pflegen — kein Code nötig"
+      - "Hover-Tooltip und Ein-/Ausblenden per Button"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.3"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "Lexoffice: Credit-Pakete als Artikel"
+    description: "Credit-Pakete können jetzt als Produkte in Lexoffice synchronisiert werden — einzeln oder alle auf einmal."
+    items:
+      - "Neues Feld lexwareArticleId auf CreditPackage-Entity (Migration)"
+      - "Sync: Artikel in Lexoffice neu anlegen, ID wird gespeichert"
+      - "Update: vorhandenen Lexoffice-Artikel aktualisieren (Preis, Titel, Artikelnummer)"
+      - "Alle Pakete auf einmal synchronisieren"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.2"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "Lexoffice: Kontakt-Prüfung & Sync"
+    description: "Neue Seite unter Finanzen → Lexoffice mit vollständiger Kontakt-Verwaltung zwischen CRM und Lexoffice."
+    items:
+      - "Pro Firma: alle Kunden gegen Lexoffice prüfen (linked / found / missing)"
+      - "Sync: neuen Lexoffice-Kontakt anlegen mit Kundennummer im Notizfeld und Firma-Tag"
+      - "Update: CRM-Daten in bestehenden Kontakt zusammenführen (Ansprechpartner, Adresse, E-Mail)"
+      - "Verknüpfen: gefundenen Kontakt mit Kunde verbinden"
+      - "Alle gefundenen Kontakte auf einmal verknüpfen"
+      - "API-Debug-Panel mit Test-Buttons für alle Lexoffice-Endpunkte"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.1"
+    type: "change"
+    portals: ["easyadmin"]
+    title: "Kundennummern nach Firma-Schema"
+    description: "Alle bestehenden Kundennummern wurden auf das neue Firma-Präfix-Schema migriert."
+    items:
+      - "CPT-Kunden: CPT-10001, CPT-10002 …"
+      - "TFD-Kunden: TFD-10001, TFD-10002 …"
+      - "NO-Kunden: NO-10001 ff. (unverändert)"
+
+  - date: "2026-06-30"
+    version: "v2026.06.30.0"
+    type: "fix"
+    portals: ["easyadmin"]
+    title: "Textbausteine: Speicherfehler behoben"
+    description: "Beim Anlegen oder Bearbeiten von Textbausteinen kam es zu einem SQL-Syntaxfehler durch reservierte MySQL-Keywords als Spaltennamen."
+    items:
+      - "Spalten key und type umbenannt auf tkey und ttype"
+      - "UniqueConstraint auf tkey aktualisiert"
+      - "Meilisearch Bundle-Subscriber deaktiviert, fault-toleranter eigener Subscriber übernimmt"

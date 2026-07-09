@@ -1,0 +1,53 @@
+{% extends 'portal/no1tuningfiles/base.html.twig' %}
+
+{% block title %}Stripe Checkout | No1tuningfiles Portal{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-lg-5 text-center">
+                        {% if success and transaction %}
+                            <h1 class="h3 mb-3">Vielen Dank!</h1>
+                            <p class="text-muted mb-4">Deine Stripe-Zahlung wurde erfolgreich verbucht.</p>
+                            <div class="mb-4">
+                                <p class="mb-1 fw-semibold">Paket</p>
+                                <p class="mb-0">{{ package.title|default('Credit-Paket') }} ({{ package.credits }} Credits)</p>
+                            </div>
+                            <div class="row row-cols-2 g-3 text-start">
+                                <div>
+                                    <div class="text-muted fs-7">Gesamtbetrag</div>
+                                    <div class="fs-5 fw-semibold">{{ pricing.priceGross|number_format(2, ',', '.') }} €</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted fs-7">Steuersatz</div>
+                                    <div class="fs-5 fw-semibold">{{ pricing.taxRate|number_format(2, ',', '.') }} %</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted fs-7">Credits gebucht</div>
+                                    <div class="fs-5 fw-semibold">{{ transaction.amount }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-muted fs-7">PaymentIntent</div>
+                                    <div class="fs-7 text-truncate">{{ stripeIntentId }}</div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <h1 class="h3 mb-3 text-danger">Zahlung nicht abgeschlossen</h1>
+                            <p class="text-muted">
+                                {{ errorMessage|default('Die Stripe-Zahlung konnte nicht verifiziert oder verbucht werden.') }}
+                            </p>
+                        {% endif %}
+                        <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
+                            <a href="{{ path('no1_portal_credits') }}" class="btn btn-primary">Zurück zu den Credit-Paketen</a>
+                            {% if success %}
+                                <a href="{{ path('no1_portal_dashboard') }}" class="btn btn-outline-secondary">Zum Dashboard</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

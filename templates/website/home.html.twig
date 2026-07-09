@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}TFD Tools{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/home.css') }}?v={{ homeCssVersion|default('1') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="home-page">
+        <div class="home-shell">
+            <header class="home-hero">
+                <div class="home-brand">
+                    <img src="{{ asset('images/tuningfux-gelb.svg') }}" alt="Tuningfux">
+                </div>
+                <p class="home-kicker">TFD Frontend Tools</p>
+                <h1>Dein direkter Einstieg in alle Tuningfux Tools.</h1>
+                <p class="home-lead">Wähle direkt zwischen Fahrzeugdatenbank, Profit Calculator und Eco Tuning Calculator. Die Startseite ist jetzt die zentrale Übersicht für alle Frontend-Tools.</p>
+            </header>
+
+            <section class="home-grid" aria-label="Tool Übersicht">
+                <a class="home-card home-card--primary" href="{{ path('app_vehicle_database') }}">
+                    <span class="home-card-kicker">Fahrzeugdatenbank</span>
+                    <h2>Chiptuning Fahrzeugdatenbank</h2>
+                    <p>Marke, Baureihe, Modell und Motor auswählen und direkt passende Stage-Daten und Details abrufen.</p>
+                    <div class="home-card-meta">
+                        <span>Fahrzeugsuche</span>
+                        <strong>Jetzt öffnen</strong>
+                    </div>
+                </a>
+
+                <a class="home-card" href="{{ path('app_profit_calculator') }}">
+                    <span class="home-card-kicker">Calculator</span>
+                    <h2>Profit Calculator</h2>
+                    <p>Fahrzeugtypen, Optionen und Preisstaffeln kalkulieren und daraus Umsatz- und Gewinnszenarien ableiten.</p>
+                    <div class="home-card-meta">
+                        <span>Business Tool</span>
+                        <strong>Konfigurieren</strong>
+                    </div>
+                </a>
+
+                <a class="home-card home-card--eco" href="{{ path('app_eco_tuning_calculator') }}">
+                    <span class="home-card-kicker">Calculator</span>
+                    <h2>Eco Tuning Calculator</h2>
+                    <p>Jährliche Kraftstoff- und optionale AdBlue-Ersparnis berechnen, inklusive aktuellem Literpreis per Standort.</p>
+                    <div class="home-card-meta">
+                        <span>Eco Tool</span>
+                        <strong>Ersparnis prüfen</strong>
+                    </div>
+                </a>
+            </section>
+
+            <section class="home-strip">
+                <div class="home-strip-item">
+                    <span>3 Tools</span>
+                    <strong>Eine Startseite</strong>
+                </div>
+                <div class="home-strip-item">
+                    <span>Direktzugriff</span>
+                    <strong>Ohne Umwege</strong>
+                </div>
+                <div class="home-strip-item">
+                    <span>Frontend Fokus</span>
+                    <strong>Klar und schnell</strong>
+                </div>
+            </section>
+        </div>
+    </div>
+{% endblock %}

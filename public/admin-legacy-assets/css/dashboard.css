@@ -1,0 +1,88 @@
+body {
+    background: #0f172a;
+    color: white;
+    font-family: Inter, system-ui;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.stat-card span {
+    color: #94a3b8;
+}
+
+.stat-card h2 {
+    margin-top: 10px;
+    font-size: 28px;
+}
+
+.dashboard-panels {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+
+.panel {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.activity-feed {
+    list-style: none;
+    padding: 0;
+}
+
+.activity-feed li {
+    padding: 10px 0;
+    border-bottom: 1px solid #334155;
+}
+
+.nav-tabs {
+    --bs-nav-tabs-border-width: var(--bs-border-width);
+    --bs-nav-tabs-border-color: var(--bs-border-color);
+    --bs-nav-tabs-border-radius: var(--bs-border-radius);
+    --bs-nav-tabs-link-hover-border-color: var(--bs-secondary-bg) var(--bs-secondary-bg) var(--bs-border-color);
+    --bs-nav-tabs-link-active-color: var(--bs-emphasis-color);
+    --bs-nav-tabs-link-active-bg: var(--bs-body-bg);
+    --bs-nav-tabs-link-active-border-color: var(--bs-border-color) var(--bs-border-color) var(--bs-body-bg);
+    border-bottom: var(--bs-nav-tabs-border-width) solid var(--bs-nav-tabs-border-color);
+}
+
+.tab-style-6 {
+    border: 0;
+    background-color: var(--custom-white);
+    border-radius: 0.3rem;
+    color: var(--primary-color);
+    padding: 0.5rem;
+}
+
+.tab-style-6 .nav-item {
+    border: 0;
+    margin-inline-end: 0.5rem;
+}
+
+.nav-tabs .nav-link {
+    margin-bottom: calc(-1 * var(--bs-nav-tabs-border-width));
+    border: var(--bs-nav-tabs-border-width) solid transparent;
+    border-top-left-radius: var(--bs-nav-tabs-border-radius);
+    border-top-right-radius: var(--bs-nav-tabs-border-radius);
+}
+
+.tab-style-6 .nav-item .nav-link {
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    font-size: 0.813rem;
+    border: 0;
+    font-weight: 500;
+}

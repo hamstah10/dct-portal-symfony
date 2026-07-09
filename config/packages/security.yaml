@@ -1,0 +1,130 @@
+security:
+    password_hashers:
+        App\Entity\User: 'auto'
+        App\Security\WebsiteWidgetCustomerUser: 'auto'
+        App\Portals\Chiptuningfile\Security\PortalCustomerUser: 'auto'
+        App\Portals\Srfile\Security\SrfilePortalCustomerUser: 'auto'
+        App\Portals\No1tuningfiles\Security\No1tuningfilesPortalCustomerUser: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        portal_customer_provider:
+            id: App\Portals\Chiptuningfile\Security\PortalCustomerUserProvider
+        website_widget_customer_provider:
+            id: App\Security\WebsiteWidgetCustomerUserProvider
+        srfile_customer_provider:
+            id: App\Portals\Srfile\Security\SrfilePortalUserProvider
+        no1tuningfiles_customer_provider:
+            id: App\Portals\No1tuningfiles\Security\No1tuningfilesPortalUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt|assets|build|_portal-react)/
+            security: false
+        superadmin_portal:
+            lazy: true
+            provider: app_user_provider
+            request_matcher: App\Portals\SuperadminPortal\Security\SuperadminPortalRequestMatcher
+            custom_authenticator: App\Portals\SuperadminPortal\Security\SuperadminPortalAuthenticator
+            entry_point: App\Portals\SuperadminPortal\Security\SuperadminPortalAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+            logout:
+                path: superadmin_portal_logout
+                target: superadmin_portal_login
+        no1tuningfiles_portal:
+            lazy: true
+            provider: no1tuningfiles_customer_provider
+            request_matcher: App\Portals\No1tuningfiles\Security\No1tuningfilesPortalRequestMatcher
+            custom_authenticator: App\Portals\No1tuningfiles\Security\No1tuningfilesPortalAuthenticator
+            entry_point: App\Portals\No1tuningfiles\Security\No1tuningfilesPortalAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+            logout:
+                path: no1_portal_logout
+        srfile_portal:
+            lazy: true
+            provider: srfile_customer_provider
+            request_matcher: App\Portals\Srfile\Security\SrfilePortalRequestMatcher
+            custom_authenticator: App\Portals\Srfile\Security\SrfilePortalAuthenticator
+            entry_point: App\Portals\Srfile\Security\SrfilePortalAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+            logout:
+                path: srf_portal_logout
+        chiptuningfile_portal:
+            lazy: true
+            provider: portal_customer_provider
+            request_matcher: App\Portals\Chiptuningfile\Security\ChiptuningfilePortalRequestMatcher
+            custom_authenticator: App\Portals\Chiptuningfile\Security\PortalCustomerAuthenticator
+            entry_point: App\Portals\Chiptuningfile\Security\PortalCustomerAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+            logout:
+                path: cpt_portal_logout
+        customer_widget:
+            lazy: true
+            pattern: ^/kunden-widget
+            provider: website_widget_customer_provider
+            custom_authenticator: App\Security\WebsiteWidgetCustomerAuthenticator
+            entry_point: App\Security\WebsiteWidgetCustomerAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /kunden-widget
+            logout:
+                path: customer_widget_logout
+                target: customer_widget_login
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\LoginFormAuthenticator
+            entry_point: App\Security\LoginFormAuthenticator
+            user_checker: App\Security\UserStatusChecker
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
+            logout:
+                path: app_logout
+
+    access_control:
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { request_matcher: App\Portals\SuperadminPortal\Security\SuperadminPortalPublicRequestMatcher, roles: PUBLIC_ACCESS }
+        - { request_matcher: App\Portals\SuperadminPortal\Security\SuperadminPortalRequestMatcher, roles: ROLE_ADMIN }
+        - { path: ^/kunden-widget/login$, roles: PUBLIC_ACCESS }
+        - { path: ^/kunden-widget, roles: ROLE_WEBSITE_WIDGET_CUSTOMER }
+        - { path: ^/auftrag/submit$, roles: PUBLIC_ACCESS }
+        - { request_matcher: App\Portals\No1tuningfiles\Security\No1tuningfilesPortalPublicRequestMatcher, roles: PUBLIC_ACCESS }
+        - { request_matcher: App\Portals\No1tuningfiles\Security\No1tuningfilesPortalRequestMatcher, roles: ROLE_PORTAL_CUSTOMER }
+        - { request_matcher: App\Portals\Srfile\Security\SrfilePortalPublicRequestMatcher, roles: PUBLIC_ACCESS }
+        - { request_matcher: App\Portals\Srfile\Security\SrfilePortalRequestMatcher, roles: ROLE_PORTAL_CUSTOMER }
+        - { request_matcher: App\Portals\Chiptuningfile\Security\ChiptuningfilePortalPublicRequestMatcher, roles: PUBLIC_ACCESS }
+        - { request_matcher: App\Portals\Chiptuningfile\Security\ChiptuningfilePortalRequestMatcher, roles: ROLE_PORTAL_CUSTOMER }
+        - { path: ^/socialfux, roles: ROLE_ADMIN }
+        - { path: ^/api/socialfux, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+
+when@test:
+    security:
+        password_hashers:
+            App\Entity\User:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

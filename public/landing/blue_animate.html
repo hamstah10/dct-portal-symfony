@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blue Performance Chiptuning Landingpage</title>
+    <meta name="description"
+        content="Moderne Chiptuning Landingpage in Dunkelblau, Blau und Hellblau. Mit Konfigurator, Diagramm-Vorschau und klarer Performance-Kommunikation." />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --blue-dark: #0f2d4f;
+            --blue: #1f4f8a;
+            --blue-light: #3f82d6;
+            --blue-soft: #e9f2ff;
+            --bg: #f3f6fb;
+            --panel: #ffffff;
+            --text: #1c2b3d;
+            --muted: #5e748f;
+            --line: #d9e2ef;
+            --green: #97bf25;
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .navbar {
+            background: #fff;
+            border-bottom: 1px solid var(--line);
+            padding: 16px 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: .08em;
+            color: var(--blue-dark) !important;
+            text-transform: uppercase;
+        }
+
+        .nav-link {
+            font-weight: 700;
+            color: #36506f !important;
+            text-transform: uppercase;
+            font-size: .92rem;
+        }
+
+        .nav-link:hover {
+            color: var(--blue) !important;
+        }
+
+        .btn-main,
+        .btn-lightline {
+            padding: 14px 24px;
+            border: none;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .btn-main {
+            background: linear-gradient(90deg, var(--blue-dark), var(--blue));
+            color: #fff;
+        }
+
+        .btn-main:hover {
+            background: linear-gradient(90deg, var(--blue), var(--blue-light));
+            color: #fff;
+        }
+
+        .btn-lightline {
+            background: #fff;
+            color: var(--blue-dark);
+            border: 2px solid var(--blue-light);
+        }
+
+        .btn-lightline:hover {
+            background: var(--blue-soft);
+            color: var(--blue-dark);
+        }
+
+        .hero {
+            padding: 92px 0;
+            background: linear-gradient(135deg, var(--blue-soft) 0%, #f8fbff 55%, #eef4ff 100%);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .hero .eyebrow {
+            display: inline-block;
+            background: var(--blue-dark);
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            font-size: 62px;
+            line-height: .96;
+            font-weight: 900;
+            max-width: 760px;
+            margin-bottom: 22px;
+            color: var(--blue-dark);
+        }
+
+        .hero p {
+            max-width: 690px;
+            color: var(--muted);
+            font-size: 18px;
+            line-height: 1.85;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 24px;
+            align-items: stretch;
+            margin-top: 36px;
+        }
+
+        .hero-card,
+        .info-card,
+        .section-panel,
+        .feature-card,
+        .stat-card,
+        .offer-card,
+        .cta-panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+        }
+
+        .hero-card {
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(63, 130, 214, .05) 1px, transparent 1px),
+                linear-gradient(rgba(63, 130, 214, .05) 1px, transparent 1px);
+            background-size: 34px 34px;
+            pointer-events: none;
+        }
+
+        .hero-card h3 {
+            position: relative;
+            z-index: 2;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--blue-dark);
+        }
+
+        .hero-card p {
+            position: relative;
+            z-index: 2;
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 22px;
+        }
+
+        .diagram-visual {
+            position: relative;
+            z-index: 2;
+            height: 260px;
+            background: linear-gradient(180deg, #fff, #f6faff);
+            border: 1px solid var(--line);
+        }
+
+        .diagram-visual .axis-x,
+        .diagram-visual .axis-y {
+            position: absolute;
+            background: #b9c8db;
+        }
+
+        .diagram-visual .axis-x {
+            left: 56px;
+            right: 18px;
+            bottom: 34px;
+            height: 2px;
+        }
+
+        .diagram-visual .axis-y {
+            left: 56px;
+            top: 18px;
+            bottom: 34px;
+            width: 2px;
+        }
+
+        .curve {
+            position: absolute;
+            height: 3px;
+            transform-origin: left center;
+        }
+
+        .curve.c1 {
+            left: 70px;
+            top: 160px;
+            width: 200px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            transform: skewX(-35deg);
+        }
+
+        .curve.c2 {
+            left: 180px;
+            top: 118px;
+            width: 210px;
+            background: linear-gradient(90deg, transparent, var(--blue-light), transparent);
+            transform: skewX(24deg);
+        }
+
+        .curve.c3 {
+            left: 80px;
+            top: 195px;
+            width: 250px;
+            background: none;
+            height: 0;
+            border-top: 3px dashed var(--blue-dark);
+            transform: skewX(-12deg);
+        }
+
+        .curve.c4 {
+            left: 140px;
+            top: 90px;
+            width: 230px;
+            background: none;
+            height: 0;
+            border-top: 3px dashed var(--green);
+            transform: skewX(16deg);
+        }
+
+        .metric-row {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .mini-metric {
+            background: var(--blue-soft);
+            padding: 14px;
+            border-left: 4px solid var(--blue-light);
+        }
+
+        .mini-metric small {
+            display: block;
+            color: #5f7491;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .mini-metric strong {
+            display: block;
+            font-size: 24px;
+            color: var(--blue-dark);
+        }
+
+        .stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .info-card {
+            padding: 24px;
+            background: linear-gradient(180deg, #fff, #f8fbff);
+        }
+
+        .info-card h4,
+        .feature-card h4,
+        .offer-card h4 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--blue-dark);
+            margin-bottom: 10px;
+        }
+
+        .info-card p,
+        .feature-card p,
+        .offer-card p,
+        .section-copy,
+        .cta-panel p {
+            color: var(--muted);
+            line-height: 1.8;
+            margin: 0;
+        }
+
+        .section {
+            padding: 84px 0;
+        }
+
+        .section-title {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--blue-dark);
+            margin-bottom: 16px;
+        }
+
+        .section-copy {
+            max-width: 800px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 34px;
+        }
+
+        .feature-card {
+            padding: 26px;
+            border-top: 6px solid var(--blue-light);
+        }
+
+        .feature-badge {
+            display: inline-block;
+            background: var(--blue-dark);
+            color: #fff;
+            padding: 6px 10px;
+            font-size: .8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .section-panel {
+            padding: 28px;
+            background: linear-gradient(180deg, #fff, #f9fbff);
+        }
+
+        .split {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .form-label {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .9rem;
+            color: #38506d;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 52px;
+            border: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: none;
+            border-color: var(--blue-light);
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .stat-card {
+            padding: 16px;
+            background: var(--blue-soft);
+            border-left: 4px solid var(--green);
+        }
+
+        .stat-card small {
+            display: block;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #5c7190;
+            margin-bottom: 4px;
+        }
+
+        .stat-card strong {
+            font-size: 28px;
+            color: var(--blue-dark);
+        }
+
+        .chart-box {
+            background: #fff;
+            border: 1px solid var(--line);
+            height: 100%;
+            min-height: 340px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-box:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(31, 79, 138, .05) 1px, transparent 1px),
+                linear-gradient(rgba(31, 79, 138, .05) 1px, transparent 1px);
+            background-size: 44px 44px;
+        }
+
+        .chart-box .line {
+            position: absolute;
+            height: 4px;
+            z-index: 2;
+        }
+
+        .chart-box .line.l1 {
+            left: 10%;
+            top: 68%;
+            width: 36%;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            transform: skewX(-26deg);
+        }
+
+        .chart-box .line.l2 {
+            left: 26%;
+            top: 54%;
+            width: 40%;
+            background: linear-gradient(90deg, transparent, var(--blue-light), transparent);
+            transform: skewX(18deg);
+        }
+
+        .chart-box .line.l3 {
+            left: 14%;
+            top: 76%;
+            width: 48%;
+            background: none;
+            height: 0;
+            border-top: 4px dashed var(--blue-dark);
+            transform: skewX(-10deg);
+        }
+
+        .chart-box .line.l4 {
+            left: 34%;
+            top: 46%;
+            width: 36%;
+            background: none;
+            height: 0;
+            border-top: 4px dashed var(--green);
+            transform: skewX(20deg);
+        }
+
+        .axis-label {
+            position: absolute;
+            z-index: 2;
+            color: #5d7390;
+            font-weight: 700;
+            font-size: .86rem;
+            text-transform: uppercase;
+        }
+
+        .axis-label.x {
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%);
+        }
+
+        .axis-label.y {
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%) rotate(-90deg);
+            transform-origin: left top;
+        }
+
+        .offers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 34px;
+        }
+
+        .offer-card {
+            padding: 28px;
+            background: #fff;
+            border-top: 8px solid var(--blue-dark);
+        }
+
+        .offer-card.featured {
+            border-top-color: var(--green);
+            background: linear-gradient(180deg, #fff, #f4f9ff);
+        }
+
+        .offer-tag {
+            display: inline-block;
+            background: var(--blue-soft);
+            color: var(--blue-dark);
+            padding: 8px 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .8rem;
+            margin-bottom: 14px;
+        }
+
+        .offer-price {
+            font-size: 44px;
+            font-weight: 900;
+            color: var(--blue-dark);
+            margin: 14px 0 10px;
+        }
+
+        .offer-price small {
+            font-size: 16px;
+            color: #6e819a;
+        }
+
+        .list-clean {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-clean li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+            font-weight: 700;
+            color: #314761;
+        }
+
+        .cta-panel {
+            padding: 42px;
+            background: linear-gradient(135deg, var(--blue-dark), var(--blue));
+            color: #fff;
+            text-align: center;
+        }
+
+        .cta-panel .section-title {
+            color: #fff;
+        }
+
+        .cta-panel p {
+            color: #d8e6ff;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .footer {
+            background: #fff;
+            border-top: 1px solid var(--line);
+            padding: 26px 0;
+            color: #67809b;
+        }
+
+        @media (max-width: 1199.98px) {
+
+            .hero-grid,
+            .split {
+                grid-template-columns: 1fr;
+            }
+
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .offers,
+            .preview-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .features,
+            .offers,
+            .preview-grid,
+            .metric-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg wow animate__animated animate__fadeInDown" data-wow-duration="0.8s">
+        <div class="container">
+            <a class="navbar-brand" href="#">Blue Performance</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Navigation umschalten">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="#vorteile">Vorteile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#konfigurator">Konfigurator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pakete">Pakete</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#kontakt">Kontakt</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="eyebrow wow animate__animated animate__fadeInLeft" data-wow-delay="0.1s">
+                Neue Landingpage in Blau / Hellblau
+            </div>
+
+            <h1 class="wow animate__animated animate__fadeInUp" data-wow-delay="0.15s">
+                Chiptuning anbieten. Professionell auftreten. Mehr Anfragen holen.
+            </h1>
+
+            <p class="wow animate__animated animate__fadeInUp" data-wow-delay="0.25s">
+                Diese Version übernimmt die Farben aus deinem Screen und ist bewusst anders aufgebaut: moderner, heller
+                und stärker als Performance-Dashboard inszeniert. Perfekt für Anbieter, die einen professionellen
+                Eindruck hinterlassen und technische Kompetenz direkt sichtbar machen wollen.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3 mt-4 wow animate__animated animate__fadeInUp" data-wow-delay="0.35s">
+                <a href="#konfigurator" class="btn btn-main">Konfigurator ansehen</a>
+                <a href="#pakete" class="btn btn-lightline">Website-Pakete</a>
+            </div>
+
+            <div class="hero-grid">
+                <div class="hero-card wow animate__animated animate__fadeInLeft" data-wow-delay="0.45s">
+                    <h3>Performance-Vorschau direkt im Hero</h3>
+                    <p>
+                        Der Besucher sieht sofort technische Kompetenz, Vergleichswerte und die Leistungsdarstellung.
+                        Das ist perfekt für eine moderne Tuning-Landingpage mit Fokus auf Vertrauen und Anfrage.
+                    </p>
+
+                    <div class="diagram-visual">
+                        <div class="axis-y"></div>
+                        <div class="axis-x"></div>
+                        <div class="curve c1"></div>
+                        <div class="curve c2"></div>
+                        <div class="curve c3"></div>
+                        <div class="curve c4"></div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="mini-metric">
+                            <small>Mehrleistung</small>
+                            <strong>+41 PS</strong>
+                        </div>
+                        <div class="mini-metric">
+                            <small>Mehr Nm</small>
+                            <strong>+70 Nm</strong>
+                        </div>
+                        <div class="mini-metric">
+                            <small>Peak</small>
+                            <strong>227 PS</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stack">
+                    <div class="info-card wow animate__animated animate__fadeInRight" data-wow-offset="80">
+                        <h4>Für eure File-Kunden</h4>
+                        <p>
+                            Die Seite richtet sich an Chiptuning-Anbieter, die bei euch Files kaufen und zusätzlich
+                            einen modernen Webauftritt brauchen.
+                        </p>
+                    </div>
+
+                    <div class="info-card wow animate__animated animate__fadeInRight" data-wow-offset="80">
+                        <h4>Farben wie im Screen</h4>
+                        <p>
+                            Dunkelblau, Blau, Hellblau und das Grün für die Kurven sorgen für einen technischen,
+                            sauberen und modernen Performance-Look.
+                        </p>
+                    </div>
+
+                    <div class="info-card wow animate__animated animate__fadeInRight" data-wow-offset="80">
+                        <h4>Anderer Aufbau</h4>
+                        <p>
+                            Nicht einfach nur das Diagramm kopiert, sondern als komplette Landingpage neu gedacht –
+                            mit Hero, Vorteilen, Konfigurator-Vorschau und Paketen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="vorteile">
+        <div class="container">
+            <h2 class="section-title wow animate__animated animate__fadeInUp">
+                Warum diese Version stark funktioniert
+            </h2>
+
+            <p class="section-copy wow animate__animated animate__fadeInUp" data-wow-delay="0.1s">
+                Die Seite verbindet die technische Wirkung deines Screens mit einer klaren Landingpage-Struktur. Damit
+                eignet sie sich ideal für Endkunden, lokale Werkstätten und Chiptuning-Anbieter, die seriöser,
+                moderner und digitaler auftreten wollen.
+            </p>
+
+            <div class="features">
+                <div class="feature-card wow animate__animated animate__fadeInUp" data-wow-offset="90">
+                    <div class="feature-badge">Look</div>
+                    <h4>Blue Performance Stil</h4>
+                    <p>
+                        Wertig, sauber und technisch. Weniger aggressiv als Racing-Rot, aber trotzdem kraftvoll und
+                        modern.
+                    </p>
+                </div>
+
+                <div class="feature-card wow animate__animated animate__fadeInUp" data-wow-offset="90"
+                    data-wow-delay="0.05s">
+                    <div class="feature-badge">Trust</div>
+                    <h4>Mehr Vertrauen</h4>
+                    <p>
+                        Helle Flächen, klare Werte und strukturierte Bereiche vermitteln Professionalität und stärken
+                        die Conversion.
+                    </p>
+                </div>
+
+                <div class="feature-card wow animate__animated animate__fadeInUp" data-wow-offset="90"
+                    data-wow-delay="0.1s">
+                    <div class="feature-badge">Flow</div>
+                    <h4>Klare Führung</h4>
+                    <p>
+                        Hero, Vorteile, Konfigurator und Pakete führen den Besucher Schritt für Schritt zur Anfrage
+                        oder zum nächsten Klick.
+                    </p>
+                </div>
+
+                <div class="feature-card wow animate__animated animate__fadeInUp" data-wow-offset="90"
+                    data-wow-delay="0.15s">
+                    <div class="feature-badge">B2B</div>
+                    <h4>Perfekt für Anbieter</h4>
+                    <p>
+                        Eure File-Kunden können damit ihr Angebot nach außen viel stärker und moderner präsentieren.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="konfigurator">
+        <div class="container">
+            <div class="section-panel">
+                <h2 class="section-title">Konfigurator + Diagramm-Vorschau</h2>
+                <p class="section-copy">
+                    Hier wird der Konfigurator nicht als volles Tool dargestellt, sondern als starke Vorschau für eine
+                    spätere Integration. Genau so könnt ihr dem Kunden zeigen, wie seine Website später aussehen kann.
+                </p>
+
+                <div class="split mt-4">
+                    <div>
+                        <label class="form-label" for="brand">Marke</label>
+                        <select id="brand" class="form-select">
+                            <option>Volkswagen</option>
+                            <option>Audi</option>
+                            <option>BMW</option>
+                        </select>
+
+                        <label class="form-label mt-3" for="model">Modell</label>
+                        <select id="model" class="form-select">
+                            <option>Golf 7 GTD 2.0 TDI</option>
+                            <option>A4 2.0 TDI</option>
+                            <option>320d</option>
+                        </select>
+
+                        <label class="form-label mt-3" for="stage">Stage</label>
+                        <select id="stage" class="form-select">
+                            <option>Stage 1</option>
+                            <option>Stage 1+</option>
+                        </select>
+
+                        <label class="form-label mt-3" for="fuel">Kraftstoff</label>
+                        <select id="fuel" class="form-select">
+                            <option>Standard</option>
+                            <option>Premium</option>
+                        </select>
+
+                        <button class="btn btn-main w-100 mt-3">Werte anzeigen</button>
+                    </div>
+
+                    <div>
+                        <div class="preview-grid">
+                            <div class="stat-card">
+                                <small>Serie</small>
+                                <strong>184 PS</strong>
+                            </div>
+                            <div class="stat-card">
+                                <small>Serie Nm</small>
+                                <strong>380 Nm</strong>
+                            </div>
+                            <div class="stat-card">
+                                <small>Stage</small>
+                                <strong>225 PS</strong>
+                            </div>
+                            <div class="stat-card">
+                                <small>Stage Nm</small>
+                                <strong>450 Nm</strong>
+                            </div>
+                        </div>
+
+                        <div class="chart-box mt-3">
+                            <div class="line l1"></div>
+                            <div class="line l2"></div>
+                            <div class="line l3"></div>
+                            <div class="line l4"></div>
+                            <div class="axis-label x">Drehzahl</div>
+                            <div class="axis-label y">Leistung / Drehmoment</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="pakete">
+        <div class="container">
+            <h2 class="section-title">Website-Pakete für Chiptuning Anbieter</h2>
+            <p class="section-copy">
+                Die gleiche Farbwelt kann für verschiedene Ausbaustufen genutzt werden – von der einfachen Landingpage
+                bis zur größeren Website mit Konfigurator und Diagramm-Modulen.
+            </p>
+
+            <div class="offers">
+                <div class="offer-card">
+                    <div class="offer-tag">Start</div>
+                    <h4>Landingpage Basic</h4>
+                    <p>
+                        Für Anbieter, die einen modernen, sauberen Einstieg für ihr Chiptuning-Angebot brauchen.
+                    </p>
+                    <div class="offer-price">499 € <small>einmalig</small></div>
+                    <ul class="list-clean">
+                        <li>1 Landingpage</li>
+                        <li>Blue Performance Design</li>
+                        <li>Hero + Vorteile + CTA</li>
+                        <li>Mobil optimiert</li>
+                    </ul>
+                </div>
+
+                <div class="offer-card featured">
+                    <div class="offer-tag">Empfohlen</div>
+                    <h4>Konfigurator Pro</h4>
+                    <p>
+                        Für Anbieter, die Chiptuning mit Leistungswerten, Vergleich und Technik-Vorschau verkaufen
+                        wollen.
+                    </p>
+                    <div class="offer-price">990 € <small>einmalig</small></div>
+                    <ul class="list-clean">
+                        <li>Alles aus Basic</li>
+                        <li>Konfigurator-Bereich</li>
+                        <li>Diagramm-Vorschau</li>
+                        <li>Mehr technische Wirkung</li>
+                    </ul>
+                </div>
+
+                <div class="offer-card">
+                    <div class="offer-tag">Max</div>
+                    <h4>Website Plus</h4>
+                    <p>
+                        Für Partner, die später weitere Unterseiten, Fahrzeugdaten und zusätzliche Inhalte ausbauen
+                        wollen.
+                    </p>
+                    <div class="offer-price">1.790 € <small>ab</small></div>
+                    <ul class="list-clean">
+                        <li>Alles aus Pro</li>
+                        <li>Erweiterbare Struktur</li>
+                        <li>Spätere Module möglich</li>
+                        <li>Ideal für Wachstum</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="kontakt">
+        <div class="container">
+            <div class="cta-panel">
+                <h2 class="section-title">Landingpage im Blue Performance Stil</h2>
+                <p>
+                    Diese Version baut auf den Farben aus deinem Screenshot auf, hat aber bewusst einen anderen Aufbau
+                    als das Diagramm-Panel. So bekommst du eine echte Landingpage mit Hero, Vorteilen,
+                    Konfigurator-Vorschau und Paketen – alles in der gleichen Designsprache.
+                </p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                    <a href="#" class="btn btn-lightline">Demo anfragen</a>
+                    <a href="#" class="btn btn-main">Website bauen</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container d-flex flex-column flex-lg-row justify-content-between gap-2">
+            <div>© Blue Performance Landingpage</div>
+            <div>Blau · Hellblau · Konfigurator · Diagramm-Vorschau</div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        new WOW().init();
+    </script>
+</body>
+
+</html>

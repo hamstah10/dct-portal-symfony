@@ -1,0 +1,161 @@
+meilisearch:
+  url: '%env(MEILISEARCH_URL)%'
+  api_key: '%env(MEILISEARCH_KEY)%'
+  prefix: 'prod_'
+  doctrineSubscribedEvents: []
+  indices:
+    - name: vehicle_types
+      class: App\Entity\VehicleType
+      settings:
+        searchableAttributes:
+          - name
+          - slug
+        filterableAttributes:
+          - active
+        sortableAttributes:
+          - name
+          - sorting
+
+    - name: vehicle_brands
+      class: App\Entity\VehicleBrand
+      settings:
+        searchableAttributes:
+          - name
+          - slug
+        filterableAttributes:
+          - active
+          - vehicleTypeName
+          - dataPoolKey
+        sortableAttributes:
+          - name
+          - sorting
+
+    - name: vehicle_series
+      class: App\Entity\VehicleSeries
+      settings:
+        searchableAttributes:
+          - name
+          - slug
+          - brandName
+        filterableAttributes:
+          - active
+          - vehicleTypeName
+          - dataPoolKey
+        sortableAttributes:
+          - name
+
+    - name: vehicle_models
+      class: App\Entity\VehicleModel
+      settings:
+        searchableAttributes:
+          - name
+          - slug
+          - seriesName
+          - brandName
+        filterableAttributes:
+          - active
+          - vehicleTypeName
+          - dataPoolKey
+        sortableAttributes:
+          - name
+
+    - name: vehicle_engines
+      class: App\Entity\VehicleEngine
+      settings:
+        searchableAttributes:
+          - name
+          - fuel
+          - displacement
+          - modelName
+          - seriesName
+          - brandName
+        filterableAttributes:
+          - active
+          - fuel
+          - vehicleTypeName
+          - dataPoolKey
+        sortableAttributes:
+          - name
+          - horsepower
+
+    - name: ecu_masters
+      class: App\Entity\EcuMaster
+      settings:
+        searchableAttributes:
+          - name
+          - slug
+          - type
+          - controlUnitKind
+          - manufacturerName
+        filterableAttributes:
+          - type
+          - manufacturerName
+        sortableAttributes:
+          - name
+
+    - name: ecu_manufacturer_masters
+      class: App\Entity\EcuManufacturerMaster
+      settings:
+        searchableAttributes:
+          - name
+          - slug
+        sortableAttributes:
+          - name
+
+    - name: kunden
+      class: App\Entity\Kunde
+      settings:
+        searchableAttributes:
+          - kundennummer
+          - vorname
+          - nachname
+          - email
+          - firmenname
+          - telefon
+          - stadt
+          - land
+        filterableAttributes:
+          - land
+          - stadt
+        sortableAttributes:
+          - nachname
+          - kundennummer
+
+    - name: auftraege
+      class: App\Entity\Auftrag
+      settings:
+        searchableAttributes:
+          - customerEmail
+          - fileName
+          - vehicleDisplay
+          - manufacturer
+          - model
+          - engine
+          - vehicleType
+          - tuningTool
+          - status
+        filterableAttributes:
+          - status
+          - vehicleType
+          - manufacturer
+        sortableAttributes:
+          - createdAt
+
+    - name: dtc_codes
+      class: App\Entity\DtcCode
+      settings:
+        searchableAttributes:
+          - fehlercode
+          - beschreibung
+          - categoryName
+          - categoryLetter
+        filterableAttributes:
+          - categoryLetter
+          - hidden
+          - deleted
+        sortableAttributes:
+          - fehlercode
+
+when@dev:
+  meilisearch:
+    prefix: 'dev_'

@@ -1,0 +1,9 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    <div class="mb-4">
+        {{ component('shop_order_search') }}
+    </div>
+
+    {{ parent() }}
+{% endblock %}

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk '/\\\\.vdb-template-widget-premium-dark/,0' /home/verwaltung/htdocs/verwaltung.tuningfux.de/public/public/styles/vehicle_database.css)",
+      "Bash(grep '\\\\.svg$')",
+      "Bash(grep -i \"^alfa-romeo\\\\.svg$\")",
+      "Bash(php bin/console doctrine:query:sql \"SELECT image FROM vehicle_brand WHERE image IS NOT NULL AND image != '' LIMIT 10\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT image FROM vehicle_brand WHERE image IS NOT NULL AND image != '' LIMIT 10\")",
+      "Bash(php bin/console doctrine:database:url)",
+      "Bash(mysql -u verwaltung -p3Zm7fm5Yq1tXQBETkjkt verwaltung -e \"SELECT image FROM vehicle_brand WHERE image IS NOT NULL AND image != '' LIMIT 10;\")",
+      "Bash(mysql -uverwaltung -p3Zm7fm5Yq1tXQBETkjkt -h127.0.0.1 verwaltung -e \"SELECT image FROM vehicle_brand WHERE image IS NOT NULL AND image != '' LIMIT 10;\")",
+      "Bash(php -r ' *)",
+      "Bash(grep -v '\\\\-[A-Za-z0-9]\\\\{7,\\\\}\\\\.')",
+      "WebFetch(domain:api.anthropic.com)",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p design_bundle)",
+      "Bash(gunzip -c \"/home/verwaltung/.claude/projects/-home-verwaltung-htdocs-verwaltung-tuningfux-de-public/c7e583c9-920c-4592-a5bb-7576e331bebc/tool-results/webfetch-1778559928298-uj1n63.bin\")",
+      "Bash(tar -x -C design_bundle)",
+      "Bash(find /home/verwaltung/htdocs/verwaltung.tuningfux.de/public -type f | grep -i \"widget\" | sort && find /home/verwaltung/htdocs/verwaltung.tuningfux.de/public/../ -name \"*.php\" | xargs grep -l \"kunden.widget\\\\|kunden_widget\\\\|CustomerWidget\" 2>/dev/null | head -20)",
+      "Read(//home/verwaltung/htdocs/verwaltung.tuningfux.de/**)",
+      "Bash(php bin/console lint:twig templates/customer_widget/edit.html.twig)",
+      "Bash(php bin/console debug:event-dispatcher kernel.response)",
+      "Read(//etc/nginx/**)",
+      "Bash(curl -sI \"https://verwaltung.tuningfux.de/widget/test123\")",
+      "Bash(curl -sI \"https://verwaltung.tuningfux.de/\")",
+      "Bash(php bin/console debug:router app_website_widget_embed_js)",
+      "Bash(curl -sI \"https://verwaltung.tuningfux.de/widget/test123/embed.js\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(.venv/bin/scrapy list *)"
+    ]
+  }
+}

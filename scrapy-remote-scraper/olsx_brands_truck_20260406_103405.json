@@ -1,0 +1,362 @@
+[
+  {
+    "brand_slug": "alexander-dennis-trucks",
+    "brand_name": "Alexander Dennis",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/alexander_dennis_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/alexander-dennis-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "ammann-trucks",
+    "brand_name": "Ammann",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/ammann_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/ammann-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "arjes-trucks",
+    "brand_name": "Arjes",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/arjes_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/arjes-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "astra-trucks",
+    "brand_name": "Astra",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/astra_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/astra-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "asv-trucks",
+    "brand_name": "ASV",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/asv_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/asv-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "atlas-trucks",
+    "brand_name": "Atlas",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/atlas_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/atlas-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "atlas-copco-trucks",
+    "brand_name": "Atlas Copco",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/atlas_copco_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/atlas-copco-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "avia-trucks",
+    "brand_name": "Avia",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/avia_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/avia-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "caetano-trucks",
+    "brand_name": "Caetano",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/caetano_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/caetano-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "chevrolet-trucks-trucks",
+    "brand_name": "Chevrolet Trucks",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/chevrolet_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/chevrolet-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "cummins-trucks",
+    "brand_name": "Cummins",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/cummins_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/cummins-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "daewoo-trucks-trucks",
+    "brand_name": "Daewoo (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/daewoo_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/daewoo-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "daf-trucks",
+    "brand_name": "DAF",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/daf_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/daf-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "denning-trucks",
+    "brand_name": "Denning",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/denning_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/denning-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "dulevo-trucks",
+    "brand_name": "Dulevo",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/dulevo_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/dulevo-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "faw-trucks",
+    "brand_name": "FAW",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/faw_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/faw-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "ford-trucks-trucks",
+    "brand_name": "Ford (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/ford_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/ford-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "freightliner-trucks",
+    "brand_name": "Freightliner",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/freightliner_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/freightliner-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "hino-trucks",
+    "brand_name": "Hino",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/hino_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/hino-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "international-trucks",
+    "brand_name": "International",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/international_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/international-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "isuzu-truck-trucks",
+    "brand_name": "Isuzu Truck",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/isuzu_truck_truck.jpg",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/isuzu-truck-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "iveco-truck-trucks",
+    "brand_name": "Iveco Truck",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/iveco_truck_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/iveco-truck-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "kenworth-trucks",
+    "brand_name": "Kenworth",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/kenworth_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/kenworth-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "king-long-buses-trucks",
+    "brand_name": "King Long Buses",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/king_long_buses_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/king-long-buses-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "mack-truck-trucks",
+    "brand_name": "Mack Truck",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/mack_truck_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/mack-truck-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "man-trucks-trucks",
+    "brand_name": "Man Trucks",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/man_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/man-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "maz-minsk-trucks",
+    "brand_name": "Maz Minsk",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/maz_minsk_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/maz-minsk-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "mercedes-truck-trucks",
+    "brand_name": "Mercedes Truck",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/mercedes_truck_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/mercedes-truck-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "mitsubishi-fuso-trucks",
+    "brand_name": "Mitsubishi Fuso",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/mitsubishi_fuso_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/mitsubishi-fuso-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "neoplan-trucks",
+    "brand_name": "Neoplan",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/neoplan_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/neoplan-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "peterbilt-trucks",
+    "brand_name": "Peterbilt",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/peterbilt_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/peterbilt-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "renault-trucks-trucks",
+    "brand_name": "Renault (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/renault_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/renault-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "scania-trucks",
+    "brand_name": "Scania",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/scania_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/scania-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "setra-trucks",
+    "brand_name": "Setra",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/setra_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/setra-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "sinotruk-trucks",
+    "brand_name": "Sinotruk",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/sinotruk_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/sinotruk-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "tata-trucks-trucks",
+    "brand_name": "Tata (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/tata_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/tata-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "temsa-trucks",
+    "brand_name": "Temsa",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/temsa_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/temsa-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "toyota-trucks-trucks",
+    "brand_name": "Toyota (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/toyota_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/toyota-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "van-hool-trucks",
+    "brand_name": "Van Hool",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/van_hool_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/van-hool-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "volare-trucks",
+    "brand_name": "Volare",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/volare_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/volare-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "volkswagen-trucks-trucks",
+    "brand_name": "Volkswagen (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/volkswagen_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/volkswagen-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "volvo-trucks-trucks",
+    "brand_name": "Volvo (Trucks)",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/volvo_trucks_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/volvo-trucks-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "western-star-trucks",
+    "brand_name": "Western Star",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/western_star_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/western-star-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "xcmg-trucks",
+    "brand_name": "XCMG",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/xcmg_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/xcmg-trucks",
+    "model_count": 0,
+    "models": []
+  },
+  {
+    "brand_slug": "yutong-trucks",
+    "brand_name": "Yutong",
+    "brand_logo": "https://api.olsx.eu//storage/brands/logos/yutong_truck.png",
+    "brand_url": "https://olsx.lu/de/chiptuning/truck/yutong-trucks",
+    "model_count": 0,
+    "models": []
+  }
+]

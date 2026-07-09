@@ -1,0 +1,41 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Instagram Medien{% endblock %}
+
+{% block main %}
+    <div class="mb-3">
+        <a href="{{ path('admin_instagram_index') }}" class="btn btn-secondary">Zurück</a>
+    </div>
+
+    {% if mediaItems is empty %}
+        <p>Keine Medien gefunden.</p>
+    {% else %}
+        <div class="row">
+            {% for item in mediaItems %}
+                <div class="col-12 col-md-6 col-xl-4 mb-4">
+                    <div class="card">
+                        {% set img = item.thumbnail_url ?? item.media_url ?? null %}
+                        {% if img %}
+                            <img src="{{ img }}" class="card-img-top" alt="" style="object-fit: cover; height: 240px;">
+                        {% endif %}
+
+                        <div class="card-body">
+                            <div><strong>Typ:</strong> {{ item.media_type ?? '-' }}</div>
+                            <div><strong>Zeit:</strong> {{ item.timestamp ?? '-' }}</div>
+
+                            {% if item.caption is defined and item.caption %}
+                                <hr>
+                                <div style="white-space: pre-line;">{{ item.caption }}</div>
+                            {% endif %}
+
+                            {% if item.permalink is defined and item.permalink %}
+                                <hr>
+                                <a href="{{ item.permalink }}" target="_blank" rel="noopener">Bei Instagram öffnen</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

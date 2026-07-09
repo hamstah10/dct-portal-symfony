@@ -1,0 +1,398 @@
+{% set embedded = embedded|default(false) %}
+{% set dailyMax = 1 %}
+{% for day in dailyCounts %}
+    {% if day.total > dailyMax %}
+        {% set dailyMax = day.total %}
+    {% endif %}
+{% endfor %}
+
+<div class="container-fluid px-0">
+    {% if not embedded %}
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a href="{{ path('admin_vehicle_database_overview') }}" class="btn btn-secondary">
+                <i class="fa fa-arrow-left"></i> Zur Übersicht
+            </a>
+            <a href="{{ path('app_vehicle_database') }}" class="btn btn-primary" target="_blank" rel="noopener">
+                <i class="fa fa-external-link"></i> Frontend öffnen
+            </a>
+        </div>
+    {% endif %}
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Portale / Integrationen (30 Tage)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Portal</th>
+                            <th class="text-end">Anzahl</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topApplications is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topApplications %}
+                                <tr>
+                                    <td>{{ row.applicationName }}</td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center gap-2">
+                    <span>Top Marken (30 Tage)</span>
+                    <form method="get" class="mb-0">
+                        {% if embedded %}<input type="hidden" name="embed" value="1">{% endif %}
+                        <select name="brandApplication" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                            <option value="" {{ brandApplicationFilter is empty ? 'selected' : '' }}>Alle Portale</option>
+                            {% for row in topApplications %}
+                                <option value="{{ row.applicationName }}" {{ brandApplicationFilter == row.applicationName ? 'selected' : '' }}>{{ row.applicationName }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Marke</th>
+                            <th class="text-end">Anzahl</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topBrands is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topBrands %}
+                                <tr>
+                                    <td class="d-flex align-items-center gap-2">
+                                        {% if row.brandImage %}
+                                            <img src="{{ row.brandImage }}" alt="" width="32" height="32" class="object-fit-contain" loading="lazy">
+                                        {% endif %}
+                                        <span>{{ row.brandName }}</span>
+                                    </td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Fahrzeugtypen (30 Tage)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Typ</th>
+                            <th class="text-end">Anzahl</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topTypes is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topTypes %}
+                                <tr>
+                                    <td>{{ row.typeName }}</td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Fahrzeuge (Tabelle)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Fahrzeug</th>
+                            <th class="text-end">Aufrufe</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topBrandModelEngines is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topBrandModelEngines %}
+                                <tr>
+                                    <td class="d-flex align-items-center gap-2">
+                                        {% if row.brandImage %}
+                                            <img src="{{ row.brandImage }}" alt="" width="32" height="32" class="object-fit-contain flex-shrink-0" loading="lazy">
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-semibold">{{ row.brandName }} {{ row.modelName }}</div>
+                                            <div class="small text-muted">{{ row.engineName }}</div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Baureihen (30 Tage)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Baureihe</th>
+                            <th class="text-end">Anzahl</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topSeries is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topSeries %}
+                                <tr>
+                                    <td>{{ row.seriesName }}</td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Modelle (30 Tage)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Modell</th>
+                            <th class="text-end">Anzahl</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topModels is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topModels %}
+                                <tr>
+                                    <td>{{ row.modelName }}</td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Motoren (30 Tage)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Motor</th>
+                            <th class="text-end">Aufrufe</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topEngines is empty %}
+                            <tr><td colspan="2" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topEngines %}
+                                <tr>
+                                    <td>{{ row.engineName }}</td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                    <span>Top Fahrzeuge (bis Motor)</span>
+                    <span class="small text-muted">Motor-Details, 30 Tage</span>
+                </div>
+                <div class="card-body" style="height: 420px;">
+                    {{ render_chart(topBrandModelEnginesChart) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Top Stages (30 Tage)</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Motor</th>
+                            <th class="text-end">Anzahl</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% if topStages is empty %}
+                            <tr><td colspan="3" class="text-muted">Keine Daten</td></tr>
+                        {% else %}
+                            {% for row in topStages %}
+                                <tr>
+                                    <td>{{ row.stageName }}</td>
+                                    <td>{{ row.engineName }}</td>
+                                    <td class="text-end">{{ row.total }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                    <span>Events pro Tag</span>
+                    <span class="small text-muted">letzte 14 Tage</span>
+                </div>
+                <div class="card-body" style="height: 240px;">
+                    {{ render_chart(dailyEventsChart) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-semibold">Kennzahlen</div>
+                <div class="card-body">
+                    <div class="row g-2 text-center">
+                        <div class="col-6">
+                            <div class="text-muted small">Events 24h</div>
+                            <div class="fs-5 fw-bold">{{ events24h }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Events 7 Tage</div>
+                            <div class="fs-5 fw-bold">{{ events7d }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Events 30 Tage</div>
+                            <div class="fs-5 fw-bold">{{ events30d }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Besucher 30 Tage</div>
+                            <div class="fs-5 fw-bold">{{ uniqueVisitors30d }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Motor-Details 30 Tage</div>
+                            <div class="fs-5 fw-bold">{{ engineViews30d }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Stage-Wechsel 30 Tage</div>
+                            <div class="fs-5 fw-bold">{{ stageSelections30d }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">Tägliche Events (letzte 14 Tage)</div>
+        <div class="card-body">
+            <div class="row g-2">
+                {% for day in dailyCounts %}
+                    {% set width = dailyMax > 0 ? (day.total / dailyMax * 100) : 0 %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="small text-muted mb-1">{{ day.label }}</div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ width }}%;"></div>
+                        </div>
+                        <div class="small mt-1 fw-semibold">{{ day.total }} Events</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <button type="button" class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center w-100 border-0 text-start" data-bs-toggle="collapse" data-bs-target="#latestEventsLog" aria-expanded="false" aria-controls="latestEventsLog">
+            <span>Letzte Events (Live-Log)</span>
+            <i class="fa fa-chevron-down small"></i>
+        </button>
+        <div class="collapse" id="latestEventsLog">
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Zeitpunkt</th>
+                        <th>Event</th>
+                        <th>Portal</th>
+                        <th>Typ</th>
+                        <th>Marke</th>
+                        <th>Baureihe</th>
+                        <th>Modell</th>
+                        <th>Motor</th>
+                        <th>Stage</th>
+                        <th>IP</th>
+                        <th>Route</th>
+                        <th>URI</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if latestEvents is empty %}
+                        <tr><td colspan="12" class="text-muted">Keine Daten</td></tr>
+                    {% else %}
+                        {% for row in latestEvents %}
+                            <tr>
+                                <td>{{ row.created_at|default('') }}</td>
+                                <td><code>{{ row.event_type|default('-') }}</code></td>
+                                <td>{{ row.application_name|default('Website') }}</td>
+                                <td>{{ row.type_name|default('-') }}</td>
+                                <td>{{ row.brand_name|default('-') }}</td>
+                                <td>{{ row.series_name|default('-') }}</td>
+                                <td>{{ row.model_name|default('-') }}</td>
+                                <td>{{ row.engine_name|default('-') }}</td>
+                                <td>{{ row.stage_name|default('-') }}</td>
+                                <td>{{ row.ip_address|default('-') }}</td>
+                                <td>{{ row.route_name|default('-') }}</td>
+                                <td class="text-break">{{ row.request_uri|default('-') }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

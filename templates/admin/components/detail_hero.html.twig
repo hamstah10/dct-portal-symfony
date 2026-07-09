@@ -1,0 +1,50 @@
+{% set eyebrow = eyebrow|default(null) %}
+{% set title = title|default('Datensatz') %}
+{% set subtitle = subtitle|default(null) %}
+{% set badges = badges|default([]) %}
+{% set meta = meta|default([]) %}
+{% set actions = actions|default([]) %}
+
+<section class="tfd-detail-hero">
+    {% if eyebrow %}
+        <div class="tfd-detail-hero__eyebrow">{{ eyebrow }}</div>
+    {% endif %}
+
+    <h1 class="tfd-detail-hero__title">{{ title }}</h1>
+
+    {% if subtitle %}
+        <p class="tfd-detail-hero__subtitle">{{ subtitle }}</p>
+    {% endif %}
+
+    {% if badges is not empty %}
+        <div class="tfd-detail-hero__badges">
+            {% for badge in badges %}
+                {% include 'admin/field/status_badge.html.twig' with {
+                    label: badge.label|default('Status'),
+                    tone: badge.tone|default('muted')
+                } only %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if meta is not empty %}
+        <div class="tfd-detail-hero__meta">
+            <div class="tfd-meta-grid">
+                {% for item in meta %}
+                    {% include 'admin/field/meta_info.html.twig' with {
+                        label: item.label|default('Wert'),
+                        value: item.value|default('—')
+                    } only %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if actions is not empty %}
+        <div class="tfd-detail-hero__actions">
+            {% for action in actions %}
+                {{ action|raw }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</section>

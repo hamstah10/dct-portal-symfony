@@ -1,0 +1,15 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    {% set vehicleEngineFilters = app.request.query.all['filters']|default({}) %}
+    {% set vehicleDataPoolFilter = vehicleEngineFilters['vehicleDataPool']|default({}) %}
+    {% set vehicleDataPoolFilterValue = vehicleDataPoolFilter['value']|default(null) %}
+
+    <div class="mb-4">
+        {{ component('vehicle_engine_search', {
+            vehicleDataPoolId: vehicleDataPoolFilterValue is iterable ? null : vehicleDataPoolFilterValue
+        }) }}
+    </div>
+
+    {{ parent() }}
+{% endblock %}

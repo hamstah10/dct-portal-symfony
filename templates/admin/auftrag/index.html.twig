@@ -1,0 +1,46 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block content_title %}
+    {{ parent() }}
+{% endblock %}
+
+{% block main %}
+    <div class="auftrag-index-stats mb-4">
+        <div class="tfd-kpi-card">
+            <div class="tfd-kpi-card__label">Heute</div>
+            <div class="tfd-kpi-card__value">{{ statistics.today }}</div>
+            <div class="tfd-kpi-card__meta">Aufträge</div>
+        </div>
+        <div class="tfd-kpi-card">
+            <div class="tfd-kpi-card__label">Gestern</div>
+            <div class="tfd-kpi-card__value">{{ statistics.yesterday }}</div>
+            <div class="tfd-kpi-card__meta">Aufträge</div>
+        </div>
+        <div class="tfd-kpi-card">
+            <div class="tfd-kpi-card__label">Letzte Woche</div>
+            <div class="tfd-kpi-card__value">{{ statistics.week }}</div>
+            <div class="tfd-kpi-card__meta">Aufträge</div>
+        </div>
+        <div class="tfd-kpi-card">
+            <div class="tfd-kpi-card__label">Eingegangen</div>
+            <div class="tfd-kpi-card__value">{{ statistics.statusToday.received }}</div>
+            <div class="tfd-kpi-card__meta">Heute</div>
+        </div>
+        <div class="tfd-kpi-card">
+            <div class="tfd-kpi-card__label">Abgeschlossen</div>
+            <div class="tfd-kpi-card__value">{{ statistics.statusToday.completed }}</div>
+            <div class="tfd-kpi-card__meta">Heute</div>
+        </div>
+        <div class="tfd-kpi-card">
+            <div class="tfd-kpi-card__label">Abgelehnt</div>
+            <div class="tfd-kpi-card__value">{{ statistics.statusToday.rejected }}</div>
+            <div class="tfd-kpi-card__meta">Heute</div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        {{ component('auftrag_search') }}
+    </div>
+
+    {{ parent() }}
+{% endblock %}

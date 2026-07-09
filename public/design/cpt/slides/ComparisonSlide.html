@@ -1,0 +1,48 @@
+<!-- @dsCard group="Slides" viewport="1280x720" name="Comparison slide" subtitle="Serie vs. Stage columns" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0;}
+  .slide{width:1280px;height:720px;box-sizing:border-box;padding:72px 88px;background:var(--bg);font-family:var(--font-sans);display:flex;flex-direction:column;}
+  .ey{font-family:var(--font-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-text);}
+  h2{font-size:60px;margin:14px 0 40px;color:var(--text);}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:32px;flex:1;}
+  .col{border:1px solid var(--border);border-radius:14px;padding:36px 40px;display:flex;flex-direction:column;}
+  .col.tuned{background:var(--carbon-950);border-color:var(--carbon-800);}
+  .col.tuned .ch,.col.tuned .row b{color:#fff;}
+  .ch{font-family:var(--font-display);text-transform:uppercase;font-weight:700;font-size:30px;letter-spacing:-.01em;color:var(--text);display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+  .pill{font-family:var(--font-mono);font-size:13px;letter-spacing:.08em;padding:.4em .7em;border-radius:999px;text-transform:uppercase;}
+  .pill.s{background:var(--surface-2);color:var(--text-muted);}
+  .pill.t{background:var(--power-500);color:#fff;}
+  .row{display:flex;justify-content:space-between;align-items:baseline;padding:20px 0;border-bottom:1px solid var(--border);font-family:var(--font-mono);}
+  .col.tuned .row{border-color:var(--carbon-800);}
+  .row span{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
+  .row b{font-size:34px;color:var(--text);font-variant-numeric:tabular-nums;}
+  .col.tuned .row b .g{color:var(--power-400);}
+  .row:last-child{border-bottom:0;}
+</style>
+</head>
+<body>
+  <div class="slide" data-theme="light">
+    <div class="ey">2.0 TDI · Serie gegen Stage 1</div>
+    <h2>Vorher / Nachher</h2>
+    <div class="cols">
+      <div class="col">
+        <div class="ch"><span class="pill s">Serie</span></div>
+        <div class="row"><span>Leistung</span><b>190 PS</b></div>
+        <div class="row"><span>Drehmoment</span><b>400 Nm</b></div>
+        <div class="row"><span>0–100 km/h</span><b>7,2 s</b></div>
+      </div>
+      <div class="col tuned" data-theme="dark">
+        <div class="ch"><span class="pill t">Stage 1</span></div>
+        <div class="row"><span>Leistung</span><b>228 PS <span class="g">+38</span></b></div>
+        <div class="row"><span>Drehmoment</span><b>470 Nm <span class="g">+70</span></b></div>
+        <div class="row"><span>0–100 km/h</span><b>6,4 s <span class="g">−0,8</span></b></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

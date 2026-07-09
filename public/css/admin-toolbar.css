@@ -1,0 +1,52 @@
+.tf-admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 0 0 18px 0;
+    padding: 14px 0 4px 0;
+}
+
+.tf-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #1f2937;
+    color: #fff;
+    font-weight: 600;
+    transition: all .18s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.tf-toolbar-btn:hover {
+    transform: translateY(-1px);
+    background: #111827;
+    color: #fff;
+    text-decoration: none;
+}
+
+.tf-toolbar-btn--primary {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.tf-toolbar-btn--primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.tf-toolbar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.tf-toolbar-icon svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}

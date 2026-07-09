@@ -1,0 +1,919 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% set ea = ea() %}
+{% extends ea.templatePath('layout') %}
+{% form_theme new_form ?? edit_form with ea.crud.formThemes only %}
+
+{% block body_id %}ea-einbau-hinweis-form{% endblock %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    {% guard function csp_nonce %}
+        <script src="{{ asset('form.js', ea.assets.defaultAssetPackageName) }}" nonce="{{ csp_nonce('script') }}"></script>
+    {% else %}
+        <script src="{{ asset('form.js', ea.assets.defaultAssetPackageName) }}"></script>
+    {% endguard %}
+{% endblock %}
+
+{% block content_title %}
+    {{ pageName == 'new' ? 'Einbau-Hinweis anlegen' : 'Einbau-Hinweis bearbeiten' }}
+{% endblock %}
+
+{% block main %}
+    <style>
+        #ea-einbau-hinweis-form select,
+        #ea-einbau-hinweis-form .form-select,
+        #ea-einbau-hinweis-form .ts-control,
+        #ea-einbau-hinweis-form .ts-control input,
+        #ea-einbau-hinweis-form .ts-control .item,
+        #ea-einbau-hinweis-form .select2-selection,
+        #ea-einbau-hinweis-form .select2-selection__rendered {
+            color: #fff !important;
+        }
+
+        #ea-einbau-hinweis-form [data-einbau-image-open] {
+            display: block !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            height: auto !important;
+            max-height: none !important;
+            line-height: 0 !important;
+            padding: 0.25rem !important;
+        }
+
+        #ea-einbau-hinweis-form [data-einbau-image-open] img {
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            border-radius: var(--bs-border-radius, 0.375rem);
+        }
+
+        #ea-einbau-hinweis-form [data-einbau-image-item] .btn-outline-info {
+            border-color: #0dcaf0 !important;
+            color: #0dcaf0 !important;
+        }
+
+        #ea-einbau-hinweis-form [data-einbau-image-item] .btn-outline-info:hover {
+            background-color: #0dcaf0 !important;
+            color: #000 !important;
+        }
+    </style>
+
+    {% set form = new_form ?? edit_form %}
+    {% set instance = entity.instance %}
+
+    {{ form_start(form, {attr: {enctype: 'multipart/form-data', novalidate: 'novalidate', class: pageName == 'new' ? 'ea-new' : 'ea-edit'}}) }}
+
+    <div class="row g-4">
+
+        {# ── Basisdaten ── #}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header fw-bold">Basisdaten</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Aktiv</label>
+                        {{ form_widget(form.active) }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold required">Titel</label>
+                        {{ form_widget(form.title, {attr: {class: 'form-control'}}) }}
+                        {{ form_errors(form.title) }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Beschreibung</label>
+                        {{ form_widget(form.description, {attr: {class: 'form-control', rows: 4, 'data-tb-target': 'description'}}) }}
+                    </div>
+
+                    {# ── Textbausteine ── #}
+                    <div class="mb-3 border rounded p-3 bg-body-tertiary">
+                        <label class="form-label fw-semibold mb-2">Textbaustein einfügen</label>
+                        <div class="d-flex gap-2 flex-wrap align-items-start">
+                            <select id="textbaustein-select" class="form-select w-auto flex-grow-1" style="min-width:220px">
+                                <option value="">Textbaustein wählen …</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="tb-insert-desc" title="Text in Beschreibung einfügen">
+                                ↩ In Beschreibung
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="tb-insert-notes" title="Als Hinweis-Text einfügen">
+                                + Als extra Hinweis
+                            </button>
+                        </div>
+                        <div class="form-text mt-1">Textbaustein direkt in die Beschreibung übernehmen oder als separaten Hinweistext anhängen.</div>
+                        <div id="tb-preview" class="mt-2 p-2 border rounded bg-body text-muted small" style="display:none;white-space:pre-wrap;max-height:80px;overflow-y:auto"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">ECU-Option (Funktion)</label>
+                        {{ form_widget(form.ecuOptionMaster, {attr: {class: 'form-select'}}) }}
+                        <div class="form-text">z.B. "AdBlue OFF", "DPF OFF" — optional</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Fahrzeugauswahl ── #}
+        <div class="col-12" data-controller="einbau-hinweis-selector">
+            <div class="card">
+                <div class="card-header fw-bold">Fahrzeug verknüpfen</div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Wähle schrittweise Typ → Marke → Baureihe → Modell → Motor. Du kannst mehrere Motoren und Modelle hinzufügen.</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label fw-semibold">Fahrzeugtyp</label>
+                            <select class="form-select" data-einbau-hinweis-selector-target="type" data-action="change->einbau-hinweis-selector#typeChanged" disabled>
+                                <option value="">Typ wählen …</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label fw-semibold">Marke</label>
+                            <select class="form-select" data-einbau-hinweis-selector-target="brand" data-action="change->einbau-hinweis-selector#brandChanged" disabled>
+                                <option value="">Marke wählen …</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label fw-semibold">Baureihe</label>
+                            <select class="form-select" data-einbau-hinweis-selector-target="series" data-action="change->einbau-hinweis-selector#seriesChanged" disabled>
+                                <option value="">Baureihe wählen …</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label fw-semibold">Modell</label>
+                            <select class="form-select" data-einbau-hinweis-selector-target="model" data-action="change->einbau-hinweis-selector#modelChanged" disabled>
+                                <option value="">Modell wählen …</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label fw-semibold">Motor</label>
+                            <select class="form-select" data-einbau-hinweis-selector-target="engine" disabled>
+                                <option value="">Motor wählen …</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2 d-flex flex-column justify-content-end gap-2">
+                            <button type="button" class="btn btn-primary btn-sm" data-action="click->einbau-hinweis-selector#addEngine">+ Motor hinzufügen</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-action="click->einbau-hinweis-selector#addModel">+ Modell hinzufügen</button>
+                        </div>
+                    </div>
+
+                    {# Selected engines #}
+                    <div class="mb-3">
+                        <div class="fw-semibold mb-2">Verknüpfte Motoren</div>
+                        <div data-einbau-hinweis-selector-target="engineList" class="d-flex flex-wrap gap-2 mb-2">
+                            {% for engine in instance.vehicleEngines %}
+                                {% set model = engine.vehicleModel %}
+                                {% set series = model ? model.vehicleSeries : null %}
+                                {% set brand = series ? series.vehicleBrand : null %}
+                                {% set engineLabelParts = [brand ? brand.name : null, series ? series.name : null, model ? model.name : null, engine.name]|filter(part => part is not empty) %}
+                                {% set engineLabel = engineLabelParts|join(' - ') %}
+                                <span class="badge bg-primary d-inline-flex align-items-center gap-1" data-engine-name="{{ engineLabel|e('html_attr') }}">
+                                    {{ engineLabel }}
+                                    <input type="hidden" name="vehicle_engine_ids[]" value="{{ engine.id }}">
+                                    <button type="button" class="btn-close btn-close-white" style="font-size:.6rem"
+                                        data-action="click->einbau-hinweis-selector#removeBadge"></button>
+                                </span>
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted small" data-einbau-hinweis-selector-target="engineEmpty"
+                            {% if instance.vehicleEngines|length > 0 %}style="display:none"{% endif %}>
+                            Noch keine Motoren verknüpft.
+                        </p>
+                    </div>
+
+                    {# MCUs der verknüpften Motoren #}
+                    {% set allEcus = [] %}
+                    {% set allEcuKeys = [] %}
+                    {% set activeEcu = instance.activeEcu %}
+                    {% set activeEcuNameKey = activeEcu ? activeEcu.name|trim|lower : '' %}
+                    {% set activeEcuKey = activeEcu ? (activeEcu.masterEcu ? 'master-' ~ activeEcu.masterEcu.id : (activeEcuNameKey != '' ? 'name-' ~ activeEcuNameKey : 'id-' ~ activeEcu.id)) : '' %}
+                    {% for engine in instance.vehicleEngines %}
+                        {% for ecu in engine.ecuRelations %}
+                            {% set ecuNameKey = ecu.name|trim|lower %}
+                            {% set ecuKey = ecu.masterEcu ? 'master-' ~ ecu.masterEcu.id : (ecuNameKey != '' ? 'name-' ~ ecuNameKey : 'id-' ~ ecu.id) %}
+                            {% if constant('App\\Entity\\Ecu::CONTROL_UNIT_KIND_MCU') == ecu.controlUnitKind and ecuKey not in allEcuKeys %}
+                                {% set allEcus = allEcus|merge([ecu]) %}
+                                {% set allEcuKeys = allEcuKeys|merge([ecuKey]) %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    <div class="mb-3">
+                        <div class="fw-semibold mb-2">MCUs der verknüpften Motoren</div>
+                        <input type="hidden" name="active_ecu_id" value="{{ activeEcu ? activeEcu.id : '' }}" data-active-ecu-input>
+                        <div class="d-flex flex-wrap gap-2" data-einbau-ecu-preview>
+                            {% for ecu in allEcus %}
+                                {% set ecuNameKey = ecu.name|trim|lower %}
+                                {% set ecuKey = ecu.masterEcu ? 'master-' ~ ecu.masterEcu.id : (ecuNameKey != '' ? 'name-' ~ ecuNameKey : 'id-' ~ ecu.id) %}
+                                {% set linkedEngineNames = [] %}
+                                {% for linkedEngine in instance.vehicleEngines %}
+                                    {% for linkedEcu in linkedEngine.ecuRelations %}
+                                        {% set linkedEcuNameKey = linkedEcu.name|trim|lower %}
+                                        {% set linkedEcuKey = linkedEcu.masterEcu ? 'master-' ~ linkedEcu.masterEcu.id : (linkedEcuNameKey != '' ? 'name-' ~ linkedEcuNameKey : 'id-' ~ linkedEcu.id) %}
+                                        {% if linkedEcuKey == ecuKey and linkedEngine.name not in linkedEngineNames %}
+                                            {% set linkedEngineNames = linkedEngineNames|merge([linkedEngine.name]) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                <span class="d-inline-flex align-items-center">
+                                    <button type="button"
+                                        class="badge rounded-end-0 border-0 {{ ecuKey == activeEcuKey ? 'bg-success text-white' : 'bg-info text-dark' }}"
+                                        data-ecu-select
+                                        data-ecu-id="{{ ecu.id }}"
+                                        data-ecu-key="{{ ecuKey }}"
+                                        title="MCU fuer diesen Einbau-Hinweis markieren">
+                                        {{ ecu.manufacturer ? ecu.manufacturer.name ~ ' - ' : '' }}{{ ecu.name }}
+                                    </button>
+                                    <button type="button"
+                                        class="badge rounded-start-0 border-0 bg-secondary text-white"
+                                        data-ecu-details
+                                        data-ecu-id="{{ ecu.id }}"
+                                        data-ecu-name="{{ ecu.name|e('html_attr') }}"
+                                        data-ecu-engines="{{ linkedEngineNames|join('|')|e('html_attr') }}"
+                                        title="Verknuepfte Motoren anzeigen">
+                                        i
+                                    </button>
+                                </span>
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted small mb-0" data-einbau-ecu-preview-empty
+                            {% if allEcus|length > 0 %}style="display:none"{% endif %}>
+                            Keine MCUs — bitte zuerst Motoren verknüpfen.
+                        </p>
+                    </div>
+
+                    {# Selected models #}
+                    <div>
+                        <div class="fw-semibold mb-2">Verknüpfte Modelle</div>
+                        <div data-einbau-hinweis-selector-target="modelList" class="d-flex flex-wrap gap-2 mb-2">
+                            {% for model in instance.vehicleModels %}
+                                <span class="badge bg-secondary d-inline-flex align-items-center gap-1">
+                                    {{ model.name }}
+                                    <input type="hidden" name="vehicle_model_ids[]" value="{{ model.id }}">
+                                    <button type="button" class="btn-close btn-close-white" style="font-size:.6rem"
+                                        data-action="click->einbau-hinweis-selector#removeBadge"></button>
+                                </span>
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted small" data-einbau-hinweis-selector-target="modelEmpty"
+                            {% if instance.vehicleModels|length > 0 %}style="display:none"{% endif %}>
+                            Noch keine Modelle verknüpft.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Bilder ── #}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header fw-bold">Bilder hochladen</div>
+                <div class="card-body">
+
+                    {% if instance.images|length > 0 %}
+                    <div class="mb-4">
+                        <div class="fw-semibold mb-2">Vorhandene Bilder</div>
+                        <div class="form-text mb-2">Auf ein Bild klicken zum Vergrößern. Mit den Pfeilen sortieren. Löschen-Checkbox markieren zum Entfernen.</div>
+                        <div class="row g-3" data-einbau-image-list>
+                            {% for image in instance.images %}
+                            <div class="col-md-3" data-einbau-image-item>
+                                <div class="border rounded p-2 bg-body h-100 d-flex flex-column">
+                                    <input type="hidden" name="einbau_hinweis_image_order[]" value="{{ image.id }}">
+                                    <button type="button"
+                                            class="btn p-0 border-0 bg-transparent w-100"
+                                            data-einbau-image-open
+                                            data-image-url="/{{ image.filePath|trim('/') }}"
+                                            data-image-title="{{ image.name|e('html_attr') }}"
+                                            title="Bild gross anzeigen">
+                                        <img src="/{{ image.filePath|trim('/') }}" alt="{{ image.name }}"
+                                            class="img-fluid w-100">
+                                    </button>
+                                    <div class="text-muted small text-truncate mt-1" title="{{ image.name }}">{{ image.name }}</div>
+                                    <div class="d-flex align-items-center justify-content-between gap-1 mt-2">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-secondary" data-einbau-image-move="up" title="Nach links">←</button>
+                                            <button type="button" class="btn btn-outline-secondary" data-einbau-image-move="down" title="Nach rechts">→</button>
+                                        </div>
+                                        <label class="form-check-label small text-danger d-inline-flex align-items-center gap-1">
+                                            <input type="checkbox" class="form-check-input m-0" name="einbau_hinweis_delete_images[]" value="{{ image.id }}">
+                                            Löschen
+                                        </label>
+                                    </div>
+                                    {% if instance.id %}
+                                    <a href="{{ path('admin_admin_image_annotate', {id: image.id, back: app.request.uri}) }}"
+                                       class="btn btn-sm btn-outline-info w-100 mt-2"
+                                       title="Bild annotieren">
+                                        ✏ Annotieren{% if image.annotations|length > 0 %} <span class="badge bg-info text-dark">{{ image.annotations|length }}</span>{% endif %}
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <label class="form-label fw-semibold">Neue Bilder hinzufügen</label>
+                        <input type="file" name="einbau_hinweis_images[]" multiple accept="image/*"
+                            class="form-control">
+                        <div class="form-text">Mehrere Bilder möglich. Werden im Media Manager gespeichert.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>{# /row #}
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+            {{ pageName == 'new' ? 'Anlegen' : 'Speichern' }}
+        </button>
+        <a href="{{ ea_url().setAction('index').generateUrl() }}" class="btn btn-secondary">Abbrechen</a>
+        {% if pageName == 'edit' and instance.id %}
+            <input type="hidden" name="token" value="{{ csrf_token('ea-delete') }}">
+            <button type="submit"
+                class="btn btn-danger ms-auto"
+                formmethod="post"
+                formaction="{{ ea_url().setAction('delete').setEntityId(instance.id).generateUrl() }}"
+                onclick="return confirm('Diesen Einbau-Hinweis wirklich loeschen?');">
+                Löschen
+            </button>
+        {% endif %}
+    </div>
+
+    {{ form_end(form) }}
+
+    <div class="modal fade" id="einbauImageModal" tabindex="-1" aria-labelledby="einbauImageModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="einbauImageModalTitle">Bildvorschau</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="" alt="" data-einbau-image-modal-src style="max-width:100%;max-height:75vh;object-fit:contain;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="einbauEcuDetailsModal" tabindex="-1" aria-labelledby="einbauEcuDetailsTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="einbauEcuDetailsTitle">MCU-Verknüpfungen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schliessen"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="fw-semibold mb-2" data-ecu-details-name></div>
+                    <div class="text-muted small mb-2">Diese MCU ist bei folgenden Motoren hinterlegt:</div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width:42px">Auswahl</th>
+                                    <th>Marke</th>
+                                    <th>Baureihe</th>
+                                    <th>Modell</th>
+                                    <th>Motor</th>
+                                </tr>
+                            </thead>
+                            <tbody data-ecu-details-engines></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (() => {
+        const BASE = '/admin/vehicle-selector-api';
+
+        async function fetchJson(url) {
+            const r = await fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+            if (!r.ok) throw new Error(r.status);
+            return r.json();
+        }
+
+        function populateSelect(sel, items, placeholder) {
+            sel.innerHTML = `<option value="">${placeholder}</option>`;
+            items.forEach(i => {
+                const o = document.createElement('option');
+                o.value = i.id;
+                o.textContent = i.label || i.name;
+                o.dataset.name = i.name || '';
+                o.dataset.brand = i.brand || '';
+                o.dataset.series = i.series || '';
+                o.dataset.model = i.model || '';
+                sel.appendChild(o);
+            });
+            sel.disabled = false;
+        }
+
+        function clearSelect(sel, placeholder) {
+            sel.innerHTML = `<option value="">${placeholder}</option>`;
+            sel.disabled = true;
+        }
+
+        const sel = {
+            type:   document.querySelector('[data-einbau-hinweis-selector-target="type"]'),
+            brand:  document.querySelector('[data-einbau-hinweis-selector-target="brand"]'),
+            series: document.querySelector('[data-einbau-hinweis-selector-target="series"]'),
+            model:  document.querySelector('[data-einbau-hinweis-selector-target="model"]'),
+            engine: document.querySelector('[data-einbau-hinweis-selector-target="engine"]'),
+            engineList:  document.querySelector('[data-einbau-hinweis-selector-target="engineList"]'),
+            modelList:   document.querySelector('[data-einbau-hinweis-selector-target="modelList"]'),
+            engineEmpty: document.querySelector('[data-einbau-hinweis-selector-target="engineEmpty"]'),
+            modelEmpty:  document.querySelector('[data-einbau-hinweis-selector-target="modelEmpty"]'),
+        };
+
+        // Load types on init
+        fetchJson(`${BASE}/types`).then(data => populateSelect(sel.type, data, 'Typ wählen …'));
+
+        sel.type.addEventListener('change', async () => {
+            clearSelect(sel.brand, 'Marke wählen …');
+            clearSelect(sel.series, 'Baureihe wählen …');
+            clearSelect(sel.model, 'Modell wählen …');
+            clearSelect(sel.engine, 'Motor wählen …');
+            if (!sel.type.value) return;
+            const data = await fetchJson(`${BASE}/brands/${sel.type.value}`);
+            populateSelect(sel.brand, data, 'Marke wählen …');
+        });
+
+        sel.brand.addEventListener('change', async () => {
+            clearSelect(sel.series, 'Baureihe wählen …');
+            clearSelect(sel.model, 'Modell wählen …');
+            clearSelect(sel.engine, 'Motor wählen …');
+            if (!sel.brand.value) return;
+            const data = await fetchJson(`${BASE}/series/${sel.brand.value}`);
+            populateSelect(sel.series, data, 'Baureihe wählen …');
+        });
+
+        sel.series.addEventListener('change', async () => {
+            clearSelect(sel.model, 'Modell wählen …');
+            clearSelect(sel.engine, 'Motor wählen …');
+            if (!sel.series.value) return;
+            const data = await fetchJson(`${BASE}/models/${sel.series.value}`);
+            populateSelect(sel.model, data, 'Modell wählen …');
+        });
+
+        sel.model.addEventListener('change', async () => {
+            clearSelect(sel.engine, 'Motor wählen …');
+            if (!sel.model.value) return;
+            const data = await fetchJson(`${BASE}/engines/${sel.model.value}`);
+            populateSelect(sel.engine, data, 'Motor wählen …');
+        });
+
+        sel.engine.addEventListener('change', async () => {
+            if (!sel.engine.value) return;
+            const ecus = await fetchJson(`${BASE}/ecus/${sel.engine.value}`);
+            renderPendingEcus(ecus);
+        });
+
+        const ecuPreviewEl = document.querySelector('[data-einbau-ecu-preview]');
+        const ecuPreviewEmptyEl = document.querySelector('[data-einbau-ecu-preview-empty]');
+        const activeEcuInput = document.querySelector('[data-active-ecu-input]');
+        const ecuDetailsModalEl = document.getElementById('einbauEcuDetailsModal');
+        const ecuDetailsNameEl = document.querySelector('[data-ecu-details-name]');
+        const ecuDetailsEnginesEl = document.querySelector('[data-ecu-details-engines]');
+
+        function ecuKey(ecu) {
+            if (ecu?.key) {
+                return String(ecu.key);
+            }
+
+            const name = String(ecu?.name || '').trim().toLocaleLowerCase();
+            return name || `id-${ecu?.id || ''}`;
+        }
+
+        function uniqueEcus(ecus) {
+            const byKey = new Map();
+
+            ecus.forEach(ecu => {
+                const key = ecuKey(ecu);
+                if (!key) {
+                    return;
+                }
+
+                const current = byKey.get(key);
+                if (!current) {
+                    byKey.set(key, {...ecu, engines: [...new Set(ecu.engines || [])]});
+                    return;
+                }
+
+                current.engines = [...new Set([...(current.engines || []), ...(ecu.engines || [])])];
+            });
+
+            return [...byKey.values()];
+        }
+
+        function getActiveEcuId() {
+            return String(activeEcuInput?.value || '').trim();
+        }
+
+        function setActiveEcu(id) {
+            if (!activeEcuInput) {
+                return;
+            }
+
+            activeEcuInput.value = String(id || '');
+            updateActiveEcuBadges();
+        }
+
+        function toggleActiveEcu(id) {
+            setActiveEcu(getActiveEcuId() === String(id || '') ? '' : id);
+        }
+
+        function updateActiveEcuBadges() {
+            const activeId = getActiveEcuId();
+            ecuPreviewEl.querySelectorAll('[data-ecu-select]').forEach(button => {
+                const isActive = activeId !== '' && button.dataset.ecuId === activeId;
+                button.classList.toggle('bg-success', isActive);
+                button.classList.toggle('text-white', isActive);
+                button.classList.toggle('bg-info', !isActive);
+                button.classList.toggle('text-dark', !isActive);
+            });
+        }
+
+        function engineLabelFromOption(option) {
+            if (!option) {
+                return '';
+            }
+
+            return [option.dataset.brand, option.dataset.series, option.dataset.model, option.dataset.name || option.textContent]
+                .map(value => String(value || '').trim())
+                .filter(Boolean)
+                .join(' - ');
+        }
+
+        function renderEcuDetailsList(engines) {
+            if (!ecuDetailsEnginesEl) {
+                return;
+            }
+
+            ecuDetailsEnginesEl.innerHTML = '';
+            const rowsByKey = new Map();
+
+            (engines || []).forEach((engine, index) => {
+                const row = typeof engine === 'object' && engine !== null
+                    ? {
+                        id: String(engine.id || ''),
+                        brand: String(engine.brand || ''),
+                        series: String(engine.series || ''),
+                        model: String(engine.model || ''),
+                        name: String(engine.name || engine.label || ''),
+                    }
+                    : {
+                        id: '',
+                        brand: '',
+                        series: '',
+                        model: '',
+                        name: String(engine || ''),
+                    };
+
+                const key = row.id || [row.brand, row.series, row.model, row.name, index].join('|');
+                if (row.name.trim() !== '' && !rowsByKey.has(key)) {
+                    rowsByKey.set(key, row);
+                }
+            });
+
+            const rows = [...rowsByKey.values()];
+
+            if (!rows.length) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.className = 'text-muted';
+                td.textContent = 'Keine Motor-Verknuepfungen gefunden.';
+                tr.appendChild(td);
+                ecuDetailsEnginesEl.appendChild(tr);
+                return;
+            }
+
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+
+                const checkboxCell = document.createElement('td');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'form-check-input';
+                checkbox.dataset.ecuEngineCheckbox = '';
+                checkbox.dataset.engineId = row.id;
+                checkbox.dataset.engineName = row.name;
+                checkboxCell.appendChild(checkbox);
+                tr.appendChild(checkboxCell);
+                tr.addEventListener('click', event => {
+                    if (event.target === checkbox) {
+                        return;
+                    }
+
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change', {bubbles: true}));
+                });
+
+                [row.brand, row.series, row.model, row.name].forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value || '-';
+                    tr.appendChild(td);
+                });
+
+                ecuDetailsEnginesEl.appendChild(tr);
+            });
+        }
+
+        async function showEcuDetails(name, ecuId, fallbackEngines = []) {
+            if (!ecuDetailsModalEl || !ecuDetailsNameEl || !ecuDetailsEnginesEl) {
+                return;
+            }
+
+            ecuDetailsNameEl.textContent = name || 'MCU';
+            ecuDetailsEnginesEl.innerHTML = '';
+            const loadingRow = document.createElement('tr');
+            const loadingCell = document.createElement('td');
+            loadingCell.colSpan = 5;
+            loadingCell.className = 'text-muted';
+            loadingCell.textContent = 'Lade Motor-Verknuepfungen ...';
+            loadingRow.appendChild(loadingCell);
+            ecuDetailsEnginesEl.appendChild(loadingRow);
+
+            if (window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(ecuDetailsModalEl).show();
+            } else {
+                ecuDetailsModalEl.classList.add('show');
+                ecuDetailsModalEl.style.display = 'block';
+                ecuDetailsModalEl.removeAttribute('aria-hidden');
+            }
+
+            try {
+                const links = ecuId ? await fetchJson(`${BASE}/ecu-links/${ecuId}`) : [];
+                renderEcuDetailsList(Array.isArray(links) && links.length ? links : fallbackEngines);
+            } catch (error) {
+                renderEcuDetailsList(fallbackEngines);
+            }
+        }
+
+        function attachEcuDetailButtons(root = ecuPreviewEl) {
+            root.querySelectorAll('[data-ecu-details]').forEach(button => {
+                button.addEventListener('click', () => {
+                    showEcuDetails(
+                        button.dataset.ecuName || 'MCU',
+                        button.dataset.ecuId || '',
+                        String(button.dataset.ecuEngines || '').split('|')
+                    );
+                });
+            });
+        }
+
+        function findEngineBadgeInput(engineId) {
+            return [...sel.engineList.querySelectorAll('input[name="vehicle_engine_ids[]"]')]
+                .find(input => input.value === String(engineId));
+        }
+
+        function renderEcuBadges(ecus) {
+            ecuPreviewEl.innerHTML = '';
+            ecus.forEach(ecu => {
+                const group = document.createElement('span');
+                group.className = 'd-inline-flex align-items-center';
+
+                const selectButton = document.createElement('button');
+                selectButton.type = 'button';
+                selectButton.className = 'badge rounded-end-0 border-0 bg-info text-dark';
+                selectButton.dataset.ecuSelect = '';
+                selectButton.dataset.ecuId = String(ecu.id || '');
+                selectButton.dataset.ecuKey = ecuKey(ecu);
+                selectButton.title = 'MCU fuer diesen Einbau-Hinweis markieren';
+                selectButton.textContent = [ecu.manufacturer, ecu.name].filter(Boolean).join(' - ');
+                selectButton.addEventListener('click', () => toggleActiveEcu(selectButton.dataset.ecuId || ''));
+
+                const detailsButton = document.createElement('button');
+                detailsButton.type = 'button';
+                detailsButton.className = 'badge rounded-start-0 border-0 bg-secondary text-white';
+                detailsButton.dataset.ecuDetails = '';
+                detailsButton.dataset.ecuId = String(ecu.id || '');
+                detailsButton.dataset.ecuName = ecu.name || 'MCU';
+                detailsButton.dataset.ecuEngines = (ecu.engines || []).join('|');
+                detailsButton.title = 'Verknuepfte Motoren anzeigen';
+                detailsButton.textContent = 'i';
+                detailsButton.addEventListener('click', () => showEcuDetails(
+                    detailsButton.dataset.ecuName || 'MCU',
+                    detailsButton.dataset.ecuId || '',
+                    String(detailsButton.dataset.ecuEngines || '').split('|')
+                ));
+
+                group.appendChild(selectButton);
+                group.appendChild(detailsButton);
+                ecuPreviewEl.appendChild(group);
+            });
+            updateActiveEcuBadges();
+        }
+
+        function renderPendingEcus(ecus) {
+            const selectedEngineName = sel.engine.options[sel.engine.selectedIndex]?.text || '';
+            ecus = uniqueEcus(ecus.map(ecu => ({...ecu, engines: selectedEngineName ? [selectedEngineName] : []})));
+            if (!ecus.length) {
+                ecuPreviewEl.innerHTML = '';
+                ecuPreviewEmptyEl.style.display = '';
+                return;
+            }
+            ecuPreviewEmptyEl.style.display = 'none';
+            renderEcuBadges(ecus);
+        }
+
+        async function refreshEcuDisplay() {
+            const engineIds = [...sel.engineList.querySelectorAll('input[name="vehicle_engine_ids[]"]')]
+                .map(i => i.value);
+            if (!engineIds.length) {
+                ecuPreviewEl.innerHTML = '';
+                setActiveEcu('');
+                ecuPreviewEmptyEl.style.display = '';
+                return;
+            }
+            const allEcus = [];
+            for (const id of engineIds) {
+                const ecus = await fetchJson(`${BASE}/ecus/${id}`);
+                const input = findEngineBadgeInput(id);
+                const engineName = input?.closest('[data-engine-name]')?.dataset.engineName || '';
+                allEcus.push(...ecus.map(ecu => ({...ecu, engines: engineName ? [engineName] : []})));
+            }
+            const unique = uniqueEcus(allEcus);
+            if (!unique.length) {
+                ecuPreviewEl.innerHTML = '';
+                setActiveEcu('');
+                ecuPreviewEmptyEl.style.display = '';
+                return;
+            }
+            const activeId = getActiveEcuId();
+            if (activeId !== '' && !unique.some(ecu => String(ecu.id || '') === activeId)) {
+                setActiveEcu('');
+            }
+            ecuPreviewEmptyEl.style.display = 'none';
+            renderEcuBadges(unique);
+        }
+
+        ecuPreviewEl.querySelectorAll('[data-ecu-select]').forEach(button => {
+            button.addEventListener('click', () => toggleActiveEcu(button.dataset.ecuId || ''));
+        });
+        attachEcuDetailButtons();
+        updateActiveEcuBadges();
+
+        function addBadge(list, emptyEl, id, name, inputName, color) {
+            if (list.querySelector(`input[value="${id}"]`)) return;
+
+            const span = document.createElement('span');
+            span.className = `badge bg-${color} d-inline-flex align-items-center gap-1`;
+            if (inputName === 'vehicle_engine_ids[]') {
+                span.dataset.engineName = name;
+            }
+            span.innerHTML = `${name}<input type="hidden" name="${inputName}" value="${id}">
+                <button type="button" class="btn-close btn-close-white" style="font-size:.6rem"></button>`;
+            span.querySelector('button').addEventListener('click', () => {
+                span.remove();
+                emptyEl.style.display = list.children.length === 0 ? '' : 'none';
+                if (inputName === 'vehicle_engine_ids[]') refreshEcuDisplay();
+            });
+            list.appendChild(span);
+            emptyEl.style.display = 'none';
+        }
+
+        document.querySelector('[data-action="click->einbau-hinweis-selector#addEngine"]')
+            .addEventListener('click', () => {
+                const id = sel.engine.value;
+                const name = engineLabelFromOption(sel.engine.options[sel.engine.selectedIndex]);
+                if (!id) return alert('Bitte erst einen Motor auswählen.');
+                addBadge(sel.engineList, sel.engineEmpty, id, name, 'vehicle_engine_ids[]', 'primary');
+                refreshEcuDisplay();
+            });
+
+        document.querySelector('[data-action="click->einbau-hinweis-selector#addModel"]')
+            .addEventListener('click', () => {
+                const id = sel.model.value;
+                const name = sel.model.options[sel.model.selectedIndex]?.text;
+                if (!id) return alert('Bitte erst ein Modell auswählen.');
+                addBadge(sel.modelList, sel.modelEmpty, id, name, 'vehicle_model_ids[]', 'secondary');
+            });
+
+        // removeBadge for pre-existing entries
+        document.querySelectorAll('[data-action="click->einbau-hinweis-selector#removeBadge"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const badge = btn.closest('.badge');
+                const list = badge.parentElement;
+                const isEngine = !!badge.querySelector('input[name="vehicle_engine_ids[]"]');
+                const emptyTarget = list.nextElementSibling;
+                badge.remove();
+                if (emptyTarget) emptyTarget.style.display = list.children.length === 0 ? '' : 'none';
+                if (isEngine) refreshEcuDisplay();
+            });
+        });
+
+        const imageList = document.querySelector('[data-einbau-image-list]');
+        const imageModalEl = document.getElementById('einbauImageModal');
+        const imageModalImageEl = document.querySelector('[data-einbau-image-modal-src]');
+        const imageModalTitleEl = document.getElementById('einbauImageModalTitle');
+
+        if (imageList && imageModalEl && imageModalImageEl) {
+            imageList.addEventListener('click', event => {
+                const openButton = event.target.closest('[data-einbau-image-open]');
+                if (!openButton) return;
+
+                const imageUrl = openButton.dataset.imageUrl || '';
+                const imageTitle = openButton.dataset.imageTitle || 'Bildvorschau';
+                if (!imageUrl) return;
+
+                imageModalImageEl.src = imageUrl;
+                imageModalImageEl.alt = imageTitle;
+                if (imageModalTitleEl) {
+                    imageModalTitleEl.textContent = imageTitle;
+                }
+
+                if (window.bootstrap?.Modal) {
+                    window.bootstrap.Modal.getOrCreateInstance(imageModalEl).show();
+                }
+            });
+
+            imageModalEl.addEventListener('hidden.bs.modal', () => {
+                imageModalImageEl.src = '';
+                imageModalImageEl.alt = '';
+                if (imageModalTitleEl) {
+                    imageModalTitleEl.textContent = 'Bildvorschau';
+                }
+            });
+        }
+
+        if (imageList) {
+            imageList.addEventListener('click', event => {
+                const button = event.target.closest('[data-einbau-image-move]');
+                if (!button) return;
+
+                const item = button.closest('[data-einbau-image-item]');
+                if (!item) return;
+
+                if (button.dataset.einbauImageMove === 'up') {
+                    const previous = item.previousElementSibling;
+                    if (previous) {
+                        imageList.insertBefore(item, previous);
+                    }
+                }
+
+                if (button.dataset.einbauImageMove === 'down') {
+                    const next = item.nextElementSibling;
+                    if (next) {
+                        imageList.insertBefore(next, item);
+                    }
+                }
+            });
+        }
+    })();
+
+    // ── Textbausteine ──
+    (function () {
+        const select  = document.getElementById('textbaustein-select');
+        const preview = document.getElementById('tb-preview');
+        const descField = document.querySelector('[data-tb-target="description"]');
+
+        if (!select) return;
+
+        fetch('{{ path('admin_api_textbausteine') }}')
+            .then(r => r.json())
+            .then(items => {
+                items.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.textDe;
+                    opt.dataset.textEn = item.textEn;
+                    opt.textContent = '[' + item.key + '] ' + (item.textDe ? item.textDe.substring(0, 60) : '');
+                    select.appendChild(opt);
+                });
+            });
+
+        select.addEventListener('change', () => {
+            const text = select.value;
+            if (text) {
+                preview.textContent = text;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        document.getElementById('tb-insert-desc')?.addEventListener('click', () => {
+            const text = select.value;
+            if (!text || !descField) return;
+            const cur = descField.value;
+            descField.value = cur ? cur + '\n\n' + text : text;
+            descField.focus();
+            select.value = '';
+            preview.style.display = 'none';
+        });
+
+        document.getElementById('tb-insert-notes')?.addEventListener('click', () => {
+            const text = select.value;
+            if (!text || !descField) return;
+            const cur = descField.value;
+            descField.value = cur ? cur + '\n\n---\n' + text : text;
+            descField.focus();
+            select.value = '';
+            preview.style.display = 'none';
+        });
+    })();
+    </script>
+{% endblock %}

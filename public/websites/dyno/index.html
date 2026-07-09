@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Dyno Prüfstand Animation</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #ffffff;
+            color: white;
+            overflow: hidden;
+        }
+
+        .dyno-wrapper {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Reifen */
+
+        .wheel {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: wheelspin var(--speed) linear infinite;
+        }
+
+        /* Rollen */
+
+        .dyno-roll {
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: rollspin calc(var(--speed) * 1.2) linear infinite;
+        }
+
+        @keyframes wheelspin {
+            from {
+                transform: rotate(0deg)
+            }
+
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        @keyframes rollspin {
+            from {
+                transform: rotate(0deg)
+            }
+
+            to {
+                transform: rotate(-360deg)
+            }
+        }
+
+        /* Rauch */
+
+        .smoke {
+            opacity: 0;
+            animation: smoke 4s ease-in-out infinite;
+        }
+
+        @keyframes smoke {
+
+            0% {
+                transform: translateY(0px) scale(.5);
+                opacity: 0;
+            }
+
+            30% {
+                opacity: .6;
+            }
+
+            100% {
+                transform: translateY(-120px) scale(1.2);
+                opacity: 0;
+            }
+
+        }
+
+        /* Felgen Licht */
+
+        .rim-light {
+            animation: rimflash 1s linear infinite;
+        }
+
+        @keyframes rimflash {
+
+            0% {
+                opacity: .2
+            }
+
+            50% {
+                opacity: 1
+            }
+
+            100% {
+                opacity: .2
+            }
+
+        }
+
+        svg {
+            max-width: 1200px;
+        }
+
+    </style>
+</head>
+
+<body style="--speed:.35s">
+<div class="container-fluid" style="background: #F7F7F7;">
+    <div class="container"><section class="no1-partner-wizard-section">
+    <div class="no1-partner-wizard-container">
+        <link rel="stylesheet" href="https://portal.dct-files.de/widgets/partner-wizard/style.css?v=907">
+
+        <tfd-partner-wizard client-id="no" api-base-url="https://portal.dct-files.de" primary-color="#E31E24"
+            theme="light">
+        </tfd-partner-wizard>
+
+        <script src="https://portal.dct-files.de/widgets/partner-wizard/tfd-partner-wizard.umd.js?v=907"></script>
+    </div>
+</section>
+</div>
+
+</div>
+    <div class="container-fluid dyno-wrapper">
+
+        <div class="text-center">
+
+            <h1 class="mb-4">Leistungsprüfstand</h1>
+
+            <div id="dyno">
+
+                <!-- SVG -->
+
+                <?xml version="1.0" encoding="UTF-8"?>
+
+                <!-- DEINE SVG -->
+
+                <object data="Audirs5_dyno.svg" type="image/svg+xml" id="dynoSvg"></object>
+
+            </div>
+
+
+            <div class="mt-4">
+
+                <button class="btn btn-danger me-2" onclick="startDyno()">Start</button>
+
+                <button class="btn btn-secondary me-3" onclick="stopDyno()">Stop</button>
+
+                <label class="form-label">Geschwindigkeit</label>
+
+                <input type="range" min="0.1" max="1.5" step="0.05" value="0.35" oninput="setSpeed(this.value)"
+                    class="form-range w-50">
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+let running=true
+
+function setSpeed(v){
+
+document.body.style.setProperty('--speed',v+'s')
+
+}
+
+function stopDyno(){
+
+document.body.style.setProperty('--speed','0s')
+
+running=false
+
+}
+
+function startDyno(){
+
+document.body.style.setProperty('--speed','.35s')
+
+running=true
+
+}
+
+    </script>
+
+</body>
+
+</html>

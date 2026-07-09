@@ -1,0 +1,706 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {% set product = entity.instance %}
+    {% set hasSpecial = product.specialPrice and product.specialPrice != '0.00' %}
+    {% set descriptionText = product.description ?? '' %}
+    {% set shortDescription = product.shortDescription ?? '' %}
+    {% set featuresText = product.featuresText ?? '' %}
+    {% set startupText = product.startupHelpText ?? '' %}
+    {% set recommendationText = product.recommendationText ?? '' %}
+    {% set productOptions = productOptions|default([]) %}
+    {% set deliveryScopes = deliveryScopes|default([]) %}
+    {% set productDownloads = productDownloads|default([]) %}
+    {% set productVideos = productVideos|default([]) %}
+    {% set productLinks = productLinks|default([]) %}
+    {% set lexofficeOrders = lexofficeOrders|default([]) %}
+    {% set mediaAssets = mediaAssets|default([]) %}
+    {% set hasOptions = productOptions|length > 0 %}
+    {% set hasDeliveryScopes = deliveryScopes|length > 0 %}
+    {% set hasDownloads = productDownloads|length > 0 %}
+    {% set hasVideos = productVideos|length > 0 %}
+    {% set hasLinks = productLinks|length > 0 %}
+    {% set firstTab = descriptionText or shortDescription ? 'desc' : (featuresText or product.featuresHeadline ? 'features' : (recommendationText or product.recommendationHeadline ? 'recommendation' : (startupText or product.startupHelpHeadline ? 'startup' : (hasOptions ? 'options' : (hasDeliveryScopes ? 'delivery' : (hasDownloads ? 'downloads' : (hasVideos ? 'videos' : (hasLinks ? 'links' : ''))))))) ) %}
+    {% set tabPrefix = 'shop-product-tab-' ~ product.uid %}
+    {% set badges = [
+        { label: product.isActive ? 'Aktiv' : 'Inaktiv', tone: product.isActive ? 'success' : 'muted' }
+    ] %}
+    {% if product.hidden %}
+        {% set badges = badges|merge([{ label: 'Versteckt', tone: 'warning' }]) %}
+    {% endif %}
+    {% if product.deleted %}
+        {% set badges = badges|merge([{ label: 'Geloescht', tone: 'danger' }]) %}
+    {% endif %}
+    {% if product.shippingFree %}
+        {% set badges = badges|merge([{ label: 'Versandfrei', tone: 'info' }]) %}
+    {% endif %}
+    {% set meta = [
+        { label: 'SKU', value: product.sku ?: '—' },
+        { label: 'Hersteller', value: product.manufacturer ?: '—' },
+        { label: 'Bestand', value: product.stock },
+        { label: 'Slug', value: product.slug ?: '—' }
+    ] %}
+
+    <div class="tfd-detail-shell shop-product-detail">
+        {% include 'admin/components/detail_hero.html.twig' with {
+            eyebrow: 'Produktdetail',
+            title: product.title ?: ('Produkt #' ~ product.uid),
+            subtitle: product.headline ?: product.shortDescription ?: null,
+            badges: badges,
+            meta: meta
+        } only %}
+
+        <div class="tfd-money-grid">
+            {% include 'admin/field/money_card.html.twig' with {
+                label: 'Preis',
+                value: '€' ~ product.price|number_format(2, ',', '.')
+            } only %}
+            {% if hasSpecial %}
+                {% include 'admin/field/money_card.html.twig' with {
+                    label: 'Sonderpreis',
+                    value: '€' ~ product.specialPrice|number_format(2, ',', '.')
+                } only %}
+            {% endif %}
+        </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-5">
+            <div class="card border-0 shadow-sm shop-product-media-card"
+                 data-controller="shop-product-media"
+                 data-shop-product-media-scrape-url-value="{{ path('admin_shop_product_scrape_images', {uid: product.uid}) }}"
+                 data-shop-product-media-csrf-token-value="{{ csrf_token('shop_product_scrape_images_' ~ product.uid) }}">
+                {% if product.badge %}
+                    <span class="badge text-bg-warning shop-product-badge">{{ product.badge }}</span>
+                {% endif %}
+                <div class="shop-product-media-gallery" data-shop-product-media-target="gallery">
+                    {% for asset in mediaAssets %}
+                        <div class="shop-product-media-thumb">
+                            <img src="/{{ asset.filePath|trim('/', 'left') }}" alt="{{ asset.name }}">
+                        </div>
+                    {% else %}
+                        <div class="shop-product-media-empty text-muted">
+                            Noch keine Bilder importiert ({{ product.imagesCount }} im Altbestand, nicht migriert).
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="card-body border-top">
+                    <div class="d-flex gap-2 align-items-start">
+                        <input type="url" class="form-control form-control-sm"
+                               placeholder="Produktseiten-URL (Hersteller/Wettbewerber)"
+                               data-shop-product-media-target="urlInput">
+                        <button type="button" class="btn btn-sm btn-primary text-nowrap"
+                                data-action="shop-product-media#scrape"
+                                data-shop-product-media-target="scrapeButton">
+                            Bilder scrapen
+                        </button>
+                    </div>
+                    <div class="alert alert-danger mt-2 d-none" data-shop-product-media-target="error"></div>
+                </div>
+                <div class="card-body border-top">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge text-bg-{{ product.isActive ? 'success' : 'secondary' }}">
+                            {{ product.isActive ? 'Aktiv' : 'Inaktiv' }}
+                        </span>
+                        {% if product.hidden %}
+                            <span class="badge text-bg-warning">Versteckt</span>
+                        {% endif %}
+                        {% if product.deleted %}
+                            <span class="badge text-bg-danger">Geloescht</span>
+                        {% endif %}
+                        {% if product.shippingFree %}
+                            <span class="badge text-bg-info">Versandfrei</span>
+                        {% endif %}
+                        {% if product.productType %}
+                            <span class="badge text-bg-light text-dark">{{ product.productType }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="shop-product-media-stats">
+                        <span>Bilder: {{ mediaAssets|length }}</span>
+                        <span>Videos: {{ product.videosCount }}</span>
+                        <span>Dokumente: {{ product.documentsCount }}</span>
+                        <span>Links: {{ product.linksCount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="shop-product-header">
+                        <div>
+                            <div class="text-muted small">SKU {{ product.sku ?: '—' }}</div>
+                            <h2 class="shop-product-title">{{ product.title ?: ('Produkt #' ~ product.uid) }}</h2>
+                            {% if product.headline %}
+                                <div class="shop-product-headline">{{ product.headline }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            {% if hasSpecial %}
+                                <div class="shop-product-price">
+                                    <span class="price-old">€{{ product.price|number_format(2, ',', '.') }}</span>
+                                    <span class="price-special">€{{ product.specialPrice|number_format(2, ',', '.') }}</span>
+                                </div>
+                            {% else %}
+                                <div class="shop-product-price">
+                                    <span class="price">€{{ product.price|number_format(2, ',', '.') }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="shop-product-meta">
+                        <div class="rounded-0"><span>Hersteller</span><strong>{{ product.manufacturer ?: '—' }}</strong></div>
+                        <div class="rounded-0"><span>Bestand</span><strong>{{ product.stock }}</strong></div>
+                        <div class="rounded-0"><span>Gewicht</span><strong>{{ product.weight ?: '—' }}</strong></div>
+                        <div class="rounded-0"><span>Slug</span><strong>{{ product.slug ?: '—' }}</strong></div>
+                        <div class="rounded-0"><span>Lexoffice</span><strong>{{ product.lexofficeProductId ?: '—' }}</strong></div>
+                    </div>
+
+                    <div class="shop-product-tags">
+                        <div class="text-muted small mb-1">Kategorien</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if product.categories|length > 0 %}
+                                {% for category in product.categories %}
+                                    <span class="badge text-bg-light text-dark">{{ category }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Keine Kategorien</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="shop-product-tags mt-3">
+                        <div class="text-muted small mb-1">Tags</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if product.tags|length > 0 %}
+                                {% for tag in product.tags %}
+                                    <span class="badge text-bg-light text-dark">{{ tag }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Keine Tags</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header fw-semibold">Inhalte</div>
+                <div class="card-body">
+                    {% if firstTab %}
+                        <ul class="nav nav-pills shop-product-tabs" id="{{ tabPrefix }}-tabs" role="tablist">
+                            {% if descriptionText or shortDescription %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'desc' ? 'active' : '' }}" id="{{ tabPrefix }}-desc-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-desc" type="button" role="tab">Beschreibung</button>
+                                </li>
+                            {% endif %}
+                            {% if featuresText or product.featuresHeadline %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'features' ? 'active' : '' }}" id="{{ tabPrefix }}-features-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-features" type="button" role="tab">Features</button>
+                                </li>
+                            {% endif %}
+                            {% if recommendationText or product.recommendationHeadline %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'recommendation' ? 'active' : '' }}" id="{{ tabPrefix }}-recommendation-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-recommendation" type="button" role="tab">Empfehlung</button>
+                                </li>
+                            {% endif %}
+                            {% if startupText or product.startupHelpHeadline %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'startup' ? 'active' : '' }}" id="{{ tabPrefix }}-startup-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-startup" type="button" role="tab">Startup</button>
+                                </li>
+                            {% endif %}
+                            {% if hasOptions %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'options' ? 'active' : '' }}" id="{{ tabPrefix }}-options-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-options" type="button" role="tab">Optionen</button>
+                                </li>
+                            {% endif %}
+                            {% if hasDeliveryScopes %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'delivery' ? 'active' : '' }}" id="{{ tabPrefix }}-delivery-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-delivery" type="button" role="tab">Lieferumfang</button>
+                                </li>
+                            {% endif %}
+                            {% if hasDownloads %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'downloads' ? 'active' : '' }}" id="{{ tabPrefix }}-downloads-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-downloads" type="button" role="tab">Downloads</button>
+                                </li>
+                            {% endif %}
+                            {% if hasVideos %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'videos' ? 'active' : '' }}" id="{{ tabPrefix }}-videos-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-videos" type="button" role="tab">Videos</button>
+                                </li>
+                            {% endif %}
+                            {% if hasLinks %}
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link {{ firstTab == 'links' ? 'active' : '' }}" id="{{ tabPrefix }}-links-tab" data-bs-toggle="tab" data-bs-target="#{{ tabPrefix }}-links" type="button" role="tab">Links</button>
+                                </li>
+                            {% endif %}
+                        </ul>
+                        <div class="tab-content shop-product-tab-content">
+                            {% if descriptionText or shortDescription %}
+                                <div class="tab-pane fade {{ firstTab == 'desc' ? 'show active' : '' }}" id="{{ tabPrefix }}-desc" role="tabpanel">
+                                    {% if shortDescription %}
+                                        <div class="shop-product-lead">{{ shortDescription }}</div>
+                                    {% endif %}
+                                    {% if descriptionText %}
+                                        <div class="shop-product-richtext">{{ descriptionText|raw }}</div>
+                                    {% else %}
+                                        <div class="text-muted">Keine Beschreibung hinterlegt.</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if featuresText or product.featuresHeadline %}
+                                <div class="tab-pane fade {{ firstTab == 'features' ? 'show active' : '' }}" id="{{ tabPrefix }}-features" role="tabpanel">
+                                    {% if product.featuresHeadline %}
+                                        <h5 class="mb-2">{{ product.featuresHeadline }}</h5>
+                                    {% endif %}
+                                    {% if featuresText %}
+                                        <div class="shop-product-richtext">{{ featuresText|raw }}</div>
+                                    {% else %}
+                                        <div class="text-muted">Keine Features hinterlegt.</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if recommendationText or product.recommendationHeadline %}
+                                <div class="tab-pane fade {{ firstTab == 'recommendation' ? 'show active' : '' }}" id="{{ tabPrefix }}-recommendation" role="tabpanel">
+                                    {% if product.recommendationHeadline %}
+                                        <h5 class="mb-2">{{ product.recommendationHeadline }}</h5>
+                                    {% endif %}
+                                    {% if recommendationText %}
+                                        <div class="shop-product-richtext">{{ recommendationText|raw }}</div>
+                                    {% else %}
+                                        <div class="text-muted">Keine Empfehlung hinterlegt.</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if startupText or product.startupHelpHeadline %}
+                                <div class="tab-pane fade {{ firstTab == 'startup' ? 'show active' : '' }}" id="{{ tabPrefix }}-startup" role="tabpanel">
+                                    {% if product.startupHelpHeadline %}
+                                        <h5 class="mb-2">{{ product.startupHelpHeadline }}</h5>
+                                    {% endif %}
+                                    {% if startupText %}
+                                        <div class="shop-product-richtext">{{ startupText|raw }}</div>
+                                    {% else %}
+                                        <div class="text-muted">Keine Startup Hilfe hinterlegt.</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if hasOptions %}
+                                <div class="tab-pane fade {{ firstTab == 'options' ? 'show active' : '' }}" id="{{ tabPrefix }}-options" role="tabpanel">
+                                    <div class="shop-product-option-list">
+                                        {% for option in productOptions %}
+                                            <div class="shop-product-option rounded-0">
+                                                <div class="d-flex justify-content-between align-items-start gap-3">
+                                                    <div>
+                                                        <div class="fw-semibold">{{ option.title ?: ('Option #' ~ option.uid) }}</div>
+                                                        <div class="text-muted small">
+                                                            {{ option.type ?: 'Option' }}
+                                                            {% if option.isRequired %}
+                                                                · Pflicht
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge text-bg-light text-dark">{{ option.valuesCount }} Werte</span>
+                                                </div>
+                                                {% set values = option.optionValues|default([]) %}
+                                                {% if values|length > 0 %}
+                                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                                        {% for value in values %}
+                                                            {% set modifier = value.priceModifier ?? '0.00' %}
+                                                            {% set special = value.specialPrice ?? '0.00' %}
+                                                            <span class="badge text-bg-secondary">
+                                                                {{ value.title ?: ('Wert #' ~ value.uid) }}
+                                                                {% if modifier != '0.00' or special != '0.00' %}
+                                                                    · €{{ modifier|number_format(2, ',', '.') }}
+                                                                    {% if special and special != '0.00' %}
+                                                                        / €{{ special|number_format(2, ',', '.') }}
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            </span>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="text-muted small mt-2">Keine Werte hinterlegt.</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if hasDeliveryScopes %}
+                                <div class="tab-pane fade {{ firstTab == 'delivery' ? 'show active' : '' }}" id="{{ tabPrefix }}-delivery" role="tabpanel">
+                                    <div class="shop-product-list rounded-0">
+                                        {% for scope in deliveryScopes %}
+                                            <div class="shop-product-list-row rounded-0">
+                                                <div class="fw-semibold">{{ scope.title ?: ('Lieferumfang #' ~ scope.uid) }}</div>
+                                                {% if scope.description %}
+                                                    <div class="text-muted small">{{ scope.description }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if hasDownloads %}
+                                <div class="tab-pane fade {{ firstTab == 'downloads' ? 'show active' : '' }}" id="{{ tabPrefix }}-downloads" role="tabpanel">
+                                    <div class="shop-product-list rounded-0">
+                                        {% for download in productDownloads %}
+                                            {% set fileUrl = download.file ? (download.file starts with 'http' ? download.file : '/' ~ download.file|trim('/')) : null %}
+                                            <div class="shop-product-list-row rounded-0">
+                                                <div class="fw-semibold">{{ download.title ?: ('Download #' ~ download.uid) }}</div>
+                                                <div class="text-muted small">
+                                                    {% if fileUrl %}
+                                                        <a href="{{ fileUrl }}" target="_blank" rel="noopener">Datei oeffnen</a>
+                                                    {% else %}
+                                                        Keine Datei hinterlegt
+                                                    {% endif %}
+                                                </div>
+                                                {% if download.description %}
+                                                    <div class="text-muted small">{{ download.description }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if hasVideos %}
+                                <div class="tab-pane fade {{ firstTab == 'videos' ? 'show active' : '' }}" id="{{ tabPrefix }}-videos" role="tabpanel">
+                                    <div class="shop-product-list">
+                                        {% for video in productVideos %}
+                                            {% set videoUrl = video.videoUrl ? (video.videoUrl starts with 'http' ? video.videoUrl : '/' ~ video.videoUrl|trim('/')) : (video.file ? (video.file starts with 'http' ? video.file : '/' ~ video.file|trim('/')) : null) %}
+                                            <div class="shop-product-list-row rounded-0">
+                                                <div class="fw-semibold">{{ video.title ?: ('Video #' ~ video.uid) }}</div>
+                                                <div class="text-muted small">
+                                                    {% if videoUrl %}
+                                                        <a href="{{ videoUrl }}" target="_blank" rel="noopener">Video oeffnen</a>
+                                                    {% else %}
+                                                        Kein Video hinterlegt
+                                                    {% endif %}
+                                                </div>
+                                                {% if video.description %}
+                                                    <div class="text-muted small">{{ video.description }}</div>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if hasLinks %}
+                                <div class="tab-pane fade {{ firstTab == 'links' ? 'show active' : '' }}" id="{{ tabPrefix }}-links" role="tabpanel">
+                                    <div class="shop-product-list">
+                                        {% for link in productLinks %}
+                                            {% set linkUrl = link.url ? (link.url starts with 'http' ? link.url : '/' ~ link.url|trim('/')) : null %}
+                                            <div class="shop-product-list-row rounded-0">
+                                                <div class="fw-semibold">{{ link.title ?: ('Link #' ~ link.uid) }}</div>
+                                                <div class="text-muted small">
+                                                    {% if linkUrl %}
+                                                        <a href="{{ linkUrl }}" target="_blank" rel="noopener">{{ linkUrl }}</a>
+                                                    {% else %}
+                                                        Kein Link hinterlegt
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="text-muted">Keine Inhalte hinterlegt.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header fw-semibold">Katalog-Stats</div>
+                <div class="card-body">
+                    <div class="shop-product-stats">
+                        <div class="rounded-0">
+                            <span>Lieferumfang</span>
+                            <strong>{{ product.deliveryScopeCount }}</strong>
+                        </div>
+                        <div class="rounded-0">
+                            <span>Optionen</span>
+                            <strong>{{ product.optionsCount }}</strong>
+                        </div>
+                        <div class="rounded-0">
+                            <span>Verwandt</span>
+                            <strong>{{ product.relatedProductsCount }}</strong>
+                        </div>
+                        <div class="rounded-0">
+                            <span>Kategorien</span>
+                            <strong>{{ product.categoriesCount }}</strong>
+                        </div>
+                        <div class="rounded-0">
+                            <span>Tags</span>
+                            <strong>{{ product.tagsCount }}</strong>
+                        </div>
+                        <div class="rounded-0">
+                            <span>Versandarten</span>
+                            <strong>{{ product.shippingMethodsCount }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header fw-semibold">Lexoffice Rechnungen</div>
+                <div class="card-body">
+                    {% if lexofficeOrders is empty %}
+                        <div class="text-muted">Keine Lexoffice-Rechnungen zu diesem Produkt.</div>
+                    {% else %}
+                        <div class="shop-product-list">
+                            {% for order in lexofficeOrders %}
+                                <div class="shop-product-list-row">
+                                    <div class="fw-semibold">{{ order.orderNumber }}</div>
+                                    <div class="text-muted small">
+                                        {% if order.createdAt %}
+                                            {{ order.createdAt|date('d.m.Y H:i') }}
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                        {% if order.invoiceId %}
+                                            · {{ order.invoiceId }}
+                                        {% endif %}
+                                    </div>
+                                    {% if order.invoiceUrl %}
+                                        <div class="mt-1">
+                                            <a class="btn btn-sm btn-outline-primary" href="{{ order.invoiceUrl }}" target="_blank" rel="noopener">Rechnung oeffnen</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header fw-semibold">SEO</div>
+                <div class="card-body">
+                    <dl class="row small mb-0">
+                        <dt class="col-4">Meta Titel</dt>
+                        <dd class="col-8">{{ product.metaTitle ?: '—' }}</dd>
+                        <dt class="col-4">Meta Desc</dt>
+                        <dd class="col-8">{{ product.metaDescription ?: '—' }}</dd>
+                        <dt class="col-4">Keywords</dt>
+                        <dd class="col-8">{{ product.metaKeywords ?: '—' }}</dd>
+                        <dt class="col-4">Canonical</dt>
+                        <dd class="col-8">{{ product.canonicalUrl ?: '—' }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        {{ parent() }}
+    </div>
+
+    </div>
+
+    <style>
+        .shop-product-detail .card {
+            border-radius: 14px;
+        }
+
+        .shop-product-media-card {
+            overflow: hidden;
+        }
+
+        .shop-product-media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            padding: 18px;
+            min-height: 120px;
+        }
+
+        .shop-product-media-thumb img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #d5d9e0;
+        }
+
+        .shop-product-media-empty {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            text-align: center;
+            border: 2px dashed rgba(148, 163, 184, 0.4);
+            border-radius: 14px;
+        }
+
+        .shop-product-badge {
+            position: relative;
+            z-index: 1;
+            margin: 12px 12px 0;
+            display: inline-block;
+        }
+
+        .shop-product-media-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .shop-product-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .shop-product-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 6px 0;
+            color: #0f172a;
+        }
+
+        .shop-product-headline {
+            color: #475569;
+        }
+
+        .shop-product-price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .shop-product-price .price-old {
+            font-size: 12px;
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .shop-product-price .price-special {
+            color: #dc2626;
+        }
+
+        .shop-product-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+
+        .shop-product-meta div {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+        }
+
+        .shop-product-meta span {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .shop-product-meta strong {
+            display: block;
+            color: #0f172a;
+            margin-top: 4px;
+        }
+
+        .shop-product-tabs {
+            gap: 8px;
+        }
+
+        .shop-product-tabs .nav-link {
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        .shop-product-tab-content {
+            margin-top: 16px;
+        }
+
+        .shop-product-lead {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .shop-product-richtext {
+            line-height: 1.6;
+        }
+
+        .shop-product-richtext p:last-child {
+            margin-bottom: 0;
+        }
+
+        .shop-product-option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .shop-product-option {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: #ffffff;
+        }
+
+        .shop-product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .shop-product-list-row {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: #ffffff;
+        }
+
+        .shop-product-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .shop-product-stats div {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 12px;
+            background: #ffffff;
+        }
+
+        .shop-product-stats span {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .shop-product-stats strong {
+            font-size: 16px;
+            color: #0f172a;
+        }
+    </style>
+{% endblock %}

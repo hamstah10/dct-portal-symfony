@@ -1,0 +1,1148 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-xl">
+        <h1 class="page-title">Test Actions</h1>
+
+        <div class="page-wrapper">
+            <div class="content">
+                <!-- Statistics Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-header">
+                                    <h4 class="stat-title">Heute</h4>
+                                    <i class="fa fa-calendar-day stat-icon"></i>
+                                </div>
+                                <div class="stat-value">{{ statistics.today }}</div>
+                                <p class="stat-label">Aufträge</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-header">
+                                    <h4 class="stat-title">Gestern</h4>
+                                    <i class="fa fa-calendar stat-icon"></i>
+                                </div>
+                                <div class="stat-value">{{ statistics.yesterday }}</div>
+                                <p class="stat-label">Aufträge</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-6">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="stat-header">
+                                    <h4 class="stat-title">Letzte Woche</h4>
+                                    <i class="fa fa-calendar-week stat-icon"></i>
+                                </div>
+                                <div class="stat-value">{{ statistics.week }}</div>
+                                <p class="stat-label">Aufträge</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card status-card status-received">
+                            <div class="card-body">
+                                <h4 class="status-title">Eingegangen</h4>
+                                <div class="status-value">{{ statistics.statusToday.received }}</div>
+                                <p class="status-label">Heute</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card status-card status-in-progress">
+                            <div class="card-body">
+                                <h4 class="status-title">In Bearbeitung</h4>
+                                <div class="status-value">{{ statistics.statusToday.in_progress }}</div>
+                                <p class="status-label">Heute</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card status-card status-completed">
+                            <div class="card-body">
+                                <h4 class="status-title">Abgeschlossen</h4>
+                                <div class="status-value">{{ statistics.statusToday.completed }}</div>
+                                <p class="status-label">Heute</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card status-card status-rejected">
+                            <div class="card-body">
+                                <h4 class="status-title">Abgelehnt</h4>
+                                <div class="status-value">{{ statistics.statusToday.rejected }}</div>
+                                <p class="status-label">Heute</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title mb-3">Aufträge simulieren</h3>
+                                <p class="text-muted mb-3">Hier können Sie verschiedene Systemfunktionen testen und Aufträge ins System simulieren.</p>
+                                <div class="d-flex flex-wrap gap-2 align-items-end">
+                                    <div class="form-group">
+                                        <label for="simulate-order-firma" class="form-label">Firma</label>
+                                        <select id="simulate-order-firma" class="form-select">
+                                            <option value="">Alle Firmen</option>
+                                            {% for firma in firmen %}
+                                                <option value="{{ firma.id }}">
+                                                    {{ firma.name }}{% if firma.kuerzel %} ({{ firma.kuerzel }}){% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-tuningfux" id="btn-simulate-order">
+                                        <i class="fa fa-plus"></i>
+                                        Auftrag simulieren
+                                    </button>
+                                </div>
+                                
+
+                                <div id="result" class="mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title mb-3">Kunden anlegen</h3>
+                                <p class="text-muted mb-3">Legt einen neuen Kunden an und ordnet ihn einer Firma zu.</p>
+
+                                <div class="d-flex flex-wrap gap-2 align-items-end">
+                                    <div class="form-group">
+                                        <label for="create-kunde-firma" class="form-label">Firma</label>
+                                        <select id="create-kunde-firma" class="form-select">
+                                            <option value="">Bitte Firma waehlen</option>
+                                            {% for firma in firmen %}
+                                                <option value="{{ firma.id }}">
+                                                    {{ firma.name }}{% if firma.kuerzel %} ({{ firma.kuerzel }}){% endif %}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create-kunde-vorname" class="form-label">Vorname</label>
+                                        <input id="create-kunde-vorname" type="text" class="form-control" placeholder="Max">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create-kunde-nachname" class="form-label">Nachname</label>
+                                        <input id="create-kunde-nachname" type="text" class="form-control" placeholder="Mustermann">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create-kunde-email" class="form-label">E-Mail</label>
+                                        <input id="create-kunde-email" type="email" class="form-control" placeholder="kunde@example.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create-kunde-kundennummer" class="form-label">Kundennummer (optional)</label>
+                                        <input id="create-kunde-kundennummer" type="text" class="form-control" placeholder="z.B. KND-1001">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create-kunde-firmenname" class="form-label">Firmenname (optional)</label>
+                                        <input id="create-kunde-firmenname" type="text" class="form-control" placeholder="Beispiel GmbH">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="create-kunde-telefon" class="form-label">Telefon (optional)</label>
+                                        <input id="create-kunde-telefon" type="text" class="form-control" placeholder="+49 123 4567">
+                                    </div>
+                                    <button type="button" class="btn btn-tuningfux" id="btn-create-kunde">
+                                        <i class="fa fa-user-plus"></i>
+                                        Kunde anlegen
+                                    </button>
+                                </div>
+
+                                <div id="create-kunde-result" class="mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title mb-3">Credits aufladen (PayPal Test)</h3>
+                                <p class="text-muted mb-3">Simuliert eine Kunden-Aufladung via PayPal. Kundenliste ist auf 200 Eintraege begrenzt.</p>
+
+                                <div class="d-flex flex-wrap gap-2 align-items-end">
+                                    <div class="form-group">
+                                        <label for="credit-topup-kunde-select" class="form-label">Kunde auswaehlen</label>
+                                        <select id="credit-topup-kunde-select" class="form-select">
+                                            <option value="">Zufallskunde</option>
+                                            {% for kunde in kunden %}
+                                                <option value="{{ kunde.id }}">
+                                                    #{{ kunde.id }} - {{ kunde.nachname }} {{ kunde.vorname }} ({{ kunde.email }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credit-topup-amount" class="form-label">Credits</label>
+                                        <input id="credit-topup-amount" type="number" min="1" value="100" class="form-control">
+                                        <div class="form-text">Bei Paketwahl werden Credits automatisch gesetzt.</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credit-topup-package" class="form-label">Credit-Paket</label>
+                                        <select id="credit-topup-package" class="form-select">
+                                            <option value="">Bitte Paket waehlen</option>
+                                            {% for package in creditPackages %}
+                                                <option value="{{ package.id }}" data-credits="{{ package.credits }}" data-price="{{ package.price }}">
+                                                    {{ package.title ?? ('Paket #' ~ package.id) }} ({{ package.credits }} Credits)
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div id="credit-topup-price-hint" class="form-text">Preis wird aus dem Paketpreis (netto) genommen.</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credit-topup-tax" class="form-label">MwSt %</label>
+                                        <input id="credit-topup-tax" type="number" min="0" step="0.01" value="19" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credit-topup-date" class="form-label">Buchungsdatum (optional)</label>
+                                        <input id="credit-topup-date" type="datetime-local" class="form-control">
+                                        <div class="form-text">Leer lassen fuer jetzt.</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="credit-topup-kunde-id" class="form-label">Kunde ID (optional)</label>
+                                        <input id="credit-topup-kunde-id" type="number" min="1" class="form-control" placeholder="z.B. 42">
+                                    </div>
+                                    <button type="button" class="btn btn-tuningfux" id="btn-credit-topup">
+                                        <i class="fa fa-coins"></i>
+                                        PayPal Topup simulieren
+                                    </button>
+                                </div>
+
+                                <div id="credit-topup-result" class="mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title mb-3">Lexoffice Test & Debug</h3>
+                                <p class="text-muted mb-3">Buttons rufen die Lexoffice API auf. Parameter: page/size (min. 25).</p>
+
+                                <div class="lexware-controls">
+                                    <div class="lexware-field">
+                                        <label for="lexware-page">Page</label>
+                                        <input id="lexware-page" class="form-control" type="number" min="0" value="0">
+                                    </div>
+                                    <div class="lexware-field">
+                                        <label for="lexware-size">Size</label>
+                                        <input id="lexware-size" class="form-control" type="number" min="25" max="200" value="25">
+                                    </div>
+                                    <div class="lexware-field">
+                                        <label for="lexware-voucher-type">Voucher Type</label>
+                                        <select id="lexware-voucher-type" class="form-select">
+                                            <option value="any" selected>any</option>
+                                            <option value="salesinvoice">salesinvoice</option>
+                                            <option value="salescreditnote">salescreditnote</option>
+                                            <option value="purchaseinvoice">purchaseinvoice</option>
+                                            <option value="purchasecreditnote">purchasecreditnote</option>
+                                            <option value="transaction">transaction</option>
+                                        </select>
+                                    </div>
+                                    <div class="lexware-field">
+                                        <label for="lexware-voucher-status">Voucher Status</label>
+                                        <select id="lexware-voucher-status" class="form-select">
+                                            <option value="any" selected>any</option>
+                                            <option value="draft">draft</option>
+                                            <option value="open">open</option>
+                                            <option value="overdue">overdue</option>
+                                            <option value="paid">paid</option>
+                                            <option value="paidoff">paidoff</option>
+                                            <option value="voided">voided</option>
+                                            <option value="transferred">transferred</option>
+                                            <option value="sepadebit">sepadebit</option>
+                                            <option value="accepted">accepted</option>
+                                            <option value="rejected">rejected</option>
+                                            <option value="unchecked">unchecked</option>
+                                        </select>
+                                    </div>
+                                    <div class="lexware-field lexware-field--wide">
+                                        <label for="lexware-invoice-id">Invoice ID</label>
+                                        <input id="lexware-invoice-id" type="text" class="form-control" placeholder="z.B. 12345678-ABCD">
+                                    </div>
+                                </div>
+
+                                <div class="btn-group mt-3" role="group">
+                                    <button type="button" class="btn btn-tuningfux" data-lexware-action="profile">
+                                        <i class="fa fa-plug"></i>
+                                        Profil testen
+                                    </button>
+                                    <button type="button" class="btn btn-tuningfux" data-lexware-action="contacts">
+                                        <i class="fa fa-user"></i>
+                                        Kunden laden
+                                    </button>
+                                    <button type="button" class="btn btn-tuningfux" data-lexware-action="products">
+                                        <i class="fa fa-box"></i>
+                                        Produkte laden
+                                    </button>
+                                    <button type="button" class="btn btn-tuningfux" data-lexware-action="vouchers">
+                                        <i class="fa fa-receipt"></i>
+                                        Vouchers laden
+                                    </button>
+                                    <button type="button" class="btn btn-tuningfux" data-lexware-action="invoices">
+                                        <i class="fa fa-file-invoice"></i>
+                                        Invoices laden
+                                    </button>
+                                    <button type="button" class="btn btn-tuningfux" data-lexware-action="invoice-file">
+                                        <i class="fa fa-file-pdf"></i>
+                                        Invoice PDF
+                                    </button>
+                                </div>
+
+                                <div id="lexware-result" class="mt-4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btn-simulate-order').addEventListener('click', async function() {
+    const resultDiv = document.getElementById('result');
+    const firmaSelect = document.getElementById('simulate-order-firma');
+    const firmaId = firmaSelect && firmaSelect.value ? Number.parseInt(firmaSelect.value, 10) : 0;
+    resultDiv.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Simuliere Auftrag...</div>';
+
+    try {
+        const response = await fetch('{{ path('admin_test_simulate_order') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                firmaId: Number.isFinite(firmaId) && firmaId > 0 ? firmaId : undefined
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fa fa-check-circle"></i>
+                    <strong>Erfolg!</strong> ${data.message}
+                    <br>
+                    <small>Auftrag ID: ${data.auftragId}</small>
+                    <br>
+                    <small>Setup: ${data.tuningSetup}</small>
+                    ${data.firma ? `<br><small>Firma: ${data.firma}</small>` : ''}
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <strong>Fehler:</strong> ${data.message}
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <strong>Fehler:</strong> ${error.message}
+            </div>
+        `;
+    }
+});
+
+document.getElementById('btn-create-kunde').addEventListener('click', async function() {
+    const resultDiv = document.getElementById('create-kunde-result');
+    const firmaSelect = document.getElementById('create-kunde-firma');
+    const vornameInput = document.getElementById('create-kunde-vorname');
+    const nachnameInput = document.getElementById('create-kunde-nachname');
+    const emailInput = document.getElementById('create-kunde-email');
+    const kundennummerInput = document.getElementById('create-kunde-kundennummer');
+    const firmennameInput = document.getElementById('create-kunde-firmenname');
+    const telefonInput = document.getElementById('create-kunde-telefon');
+
+    const firmaId = firmaSelect && firmaSelect.value ? Number.parseInt(firmaSelect.value, 10) : 0;
+    const vorname = vornameInput ? vornameInput.value.trim() : '';
+    const nachname = nachnameInput ? nachnameInput.value.trim() : '';
+    const email = emailInput ? emailInput.value.trim() : '';
+    const kundennummer = kundennummerInput ? kundennummerInput.value.trim() : '';
+    const firmenname = firmennameInput ? firmennameInput.value.trim() : '';
+    const telefon = telefonInput ? telefonInput.value.trim() : '';
+
+    resultDiv.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Kunde wird angelegt...</div>';
+
+    try {
+        const response = await fetch('{{ path('admin_test_create_kunde') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                firmaId: Number.isFinite(firmaId) && firmaId > 0 ? firmaId : undefined,
+                vorname: vorname !== '' ? vorname : undefined,
+                nachname: nachname !== '' ? nachname : undefined,
+                email: email !== '' ? email : undefined,
+                kundennummer: kundennummer !== '' ? kundennummer : undefined,
+                firmenname: firmenname !== '' ? firmenname : undefined,
+                telefon: telefon !== '' ? telefon : undefined
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fa fa-check-circle"></i>
+                    <strong>Erfolg!</strong> ${data.message}
+                    <br>
+                    <small>Kunde ID: ${data.kundeId}</small>
+                    <br>
+                    <small>E-Mail: ${data.email}</small>
+                    <br>
+                    <small>Firma: ${data.firma}</small>
+                    ${data.kundennummer ? `<br><small>Kundennummer: ${data.kundennummer}</small>` : ''}
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <strong>Fehler:</strong> ${data.message || 'Unbekannter Fehler'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <strong>Fehler:</strong> ${error.message}
+            </div>
+        `;
+    }
+});
+
+document.getElementById('btn-credit-topup').addEventListener('click', async function() {
+    const resultDiv = document.getElementById('credit-topup-result');
+    const amountInput = document.getElementById('credit-topup-amount');
+    const kundeInput = document.getElementById('credit-topup-kunde-id');
+    const kundeSelect = document.getElementById('credit-topup-kunde-select');
+    const packageSelect = document.getElementById('credit-topup-package');
+    const taxInput = document.getElementById('credit-topup-tax');
+    const dateInput = document.getElementById('credit-topup-date');
+    const amount = amountInput ? Number.parseInt(amountInput.value, 10) : 0;
+    const kundeId = kundeSelect && kundeSelect.value
+        ? Number.parseInt(kundeSelect.value, 10)
+        : (kundeInput ? Number.parseInt(kundeInput.value, 10) : 0);
+    const creditPackageId = packageSelect && packageSelect.value
+        ? Number.parseInt(packageSelect.value, 10)
+        : 0;
+    const taxRate = taxInput ? Number.parseFloat(taxInput.value) : 19;
+    const createdAt = dateInput ? String(dateInput.value || '').trim() : '';
+
+    resultDiv.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Simuliere PayPal Topup...</div>';
+
+    try {
+        const response = await fetch('{{ path('admin_test_simulate_credit_topup') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                amount: Number.isFinite(amount) ? amount : undefined,
+                kundeId: Number.isFinite(kundeId) && kundeId > 0 ? kundeId : undefined,
+                creditPackageId: Number.isFinite(creditPackageId) && creditPackageId > 0 ? creditPackageId : undefined,
+                taxRate: Number.isFinite(taxRate) && taxRate >= 0 ? taxRate : undefined,
+                createdAt: createdAt !== '' ? createdAt : undefined
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fa fa-check-circle"></i>
+                    <strong>Erfolg!</strong> ${data.message}
+                    <br>
+                    <small>Kunde ID: ${data.kundeId}</small>
+                    <br>
+                    <small>Saldo: ${data.balanceBefore} → ${data.balanceAfter}</small>
+                    <br>
+                    ${data.priceGross ? `<small>Preis brutto: ${data.priceGross} €</small><br>` : ''}
+                    ${data.priceNet ? `<small>Preis netto: ${data.priceNet} €</small><br>` : ''}
+                    ${data.paymentFee ? `<small>PayPal Gebuehr: ${data.paymentFee} € (2,49% + 0,35)</small><br>` : ''}
+                    <small>PayPal Ref: ${data.paypalRef}</small>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <strong>Fehler:</strong> ${data.message || 'Unbekannter Fehler'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <strong>Fehler:</strong> ${error.message}
+            </div>
+        `;
+    }
+});
+
+const creditPackageSelect = document.getElementById('credit-topup-package');
+const creditAmountInput = document.getElementById('credit-topup-amount');
+const creditPriceHint = document.getElementById('credit-topup-price-hint');
+const creditTaxInput = document.getElementById('credit-topup-tax');
+
+const updateCreditPriceHint = () => {
+    if (!creditPackageSelect || !creditPriceHint) {
+        return;
+    }
+
+    const selected = creditPackageSelect.options[creditPackageSelect.selectedIndex];
+    const priceNet = selected ? Number.parseFloat(selected.getAttribute('data-price') || '0') : 0;
+    const taxRate = creditTaxInput ? Number.parseFloat(creditTaxInput.value) : 19;
+    if (Number.isFinite(priceNet) && priceNet > 0) {
+        const divider = 1 + ((Number.isFinite(taxRate) ? taxRate : 0) / 100);
+        const priceGross = divider > 0 ? priceNet * divider : priceNet;
+        creditPriceHint.textContent = `Preis netto: ${priceNet.toFixed(2)} € / brutto: ${priceGross.toFixed(2)} €`;
+        return;
+    }
+
+    creditPriceHint.textContent = 'Preis wird aus dem Paketpreis (netto) genommen.';
+};
+if (creditPackageSelect && creditAmountInput) {
+    creditPackageSelect.addEventListener('change', () => {
+        const selected = creditPackageSelect.options[creditPackageSelect.selectedIndex];
+        const credits = selected ? Number.parseInt(selected.getAttribute('data-credits') || '0', 10) : 0;
+        if (Number.isFinite(credits) && credits > 0) {
+            creditAmountInput.value = String(credits);
+        }
+        updateCreditPriceHint();
+    });
+}
+
+if (creditTaxInput) {
+    creditTaxInput.addEventListener('change', updateCreditPriceHint);
+    creditTaxInput.addEventListener('input', updateCreditPriceHint);
+}
+
+updateCreditPriceHint();
+
+const lexwareButtons = Array.from(document.querySelectorAll('[data-lexware-action]'));
+const lexwareResult = document.getElementById('lexware-result');
+const lexwarePage = document.getElementById('lexware-page');
+const lexwareSize = document.getElementById('lexware-size');
+const lexwareVoucherType = document.getElementById('lexware-voucher-type');
+const lexwareVoucherStatus = document.getElementById('lexware-voucher-status');
+const lexwareInvoiceId = document.getElementById('lexware-invoice-id');
+const lexwareEndpoints = {
+    profile: '{{ path('admin_test_lexware_profile') }}',
+    contacts: '{{ path('admin_test_lexware_contacts') }}',
+    products: '{{ path('admin_test_lexware_products') }}',
+    vouchers: '{{ path('admin_test_lexware_vouchers') }}',
+    invoices: '{{ path('admin_test_lexware_invoices') }}'
+};
+const lexwareInvoiceFileUrl = '{{ path('admin_test_lexware_invoice_file', {id: 'INVOICE_ID'}) }}';
+
+const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const formatCell = (value) => {
+    if (value === null || value === undefined) {
+        return '-';
+    }
+    if (typeof value === 'object') {
+        return escapeHtml(JSON.stringify(value));
+    }
+    return escapeHtml(value);
+};
+
+const renderTable = (rows) => {
+    if (!Array.isArray(rows) || rows.length === 0) {
+        return '<div class="text-muted">Keine Daten vorhanden.</div>';
+    }
+
+    const firstRow = rows.find((row) => row && typeof row === 'object') || {};
+    const columns = Object.keys(firstRow);
+    if (columns.length === 0) {
+        return `<div class="lexware-output"><pre>${escapeHtml(JSON.stringify(rows, null, 2))}</pre></div>`;
+    }
+
+    const bodyRows = rows.slice(0, 20).map((row) => {
+        return `
+            <tr>
+                ${columns.map((col) => `<td>${formatCell(row[col])}</td>`).join('')}
+            </tr>
+        `;
+    }).join('');
+
+    return `
+        <div class="lexware-table">
+            <table>
+                <thead>
+                    <tr>${columns.map((col) => `<th>${escapeHtml(col)}</th>`).join('')}</tr>
+                </thead>
+                <tbody>${bodyRows}</tbody>
+            </table>
+            ${rows.length > 20 ? `<div class="lexware-table-note">Zeige 20 von ${rows.length} Einträgen</div>` : ''}
+        </div>
+    `;
+};
+
+const renderKeyValue = (data) => {
+    const entries = Object.entries(data || {});
+    if (entries.length === 0) {
+        return '<div class="text-muted">Keine Daten vorhanden.</div>';
+    }
+
+    return `
+        <div class="lexware-kv">
+            ${entries.map(([key, value]) => `
+                <div class="lexware-kv-row">
+                    <div class="lexware-kv-key">${escapeHtml(key)}</div>
+                    <div class="lexware-kv-value">${formatCell(value)}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+};
+
+const renderLexwareResult = (payload, isError = false) => {
+    const success = payload && payload.success;
+    const data = payload && payload.data ? payload.data : null;
+    const message = payload && payload.message ? payload.message : null;
+    const details = payload && payload.details ? payload.details : null;
+
+    let body = '';
+    if (!success) {
+        body = `
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <div>
+                    <strong>Fehler:</strong> ${escapeHtml(message || 'Unbekannter Fehler')}
+                    ${details ? `<div class="lexware-error-details">${escapeHtml(details)}</div>` : ''}
+                </div>
+            </div>
+        `;
+    } else if (Array.isArray(data)) {
+        body = renderTable(data);
+    } else if (data && typeof data === 'object') {
+        if (Array.isArray(data.content)) {
+            body = renderTable(data.content);
+        } else if (Array.isArray(data.items)) {
+            body = renderTable(data.items);
+        } else if (Array.isArray(data.data)) {
+            body = renderTable(data.data);
+        } else {
+            body = renderKeyValue(data);
+        }
+    } else {
+        body = `<div class="lexware-output"><pre>${escapeHtml(JSON.stringify(payload, null, 2))}</pre></div>`;
+    }
+
+    const meta = success && data && data.content ? `<div class="lexware-meta">Einträge: ${data.content.length}</div>` : '';
+
+    lexwareResult.innerHTML = `
+        <div class="lexware-result-card ${isError || !success ? 'lexware-result-card--error' : ''}">
+            <div class="lexware-result-header">
+                <div>Lexoffice Antwort</div>
+                ${meta}
+            </div>
+            <div class="lexware-result-body">${body}</div>
+            <details class="lexware-raw">
+                <summary>Raw JSON</summary>
+                <pre>${escapeHtml(JSON.stringify(payload, null, 2))}</pre>
+            </details>
+        </div>
+    `;
+};
+
+lexwareButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+        const action = button.dataset.lexwareAction;
+        if (action === 'invoice-file') {
+            const id = lexwareInvoiceId ? lexwareInvoiceId.value.trim() : '';
+            if (!id) {
+                renderLexwareResult({ success: false, message: 'Bitte eine Invoice-ID eingeben.' }, true);
+                return;
+            }
+
+            const url = lexwareInvoiceFileUrl.replace('INVOICE_ID', encodeURIComponent(id));
+            window.open(url, '_blank', 'noopener');
+            return;
+        }
+        if (!action || !lexwareEndpoints[action]) {
+            return;
+        }
+
+        lexwareResult.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Lexoffice Anfrage läuft...</div>';
+
+        try {
+            const payload = {
+                page: lexwarePage ? lexwarePage.value : '',
+                size: lexwareSize ? lexwareSize.value : '',
+                voucherType: lexwareVoucherType ? lexwareVoucherType.value : '',
+                voucherStatus: lexwareVoucherStatus ? lexwareVoucherStatus.value : ''
+            };
+
+            const response = await fetch(lexwareEndpoints[action], {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            renderLexwareResult(data, !data.success);
+        } catch (error) {
+            renderLexwareResult({ success: false, message: error.message }, true);
+        }
+    });
+});
+</script>
+
+<style>
+.stat-card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card .card-body {
+    padding: 24px;
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.stat-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-icon {
+    font-size: 24px;
+    color: #d1d5db;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    margin: 0;
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.status-card {
+    border: none;
+    border-left: 4px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-card.status-received {
+    border-left-color: #3b82f6;
+}
+
+.status-card.status-in-progress {
+    border-left-color: #f59e0b;
+}
+
+.status-card.status-completed {
+    border-left-color: #10b981;
+}
+
+.status-card.status-rejected {
+    border-left-color: #ef4444;
+}
+
+.status-card .card-body {
+    padding: 20px;
+    text-align: center;
+}
+
+.status-title {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.status-label {
+    margin: 0;
+    font-size: 11px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+.btn-outline {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5f5;
+}
+
+.btn-outline:hover {
+    background: #eff6ff;
+}
+
+.btn-secondary {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5f5;
+}
+
+.lexware-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.lexware-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #475569;
+}
+
+.lexware-field input {
+    width: 120px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5f5;
+    font-size: 13px;
+}
+
+.lexware-field select {
+    width: 160px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5f5;
+    font-size: 13px;
+    background: #ffffff;
+}
+
+.lexware-field--wide input {
+    width: 220px;
+}
+
+.lexware-result-card {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.lexware-result-card--error {
+    border-color: #fca5a5;
+}
+
+.lexware-result-header {
+    padding: 10px 14px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.lexware-meta {
+    font-size: 12px;
+    color: #475569;
+}
+
+.lexware-result-body {
+    padding: 12px 14px;
+}
+
+.lexware-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.lexware-table th,
+.lexware-table td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 8px 6px;
+    text-align: left;
+}
+
+.lexware-table th {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+
+.lexware-table-note {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.lexware-kv {
+    display: grid;
+    gap: 6px;
+}
+
+.lexware-kv-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 13px;
+}
+
+.lexware-kv-row:last-child {
+    border-bottom: none;
+}
+
+.lexware-kv-key {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.lexware-kv-value {
+    color: #334155;
+}
+
+.lexware-error-details {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #b91c1c;
+    word-break: break-word;
+}
+
+.lexware-raw {
+    padding: 10px 14px 14px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.lexware-raw summary {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+}
+
+.lexware-raw pre {
+    margin: 8px 0 0;
+    font-size: 11px;
+    color: #0f172a;
+    white-space: pre-wrap;
+}
+
+.lexware-output {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px;
+    max-height: 420px;
+    overflow: auto;
+}
+
+.lexware-output--error {
+    border-color: #fca5a5;
+}
+
+.lexware-output pre {
+    margin: 0;
+    font-size: 12px;
+    white-space: pre-wrap;
+}
+
+.alert {
+    padding: 12px 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -12px;
+    margin-left: -12px;
+}
+
+.col-md-3,
+.col-md-4,
+.col-sm-6,
+.col-12 {
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333%;
+}
+
+.col-md-3 {
+    flex: 0 0 25%;
+}
+
+@media (max-width: 768px) {
+    .col-sm-6 {
+        flex: 0 0 50%;
+    }
+
+    .col-md-4,
+    .col-md-3 {
+        flex: 0 0 50%;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-sm-6,
+    .col-md-4,
+    .col-md-3 {
+        flex: 0 0 100%;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .status-value {
+        font-size: 20px;
+    }
+}
+
+.mb-4 {
+    margin-bottom: 24px;
+}
+
+.mb-3 {
+    margin-bottom: 16px;
+}
+
+.mt-4 {
+    margin-top: 24px;
+}
+
+.text-muted {
+    color: #6b7280;
+}
+</style>
+{% endblock %}

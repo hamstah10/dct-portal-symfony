@@ -1,0 +1,116 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Wasserzeichen-Bereiche{% endblock %}
+
+{% block main %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    {% if presets is empty %}
+        <div class="alert alert-warning">
+            Noch keine aktiven Wasserzeichen-Vorlagen vorhanden.
+            <a href="{{ path('admin_watermark_preset_index') }}" class="alert-link">Vorlage anlegen →</a>
+        </div>
+    {% endif %}
+
+    <ul class="nav nav-tabs mb-3" id="watermarkTabs" role="tablist">
+        {% for tab in tabs %}
+            {% set tabId = tab.key ?? 'global' %}
+            <li class="nav-item" role="presentation">
+                <button
+                    class="nav-link {% if tabId == activeScope %}active{% endif %}"
+                    id="tab-btn-{{ tabId }}"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-pane-{{ tabId }}"
+                    type="button"
+                    role="tab"
+                >
+                    {% if tab.key is null %}
+                        <span class="text-muted">🌐</span>
+                    {% endif %}
+                    {{ tab.label }}
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content" id="watermarkTabContent">
+        {% for tab in tabs %}
+            {% set tabId = tab.key ?? 'global' %}
+            <div
+                class="tab-pane fade {% if tabId == activeScope %}show active{% endif %}"
+                id="tab-pane-{{ tabId }}"
+                role="tabpanel"
+            >
+                {% if tab.key is not null %}
+                    <p class="text-muted small mb-3">
+                        Konfiguration für <strong>{{ tab.label }}</strong> (Portal-Key: <code>{{ tab.key }}</code>).
+                        Wenn hier keine Vorlage aktiv ist, wird die Global-Konfiguration verwendet.
+                    </p>
+                {% else %}
+                    <p class="text-muted small mb-3">
+                        Globale Standard-Konfiguration — gilt als Fallback wenn kein Portal-spezifischer Eintrag aktiv ist.
+                    </p>
+                {% endif %}
+
+                <form method="post">
+                    <input type="hidden" name="portal_key_scope" value="{{ tab.key ?? 'null' }}">
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-0">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Bereich</th>
+                                        <th>Aktiv</th>
+                                        <th>Vorlage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in tab.rows %}
+                                        {% set fieldKey = row.area ~ (tab.key ? '_' ~ tab.key : '') %}
+                                        <tr>
+                                            <td class="align-middle fw-semibold">{{ row.label }}</td>
+                                            <td class="align-middle">
+                                                <div class="form-check form-switch">
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        name="enabled_{{ fieldKey }}"
+                                                        value="1"
+                                                        id="enabled_{{ fieldKey }}"
+                                                        {{ row.config and row.config.enabled ? 'checked' : '' }}
+                                                    >
+                                                    <label class="form-check-label" for="enabled_{{ fieldKey }}">
+                                                        {{ row.config and row.config.enabled ? 'Ja' : 'Nein' }}
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <select name="preset_{{ fieldKey }}" class="form-select form-select-sm" style="max-width:280px;">
+                                                    <option value="0">— Keine Vorlage —</option>
+                                                    {% for preset in presets %}
+                                                        <option
+                                                            value="{{ preset.id }}"
+                                                            {{ row.config and row.config.preset and row.config.preset.id == preset.id ? 'selected' : '' }}
+                                                        >{{ preset.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-dark">Speichern</button>
+                        <a href="{{ path('admin_watermark_preset_index') }}" class="btn btn-outline-secondary ms-2">Vorlagen verwalten</a>
+                    </div>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

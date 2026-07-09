@@ -1,0 +1,83 @@
+/* Tools shop UI kit — layout */
+.sh-root{background:var(--bg);color:var(--text);min-height:100vh;}
+.sh-wrap{max-width:var(--container);margin:0 auto;padding:var(--space-5) var(--gutter) var(--space-9);}
+.sh-price{font-family:var(--font-mono);font-weight:var(--fw-semibold);font-size:var(--text-md);color:var(--text);}
+.sh-price--lg{font-size:var(--text-2xl);}
+
+/* top bar */
+.sh-top{position:sticky;top:0;z-index:40;background:color-mix(in oklch,var(--bg) 90%,transparent);
+  backdrop-filter:blur(10px);border-bottom:var(--bw-hair) solid var(--border);}
+.sh-top__in{max-width:var(--container);margin:0 auto;height:var(--header-h);display:flex;align-items:center;gap:var(--space-6);padding-inline:var(--gutter);}
+.sh-nav{display:flex;gap:var(--space-5);flex:1;}
+.sh-nav a{font-size:var(--text-sm);font-weight:var(--fw-semibold);color:var(--text-muted);text-decoration:none;}
+.sh-nav a:hover{color:var(--text);}
+.sh-top__act{display:flex;align-items:center;gap:var(--space-2);margin-left:auto;}
+.sh-cart{position:relative;width:42px;height:42px;border:var(--bw-hair) solid var(--border-strong);background:var(--surface);
+  border-radius:var(--radius-md);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--text);}
+.sh-cart:hover{background:var(--surface-2);}
+.sh-cart svg,.sh-cart i{width:20px;height:20px;}
+.sh-cart__n{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;border-radius:var(--radius-pill);
+  background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;padding:0 4px;}
+
+/* breadcrumb spacing */
+.sh-wrap > nav{margin-bottom:var(--space-5);}
+
+/* hero */
+.sh-hero{border:var(--bw-hair) solid var(--border);border-radius:var(--radius-xl);padding:var(--space-8) var(--space-7);margin-bottom:var(--space-6);}
+.sh-hero h1{font-size:var(--text-4xl);margin:var(--space-2) 0 var(--space-3);}
+.sh-hero p{color:var(--text-muted);max-width:48ch;margin:0;}
+
+/* product grid */
+.sh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-5);}
+.sh-media{display:flex;align-items:center;justify-content:center;aspect-ratio:16/10;color:var(--accent);}
+.sh-media svg,.sh-media i{width:56px;height:56px;opacity:.9;}
+.sh-media--lg{aspect-ratio:1/1;border:var(--bw-hair) solid var(--border);border-radius:var(--radius-lg);}
+.sh-media--lg svg,.sh-media--lg i{width:96px;height:96px;}
+.sh-desc{color:var(--text-muted);font-size:var(--text-sm);margin:0;cursor:pointer;}
+
+/* detail */
+.sh-detail__bar{margin-bottom:var(--space-4);}
+.sh-detail__grid{display:grid;grid-template-columns:1fr 1.1fr;gap:var(--space-7);align-items:start;}
+.sh-detail__info h1{font-size:var(--text-4xl);margin:var(--space-2) 0 var(--space-3);}
+.sh-detail__desc{color:var(--text-muted);font-size:var(--text-lg);margin:0 0 var(--space-5);}
+.sh-variants{display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-5) 0;border-block:var(--bw-hair) solid var(--border);}
+.sh-vlabel{font-family:var(--font-mono);font-size:var(--text-2xs);letter-spacing:.1em;text-transform:uppercase;color:var(--text-subtle);}
+.sh-buy{display:flex;align-items:center;gap:var(--space-5);padding:var(--space-5) 0;}
+.sh-feats{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:var(--space-2);}
+.sh-feats li{display:flex;align-items:center;gap:.5em;font-size:var(--text-sm);color:var(--text-muted);}
+.sh-feats svg,.sh-feats i{width:16px;height:16px;color:var(--success);}
+
+/* cart drawer */
+.sh-drawer{position:fixed;inset:0;z-index:200;pointer-events:none;}
+.sh-drawer__scrim{position:absolute;inset:0;background:color-mix(in oklch,var(--carbon-950) 55%,transparent);
+  opacity:0;transition:opacity var(--dur-base) var(--ease-out);}
+.sh-drawer__panel{position:absolute;top:0;right:0;height:100%;width:min(420px,92vw);
+  background:var(--surface);border-left:var(--bw-hair) solid var(--border);box-shadow:var(--shadow-xl);
+  display:flex;flex-direction:column;transform:translateX(100%);transition:transform var(--dur-slow) var(--ease-out);}
+.sh-drawer.is-open{pointer-events:auto;}
+.sh-drawer.is-open .sh-drawer__scrim{opacity:1;}
+.sh-drawer.is-open .sh-drawer__panel{transform:none;}
+.sh-drawer__head{display:flex;align-items:center;justify-content:space-between;padding:var(--space-5);border-bottom:var(--bw-hair) solid var(--border);}
+.sh-drawer__head h3{font-family:var(--font-display);text-transform:uppercase;font-size:var(--text-xl);margin:0;}
+.sh-drawer__body{flex:1;overflow:auto;padding:var(--space-4) var(--space-5);display:flex;flex-direction:column;gap:var(--space-3);}
+.sh-empty{text-align:center;color:var(--text-subtle);font-family:var(--font-mono);font-size:var(--text-sm);margin-top:var(--space-8);line-height:2;}
+.sh-empty svg,.sh-empty i{width:32px;height:32px;}
+.sh-line{display:flex;align-items:center;gap:var(--space-3);border:var(--bw-hair) solid var(--border);border-radius:var(--radius-md);padding:var(--space-3);}
+.sh-line__ico{width:44px;height:44px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none;}
+.sh-line__ico svg,.sh-line__ico i{width:22px;height:22px;}
+.sh-line__info{flex:1;display:flex;flex-direction:column;}
+.sh-line__info b{font-size:var(--text-sm);}
+.sh-line__info span{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--text-muted);}
+.sh-line__x{border:0;background:transparent;color:var(--text-subtle);cursor:pointer;padding:6px;}
+.sh-line__x:hover{color:var(--danger);}
+.sh-line__x svg,.sh-line__x i{width:16px;height:16px;}
+.sh-drawer__foot{padding:var(--space-5);border-top:var(--bw-hair) solid var(--border);display:flex;flex-direction:column;gap:var(--space-4);}
+.sh-drawer__total{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);}
+.sh-drawer__total b{font-size:var(--text-xl);color:var(--text);}
+
+@media (max-width:920px){
+  .sh-grid{grid-template-columns:1fr 1fr;}
+  .sh-detail__grid{grid-template-columns:1fr;}
+  .sh-nav{display:none;}
+}

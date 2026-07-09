@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chiptuningfile — Marketing (hell)</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="marketing.css">
+<!-- Logo SVGs are referenced as string paths inside the JS bundle; lift them so the bundler inlines them -->
+<meta name="ext-resource-dependency" content="../../assets/logo-mark.svg" data-resource-id="logoMark" />
+<meta name="ext-resource-dependency" content="../../assets/logo-mark-solid.svg" data-resource-id="logoMarkSolid" />
+<template id="__bundler_thumbnail" data-bg-color="#E11226">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#E11226"/>
+    <g fill="none" stroke="#ffffff" stroke-width="58" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M470 300 L600 400 L470 500"/>
+      <path d="M610 300 L740 400 L610 500" opacity="0.5"/>
+    </g>
+  </svg>
+</template>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    const { MarketingSite } = window.ChiptuningfileDesignSystem_3beb42;
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(MarketingSite, { initialTheme: 'light' }));
+    if (window.lucide) window.lucide.createIcons();
+
+    // Swap logo <img src> to the inlined blob URLs (paths are built inside the bundle, invisible to the bundler).
+    function fixLogos() {
+      if (!window.__resources) return;
+      document.querySelectorAll('img').forEach((img) => {
+        const s = img.getAttribute('src') || '';
+        if (s.indexOf('logo-mark-solid.svg') !== -1 && window.__resources.logoMarkSolid) img.src = window.__resources.logoMarkSolid;
+        else if (s.indexOf('logo-mark.svg') !== -1 && window.__resources.logoMark) img.src = window.__resources.logoMark;
+      });
+    }
+    fixLogos();
+    const mo = new MutationObserver(fixLogos);
+    mo.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['src'] });
+    setTimeout(() => { if (window.lucide) window.lucide.createIcons(); fixLogos(); }, 300);
+  </script>
+</body>
+</html>

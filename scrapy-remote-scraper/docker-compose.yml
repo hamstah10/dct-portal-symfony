@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  scraper:
+    build: .
+    container_name: scrapy_remote_scraper
+    env_file:
+      - .env
+    volumes:
+      - ./output:/app/output
+    restart: "no"

@@ -1,0 +1,41 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block main %}
+    {{ parent() }}
+
+    {% set hintGroups = ecu_hints_for_ecu(entity.instance) %}
+    {% if hintGroups %}
+    <div class="card mt-4">
+        <div class="card-header fw-bold">ECU-Option Hinweise</div>
+        <div class="card-body p-0">
+            {% for group in hintGroups %}
+            <div class="p-3 {% if not loop.last %}border-bottom{% endif %}">
+                <h6 class="mb-2 text-muted">{{ group.master.name }}</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Marke</th>
+                                <th>Hersteller</th>
+                                <th>Modell</th>
+                                <th>Hinweis</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hint in group.hints %}
+                            <tr>
+                                <td>{{ hint.brandName }}</td>
+                                <td>{{ hint.manufacturer }}</td>
+                                <td>{{ hint.model }}</td>
+                                <td>{{ hint.notesDe ?? hint.notes ?? '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

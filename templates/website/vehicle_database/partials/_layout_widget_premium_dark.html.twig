@@ -1,0 +1,234 @@
+<div class="vdb-layout-performance vdb-layout-widget-premium-dark container">
+    
+        <div class="row g-3">
+            <div class="col-12 col-lg-6 vdb-hero-info-col">
+            <div class="vdb-stage-card vdb-stage-card-red">
+                <div class="vdb-engine-title">
+                    <div class="vdb-engine-badge">
+                        <img
+                            data-vdb-brand-badge
+                            src="{{ asset('images/tuningfux-gelb.svg') }}"
+                            data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                            alt="Brand Logo"
+                            width="180"
+                        >
+                    </div>
+                    <div class="vdb-engine-meta">
+                        <div class="vdb-engine-brand" id="brandName">-</div>
+                        <div class="vdb-engine-series" id="seriesName">-</div>
+                        <div class="vdb-engine-name" id="engineName">-</div>
+                    </div>
+                </div>
+                <div class="vdb-mini-grid">
+                    <div class="vdb-mini-box vdb-mini-box-red">
+                        <div class="vdb-mini-label"><i class="fa fa-tachometer-alt vdb-stage-head-icon2 me-2" aria-hidden="true"></i> Leistung</div>
+                        <div><span class="vdb-mini-value" id="enginePs">-</span> <span class="vdb-mini-unit">PS</span></div>
+                    </div>
+                    <div class="vdb-mini-box vdb-mini-box-red">
+                        <div class="vdb-mini-label"><i class="fa fa-bolt vdb-stage-head-icon2 me-2" aria-hidden="true"></i> Drehmoment</div>
+                        <div><span class="vdb-mini-value" id="engineNm">-</span> <span class="vdb-mini-unit">NM</span></div>
+                    </div>
+                    <div class="vdb-mini-box vdb-fuel">
+                        <div class="vdb-mini-label"><i class="fa fa-gas-pump vdb-stage-head-icon2 me-2" aria-hidden="true"></i> <strong id="engineFuel">-</strong></div>
+                       
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col-12 col-lg-6 vdb-hero-image-col">
+                <div class="vdb-hero-image-container border-black">
+                    <div class="vdb-hero-image" id="heroImageWrap">
+                        <div class="vdb-empty-image">Kein Bild</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+    <div class="vdb-tabs" id="stageTabs"></div>
+
+    <div id="performanceChartPane" class="vdb-performance-chart-pane vdb-dark-bg" style="display: none; margin-bottom: 24px;">
+        <div class="vdb-stage-card">
+            <div class="vdb-stage-head">
+                <span>Leistungsdiagramm</span>
+                <i class="fa fa-chart-line vdb-stage-head-icon" aria-hidden="true"></i>
+            </div>
+            <div class="vdb-chart-container">
+                <canvas id="powerChart" style="max-height: 460px;"></canvas>
+            </div>
+            <div class="vdb-chart-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px;">
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Mehrleistung</div>
+                    <div class="vdb-chart-stat-value" id="deltaPs">-</div>
+                    <div class="vdb-chart-stat-note">Stage 1 minus Serie</div>
+                </div>
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Mehrdrehmoment</div>
+                    <div class="vdb-chart-stat-value" id="deltaNm">-</div>
+                    <div class="vdb-chart-stat-note">zusätzlicher Durchzug</div>
+                </div>
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Peak Leistung</div>
+                    <div class="vdb-chart-stat-value" id="peakPs">-</div>
+                    <div class="vdb-chart-stat-note" id="peakPsNote">-</div>
+                </div>
+                <div class="vdb-chart-stat">
+                    <div class="vdb-chart-stat-label">Peak Drehmoment</div>
+                    <div class="vdb-chart-stat-value" id="peakNm">-</div>
+                    <div class="vdb-chart-stat-note" id="peakNmNote">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div id="gearboxPane" class="vdb-performance-chart-pane vdb-dark-bg" style="display: none; margin-bottom: 24px;">
+            <div class="vdb-stage-card">
+                <div class="vdb-stage-head">
+                    <span>Getriebe</span>
+                    <i class="fa fa-cogs vdb-stage-head-icon" aria-hidden="true"></i>
+                </div>
+            <div class="vdb-gearbox-list vdb-gearbox-empty" data-vdb-gearbox-content></div>
+            </div>
+        </div>
+
+    <div class="vdb-grid">
+        <div class="vdb-stage-card vdb-dark-bg" data-vdb-performance-pane="metrics">
+            <div class="vdb-stage-head">
+                <span>Leistung</span>
+                <i class="fa fa-tachometer-alt vdb-stage-head-icon" aria-hidden="true"></i>
+            </div>
+            <div class="vdb-stage-cols">
+                <div>
+                    <div class="vdb-sub">Original</div>
+                    <div class="vdb-num font-3xl font-white" id="origPs">-</div>
+                    <div class="vdb-sub">PS</div>
+                </div>
+                <div class="text-end">
+                    <div class="vdb-sub">Nach Tuning</div>
+                    <div class="vdb-num red font-3xl" id="stagePs">-</div>
+                    <div class="vdb-sub">PS</div>
+                </div>
+            </div>
+            <div class="vdb-bar"><span id="psBar"></span></div>
+            <div class="vdb-delta" id="deltaPs">+0 PS</div>
+        </div>
+
+        <div class="vdb-stage-card vdb-dark-bg" data-vdb-performance-pane="metrics">
+            <div class="vdb-stage-head">
+                <span>Drehmoment</span>
+                <i class="fa fa-bolt vdb-stage-head-icon" aria-hidden="true"></i>
+            </div>
+            <div class="vdb-stage-cols">
+                <div>
+                    <div class="vdb-sub">Original</div>
+                    <div class="vdb-num font-3xl font-white" id="origNm">-</div>
+                    <div class="vdb-sub">NM</div>
+                </div>
+                <div class="text-end">
+                    <div class="vdb-sub">Nach Tuning</div>
+                    <div class="vdb-num red font-3xl" id="stageNm">-</div>
+                    <div class="vdb-sub">NM</div>
+                </div>
+            </div>
+            <div class="vdb-bar"><span id="nmBar"></span></div>
+            <div class="vdb-delta" id="deltaNm">+0 NM</div>
+        </div>
+
+        <div class="vdb-options-card vdb-stage-card-red" id="tuningOptionsCard" data-vdb-performance-pane="options">
+            <div class="vdb-options-head">
+                <span>Tuning-Optionen</span>
+                <i class="fa fa-wrench vdb-stage-head-icon" aria-hidden="true"></i>
+            </div>
+            <div class="vdb-stage-price" id="stagePrice"></div>
+            <div class="vdb-sub mb-2 d-none" id="stageDescription">-</div>
+            <div class="vdb-ecu-manufacturers" id="ecuManufacturers"></div>
+            <ul class="vdb-options-list" id="optionsList"></ul>
+            <a href="#" class="vdb-contact d-none">Kontakt</a>
+        </div>
+    </div>
+
+    <div class="vdb-bottom-card vdb-dark-bg">
+        <div class="vdb-bottom-row">
+            <div>
+                <div class="vdb-bottom-label">Original</div>
+                <div class="vdb-bottom-value" id="bottomOrig">- PS</div>
+            </div>
+            <div class="vdb-bolt"><i class="fa fa-bolt" aria-hidden="true"></i></div>
+            <div>
+                <div class="vdb-bottom-label">Getunt</div>
+                <div class="vdb-bottom-value red" id="bottomTuned">- PS</div>
+            </div>
+        </div>
+        <div class="vdb-improvement" id="improvementLine">Leistungssteigerung von <strong>+0 PS</strong> und <strong>+0 NM</strong></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script type="module">
+    import { initPowerCurveChart } from '{{ asset('js/powercurve-chart.js') }}';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        window.vehicleDatabase?.addPerformanceChartTab?.();
+    });
+
+    window.initPowerCurveChart = initPowerCurveChart;
+</script>
+
+<style>
+    .vdb-chart-container {
+        position: relative;
+        height: 460px;
+        margin: 20px 0;
+    }
+
+    .vdb-chart-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .vdb-chart-stat {
+        background: rgba(0, 0, 0, 0.02);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 8px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .vdb-chart-stat-label {
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .vdb-chart-stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .vdb-chart-stat-note {
+        font-size: 11px;
+        color: #9ca3af;
+    }
+
+    @media (max-width: 768px) {
+        .vdb-chart-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .vdb-chart-container {
+            height: 340px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .vdb-chart-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

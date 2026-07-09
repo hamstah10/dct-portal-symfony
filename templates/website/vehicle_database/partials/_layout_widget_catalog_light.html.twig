@@ -1,0 +1,90 @@
+<div class="vdb-layout-widget-catalog-light">
+    <div class="vdb-catalog-shell">
+        <header class="vdb-catalog-breadcrumb" aria-label="Fahrzeug">
+            <img
+                class="vdb-catalog-brand-badge"
+                data-vdb-brand-badge
+                src="{{ asset('images/tuningfux-gelb.svg') }}"
+                data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                alt="Brand Logo"
+            >
+            <strong id="brandName">-</strong>
+            <span aria-hidden="true">›</span>
+            <strong id="seriesName">-</strong>
+            <span aria-hidden="true">›</span>
+            <strong id="engineName">-</strong>
+            <span class="vdb-catalog-fuel">- <span id="engineFuel">-</span></span>
+        </header>
+
+        <section class="vdb-tabs vdb-catalog-stage-grid" id="stageTabs" aria-label="Stage Auswahl"></section>
+
+        <section class="vdb-catalog-summary-grid" aria-label="Ausgewaehlte Leistungsdaten">
+            <article class="vdb-catalog-summary-card">
+                <div class="vdb-catalog-card-label">
+                    <i class="fa fa-tachometer-alt" aria-hidden="true"></i>
+                    Prognose PS
+                </div>
+                <div class="vdb-catalog-card-value"><span id="stagePs">-</span> PS</div>
+                <div class="vdb-catalog-card-delta" id="deltaPs">+0 PS</div>
+            </article>
+
+            <article class="vdb-catalog-summary-card">
+                <div class="vdb-catalog-card-label">
+                    <i class="fa fa-bolt" aria-hidden="true"></i>
+                    Prognose Nm
+                </div>
+                <div class="vdb-catalog-card-value"><span id="stageNm">-</span> Nm</div>
+                <div class="vdb-catalog-card-delta" id="deltaNm">+0 Nm</div>
+            </article>
+
+            <article class="vdb-catalog-summary-card">
+                <div class="vdb-catalog-card-label">
+                    <i class="fa fa-layer-group" aria-hidden="true"></i>
+                    Stage
+                </div>
+                <div class="vdb-catalog-card-value" id="vdbStageName">Stage 1</div>
+                <div class="vdb-catalog-card-delta" id="stageDescription">ECU Optimierung</div>
+            </article>
+        </section>
+
+        <section class="vdb-catalog-options-panel" id="tuningOptionsCard">
+            <div class="vdb-catalog-panel-head">
+                <div>
+                    <h2>Tuning-Optionen</h2>
+                    <p>Verfuegbare Zusatz-Features fuer diese Stage.</p>
+                </div>
+                <span>Info</span>
+            </div>
+            <div class="vdb-ecu-manufacturers vdb-catalog-ecu" id="ecuManufacturers"></div>
+            <ul class="vdb-options-list vdb-catalog-options-list" id="optionsList"></ul>
+        </section>
+
+        <section id="performanceChartPane" class="vdb-catalog-chart-panel">
+            <div class="vdb-catalog-chart-head">
+                <h2>Leistung &amp; Drehmoment - <span id="vdbCatalogChartStageName">Stage 1</span></h2>
+            </div>
+            <div class="vdb-catalog-chart-wrap">
+                <canvas id="powerChart"></canvas>
+            </div>
+        </section>
+
+        <div class="visually-hidden" aria-hidden="true">
+            <span id="enginePs">-</span>
+            <span id="engineNm">-</span>
+            <span id="origPs">-</span>
+            <span id="origNm">-</span>
+            <span id="stagePrice">-</span>
+            <span id="bottomOrig">-</span>
+            <span id="bottomTuned">-</span>
+            <span id="improvementLine">-</span>
+            <span id="heroImageWrap"></span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script type="module">
+    import { initPowerCurveChart } from '{{ asset('js/powercurve-chart.js') }}?v={{ vehicleDatabaseCssVersion|default('1') }}';
+
+    window.initPowerCurveChart = initPowerCurveChart;
+</script>

@@ -1,0 +1,4 @@
+# config/routes/tuningfux_instagram.yaml
+tuningfux_instagram:
+    resource: '@TuningfuxInstagramBundle/config/routes.php'
+    type: php

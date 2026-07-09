@@ -1,0 +1,84 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {% set kunde = entity.instance %}
+    {% set title = kunde.firmenname ?: ([kunde.vorname ?? '', kunde.nachname ?? '']|join(' ')|trim) ?: ('Kunde #' ~ kunde.id) %}
+    {% set badges = [
+        { label: kunde.gesperrt ? 'Gesperrt' : 'Aktiv', tone: kunde.gesperrt ? 'danger' : 'success' },
+        { label: 'Credits ' ~ (kunde.credits ?? 0), tone: 'accent' }
+    ] %}
+    {% if kunde.newsletter %}
+        {% set badges = badges|merge([{ label: 'Newsletter', tone: 'info' }]) %}
+    {% endif %}
+    {% set meta = [
+        { label: 'Kundennummer', value: kunde.kundennummer ?: '—' },
+        { label: 'E-Mail', value: kunde.email ?: '—' },
+        { label: 'Firma', value: kunde.firma ?: (kunde.firmenname ?: '—') },
+        { label: 'Registriert', value: kunde.registrierungsdatum ? kunde.registrierungsdatum|date('d.m.Y') : '—' }
+    ] %}
+
+    <div class="tfd-detail-shell">
+        {% include 'admin/components/detail_hero.html.twig' with {
+            eyebrow: 'Kundenprofil',
+            title: title,
+            subtitle: kunde.website ?: kunde.telefon ?: null,
+            badges: badges,
+            meta: meta
+        } only %}
+
+        {{ parent() }}
+
+        {% set invoiceViews = lexwareInvoiceViews|default([]) %}
+        <div class="card mt-4 lexware-portal-card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <div class="fw-semibold">Lexoffice Rechnungen</div>
+                <div class="text-muted small">Portalansicht</div>
+            </div>
+            <div class="card-body">
+                {% if invoiceViews is empty %}
+                    <div class="text-muted">Keine Lexoffice-Rechnungen vorhanden.</div>
+                {% else %}
+                    <div class="lexware-portal-list">
+                        {% for invoiceView in invoiceViews %}
+                            {% set invoice = invoiceView.invoice %}
+                            {% set fileUrl = invoiceView.downloadUrl %}
+                            <div class="lexware-portal-row">
+                                <div>
+                                    <div class="lexware-portal-title">
+                                        Rechnung {{ invoice.voucherNumber ?? invoice.lexwareInvoiceId }}
+                                    </div>
+                                    <div class="lexware-portal-meta">
+                                        <span>{{ invoice.createdAt ? invoice.createdAt|date('d.m.Y H:i') : '-' }}</span>
+                                        <span>Lexoffice ID: {{ invoice.lexwareInvoiceId }}</span>
+                                        {% if invoiceView.paymentMethod %}
+                                            <span>Zahlart: {{ invoiceView.paymentMethod }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if invoiceView.statusHint %}
+                                        <div class="lexware-portal-note">{{ invoiceView.statusHint }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="lexware-portal-actions">
+                                    {% include 'admin/field/status_badge.html.twig' with {
+                                        label: invoiceView.status,
+                                        tone: invoiceView.status == 'paid' ? 'success' : (invoiceView.status == 'pending' ? 'warning' : (invoiceView.status == 'cancelled' ? 'danger' : 'muted'))
+                                    } only %}
+                                    {% if invoiceView.rawStatus != invoiceView.status %}
+                                        <span class="lexware-portal-raw-status">Lexoffice: {{ invoiceView.rawStatus }}</span>
+                                    {% endif %}
+                                    {% if fileUrl %}
+                                        <a class="btn btn-outline-secondary btn-sm" href="{{ fileUrl }}" target="_blank" rel="noopener">
+                                            PDF
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">Kein PDF</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    {% set view = app.request.query.get('view') %}
+    {% set view = view in ['list', 'grid'] ? view : 'grid' %}
+
+    <div class="shop-product-view-toggle">
+        <div class="btn-group btn-group-sm" role="group">
+            <a class="btn btn-outline-secondary {{ view == 'list' ? 'active' : '' }}" href="{{ ea_url().set('view', 'list') }}">
+                <i class="fa fa-list"></i>
+                Liste
+            </a>
+            <a class="btn btn-outline-secondary {{ view == 'grid' ? 'active' : '' }}" href="{{ ea_url().set('view', 'grid') }}">
+                <i class="fa fa-th-large"></i>
+                Grid
+            </a>
+        </div>
+    </div>
+
+    {% if view == 'list' %}
+        {{ parent() }}
+    {% else %}
+        {% set visible_entities = entities|filter(e => e.isAccessible) %}
+        {% set some_results_are_hidden = entities|reduce((some_results_are_hidden, entity) => some_results_are_hidden or not entity.isAccessible, false) %}
+
+        <div class="shop-product-grid row">
+            {% for entity in visible_entities %}
+                {% set product = entity.instance %}
+                {% set detailUrl = path('admin_shop_product_detail', { entityId: entity.primaryKeyValueAsString }) %}
+                <div class="card col-md-3 shop-product-card"
+                    data-id="{{ entity.primaryKeyValueAsString }}"
+                >
+                    <a class="shop-product-card-link" href="{{ detailUrl }}" aria-label="Produkt anzeigen"></a>
+                    <div class="card-body">
+                        <div class="shop-product-header">
+                            <div class="shop-product-title">
+                                <div class="shop-product-sku text-muted">SKU {{ product.sku ?: '—' }}</div>
+                                <h3 class="shop-product-name">{{ product.title ?: ('Produkt #' ~ entity.primaryKeyValueAsString) }}</h3>
+                                {% if product.badge %}
+                                    <span class="badge text-bg-warning shop-product-badge">{{ product.badge }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="shop-product-status">
+                                {% if product.isActive %}
+                                    <span class="badge bg-success">Aktiv</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inaktiv</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if product.headline %}
+                            <div class="shop-product-headline">{{ product.headline }}</div>
+                        {% endif %}
+
+                        <div class="shop-product-meta">
+                            
+                            {% if product.shippingFree %}
+                                <span>Versandfrei</span>
+                            {% endif %}
+                            {% if product.productType %}
+                                <span>Typ: {{ product.productType }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="shop-product-price">
+                            {% if product.specialPrice and product.specialPrice != '0.00' %}
+                                <span class="price-old">€{{ product.price|number_format(2, ',', '.') }}</span>
+                                <span class="price-special">€{{ product.specialPrice|number_format(2, ',', '.') }}</span>
+                            {% else %}
+                                <span class="price">€{{ product.price|number_format(2, ',', '.') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-footer shop-product-footer">
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <a class="btn btn-primary" href="{{ detailUrl }}">Details</a>
+                        {% if entity.actions.count > 0 %}
+                            <div class="actions {{ ea.crud.showEntityActionsAsDropdown ? 'actions-as-dropdown' }}">
+                                {% if ea.crud.showEntityActionsAsDropdown %}
+                                    {% set hasAnyActionWithIcon = entity.actions|filter(item => item.isActionGroup ? false : item.icon is not null)|length > 0 %}
+                                    <twig:ea:ActionMenu class="dropdown-actions">
+                                        <twig:ea:ActionMenu:Button withoutDropdownToggleMarker>
+                                            <twig:ea:Icon name="internal:dots-horizontal" />
+                                        </twig:ea:ActionMenu:Button>
+
+                                        <twig:ea:ActionMenu:Overlay>
+                                            <twig:ea:ActionMenu:ActionList hasSubmenus="{{ entity.actions|filter(item => item.isActionGroup)|length > 0 }}">
+                                                {% for item in entity.actions %}
+                                                    {% if item.isActionGroup %}
+                                                        <twig:ea:ActionMenu:ActionList:ItemGroup
+                                                            group="{{ item }}"
+                                                            showBlankIcons="{{ hasAnyActionWithIcon }}"
+                                                            entity="{{ entity }}" />
+                                                    {% else %}
+                                                        <twig:ea:ActionMenu:ActionList:Item
+                                                            class="{{ item.cssClass }} dropdown-item-variant-{{ item.variant.value }}" url="{{ item.linkUrl }}"
+                                                            icon="{{ item.icon }}" icon:class="action-icon"
+                                                            htmlAttributes="{{ item.htmlAttributes|ea_html_attrs }}"
+                                                            renderAsForm="{{ item.isRenderedAsForm }}"
+                                                            label="{{ item.label|trans }}" label:class="action-label" renderLabelRaw
+                                                            showBlankIcons="{{ hasAnyActionWithIcon }}" />
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </twig:ea:ActionMenu:ActionList>
+                                        </twig:ea:ActionMenu:Overlay>
+                                    </twig:ea:ActionMenu>
+                                {% else %}
+                                    {% for action in entity.actions %}
+                                        {% if action.isActionGroup %}
+                                            {{ include(action.templatePath, {group: action, entity: entity}, with_context: false) }}
+                                        {% else %}
+                                            {{ include(action.templatePath, {action: action, entity: entity, isIncludedInDropdown: ea.crud.showEntityActionsAsDropdown}, with_context: false) }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="shop-product-empty">
+                    {{ t('datagrid.no_results', ea.i18n.translationParameters, 'EasyAdminBundle')|trans }}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if entities|length > 0 %}
+            <div class="content-panel-footer without-padding without-border">
+                {{ include(ea.templatePath('crud/paginator'), {render_detailed_pagination: not some_results_are_hidden}) }}
+            </div>
+        {% endif %}
+
+        {{ include('@EasyAdmin/crud/includes/_action_confirmation_modal.html.twig', with_context: false) }}
+
+        {% if filters|length > 0 %}
+            {{ include('@EasyAdmin/crud/includes/_filters_modal.html.twig') }}
+        {% endif %}
+
+        {% if batch_actions|length > 0 %}
+            {{ include('@EasyAdmin/crud/includes/_batch_action_modal.html.twig', {}, with_context: false) }}
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .shop-product-view-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .shop-product-view-toggle .btn i {
+            margin-right: 6px;
+        }
+
+        .shop-product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .shop-product-card {
+            border: 1px solid var(--table-cell-border-color);
+            box-shadow: var(--shadow-md);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        .shop-product-card[data-default-action-url] {
+            cursor: pointer;
+        }
+
+        .shop-product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .shop-product-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .shop-product-title {
+            min-width: 0;
+        }
+
+        .shop-product-name {
+            font-size: 16px;
+            margin: 4px 0 6px 0;
+            font-weight: 700;
+            color: var(--gray-900);
+            word-break: break-word;
+        }
+
+        .shop-product-sku {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .shop-product-badge {
+            margin-top: 6px;
+        }
+
+        .shop-product-headline {
+            font-size: 13px;
+            color: var(--gray-600);
+            margin-bottom: 10px;
+        }
+
+        .shop-product-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+
+        .shop-product-meta span {
+            background: var(--gray-100);
+            padding: 4px 8px;
+            border-radius: 999px;
+        }
+
+        .shop-product-price {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .shop-product-price .price-old {
+            font-size: 13px;
+            color: var(--gray-500);
+            text-decoration: line-through;
+        }
+
+        .shop-product-price .price-special {
+            color: var(--red-600);
+        }
+
+        .shop-product-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            background: var(--gray-50);
+        }
+
+        .shop-product-empty {
+            border: 1px dashed var(--table-cell-border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: var(--gray-500);
+            background: var(--gray-50);
+        }
+
+        @media (max-width: 768px) {
+            .shop-product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        .shop-product-card {
+            position: relative;
+        }
+
+        .shop-product-card-link {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            border-radius: inherit;
+            text-indent: -9999px;
+        }
+
+        .shop-product-card .actions,
+        .shop-product-card .dropdown,
+        .shop-product-card .btn,
+        .shop-product-card a:not(.shop-product-card-link),
+        .shop-product-card button,
+        .shop-product-card input,
+        .shop-product-card select,
+        .shop-product-card textarea {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+{% endblock %}

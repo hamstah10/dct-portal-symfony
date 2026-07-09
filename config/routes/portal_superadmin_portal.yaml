@@ -1,0 +1,11 @@
+portal_superadmin_portal:
+    resource: ../../src/Portals/SuperadminPortal/Controller/
+    type: attribute
+    exclude:
+        - ../../src/Portals/SuperadminPortal/Controller/OperationsDataController.php
+    condition: "request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal'"
+
+portal_superadmin_operations_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/OperationsDataController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"

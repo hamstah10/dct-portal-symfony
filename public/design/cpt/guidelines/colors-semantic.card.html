@@ -1,0 +1,24 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Semantic / instrument colors" subtitle="Dyno · Redline · Telemetry · Amber — read like gauges" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; padding: 18px; background: var(--surface); font-family: var(--font-mono); }
+  .row { display:grid; grid-template-columns: repeat(4,1fr); gap:12px; }
+  .cell { border:1px solid var(--border); border-radius: var(--radius-md); overflow:hidden; }
+  .chip { height:48px; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); text-transform:uppercase; letter-spacing:.02em; font-size:15px; }
+  .meta { padding:7px 9px; font-size:10px; color:var(--text-muted); display:flex; justify-content:space-between; }
+  .meta b { color:var(--text); font-weight:600; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="cell"><div class="chip" style="background:var(--dyno-500)">Gain</div><div class="meta"><span>success</span><b>--dyno</b></div></div>
+    <div class="cell"><div class="chip" style="background:var(--redline-500)">Limit</div><div class="meta"><span>danger</span><b>--redline</b></div></div>
+    <div class="cell"><div class="chip" style="background:var(--telemetry-500)">Data</div><div class="meta"><span>info</span><b>--telemetry</b></div></div>
+    <div class="cell"><div class="chip" style="background:var(--amber-500)">Warn</div><div class="meta"><span>warning</span><b>--amber</b></div></div>
+  </div>
+</body>
+</html>

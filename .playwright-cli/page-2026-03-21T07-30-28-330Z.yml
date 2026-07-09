@@ -1,0 +1,102 @@
+- generic [ref=e128]:
+  - generic [ref=e130]:
+    - generic [ref=e136]:
+      - generic [ref=e137]:
+        - generic [ref=e138]: Chiptuningfile Portal
+        - heading "Kundenlogin" [level=1] [ref=e139]
+        - paragraph [ref=e140]: Melde dich an, um Uploads, Fahrzeuge und dein Profil zu verwalten.
+      - generic [ref=e141]: Fehlerhafte Zugangsdaten.
+      - generic [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]: E-Mail
+          - generic [ref=e145]:
+            - generic [ref=e147]: 
+            - textbox "E-Mail" [active] [ref=e148]: test1@tuningfux.de
+        - generic [ref=e149]:
+          - generic [ref=e150]: Passwort
+          - generic [ref=e151]:
+            - generic [ref=e153]: 
+            - textbox "Passwort" [ref=e154]
+        - button "Einloggen" [ref=e155] [cursor=pointer]
+      - link "Passwort vergessen?" [ref=e157] [cursor=pointer]:
+        - /url: /passwort-vergessen
+      - link "Neu registrieren" [ref=e159] [cursor=pointer]:
+        - /url: /registrieren
+      - generic [ref=e160]:
+        - generic:
+          - generic: 
+        - generic:
+          - generic: 
+        - generic:
+          - generic: 
+    - generic [ref=e162]:
+      - link "Chiptuningfile Logo" [ref=e164] [cursor=pointer]:
+        - /url: /login
+        - img "Chiptuningfile Logo" [ref=e165]
+      - generic [ref=e167]:
+        - heading "Chiptuningfile" [level=3] [ref=e168]
+        - heading "Login to Your Account" [level=6] [ref=e169]
+        - paragraph [ref=e170]: Willkommen im Chiptuningfile Kundenportal. Hier verwaltest du Uploads, Fahrzeugdaten und dein Kundenkonto sicher an einem Ort.
+  - region "Symfony Web Debug Toolbar" [ref=e171]:
+    - generic [ref=e174]:
+      - link "200 Redirect @ cpt_portal_login" [ref=e176] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=request
+        - generic [ref=e177]:
+          - generic [ref=e178]: "200"
+          - img "Redirect" [ref=e180]
+          - generic [ref=e183]: "@"
+          - generic [ref=e184]: cpt_portal_login
+      - link "49 ms" [ref=e186] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=time
+        - generic [ref=e187]:
+          - generic [ref=e188]: "49"
+          - generic [ref=e189]: ms
+      - link "6.0 MiB" [ref=e191] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=time
+        - generic [ref=e192]:
+          - generic [ref=e193]: "6.0"
+          - generic [ref=e194]: MiB
+      - generic [ref=e196] [cursor=pointer]:
+        - img [ref=e197]
+        - generic [ref=e201]: "6"
+      - link "Logger 7" [ref=e203] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=logger
+        - generic [ref=e204]:
+          - img "Logger" [ref=e205]
+          - generic [ref=e209]: "7"
+      - link "Cache 2 in 0.01 ms" [ref=e211] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=cache
+        - generic [ref=e212]:
+          - img "Cache" [ref=e213]
+          - generic [ref=e218]: "2"
+          - generic [ref=e219]: in 0.01 ms
+      - link "1" [ref=e221] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=translation
+        - generic [ref=e222]:
+          - img [ref=e223]
+          - generic [ref=e228]: "1"
+      - link "Security n/a" [ref=e230] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=security
+        - generic [ref=e231]:
+          - img "Security" [ref=e232]
+          - generic [ref=e236]: n/a
+      - link "Twig 5 ms" [ref=e238] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=twig
+        - generic [ref=e239]:
+          - img "Twig" [ref=e240]
+          - generic [ref=e244]: "5"
+          - generic [ref=e245]: ms
+      - link "2 in 1.37 ms" [ref=e247] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=db
+        - generic [ref=e248]:
+          - img [ref=e249]
+          - generic [ref=e254]: "2"
+          - generic [ref=e255]: in 1.37 ms
+      - link "Symfony 8.0.6" [ref=e257] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/0bd669?panel=config
+        - generic [ref=e258]:
+          - img "Symfony" [ref=e260]
+          - generic [ref=e262]: 8.0.6
+      - button [expanded] [ref=e263] [cursor=pointer]:
+        - generic "Close Toolbar" [ref=e264]:
+          - img [ref=e265]

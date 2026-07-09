@@ -1,0 +1,27 @@
+- generic [ref=e5]:
+  - generic [ref=e6]:
+    - generic [ref=e7]: Typ
+    - combobox [ref=e8]
+    - combobox "Bitte wählen" [ref=e11] [cursor=pointer]:
+      - textbox "Bitte wählen" [ref=e12]
+  - generic [ref=e13]:
+    - generic [ref=e14]: Marke
+    - combobox [disabled] [ref=e15]
+    - combobox "Marke wählen" [disabled] [ref=e18]:
+      - textbox "Marke wählen" [disabled] [ref=e19]
+  - generic [ref=e20]:
+    - generic [ref=e21]: Baureihe
+    - combobox [disabled] [ref=e22]
+    - combobox "Baureihe wählen" [disabled] [ref=e25]:
+      - textbox "Baureihe wählen" [disabled] [ref=e26]
+  - generic [ref=e27]:
+    - generic [ref=e28]: Modell
+    - combobox [disabled] [ref=e29]
+    - combobox "Modell wählen" [disabled] [ref=e32]:
+      - textbox "Modell wählen" [disabled] [ref=e33]
+  - generic [ref=e34]:
+    - generic [ref=e35]: Motor
+    - combobox [disabled] [ref=e36]
+    - combobox "Motor wählen" [disabled] [ref=e39]:
+      - textbox "Motor wählen" [disabled] [ref=e40]
+  - button "Reset Auswahl" [ref=e42] [cursor=pointer]

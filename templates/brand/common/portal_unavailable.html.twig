@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ headline }} | {{ portalConfig.name }}</title>
+    <style>
+        :root {
+            --primary-color: {{ primaryHex }};
+            --secondary-color: {{ secondaryHex }};
+            --primary-rgb: {{ primaryRgb }};
+            --text-color: #111827;
+            --muted-color: #6b7280;
+            --surface-color: #ffffff;
+            --border-color: rgba(17, 24, 39, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", "Segoe UI", sans-serif;
+            color: var(--text-color);
+            background:
+                radial-gradient(circle at top right, rgba(var(--primary-rgb), 0.12), transparent 32rem),
+                linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .shell {
+            width: min(100%, 68rem);
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 1.75rem;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #18181b 100%);
+            color: #fff;
+            padding: 2.5rem;
+        }
+
+        .hero-top {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-top img {
+            max-height: 3rem;
+            width: auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            padding: .45rem .75rem;
+            border-radius: 999px;
+            font-size: .85rem;
+            background: rgba(var(--primary-rgb), 0.18);
+            color: #fff;
+            border: 1px solid rgba(var(--primary-rgb), 0.25);
+        }
+
+        .hero h1 {
+            margin: 0 0 .85rem;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.05;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 42rem;
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 2rem 2.5rem 2.5rem;
+        }
+
+        .notice {
+            border-left: 4px solid var(--primary-color);
+            background: rgba(var(--primary-rgb), 0.06);
+            border-radius: 1rem;
+            padding: 1rem 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .notice strong {
+            display: block;
+            margin-bottom: .35rem;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .85rem;
+            margin-top: 1.75rem;
+        }
+
+        .button {
+            appearance: none;
+            border: 0;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem;
+            padding: 0 1.15rem;
+            border-radius: .9rem;
+            font-weight: 600;
+            transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            background: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 16px 36px rgba(var(--primary-rgb), 0.28);
+        }
+
+        .button-secondary {
+            background: #111827;
+            color: #fff;
+        }
+
+        .meta {
+            margin-top: 1.75rem;
+            color: var(--muted-color);
+            font-size: .95rem;
+        }
+    </style>
+</head>
+<body>
+    <main class="shell">
+        <section class="hero">
+            <div class="hero-top">
+                {% if logoPath %}
+                    <img src="{{ asset(logoPath) }}" alt="{{ portalConfig.name }}" class="img-fluid">
+                {% else %}
+                    <strong>{{ portalConfig.name }}</strong>
+                {% endif %}
+                <span class="badge">
+                    {% if systemType == 'portal' %}
+                        Kundenportal
+                    {% else %}
+                        Website
+                    {% endif %}
+                </span>
+            </div>
+
+            <h1>{{ headline }}</h1>
+            <p>{{ message }}</p>
+        </section>
+
+        <section class="content">
+            <div class="notice">
+                <strong>Kurzer Hinweis</strong>
+                Wir arbeiten daran, den Bereich schnell wieder verfuegbar zu machen. Bitte versuche es spaeter erneut.
+            </div>
+
+            <div class="actions">
+                {% if systemType == 'portal' and websiteUrl %}
+                    <a href="{{ websiteUrl }}" class="button button-primary">Zur Website</a>
+                {% endif %}
+                {% if systemType == 'website' and portalUrl %}
+                    <a href="{{ portalUrl }}" class="button button-primary">Zum Kundenlogin</a>
+                {% endif %}
+                <a href="javascript:location.reload();" class="button button-secondary">Erneut versuchen</a>
+            </div>
+
+            <div class="meta">
+                {{ portalConfig.name }} ist aktuell nicht regulär erreichbar.
+            </div>
+        </section>
+    </main>
+</body>
+</html>

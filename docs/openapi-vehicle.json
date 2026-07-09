@@ -1,0 +1,1405 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TFD Fahrzeugdatenbank API",
+    "version": "1.2.0",
+    "description": "Postman-kompatible OpenAPI-Beschreibung ausschliesslich fuer die geschuetzte Fahrzeugdatenbank-API. Die API liefert aktive Fahrzeugdaten aus einem aufloesbaren VehicleDataPool. Der Pool kann ueber Token-Kontext, Header oder Query-Parameter bestimmt werden."
+  },
+  "servers": [
+    {
+      "url": "https://portal.dct-files.de",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Vehicle Database",
+      "description": "Kaskadierende Fahrzeugsuche, Motor-Details und Client-Tracking"
+    }
+  ],
+  "paths": {
+    "/api/fahrzeugdatenbank": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "API-Uebersicht",
+        "description": "Liefert eine kurze Uebersicht der verfuegbaren Fahrzeugdatenbank-Endpunkte und den aktuell aufgeloesten Datenpool.",
+        "operationId": "vehicleApiIndex",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiIndexResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/types": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Fahrzeugtypen",
+        "description": "Liefert aktive Fahrzeugtypen aus dem aufgeloesten Datenpool, sortiert nach Sortierung und Name.",
+        "operationId": "vehicleTypes",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleTypesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/InvalidPool"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/brands/{typeId}": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Marken je Typ",
+        "description": "Liefert aktive Marken fuer einen Fahrzeugtyp aus dem aufgeloesten Datenpool.",
+        "operationId": "vehicleBrands",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/TypeIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleBrandsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/InvalidPool"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/series/{brandId}": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Baureihen je Marke",
+        "description": "Liefert aktive Baureihen fuer eine Marke aus dem aufgeloesten Datenpool.",
+        "operationId": "vehicleSeries",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/BrandIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleSimpleListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/InvalidPool"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/models/{seriesId}": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Modelle je Baureihe",
+        "description": "Liefert aktive Modelle fuer eine Baureihe aus dem aufgeloesten Datenpool.",
+        "operationId": "vehicleModels",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/SeriesIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleSimpleListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/InvalidPool"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/engines/{modelId}": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Motoren je Modell",
+        "description": "Liefert aktive Motoren fuer ein Modell aus dem aufgeloesten Datenpool.",
+        "operationId": "vehicleEngines",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/ModelIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleEnginesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/InvalidPool"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/engine-details/{engineId}": {
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Details fuer Motor inkl. Stages, ECUs und Getriebe",
+        "description": "Liefert Detaildaten fuer einen aktiven Motor aus dem aufgeloesten Datenpool. Preise in Stages und ECU-Optionen werden nur gesetzt, wenn das gewaehlte Layout `showPrices` aktiviert.",
+        "operationId": "vehicleEngineDetails",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/EngineIdPath"
+          },
+          {
+            "name": "stageId",
+            "in": "query",
+            "description": "Optionale Stage-ID fuer Tracking/Analyse. Die Antwort wird dadurch nicht auf diese Stage reduziert.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "templateVariant",
+            "in": "query",
+            "description": "Optionale Layout-Variante zur Preis-/Layout-Auswertung.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EngineDetailsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/track": {
+      "post": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Tracking-Event erfassen",
+        "description": "Erfasst ein Client-Tracking-Event. Ungueltige oder leere Eventnamen werden serverseitig auf `client_event` normalisiert.",
+        "operationId": "vehicleTrack",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TokenIdHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataContextHeader"
+          },
+          {
+            "$ref": "#/components/parameters/VehicleDataPoolHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ContextKeyQuery"
+          },
+          {
+            "$ref": "#/components/parameters/PoolKeyQuery"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "parameters": {
+      "TokenIdHeader": {
+        "name": "X-Token-Id",
+        "in": "header",
+        "required": true,
+        "description": "Eindeutige Token-ID aus Verwaltung -> API Tokens.",
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "VehicleDataContextHeader": {
+        "name": "X-Vehicle-Data-Context",
+        "in": "header",
+        "required": false,
+        "description": "Optionaler Datenkontext-Key. Muss zum Kontext des Tokens passen, falls der Token fest an einen Kontext gebunden ist.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "VehicleDataPoolHeader": {
+        "name": "X-Vehicle-Data-Pool",
+        "in": "header",
+        "required": false,
+        "description": "Optionaler Datenpool-Key. Hat Vorrang vor `poolKey` und muss im gewaehlten Kontext erlaubt sein.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "ContextKeyQuery": {
+        "name": "contextKey",
+        "in": "query",
+        "required": false,
+        "description": "Alternative zu `X-Vehicle-Data-Context`.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "PoolKeyQuery": {
+        "name": "poolKey",
+        "in": "query",
+        "required": false,
+        "description": "Alternative zu `X-Vehicle-Data-Pool`. Wird ignoriert, wenn der Header gesetzt ist.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "TypeIdPath": {
+        "name": "typeId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "BrandIdPath": {
+        "name": "brandId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "SeriesIdPath": {
+        "name": "seriesId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "ModelIdPath": {
+        "name": "modelId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "EngineIdPath": {
+        "name": "engineId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Nicht autorisiert",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "InvalidPool": {
+        "description": "Kein gueltiger Datenbestand gefunden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "Kein gueltiger Datenbestand gefunden."
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Nicht gefunden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "Pool": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "key": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ApiIndexResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Fahrzeugdatenbank API"
+          },
+          "pool": {
+            "$ref": "#/components/schemas/Pool"
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "message",
+          "pool",
+          "endpoints"
+        ]
+      },
+      "VehicleTypeItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "image",
+          "icon"
+        ]
+      },
+      "VehicleBrandItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "showInTopMenu": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "image",
+          "icon",
+          "showInTopMenu"
+        ]
+      },
+      "VehicleSimpleItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "VehicleEngineListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "horsepower": {
+            "type": "integer",
+            "nullable": true
+          },
+          "fuel": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "horsepower",
+          "fuel"
+        ]
+      },
+      "VehicleTypesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleTypeItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleBrandsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleBrandItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleSimpleListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleSimpleItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleEnginesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleEngineListItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EngineDetailsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EngineDetailsData"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "EngineDetailsData": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "$ref": "#/components/schemas/EngineDetailsEngine"
+          },
+          "brand": {
+            "$ref": "#/components/schemas/EngineDetailsBrand"
+          },
+          "series": {
+            "$ref": "#/components/schemas/VehicleSimpleItemNullable"
+          },
+          "model": {
+            "$ref": "#/components/schemas/VehicleSimpleItemNullable",
+            "description": "Modell des Motors."
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleStage"
+            }
+          },
+          "ecus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ecu"
+            }
+          },
+          "gearboxes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Gearbox"
+            }
+          },
+          "einbauHinweise": {
+            "type": "array",
+            "description": "Motor-Einbauhinweise (motorspezifisch, unabhaengig von ECU-Optionen).",
+            "items": {
+              "$ref": "#/components/schemas/EinbauHinweis"
+            }
+          },
+          "settings": {
+            "$ref": "#/components/schemas/FrontendSettings"
+          },
+          "pool": {
+            "$ref": "#/components/schemas/Pool"
+          }
+        },
+        "required": [
+          "engine",
+          "brand",
+          "series",
+          "model",
+          "stages",
+          "ecus",
+          "gearboxes",
+          "einbauHinweise",
+          "settings",
+          "pool"
+        ]
+      },
+      "EngineDetailsEngine": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "horsepower": {
+            "type": "integer",
+            "nullable": true
+          },
+          "torque": {
+            "type": "integer",
+            "nullable": true
+          },
+          "fuel": {
+            "type": "string",
+            "nullable": true
+          },
+          "displacement": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "glbModel": {
+            "type": "string",
+            "nullable": true
+          },
+          "mediaDisplayMode": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "horsepower",
+          "torque",
+          "fuel",
+          "displacement",
+          "image",
+          "glbModel",
+          "mediaDisplayMode"
+        ]
+      },
+      "EngineDetailsBrand": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "image"
+        ]
+      },
+      "VehicleSimpleItemNullable": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "VehicleStage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "hp": {
+            "type": "integer",
+            "nullable": true
+          },
+          "nm": {
+            "type": "integer",
+            "nullable": true
+          },
+          "ecu": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videos": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "price",
+          "hp",
+          "nm",
+          "ecu",
+          "icon",
+          "images",
+          "videos"
+        ]
+      },
+      "EcuToolEntry": {
+        "type": "object",
+        "description": "Ein Tool-Hersteller-Eintrag mit zugehoerigen Methoden fuer eine ECU.",
+        "properties": {
+          "manufacturer": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name des Tool-Herstellers."
+          },
+          "manufacturerLogo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pfad zum Logo des Tool-Herstellers."
+          },
+          "methods": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Liste der unterstuetzten Methoden dieses Herstellers."
+          }
+        },
+        "required": ["manufacturer", "manufacturerLogo", "methods"]
+      },
+      "EcuOptionHintEntry": {
+        "type": "object",
+        "description": "Einzelner Einbauhinweis fuer eine ECU-Option.",
+        "properties": {
+          "brandName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Fahrzeugmarke."
+          },
+          "manufacturer": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hersteller des Steuergeraets."
+          },
+          "model": {
+            "type": "string",
+            "nullable": true,
+            "description": "Modellbezeichnung."
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true,
+            "description": "Hinweistext (bevorzugt Deutsch, Fallback Englisch)."
+          }
+        },
+        "required": ["brandName", "manufacturer", "model", "notes"]
+      },
+      "EcuOptionHintGroup": {
+        "type": "object",
+        "description": "Gruppe von Einbauhinweisen zu einer Master-ECU-Option.",
+        "properties": {
+          "masterOption": {
+            "type": "string",
+            "description": "Name der uebergeordneten ECU-Option (Master)."
+          },
+          "hints": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EcuOptionHintEntry" }
+          }
+        },
+        "required": ["masterOption", "hints"]
+      },
+      "EinbauHinweisImage": {
+        "type": "object",
+        "properties": {
+          "src": {
+            "type": "string",
+            "description": "Absoluter Pfad oder URL zum Bild."
+          },
+          "annotations": {
+            "type": "array",
+            "items": { "type": "object", "additionalProperties": true },
+            "description": "Optionale Annotationen (Pfeile, Markierungen) auf dem Bild."
+          }
+        },
+        "required": ["src", "annotations"]
+      },
+      "EinbauHinweis": {
+        "type": "object",
+        "description": "Motor-Einbauhinweis mit Bildern und optionalem ECU-Bezug.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "ecuOptionMaster": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name der zugeordneten Master-ECU-Option."
+          },
+          "activeEcuId": {
+            "type": "integer",
+            "nullable": true,
+            "description": "ID der zugeordneten aktiven ECU."
+          },
+          "activeEcuName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name der zugeordneten aktiven ECU."
+          },
+          "images": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EinbauHinweisImage" }
+          }
+        },
+        "required": ["id", "title", "description", "ecuOptionMaster", "activeEcuId", "activeEcuName", "images"]
+      },
+      "Ecu": {
+        "type": "object",
+        "description": "Steuergeraet (ECU) mit Tool-Eintraegen, Optionen und Einbauhinweisen.",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "controlUnitKind": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["MCU", "TCU", null]
+          },
+          "manufacturer": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name des ECU-Herstellers."
+          },
+          "manufacturerLogo": {
+            "type": "string",
+            "nullable": true
+          },
+          "toolEntries": {
+            "type": "array",
+            "description": "Tool-Hersteller mit jeweiligen Methoden. Ersetzt toolManufacturer/toolMethods.",
+            "items": { "$ref": "#/components/schemas/EcuToolEntry" }
+          },
+          "toolManufacturer": {
+            "type": "string",
+            "nullable": true,
+            "description": "Legacy: erster Tool-Hersteller (Einzelfeld, bleibt fuer Abwaertskompatibilitaet)."
+          },
+          "toolManufacturerLogo": {
+            "type": "string",
+            "nullable": true,
+            "description": "Legacy: Logo des ersten Tool-Herstellers."
+          },
+          "toolMethods": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Legacy: Methoden des ersten Tool-Herstellers."
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EcuOption"
+            }
+          },
+          "optionHints": {
+            "type": "array",
+            "description": "Einbauhinweise gruppiert nach Master-ECU-Option.",
+            "items": { "$ref": "#/components/schemas/EcuOptionHintGroup" }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "controlUnitKind",
+          "manufacturer",
+          "manufacturerLogo",
+          "toolEntries",
+          "toolManufacturer",
+          "toolManufacturerLogo",
+          "toolMethods",
+          "options",
+          "optionHints"
+        ]
+      },
+      "EcuOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "masterOptionName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Name der uebergeordneten Master-Option."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "isMainOption": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "masterOptionName",
+          "description",
+          "icon",
+          "price",
+          "isMainOption"
+        ]
+      },
+      "Gearbox": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "manufacturer": {
+            "type": "string",
+            "nullable": true
+          },
+          "manufacturerLogo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "description",
+          "icon",
+          "images",
+          "type",
+          "manufacturer",
+          "manufacturerLogo"
+        ]
+      },
+      "FrontendSettings": {
+        "type": "object",
+        "properties": {
+          "layoutSwitcherEnabled": {
+            "type": "boolean"
+          },
+          "templateVariant": {
+            "type": "string"
+          },
+          "layoutSettings": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LayoutSetting"
+            }
+          }
+        },
+        "required": [
+          "layoutSwitcherEnabled",
+          "templateVariant",
+          "layoutSettings"
+        ]
+      },
+      "LayoutSetting": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "glbAutorotate": {
+            "type": "boolean"
+          },
+          "showPrices": {
+            "type": "boolean"
+          },
+          "showLogo": {
+            "type": "boolean"
+          },
+          "showOnlyStage1": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TrackRequest": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "description": "Erlaubtes Muster: ^[a-z0-9._:-]{2,80}$"
+          },
+          "typeId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "vehicleTypeId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "brandId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "seriesId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "modelId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "engineId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "stageId": {
+            "type": "integer",
+            "nullable": true
+          },
+          "templateVariant": {
+            "type": "string",
+            "nullable": true
+          },
+          "meta": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      },
+      "TrackResponse": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ok"
+        ]
+      }
+    }
+  }
+}

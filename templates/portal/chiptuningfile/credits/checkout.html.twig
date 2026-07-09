@@ -1,0 +1,239 @@
+{% extends 'portal/chiptuningfile/base.html.twig' %}
+
+{% block title %}Checkout | Chiptuningfile Portal{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-lg-5">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <p class="text-muted small text-uppercase mb-1">Checkout</p>
+                                <h1 class="h4 mb-0">Credits kaufen</h1>
+                            </div>
+                            <a href="{{ path('cpt_portal_credits') }}" class="btn btn-outline-secondary btn-sm">Zurück</a>
+                        </div>
+
+                        <div class="row gy-3">
+                            <div class="col-12">
+                                <div class="border rounded-3 p-3">
+                                    <p class="text-muted small mb-1">Paket</p>
+                                    <h2 class="h5 mb-0">{{ package.title|default('Credit-Paket') }}</h2>
+                                    <p class="text-muted mb-2">{{ package.credits }} Credits</p>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Netto</span>
+                                        <span class="fw-semibold">{{ pricing.priceNet|number_format(2, ',', '.') }} €</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Brutto</span>
+                                        <span class="fw-semibold">{{ pricing.priceGross|number_format(2, ',', '.') }} €</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Steuersatz</span>
+                                        <span class="fw-semibold">{{ pricing.taxRate|number_format(2, ',', '.') }} %</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="border rounded-3 p-3">
+                                    <h3 class="h6 text-uppercase text-muted mb-3">Aktive Zahlungsarten</h3>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>Stripe</strong>
+                                                <p class="mb-0 text-muted small">Karten, Apple Pay, Google Pay</p>
+                                            </div>
+                                            <span class="badge {{ stripeConfigured ? 'bg-success' : 'bg-secondary' }}">{{ stripeConfigured ? 'Aktiv' : 'Nicht verfügbar' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>PayPal</strong>
+                                                <p class="mb-0 text-muted small">PayPal-Checkout</p>
+                                            </div>
+                                            <span class="badge {{ paypal.configured ? 'bg-success' : 'bg-secondary' }}">{{ paypal.configured ? 'Aktiv' : 'Optional' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>Vorkasse (Rechnung)</strong>
+                                                <p class="mb-0 text-muted small">Rechnung via Superadmin</p>
+                                            </div>
+                                            <span class="badge bg-secondary">Info</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                {% if stripeConfigured %}
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h6 text-uppercase text-muted mb-3">Bezahlen mit Stripe</h3>
+                            <p class="text-muted small mb-2">Sichere Zahlung per Karte oder Wallet.</p>
+                            <div id="stripe-payment-element" class="mb-3" style="min-height:64px;"></div>
+                            <div id="stripe-payment-message" class="text-danger small mb-2" role="status" aria-live="polite"></div>
+                            <button id="stripe-pay-button" class="btn btn-primary w-100">Mit Stripe bezahlen</button>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="h6 text-uppercase text-muted mb-2">Stripe</h3>
+                            <p class="text-muted small">Stripe ist aktuell nicht konfiguriert.</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-4">
+                        <h3 class="h6 text-uppercase text-muted mb-3">PayPal</h3>
+                        {% if paypal.configured %}
+                            <div id="paypal-buttons" class="mb-3"></div>
+                            <div id="paypal-message" class="text-danger small" role="status" aria-live="polite"></div>
+                        {% else %}
+                            <p class="text-muted small mb-0">PayPal ist derzeit in diesem Portal nicht aktiviert.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h3 class="h6 text-uppercase text-muted mb-3">Vorkasse</h3>
+                        <p class="text-muted small mb-1">Benötigst du eine Rechnung? Die Anfrage wird per Superadmin erstellt.</p>
+                        <p class="text-muted small mb-0">Die Credits werden nach Zahlungseingang gutgeschrieben.</p>
+                        <a href="{{ path('cpt_portal_credits') }}#vorkasse" class="btn btn-outline-secondary btn-sm mt-3">Zurück zu Vorkasse</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% if stripeConfigured and paymentIntent and stripePublicKey %}
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+            (function () {
+                const stripe = Stripe('{{ stripePublicKey|e('js') }}');
+                const elements = stripe.elements();
+                const paymentElement = elements.create('payment');
+                paymentElement.mount('#stripe-payment-element');
+
+                const payButton = document.getElementById('stripe-pay-button');
+                const messageEl = document.getElementById('stripe-payment-message');
+
+                const handleResult = (result) => {
+                    if (result.error) {
+                        messageEl.textContent = result.error.message || 'Zahlung konnte nicht abgeschlossen werden.';
+                        return;
+                    }
+
+                    messageEl.textContent = 'Vielen Dank! Die Zahlung wurde bestätigt.';
+                    messageEl.classList.remove('text-danger');
+                };
+
+                payButton.addEventListener('click', async () => {
+                    payButton.disabled = true;
+                    messageEl.textContent = '';
+
+                    const { error } = await stripe.confirmPayment({
+                        elements,
+                        confirmParams: {
+                            return_url: '{{ stripeReturnUrl|e('js') }}',
+                        },
+                        redirect: 'if_required',
+                    });
+
+                    if (error) {
+                        messageEl.textContent = error.message || 'Die Stripe-Zahlung konnte nicht abgeschlossen werden.';
+                        payButton.disabled = false;
+                    }
+                });
+            })();
+        </script>
+    {% endif %}
+
+    {% if paypal.configured and paypal.clientId %}
+        <script src="https://www.paypal.com/sdk/js?client-id={{ paypal.clientId|url_encode }}&currency=EUR&intent=capture" data-auto-approve="false"></script>
+        <script>
+            (function () {
+                const paypalMessage = document.getElementById('paypal-message');
+                const packageId = {{ package.id }};
+                const csrfToken = '{{ paypal.csrfToken|e('js') }}';
+
+                const postJson = async (url, payload) => {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Accept: 'application/json',
+                        },
+                        body: JSON.stringify(payload),
+                    });
+
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        const message = data?.message || 'Die PayPal-Anfrage ist fehlgeschlagen.';
+                        throw new Error(message);
+                    }
+
+                    return data;
+                };
+
+                const render = () => {
+                    if (!window.paypal || !window.paypal.Buttons) {
+                        paypalMessage.textContent = 'PayPal konnte nicht geladen werden.';
+                        return;
+                    }
+
+                    window.paypal.Buttons({
+                        style: {
+                            layout: 'horizontal',
+                            color: 'gold',
+                            shape: 'rect',
+                            height: 45,
+                        },
+                        createOrder: async () => {
+                            const payload = await postJson('/credits/paypal/order', {
+                                _token: csrfToken,
+                                packageId,
+                            });
+
+                            return payload.id;
+                        },
+                        onApprove: async (data) => {
+                            try {
+                                const result = await postJson('/credits/paypal/capture', {
+                                    _token: csrfToken,
+                                    orderId: data.orderID,
+                                });
+
+                                paypalMessage.textContent = result.message || 'Zahlung abgeschlossen. Credits wurden gutgeschrieben.';
+                                paypalMessage.classList.remove('text-danger');
+                                paypalMessage.classList.add('text-success');
+                                return;
+                            } catch (error) {
+                                paypalMessage.textContent = error.message || 'PayPal-Zahlung konnte nicht verarbeitet werden.';
+                                paypalMessage.classList.add('text-danger');
+                            }
+                        },
+                        onError: (error) => {
+                            paypalMessage.textContent = error?.message || 'PayPal-Zahlung konnte nicht gestartet werden.';
+                            paypalMessage.classList.add('text-danger');
+                        },
+                    }).render('#paypal-buttons');
+                };
+
+                document.addEventListener('DOMContentLoaded', render);
+            })();
+        </script>
+    {% endif %}
+{% endblock %}

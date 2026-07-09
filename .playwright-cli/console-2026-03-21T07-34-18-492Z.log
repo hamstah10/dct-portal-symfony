@@ -1,0 +1,16 @@
+[     284ms] TypeError: Cannot read properties of null (reading 'addEventListener')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/defaultmenu.min.js:316:19
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/defaultmenu.min.js:407:3
+[     285ms] TypeError: Cannot read properties of null (reading 'offsetTop')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/sticky.js:7:23
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/sticky.js:20:3
+[     285ms] TypeError: Cannot read properties of null (reading 'nodeName')
+    at i.t (https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/libs/simplebar/simplebar.min.js:10:9346)
+    at new i (https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/libs/simplebar/simplebar.min.js:10:22563)
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/simplebar.js:5:5
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/simplebar.js:7:3
+[     285ms] TypeError: Cannot read properties of null (reading 'appendChild')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/custom.js:128:27
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/custom.js:429:3
+[     706ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+[     733ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0

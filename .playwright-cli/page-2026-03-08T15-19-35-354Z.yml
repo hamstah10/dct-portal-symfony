@@ -1,0 +1,170 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Symfony Exception" [level=1] [ref=e4]:
+        - img [ref=e5]
+        - text: Symfony Exception
+      - link "Symfony Docs" [ref=e8] [cursor=pointer]:
+        - /url: https://symfony.com/doc/8.0.6/index.html
+        - img [ref=e10]
+        - text: Symfony Docs
+  - generic [ref=e12]:
+    - generic [ref=e14]:
+      - heading "ResourceNotFoundException NotFoundHttpException" [level=2] [ref=e15]:
+        - link "ResourceNotFoundException" [ref=e16] [cursor=pointer]:
+          - /url: "#trace-box-2"
+        - img [ref=e18]
+        - link "NotFoundHttpException" [ref=e20] [cursor=pointer]:
+          - /url: "#trace-box-1"
+      - heading "HTTP 404 Not Found" [level=2] [ref=e21]
+    - generic [ref=e23]:
+      - heading "No route found for \"GET https://verwaltung.tuningfux.de/admin/websites/sniffer\"" [level=1] [ref=e24]
+      - img [ref=e26]
+  - generic [ref=e29]:
+    - tablist [ref=e30]:
+      - tab "Exceptions 2" [selected] [ref=e31] [cursor=pointer]:
+        - text: Exceptions
+        - generic [ref=e32]: "2"
+      - tab "Stack Traces 2" [ref=e33] [cursor=pointer]:
+        - text: Stack Traces
+        - generic [ref=e34]: "2"
+    - tabpanel [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - generic [ref=e40] [cursor=pointer]:
+              - img [ref=e42]
+              - heading "Symfony\\Component\\HttpKernel\\Exception\\ NotFoundHttpException" [level=3] [ref=e44]:
+                - generic [ref=e45]: Symfony\Component\HttpKernel\Exception\
+                - text: NotFoundHttpException
+            - group [ref=e46]:
+              - generic "Show exception properties" [ref=e47] [cursor=pointer]
+          - generic [ref=e48]:
+            - generic [ref=e50] [cursor=pointer]:
+              - img [ref=e52]
+              - generic [ref=e54]:
+                - text: in
+                - link "vendor/symfony/http-kernel/EventListener/RouterListener.php" [ref=e55]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/http-kernel/EventListener/RouterListener.php#L156
+                  - text: vendor/symfony/http-kernel/EventListener/
+                  - strong [ref=e56]: RouterListener.php
+                - text: (line 156)
+            - generic [ref=e58] [cursor=pointer]:
+              - img [ref=e60]
+              - generic [ref=e62]:
+                - text: in
+                - link "vendor/symfony/event-dispatcher/Debug/WrappedListener.php" [ref=e63]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/event-dispatcher/Debug/WrappedListener.php#L115
+                  - text: vendor/symfony/event-dispatcher/Debug/
+                  - strong [ref=e64]: WrappedListener.php
+                - text: "-> onKernelRequest (line 115)"
+            - generic [ref=e66] [cursor=pointer]:
+              - img [ref=e68]
+              - generic [ref=e70]:
+                - text: in
+                - link "vendor/symfony/event-dispatcher/EventDispatcher.php" [ref=e71]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/event-dispatcher/EventDispatcher.php#L206
+                  - text: vendor/symfony/event-dispatcher/
+                  - strong [ref=e72]: EventDispatcher.php
+                - text: "-> __invoke (line 206)"
+            - generic [ref=e74] [cursor=pointer]:
+              - img [ref=e76]
+              - generic [ref=e78]:
+                - text: in
+                - link "vendor/symfony/event-dispatcher/EventDispatcher.php" [ref=e79]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/event-dispatcher/EventDispatcher.php#L56
+                  - text: vendor/symfony/event-dispatcher/
+                  - strong [ref=e80]: EventDispatcher.php
+                - text: "-> callListeners (line 56)"
+            - generic [ref=e82] [cursor=pointer]:
+              - img [ref=e84]
+              - generic [ref=e86]:
+                - text: in
+                - link "vendor/symfony/event-dispatcher/Debug/TraceableEventDispatcher.php" [ref=e87]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/event-dispatcher/Debug/TraceableEventDispatcher.php#L126
+                  - text: vendor/symfony/event-dispatcher/Debug/
+                  - strong [ref=e88]: TraceableEventDispatcher.php
+                - text: "-> dispatch (line 126)"
+            - generic [ref=e90] [cursor=pointer]:
+              - img [ref=e92]
+              - generic [ref=e94]:
+                - text: in
+                - link "vendor/symfony/http-kernel/HttpKernel.php" [ref=e95]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/http-kernel/HttpKernel.php#L159
+                  - text: vendor/symfony/http-kernel/
+                  - strong [ref=e96]: HttpKernel.php
+                - text: "-> dispatch (line 159)"
+            - generic [ref=e98] [cursor=pointer]:
+              - img [ref=e100]
+              - generic [ref=e102]:
+                - text: in
+                - link "vendor/symfony/http-kernel/HttpKernel.php" [ref=e103]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/http-kernel/HttpKernel.php#L76
+                  - text: vendor/symfony/http-kernel/
+                  - strong [ref=e104]: HttpKernel.php
+                - text: "-> handleRaw (line 76)"
+            - generic [ref=e106] [cursor=pointer]:
+              - img [ref=e108]
+              - generic [ref=e110]:
+                - text: in
+                - link "vendor/symfony/http-kernel/Kernel.php" [ref=e111]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/http-kernel/Kernel.php#L191
+                  - text: vendor/symfony/http-kernel/
+                  - strong [ref=e112]: Kernel.php
+                - text: "-> handle (line 191)"
+            - generic [ref=e114] [cursor=pointer]:
+              - img [ref=e116]
+              - generic [ref=e118]:
+                - text: in
+                - link "vendor/symfony/runtime/Runner/Symfony/HttpKernelRunner.php" [ref=e119]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/symfony/runtime/Runner/Symfony/HttpKernelRunner.php#L35
+                  - text: vendor/symfony/runtime/Runner/Symfony/
+                  - strong [ref=e120]: HttpKernelRunner.php
+                - text: "-> handle (line 35)"
+            - generic [ref=e122] [cursor=pointer]:
+              - img [ref=e124]
+              - generic [ref=e126]:
+                - text: in
+                - link "vendor/autoload_runtime.php" [ref=e127]:
+                  - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/autoload_runtime.php#L32
+                  - text: vendor/
+                  - strong [ref=e128]: autoload_runtime.php
+                - text: "-> run (line 32)"
+            - generic [ref=e129]:
+              - generic [ref=e130] [cursor=pointer]:
+                - img [ref=e132]
+                - text: require_once('/home/verwaltung/htdocs/verwaltung.tuningfux.de/public/vendor/autoload_runtime.php')
+                - generic [ref=e134]:
+                  - text: in
+                  - link "public/index.php" [ref=e135]:
+                    - /url: file:///home/verwaltung/htdocs/verwaltung.tuningfux.de/public/public/index.php#L5
+                    - text: public/
+                    - strong [ref=e136]: index.php
+                  - text: (line 5)
+              - list [ref=e138]:
+                - listitem [ref=e139]:
+                  - code [ref=e140]: <?php
+                - listitem [ref=e141]:
+                  - code
+                - listitem [ref=e142]:
+                  - code [ref=e143]: use App\Kernel;
+                - listitem [ref=e144]:
+                  - code
+                - listitem [ref=e145]:
+                  - code [ref=e146]: require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+                - listitem [ref=e147]:
+                  - code
+                - listitem [ref=e148]:
+                  - code [ref=e149]: "return function (array $context) {"
+                - listitem [ref=e150]:
+                  - code [ref=e151]: return new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+                - listitem [ref=e152]:
+                  - code [ref=e153]: "};"
+                - listitem [ref=e154]:
+                  - code
+        - generic [ref=e158] [cursor=pointer]:
+          - img [ref=e160]
+          - heading "Symfony\\Component\\Routing\\Exception\\ ResourceNotFoundException" [level=3] [ref=e162]:
+            - generic [ref=e163]: Symfony\Component\Routing\Exception\
+            - text: ResourceNotFoundException
+          - paragraph [ref=e164]: No routes found for "/admin/websites/sniffer/".

@@ -1,0 +1,9 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    <div class="mb-4">
+        {{ component('vehicle_series_search') }}
+    </div>
+
+    {{ parent() }}
+{% endblock %}

@@ -1,0 +1,4 @@
+portal_srfile:
+    resource: ../../src/Portals/Srfile/Controller/
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'srfile'"

@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chiptuning Anbieter Portal</title>
+    <meta name="description"
+        content="Portal für Chiptuning Anbieter mit Registrierung, Anbieterkarte, Vector-Map, Suchfunktion und modernem Dashboard-Layout." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        :root {
+            --bg: #0b1220;
+            --bg-soft: #101a2d;
+            --panel: #111d33;
+            --line: rgba(255, 255, 255, .08);
+            --text: #f3f7ff;
+            --muted: #95a6c0;
+            --blue: #2f79ff;
+            --blue-2: #63a6ff;
+            --cyan: #49d6ff;
+            --lime: #b8eb29;
+            --shadow: 0 24px 60px rgba(0, 0, 0, .28);
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            margin: 0;
+            font-family: "Inter", sans-serif;
+            background: radial-gradient(circle at top right, rgba(73, 214, 255, .10), transparent 16%), radial-gradient(circle at left top, rgba(47, 121, 255, .16), transparent 18%), linear-gradient(180deg, #08111e 0%, #0c1524 100%);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none
+        }
+
+        .wow {
+            visibility: hidden
+        }
+
+        .portal-shell {
+            display: grid;
+            grid-template-columns: 290px 1fr;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            background: linear-gradient(180deg, #0a1323 0%, #0d1830 100%);
+            border-right: 1px solid var(--line);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            overflow: hidden;
+        }
+
+        .brand {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .brand-mark {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+            box-shadow: 0 10px 26px rgba(47, 121, 255, .35);
+            position: relative
+        }
+
+        .brand-mark:before,
+        .brand-mark:after {
+            content: "";
+            position: absolute;
+            background: #fff;
+            opacity: .9
+        }
+
+        .brand-mark:before {
+            left: 11px;
+            right: 11px;
+            top: 21px;
+            height: 4px
+        }
+
+        .brand-mark:after {
+            top: 11px;
+            bottom: 11px;
+            left: 21px;
+            width: 4px
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            line-height: 1.35
+        }
+
+        .brand small {
+            display: block;
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: .74rem;
+            letter-spacing: .12em;
+            text-transform: uppercase
+        }
+
+        .sidebar-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .015));
+            border: 1px solid var(--line);
+            padding: 18px;
+            box-shadow: var(--shadow)
+        }
+
+        .sidebar-card h3 {
+            margin: 0 0 10px;
+            font-size: .98rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 800
+        }
+
+        .sidebar-card p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .92rem;
+            line-height: 1.75
+        }
+
+        .side-nav {
+            display: grid;
+            gap: 10px
+        }
+
+        .side-link {
+            display: grid;
+            grid-template-columns: 42px 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, .02);
+            border: 1px solid rgba(255, 255, 255, .04);
+            color: #d7e3f5;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: .83rem;
+            letter-spacing: .05em;
+            transition: .25s ease
+        }
+
+        .side-link .num {
+            color: var(--cyan);
+            font-weight: 900;
+            text-align: center
+        }
+
+        .side-link:hover,
+        .side-link.active {
+            background: linear-gradient(90deg, rgba(47, 121, 255, .18), rgba(73, 214, 255, .08));
+            border-color: rgba(73, 214, 255, .22);
+            color: #fff;
+            transform: translateX(6px)
+        }
+
+        .sidebar .cta-btn {
+            margin-top: auto;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 14px 18px;
+            background: linear-gradient(90deg, var(--lime), #dcff7d);
+            color: #08111e;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            border: none;
+            box-shadow: 0 12px 30px rgba(184, 235, 41, .24)
+        }
+
+        .hero {
+            padding: 34px 34px 18px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(255, 255, 255, .02), rgba(255, 255, 255, .00))
+        }
+
+        .hero-top {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 22px;
+            align-items: stretch
+        }
+
+        .hero-panel,
+        .glass,
+        .filter-card,
+        .dealer-card,
+        .form-card,
+        .stats-card,
+        .cta-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .018));
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow)
+        }
+
+        .hero-panel {
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            min-height: 380px;
+            background: radial-gradient(circle at 90% 18%, rgba(73, 214, 255, .14), transparent 18%), linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02))
+        }
+
+        .hero-panel:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(73, 214, 255, .04) 1px, transparent 1px), linear-gradient(rgba(73, 214, 255, .03) 1px, transparent 1px);
+            background-size: 38px 38px;
+            opacity: .55;
+            pointer-events: none
+        }
+
+        .eyebrow {
+            position: relative;
+            z-index: 2;
+            display: inline-block;
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            color: #fff;
+            padding: 10px 14px;
+            font-size: .78rem;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 16px
+        }
+
+        .hero h2 {
+            position: relative;
+            z-index: 2;
+            margin: 0 0 14px;
+            font-size: clamp(2.4rem, 4.8vw, 4.8rem);
+            line-height: .94;
+            letter-spacing: -.05em;
+            text-transform: uppercase;
+            font-weight: 900;
+            max-width: 760px
+        }
+
+        .hero p {
+            position: relative;
+            z-index: 2;
+            margin: 0;
+            max-width: 720px;
+            color: var(--muted);
+            line-height: 1.9;
+            font-size: 1.02rem
+        }
+
+        .hero-actions {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 28px
+        }
+
+        .btn-main,
+        .btn-ghost,
+        .btn-lime {
+            padding: 14px 20px;
+            border: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            transition: .25s ease
+        }
+
+        .btn-main {
+            background: linear-gradient(90deg, var(--blue), var(--blue-2));
+            color: #fff
+        }
+
+        .btn-main:hover {
+            color: #fff;
+            transform: translateY(-2px)
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .18)
+        }
+
+        .btn-ghost:hover {
+            background: #fff;
+            color: #0b1220
+        }
+
+        .btn-lime {
+            background: linear-gradient(90deg, var(--lime), #deff7a);
+            color: #07111d
+        }
+
+        .hero-stats {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 24px
+        }
+
+        .stats-card {
+            padding: 14px 16px
+        }
+
+        .stats-card small {
+            display: block;
+            color: #8aa3c4;
+            font-size: .76rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 6px
+        }
+
+        .stats-card strong {
+            font-size: 1.55rem;
+            font-weight: 900;
+            letter-spacing: -.03em
+        }
+
+        .map-panel {
+            padding: 18px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 14px;
+            min-height: 380px;
+            position: relative
+        }
+
+        .map-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: center
+        }
+
+        .map-head h3,
+        .section-head h3,
+        .form-card h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 900
+        }
+
+        .map-head p,
+        .section-head p,
+        .form-card p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: .92rem
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(73, 214, 255, .10);
+            border: 1px solid rgba(73, 214, 255, .18);
+            color: #dff8ff;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .76rem
+        }
+
+        .status-pill:before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: var(--lime);
+            box-shadow: 0 0 0 6px rgba(184, 235, 41, .10)
+        }
+
+        #dealer-map {
+            width: 100%;
+            min-height: 270px;
+            background: linear-gradient(180deg, #0f1d34, #12213a);
+            border: 1px solid rgba(255, 255, 255, .06);
+            position: relative;
+            overflow: hidden
+        }
+
+        .map-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            color: var(--muted);
+            font-size: .84rem;
+            text-transform: uppercase;
+            font-weight: 800
+        }
+
+        .legend-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .legend-dot:before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            background: var(--blue-2)
+        }
+
+        .legend-dot.lime:before {
+            background: var(--lime)
+        }
+
+        .legend-dot.cyan:before {
+            background: var(--cyan)
+        }
+
+        .map-radar {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 2px solid rgba(73, 214, 255, .16);
+            pointer-events: none;
+            z-index: 4;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(.7);
+            transition: opacity .25s ease
+        }
+
+        .map-radar.active {
+            opacity: 1;
+            animation: radarPulse 1.8s ease-out infinite
+        }
+
+        .map-radar:before,
+        .map-radar:after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border-radius: 50%;
+            border: 1px solid rgba(73, 214, 255, .16)
+        }
+
+        .map-radar:after {
+            inset: 42px
+        }
+
+        @keyframes radarPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(.55);
+                opacity: .55
+            }
+
+            70% {
+                transform: translate(-50%, -50%) scale(1.15);
+                opacity: .18
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.28);
+                opacity: 0
+            }
+        }
+
+        .marker-ping {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            pointer-events: none;
+            box-shadow: 0 0 0 0 rgba(184, 235, 41, .55);
+            animation: markerPing 1.6s ease-out infinite
+        }
+
+        @keyframes markerPing {
+            0% {
+                box-shadow: 0 0 0 0 rgba(184, 235, 41, .6)
+            }
+
+            100% {
+                box-shadow: 0 0 0 24px rgba(184, 235, 41, 0)
+            }
+        }
+
+        .section-wrap {
+            padding: 22px 34px 34px;
+            display: grid;
+            gap: 22px
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: end;
+            margin-bottom: 14px
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 22px;
+            align-items: start
+        }
+
+        .filter-card,
+        .dealer-side,
+        .dealer-card,
+        .form-card,
+        .cta-card {
+            padding: 22px
+        }
+
+        .filter-card {
+            position: sticky;
+            top: 26px
+        }
+
+        .form-label {
+            color: #bfd0e6;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .78rem;
+            letter-spacing: .05em;
+            margin-bottom: 8px
+        }
+
+        .form-control,
+        .form-select,
+        textarea {
+            min-height: 50px;
+            background: #0e1930;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, .10)
+        }
+
+        .form-control::placeholder,
+        textarea::placeholder {
+            color: #8ca0bc
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        textarea:focus {
+            background: #101d36;
+            color: #fff;
+            border-color: rgba(73, 214, 255, .35);
+            box-shadow: none
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            padding: 14px
+        }
+
+        .toggle-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px
+        }
+
+        .chip-toggle {
+            padding: 12px 14px;
+            background: #0f1b32;
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #d7e6fb;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .78rem;
+            text-align: center;
+            cursor: pointer
+        }
+
+        .chip-toggle.active {
+            background: linear-gradient(90deg, rgba(47, 121, 255, .20), rgba(73, 214, 255, .10));
+            border-color: rgba(73, 214, 255, .25);
+            color: #fff
+        }
+
+        .dealer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px
+        }
+
+        .dealer-card {
+            display: grid;
+            grid-template-columns: 1fr 180px;
+            gap: 18px;
+            align-items: stretch;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, rgba(73, 214, 255, .08), transparent 20%), linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .018));
+            cursor: pointer;
+            position: relative;
+            transition: .28s ease
+        }
+
+        .dealer-card:hover {
+            border-color: rgba(73, 214, 255, .22);
+            transform: translateY(-4px)
+        }
+
+        .dealer-side {
+            display: grid;
+            gap: 14px;
+            align-content: start
+        }
+
+        .dealer-side h3 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .dealer-side p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: .9rem
+        }
+
+        .dealer-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .meta-pill {
+            padding: 7px 10px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #d8e7fb;
+            font-size: .74rem;
+            text-transform: uppercase;
+            font-weight: 800
+        }
+
+        .dealer-copy {
+            color: var(--muted);
+            line-height: 1.75;
+            font-size: .93rem
+        }
+
+        .dealer-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .dealer-tags span {
+            background: rgba(73, 214, 255, .08);
+            border: 1px solid rgba(73, 214, 255, .15);
+            color: #dff7ff;
+            padding: 7px 10px;
+            font-size: .73rem;
+            text-transform: uppercase;
+            font-weight: 800
+        }
+
+        .dealer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px
+        }
+
+        .dealer-preview {
+            background: linear-gradient(180deg, #12213a, #0f1930);
+            border-left: 1px solid rgba(255, 255, 255, .06);
+            position: relative;
+            overflow: hidden
+        }
+
+        .dealer-preview:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(73, 214, 255, .06) 1px, transparent 1px), linear-gradient(rgba(73, 214, 255, .04) 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: .5
+        }
+
+        .preview-map-dot,
+        .preview-map-ring {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%
+        }
+
+        .preview-map-dot {
+            width: 14px;
+            height: 14px;
+            background: var(--lime);
+            z-index: 2
+        }
+
+        .preview-map-ring {
+            width: 44px;
+            height: 44px;
+            border: 2px solid rgba(184, 235, 41, .32);
+            z-index: 1;
+            animation: pulse 2s infinite
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(.7);
+                opacity: 1
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0
+            }
+        }
+
+        .preview-name {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            padding: 12px;
+            background: rgba(8, 17, 30, .78);
+            border: 1px solid rgba(255, 255, 255, .08);
+            z-index: 2;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .78rem;
+            color: #e7f2ff;
+            letter-spacing: .05em
+        }
+
+        .register-grid {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 22px
+        }
+
+        .benefit-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px
+        }
+
+        .benefit-item {
+            display: grid;
+            grid-template-columns: 56px 1fr;
+            gap: 14px;
+            align-items: start;
+            padding: 16px;
+            background: rgba(255, 255, 255, .02);
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        .benefit-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(47, 121, 255, .24), rgba(73, 214, 255, .10));
+            border: 1px solid rgba(73, 214, 255, .18);
+            position: relative
+        }
+
+        .benefit-icon:before {
+            content: "";
+            position: absolute;
+            inset: 16px;
+            background: #dff6ff;
+            opacity: .92
+        }
+
+        .benefit-item h4 {
+            margin: 0 0 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .benefit-item p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.72;
+            font-size: .93rem
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-top: 18px
+        }
+
+        .form-grid .full {
+            grid-column: 1/-1
+        }
+
+        .submit-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px
+        }
+
+        .cta-card {
+            background: radial-gradient(circle at top right, rgba(184, 235, 41, .10), transparent 18%), linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .018));
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center
+        }
+
+        .cta-card h3 {
+            margin: 0 0 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .cta-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.75;
+            max-width: 760px
+        }
+
+        .dealer-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 10, 20, .65);
+            backdrop-filter: blur(3px);
+            z-index: 9990;
+            opacity: 0;
+            transition: opacity .35s ease
+        }
+
+        .dealer-backdrop.visible {
+            opacity: 1
+        }
+
+        .dealer-card.expanded {
+            position: fixed;
+            z-index: 9999;
+            transform: none !important;
+            grid-template-columns: 1.2fr 1fr;
+            box-shadow: 0 40px 120px rgba(0, 0, 0, .6);
+            border: 1px solid rgba(73, 214, 255, .35);
+            background: #0c162a;
+            transition: top .45s cubic-bezier(.22, .9, .2, 1), left .45s cubic-bezier(.22, .9, .2, 1), width .45s cubic-bezier(.22, .9, .2, 1), height .45s cubic-bezier(.22, .9, .2, 1), opacity .25s ease;
+            overflow: hidden
+        }
+
+        .dealer-card.expanded.is-open {
+            top: 40px !important;
+            left: 40px !important;
+            width: calc(100vw - 80px) !important;
+            height: calc(100vh - 80px) !important
+        }
+
+        .dealer-card.expanded .dealer-side,
+        .dealer-card.expanded .dealer-preview {
+            opacity: 0;
+            transform: translateY(24px);
+            animation: dealerInnerIn .38s ease forwards;
+            animation-delay: .22s
+        }
+
+        .dealer-card.expanded .dealer-preview {
+            animation-delay: .3s;
+            min-height: 260px
+        }
+
+        @keyframes dealerInnerIn {
+            from {
+                opacity: 0;
+                transform: translateY(24px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .dealer-card-closing {
+            transition: top .28s ease, left .28s ease, width .28s ease, height .28s ease, opacity .22s ease !important
+        }
+
+        .dealer-overlay-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 10px 14px;
+            background: #fff;
+            color: #08111e;
+            font-weight: 800;
+            border: none;
+            z-index: 2;
+            cursor: pointer
+        }
+
+        body.portal-lock {
+            overflow: hidden
+        }
+
+        @media (max-width:1320px) {
+            .dealer-grid {
+                grid-template-columns: 1fr
+            }
+
+            .hero-top,
+            .register-grid,
+            .filters-grid {
+                grid-template-columns: 1fr
+            }
+
+            .filter-card {
+                position: relative;
+                top: auto
+            }
+        }
+
+        @media (max-width:1100px) {
+            .portal-shell {
+                grid-template-columns: 1fr
+            }
+
+            .sidebar {
+                position: relative;
+                height: auto
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .dealer-card {
+                grid-template-columns: 1fr
+            }
+
+            .dealer-preview {
+                min-height: 180px
+            }
+        }
+
+        @media (max-width:700px) {
+
+            .hero,
+            .section-wrap {
+                padding-left: 18px;
+                padding-right: 18px
+            }
+
+            .hero-stats,
+            .form-grid {
+                grid-template-columns: 1fr
+            }
+
+            .cta-card {
+                display: grid
+            }
+
+            .dealer-card.expanded.is-open {
+                top: 16px !important;
+                left: 16px !important;
+                width: calc(100vw - 32px) !important;
+                height: calc(100vh - 32px) !important
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="portal-shell">
+        <aside class="sidebar wow animate__animated animate__fadeInLeft" data-wow-duration="0.9s">
+            <div class="brand">
+                <div class="brand-mark"></div>
+                <div>
+                    <h1>Chiptuning Anbieter Portal</h1>
+                    <small>Dealer Finder · Registration · Map System</small>
+                </div>
+            </div>
+            <div class="sidebar-card wow animate__animated animate__fadeInUp" data-wow-delay="0.1s">
+                <h3>Was das Portal macht</h3>
+                <p>Firmen, die Chiptuning anbieten, können sich registrieren, im Portal sichtbar werden und auf einer
+                    interaktiven Karte gefunden werden.</p>
+            </div>
+            <nav class="side-nav">
+                <a href="#top" class="side-link active wow animate__animated animate__fadeInLeft"
+                    data-wow-delay="0.05s"><span class="num">01</span><span>Übersicht</span></a>
+                <a href="#finder" class="side-link wow animate__animated animate__fadeInLeft"
+                    data-wow-delay="0.1s"><span class="num">02</span><span>Anbieter finden</span></a>
+                <a href="#register" class="side-link wow animate__animated animate__fadeInLeft"
+                    data-wow-delay="0.15s"><span class="num">03</span><span>Anmelden</span></a>
+                <a href="#premium" class="side-link wow animate__animated animate__fadeInLeft"
+                    data-wow-delay="0.2s"><span class="num">04</span><span>Premium</span></a>
+            </nav>
+            <div class="sidebar-card wow animate__animated animate__fadeInUp" data-wow-delay="0.15s">
+                <h3>Portal Features</h3>
+                <p>Vector-Map, Suchfilter, Statuskennzeichnung, Regionen, Leistungsprofil, Kontaktoptionen und
+                    skalierbare Händlerdarstellung.</p>
+            </div>
+            <a href="#register" class="cta-btn wow animate__animated animate__fadeInUp" data-wow-delay="0.25s">Anbieter
+                eintragen</a>
+        </aside>
+
+        <main class="main" id="top">
+            <section class="hero">
+                <div class="hero-top">
+                    <div class="hero-panel wow animate__animated animate__fadeInUp" data-wow-duration="0.9s">
+                        <div class="eyebrow">Neue Plattform für Chiptuning Anbieter</div>
+                        <h2>Firmen registrieren. Auf der Karte erscheinen. Regional gefunden werden.</h2>
+                        <p>Diese Seite ist als echtes Chiptuning-Anbieter-Portal gedacht. Werkstätten und Firmen, die
+                            Chiptuning anbieten, können sich anmelden und werden in einem modernen Such- und
+                            Karten-System gelistet.</p>
+                        <div class="hero-actions">
+                            <a href="#register" class="btn btn-main">Jetzt Anbieter werden</a>
+                            <a href="#finder" class="btn btn-ghost">Anbieter entdecken</a>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="stats-card"><small>Gelistete Anbieter</small><strong>128</strong></div>
+                            <div class="stats-card"><small>Städte aktiv</small><strong>62</strong></div>
+                            <div class="stats-card"><small>Regionen</small><strong>16</strong></div>
+                            <div class="stats-card"><small>Neue Registrierungen</small><strong>+24</strong></div>
+                        </div>
+                    </div>
+                    <div class="map-panel glass wow animate__animated animate__fadeInUp" data-wow-delay="0.15s"
+                        data-wow-duration="0.9s">
+                        <div class="map-head">
+                            <div>
+                                <h3>Vector Map Übersicht</h3>
+                                <p>Interaktive Deutschlandkarte mit markierten Anbieter-Standorten.</p>
+                            </div>
+                            <div class="status-pill">Portal live</div>
+                        </div>
+                        <div id="dealer-map"></div>
+                        <div class="map-legend">
+                            <span class="legend-dot">Standard Anbieter</span>
+                            <span class="legend-dot lime">Top Partner</span>
+                            <span class="legend-dot cyan">Neue Einträge</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-wrap" id="finder">
+                <div class="section-head wow animate__animated animate__fadeInUp" data-wow-offset="70">
+                    <div>
+                        <h3>Anbieter Finder</h3>
+                        <p>Suche nach Region, Marke, Fokus und Status.</p>
+                    </div>
+                </div>
+                <div class="filters-grid">
+                    <div class="filter-card wow animate__animated animate__fadeInLeft" data-wow-offset="80">
+                        <h3>Filter & Suche</h3>
+                        <p class="mb-3">Finde passende Anbieter nach Ort, Spezialisierung oder Fahrzeugmarke.</p>
+                        <label class="form-label" for="searchInput">Suche</label>
+                        <input id="searchInput" class="form-control" placeholder="z. B. BMW, Berlin, DSG, Audi" />
+                        <label class="form-label mt-3" for="regionFilter">Region</label>
+                        <select id="regionFilter" class="form-select">
+                            <option value="all">Alle Regionen</option>
+                            <option value="Nord">Nord</option>
+                            <option value="West">West</option>
+                            <option value="Süd">Süd</option>
+                            <option value="Ost">Ost</option>
+                        </select>
+                        <label class="form-label mt-3" for="brandFilter">Fahrzeugfokus</label>
+                        <select id="brandFilter" class="form-select">
+                            <option value="all">Alle Marken</option>
+                            <option value="VW">VW Gruppe</option>
+                            <option value="BMW">BMW / Mini</option>
+                            <option value="Audi">Audi</option>
+                            <option value="Mercedes">Mercedes</option>
+                            <option value="Mixed">Gemischt</option>
+                        </select>
+                        <label class="form-label mt-3">Leistungsbereich</label>
+                        <div class="toggle-row">
+                            <div class="chip-toggle active">ECU</div>
+                            <div class="chip-toggle active">TCU</div>
+                            <div class="chip-toggle">Prüfstand</div>
+                            <div class="chip-toggle">Flotten</div>
+                        </div>
+                        <div class="hero-actions mt-3">
+                            <button id="filterBtn" class="btn btn-main w-100">Anbieter filtern</button>
+                        </div>
+                    </div>
+                    <div class="dealer-grid" id="dealerGrid"></div>
+                </div>
+            </section>
+
+            <section class="section-wrap" id="register">
+                <div class="section-head wow animate__animated animate__fadeInUp" data-wow-offset="70">
+                    <div>
+                        <h3>Anbieter Registrierung</h3>
+                        <p>Werkstätten, Chiptuning Firmen und Performance-Anbieter können sich hier eintragen.</p>
+                    </div>
+                </div>
+                <div class="register-grid">
+                    <div class="glass p-4 wow animate__animated animate__fadeInLeft" data-wow-offset="80">
+                        <div class="eyebrow">Warum sich eintragen?</div>
+                        <h3 class="mb-3 text-uppercase" style="font-weight:900;letter-spacing:.05em;">Mehr Sichtbarkeit
+                            für Chiptuning Anbieter</h3>
+                        <p class="mb-0" style="color:var(--muted);line-height:1.85;">Das Portal wirkt wie eine moderne
+                            Plattform mit Karte, Profilkarten, Status und technischen Schwerpunkten.</p>
+                        <div class="benefit-list">
+                            <div class="benefit-item wow animate__animated animate__fadeInUp" data-wow-offset="60">
+                                <div class="benefit-icon"></div>
+                                <div>
+                                    <h4>Auf der Karte sichtbar</h4>
+                                    <p>Der Anbieter erscheint regional auf der Vector-Map.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item wow animate__animated animate__fadeInUp" data-wow-offset="60">
+                                <div class="benefit-icon"></div>
+                                <div>
+                                    <h4>Mehr Anfragen</h4>
+                                    <p>Kunden können gezielt nach Fahrzeugfokus, Region oder Leistungen suchen.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item wow animate__animated animate__fadeInUp" data-wow-offset="60">
+                                <div class="benefit-icon"></div>
+                                <div>
+                                    <h4>Premium Positionierung</h4>
+                                    <p>Statt einfacher Listen wirkt der Eintrag wie ein moderner Partner-Spot.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-card wow animate__animated animate__fadeInRight" data-wow-offset="80">
+                        <h3>Jetzt registrieren</h3>
+                        <p>Dieses Formular ist als Portal-Einstieg gedacht.</p>
+                        <div class="form-grid">
+                            <div><label class="form-label">Firmenname</label><input class="form-control"
+                                    placeholder="z. B. Performance Garage Berlin" /></div>
+                            <div><label class="form-label">Ansprechpartner</label><input class="form-control"
+                                    placeholder="Name" /></div>
+                            <div><label class="form-label">E-Mail</label><input class="form-control"
+                                    placeholder="info@anbieter.de" /></div>
+                            <div><label class="form-label">Telefon</label><input class="form-control"
+                                    placeholder="+49 ..." /></div>
+                            <div><label class="form-label">Region / Stadt</label><input class="form-control"
+                                    placeholder="z. B. Hamburg / Nord" /></div>
+                            <div><label class="form-label">Fahrzeugfokus</label><select class="form-select">
+                                    <option>Gemischt</option>
+                                    <option>VW Gruppe</option>
+                                    <option>BMW / Mini</option>
+                                    <option>Mercedes</option>
+                                    <option>Audi</option>
+                                </select></div>
+                            <div class="full"><label class="form-label">Leistungen</label>
+                                <div class="toggle-row">
+                                    <div class="chip-toggle active">ECU Tuning</div>
+                                    <div class="chip-toggle active">TCU / DSG</div>
+                                    <div class="chip-toggle">Prüfstand</div>
+                                    <div class="chip-toggle">Flotten</div>
+                                </div>
+                            </div>
+                            <div class="full"><label class="form-label">Kurzbeschreibung</label><textarea
+                                    placeholder="Kurze Beschreibung des Betriebs..."></textarea></div>
+                        </div>
+                        <div class="submit-row">
+                            <button class="btn btn-main">Anmeldung absenden</button>
+                            <button class="btn btn-ghost">Premium Profil anfragen</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-wrap" id="premium">
+                <div class="cta-card wow animate__animated animate__fadeInUp" data-wow-offset="80">
+                    <div>
+                        <h3>Aus dem Portal kann ein richtiges Händler-System werden</h3>
+                        <p>Die Seite ist schon so aufgebaut, dass sie später mit Login, Profilverwaltung, Freigaben,
+                            Premium-Platzierungen und Leads erweitert werden kann.</p>
+                    </div>
+                    <div class="hero-actions m-0">
+                        <a href="#register" class="btn btn-lime">Portal ausbauen</a>
+                        <a href="#finder" class="btn btn-ghost">Live Demo zeigen</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/js/jsvectormap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/maps/world.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/wow/1.1.2/wow.min.js"></script>
+    <script>
+        const dealers = [
+            { id: 1, name: 'Performance Garage Berlin', city: 'Berlin', region: 'Ost', brand: 'BMW', focus: ['ECU', 'TCU', 'Prüfstand'], status: 'Top Partner', latLng: [52.5200, 13.4050], excerpt: 'Spezialisiert auf BMW, DSG/TCU Optimierung und datenbasierte Prüfstand-Abstimmung.', tags: ['BMW', 'Prüfstand', 'TCU'], markerStyle: 'lime' },
+            { id: 2, name: 'Nordic Tuning Point', city: 'Hamburg', region: 'Nord', brand: 'VW', focus: ['ECU', 'Flotten'], status: 'Neu', latLng: [53.5511, 9.9937], excerpt: 'Starker Fokus auf VW Gruppe, Alltagsfahrzeuge und gewerbliche Fuhrpark-Optimierungen.', tags: ['VW Gruppe', 'Flotten', 'Stage 1'], markerStyle: 'cyan' },
+            { id: 3, name: 'Rhein Performance Lab', city: 'Köln', region: 'West', brand: 'Mixed', focus: ['ECU', 'TCU'], status: 'Live', latLng: [50.9375, 6.9603], excerpt: 'Breiter Markenmix mit Schwerpunkt auf sportlichen Benzinern und Automatik-Optimierung.', tags: ['Gemischt', 'Automatik', 'Benziner'], markerStyle: 'blue' },
+            { id: 4, name: 'South Dyno Motors', city: 'München', region: 'Süd', brand: 'Audi', focus: ['ECU', 'Prüfstand'], status: 'Top Partner', latLng: [48.1351, 11.5820], excerpt: 'Audi und VAG Fokus mit Leistungsprüfung, Fahrbarkeitsabstimmung und Premium-Profil.', tags: ['Audi', 'Dyno', 'Premium'], markerStyle: 'lime' },
+            { id: 5, name: 'Stuttgart Torque Works', city: 'Stuttgart', region: 'Süd', brand: 'Mercedes', focus: ['ECU', 'TCU'], status: 'Live', latLng: [48.7758, 9.1829], excerpt: 'Mercedes, Diesel-Optimierung und leistungsstarke TCU-Pakete.', tags: ['Mercedes', 'Diesel', 'TCU'], markerStyle: 'blue' },
+            { id: 6, name: 'Ruhr Chiptuning Hub', city: 'Dortmund', region: 'West', brand: 'VW', focus: ['ECU', 'TCU', 'Flotten'], status: 'Neu', latLng: [51.5136, 7.4653], excerpt: 'Multi-Brand Betrieb mit gewerblicher Ausrichtung und Fokus auf schnelle Abwicklung.', tags: ['VW', 'Flotten', 'Schnellservice'], markerStyle: 'cyan' }
+        ];
+
+        const markerColor = (style) => style === 'lime' ? '#b8eb29' : style === 'cyan' ? '#49d6ff' : '#63a6ff';
+        let map;
+        let currentRadar = null;
+        let currentPing = null;
+
+        function clearMapFocus() {
+            if (currentRadar) { currentRadar.remove(); currentRadar = null; }
+            if (currentPing) { currentPing.remove(); currentPing = null; }
+        }
+
+        function getMarkerScreenPosition(lat, lng) {
+            const mapContainer = document.getElementById('dealer-map');
+            if (!map || !mapContainer || !mapContainer.querySelector('svg')) return null;
+            const projection = map.projection;
+            if (!projection || !projection.latLngToPoint) return null;
+            const point = projection.latLngToPoint(lat, lng);
+            return point ? { x: point.x, y: point.y } : null;
+        }
+
+        function focusDealerOnMap(dealer) {
+            if (!map || !dealer) return;
+            try {
+                if (map.setFocus) {
+                    map.setFocus({ region: 'DE', animate: true, scale: 3, lat: dealer.latLng[0], lng: dealer.latLng[1] });
+                }
+            } catch (e) { }
+            setTimeout(() => {
+                clearMapFocus();
+                const mapContainer = document.getElementById('dealer-map');
+                const pos = getMarkerScreenPosition(dealer.latLng[0], dealer.latLng[1]);
+                if (!mapContainer || !pos) return;
+                const radar = document.createElement('div');
+                radar.className = 'map-radar active';
+                radar.style.left = pos.x + 'px';
+                radar.style.top = pos.y + 'px';
+                const ping = document.createElement('div');
+                ping.className = 'marker-ping';
+                ping.style.left = pos.x + 'px';
+                ping.style.top = pos.y + 'px';
+                ping.style.background = markerColor(dealer.markerStyle);
+                mapContainer.appendChild(radar);
+                mapContainer.appendChild(ping);
+                currentRadar = radar;
+                currentPing = ping;
+            }, 350);
+        }
+
+        function attachDealerExpand() {
+            document.querySelectorAll('.dealer-card').forEach(card => {
+                card.onclick = () => {
+                    if (document.querySelector('.dealer-card.expanded')) return;
+
+                    const dealerId = parseInt(card.getAttribute('data-dealer-id'), 10);
+                    const dealer = dealers.find(d => d.id === dealerId);
+                    focusDealerOnMap(dealer);
+
+                    const rect = card.getBoundingClientRect();
+
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'dealer-backdrop';
+                    document.body.appendChild(backdrop);
+                    requestAnimationFrame(() => backdrop.classList.add('visible'));
+
+                    const clone = card.cloneNode(true);
+                    clone.classList.add('expanded');
+                    clone.style.top = rect.top + window.scrollY + 'px';
+                    clone.style.left = rect.left + window.scrollX + 'px';
+                    clone.style.width = rect.width + 'px';
+                    clone.style.height = rect.height + 'px';
+                    clone.style.position = 'absolute';
+
+                    const close = document.createElement('button');
+                    close.className = 'dealer-overlay-close';
+                    close.innerText = 'Schließen';
+                    clone.appendChild(close);
+
+                    document.body.appendChild(clone);
+                    document.body.classList.add('portal-lock');
+
+                    requestAnimationFrame(() => {
+                        clone.style.position = 'fixed';
+                        clone.style.top = rect.top + 'px';
+                        clone.style.left = rect.left + 'px';
+                        requestAnimationFrame(() => clone.classList.add('is-open'));
+                    });
+
+                    const closeClone = () => {
+                        clearMapFocus();
+                        backdrop.classList.remove('visible');
+                        clone.classList.add('dealer-card-closing');
+                        clone.classList.remove('is-open');
+                        clone.style.top = rect.top + 'px';
+                        clone.style.left = rect.left + 'px';
+                        clone.style.width = rect.width + 'px';
+                        clone.style.height = rect.height + 'px';
+
+                        setTimeout(() => {
+                            clone.remove();
+                            backdrop.remove();
+                            document.body.classList.remove('portal-lock');
+                        }, 320);
+                    };
+
+                    close.addEventListener('click', closeClone);
+                    backdrop.addEventListener('click', closeClone);
+                };
+            });
+        }
+
+        function renderDealers(items) {
+            const grid = document.getElementById('dealerGrid');
+            grid.innerHTML = items.map((dealer, index) => `
+        <div class="dealer-card wow animate__animated animate__fadeInUp" data-dealer-id="${dealer.id}" data-wow-offset="60" data-wow-delay="${(index % 4) * 0.08}s">
+          <div class="dealer-side">
+            <div><h3>${dealer.name}</h3><p>${dealer.city} · ${dealer.region} · ${dealer.status}</p></div>
+            <div class="dealer-meta"><span class="meta-pill">${dealer.brand}</span><span class="meta-pill">${dealer.focus.join(' · ')}</span></div>
+            <div class="dealer-copy">${dealer.excerpt}</div>
+            <div class="dealer-tags">${dealer.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
+            <div class="dealer-actions"><button class="btn btn-main">Profil ansehen</button><button class="btn btn-ghost">Kontakt</button></div>
+          </div>
+          <div class="dealer-preview">
+            <div class="preview-map-ring"></div>
+            <div class="preview-map-dot" style="background:${markerColor(dealer.markerStyle)}"></div>
+            <div class="preview-name">${dealer.city} · ${dealer.status}</div>
+          </div>
+        </div>
+      `).join('');
+            attachDealerExpand();
+            new WOW({ boxClass: 'wow', animateClass: 'animate__animated', offset: 60, mobile: true, live: true }).init();
+        }
+
+        function updateMap(items) {
+            if (!map) return;
+            map.removeMarkers();
+            map.addMarkers(items.map((dealer) => ({
+                name: dealer.name,
+                coords: dealer.latLng,
+                style: { fill: markerColor(dealer.markerStyle), stroke: '#08111e', strokeWidth: 2, r: 7 }
+            })));
+        }
+
+        function filterDealers() {
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const region = document.getElementById('regionFilter').value;
+            const brand = document.getElementById('brandFilter').value;
+            const filtered = dealers.filter(dealer => {
+                const hay = `${dealer.name} ${dealer.city} ${dealer.brand} ${dealer.focus.join(' ')} ${dealer.tags.join(' ')}`.toLowerCase();
+                const matchesSearch = !search || hay.includes(search);
+                const matchesRegion = region === 'all' || dealer.region === region;
+                const matchesBrand = brand === 'all' || dealer.brand === brand;
+                return matchesSearch && matchesRegion && matchesBrand;
+            });
+            renderDealers(filtered);
+            updateMap(filtered);
+        }
+
+        document.querySelectorAll('.chip-toggle').forEach(el => el.addEventListener('click', () => el.classList.toggle('active')));
+        document.getElementById('filterBtn').addEventListener('click', filterDealers);
+        document.getElementById('searchInput').addEventListener('input', filterDealers);
+        document.getElementById('regionFilter').addEventListener('change', filterDealers);
+        document.getElementById('brandFilter').addEventListener('change', filterDealers);
+
+        map = new jsVectorMap({
+            selector: '#dealer-map',
+            map: 'world',
+            zoomButtons: true,
+            zoomOnScroll: false,
+            selectedRegions: ['DE'],
+            regionStyle: {
+                initial: { fill: '#1b2a45', stroke: '#31435f', strokeWidth: 1 },
+                selected: { fill: '#2f79ff' },
+                hover: { fill: '#2a4c7e' }
+            },
+            backgroundColor: '#101a2d',
+            markers: dealers.map((dealer) => ({
+                name: dealer.name,
+                coords: dealer.latLng,
+                style: { fill: markerColor(dealer.markerStyle), stroke: '#08111e', strokeWidth: 2, r: 7 }
+            })),
+            onMarkerTooltipShow(event, tooltip, index) {
+                const dealer = dealers[index];
+                tooltip.text(`${dealer.name} · ${dealer.city}`);
+            },
+            onLoaded() {
+                setTimeout(() => focusDealerOnMap(dealers[0]), 500);
+            }
+        });
+
+        renderDealers(dealers);
+        new WOW({ boxClass: 'wow', animateClass: 'animate__animated', offset: 60, mobile: true, live: true }).init();
+
+        const sections = [...document.querySelectorAll('section[id]')];
+        const navLinks = [...document.querySelectorAll('.side-link')];
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    const active = document.querySelector('.side-link[href="#' + id + '"]');
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { threshold: .55 });
+        sections.forEach(s => observer.observe(s));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

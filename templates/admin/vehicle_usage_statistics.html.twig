@@ -1,0 +1,7 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Fahrzeugdatenbank Statistik{% endblock %}
+
+{% block main %}
+    {% include 'admin/statistics/_vehicle_usage.html.twig' with { embedded: false } %}
+{% endblock %}

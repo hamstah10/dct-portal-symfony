@@ -1,0 +1,294 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ websiteWidget.title|default('Anfrage') }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        html,
+        body {
+            min-height: 0 !important;
+            background: {{ websiteWidget.backgroundColor|default('#ffffff') }} !important;
+        }
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .widget-inquiry-page {
+            --widget-primary: {{ websiteWidget.primaryColor|default('#5a2116') }};
+            --widget-bg: {{ websiteWidget.backgroundColor|default('#ffffff') }};
+            --widget-text: {{ websiteWidget.textColor|default('#1a1a1a') }};
+            min-height: auto;
+            background: var(--widget-bg);
+            color: var(--widget-text);
+            padding: 32px 16px;
+        }
+
+        .widget-inquiry-shell {
+            width: min(880px, 100%);
+            margin: 0 auto;
+        }
+
+        .widget-inquiry-box {
+            border: 1px solid color-mix(in srgb, var(--widget-text) 18%, transparent);
+            border-radius: 8px;
+            background: color-mix(in srgb, var(--widget-bg) 90%, var(--widget-text) 10%);
+            padding: 20px;
+        }
+
+        .widget-inquiry-title {
+            margin: 0;
+            font-size: clamp(1.4rem, 3vw, 2.1rem);
+            font-weight: 700;
+        }
+
+        .widget-inquiry-subtitle,
+        .widget-inquiry-vehicle {
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .widget-inquiry-vehicle-card {
+            margin-top: 20px;
+            border: 1px solid color-mix(in srgb, var(--widget-text) 16%, transparent);
+            border-radius: 8px;
+            padding: 14px;
+            background: color-mix(in srgb, var(--widget-bg) 84%, var(--widget-primary) 16%);
+        }
+
+        .widget-inquiry-vehicle-title {
+            margin: 0 0 10px;
+            font-weight: 700;
+        }
+
+        .widget-inquiry-vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .widget-inquiry-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .widget-inquiry-option {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 6px 12px;
+            border: 1px solid color-mix(in srgb, var(--widget-primary) 55%, transparent);
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--widget-bg) 86%, var(--widget-primary) 14%);
+            color: var(--widget-text);
+            font-weight: 700;
+        }
+
+        .widget-inquiry-vehicle-label {
+            display: block;
+            font-size: 0.78rem;
+            opacity: 0.72;
+        }
+
+        .widget-inquiry-vehicle-value {
+            font-weight: 700;
+        }
+
+        .widget-inquiry-page .btn-primary {
+            background: var(--widget-primary) !important;
+            border-color: var(--widget-primary) !important;
+            color: var(--widget-bg) !important;
+        }
+
+        {{ websiteWidget.customCss|default('')|raw }}
+    </style>
+{% endblock %}
+
+{% block body %}
+    <main class="widget-inquiry-page">
+        <div class="widget-inquiry-shell">
+            <div class="widget-inquiry-box">
+                <h1 class="widget-inquiry-title">{{ websiteWidget.title|default('Anfrage senden') }}</h1>
+                {% if websiteWidget.subtitle|default('') %}
+                    <div class="widget-inquiry-subtitle">{{ websiteWidget.subtitle }}</div>
+                {% endif %}
+
+                <div class="widget-inquiry-vehicle-card">
+                    <div class="widget-inquiry-vehicle-title">Ausgewaehltes Fahrzeug</div>
+                    <div class="widget-inquiry-vehicle-grid">
+                        {% set vehicleRows = {
+                            'Fahrzeugtyp': vehicle.type,
+                            'Marke': vehicle.brand,
+                            'Baureihe': vehicle.series,
+	                            'Modell': vehicle.model,
+	                            'Motor': vehicle.engine,
+	                            'Stage': vehicle.stage,
+	                        } %}
+                        {% for label, value in vehicleRows %}
+                            {% if value is not empty %}
+                                <div>
+                                    <span class="widget-inquiry-vehicle-label">{{ label }}</span>
+                                    <span class="widget-inquiry-vehicle-value">{{ value }}</span>
+                                </div>
+                            {% endif %}
+	                        {% endfor %}
+	                    </div>
+                        {% set selectedOptions = vehicle.options|default('')|split(',')|map(option => option|trim)|filter(option => option is not empty) %}
+                        {% if selectedOptions is not empty %}
+                            <div class="widget-inquiry-options" aria-label="Ausgewaehlte Tuning-Optionen">
+                                {% for option in selectedOptions %}
+                                    <span class="widget-inquiry-option">{{ option }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+	                </div>
+
+                {% if success %}
+                    <div class="alert alert-success mt-4">
+                        <strong>{{ websiteWidget.successTitle|default('Anfrage gesendet!') }}</strong>
+                        {% if websiteWidget.successMessage|default('') %}
+                            <div>{{ websiteWidget.successMessage }}</div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    {% if error %}
+                        <div class="alert alert-danger mt-4">{{ error }}</div>
+                    {% endif %}
+
+                    <form method="post" class="mt-4">
+                        {% for key, value in vehicle %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="widgetName" class="form-label">Name *</label>
+                                <input id="widgetName" name="name" type="text" class="form-control" value="{{ app.request.request.get('name') }}" required>
+                            </div>
+
+                            {% if websiteWidget.fields.phone.visible|default(true) %}
+                                <div class="col-12 col-md-6">
+                                    <label for="widgetPhone" class="form-label">Telefon{{ websiteWidget.fields.phone.required|default(false) ? ' *' : '' }}</label>
+                                    <input id="widgetPhone" name="phone" type="tel" class="form-control" value="{{ app.request.request.get('phone') }}" {{ websiteWidget.fields.phone.required|default(false) ? 'required' : '' }}>
+                                </div>
+                            {% endif %}
+
+                            {% if websiteWidget.fields.email.visible|default(true) %}
+                                <div class="col-12 col-md-6">
+                                    <label for="widgetEmail" class="form-label">E-Mail{{ websiteWidget.fields.email.required|default(false) ? ' *' : '' }}</label>
+                                    <input id="widgetEmail" name="email" type="email" class="form-control" value="{{ app.request.request.get('email') }}" {{ websiteWidget.fields.email.required|default(false) ? 'required' : '' }}>
+                                </div>
+                            {% endif %}
+
+                            {% if websiteWidget.fields.finVin.visible|default(false) %}
+                                <div class="col-12 col-md-6">
+                                    <label for="widgetFinVin" class="form-label">FIN/VIN</label>
+                                    <input id="widgetFinVin" name="finVin" type="text" class="form-control" value="{{ app.request.request.get('finVin') }}">
+                                </div>
+                            {% endif %}
+
+                            {% if websiteWidget.fields.licensePlate.visible|default(false) %}
+                                <div class="col-12 col-md-6">
+                                    <label for="widgetLicensePlate" class="form-label">Kennzeichen</label>
+                                    <input id="widgetLicensePlate" name="licensePlate" type="text" class="form-control" value="{{ app.request.request.get('licensePlate') }}">
+                                </div>
+                            {% endif %}
+
+                            {% if websiteWidget.fields.mileage.visible|default(false) %}
+                                <div class="col-12 col-md-6">
+                                    <label for="widgetMileage" class="form-label">Kilometerstand</label>
+                                    <input id="widgetMileage" name="mileage" type="text" class="form-control" value="{{ app.request.request.get('mileage') }}">
+                                </div>
+                            {% endif %}
+
+                            <div class="col-12">
+                                <label for="widgetMessage" class="form-label">Nachricht</label>
+                                <textarea id="widgetMessage" name="message" class="form-control" rows="4">{{ app.request.request.get('message') }}</textarea>
+                            </div>
+
+                            {% if websiteWidget.privacy.required|default(true) %}
+                                <div class="col-12">
+                                    <label class="form-check">
+                                        <input name="privacyAccepted" type="checkbox" class="form-check-input" required>
+                                        <span class="form-check-label">
+                                            {{ websiteWidget.privacy.textHtml|default('Ich habe die Datenschutzerklaerung gelesen und akzeptiere sie.')|raw }}
+                                            {% if websiteWidget.privacy.url|default('') %}
+                                                <a href="{{ websiteWidget.privacy.url }}" target="_blank" rel="noopener">Datenschutz</a>
+                                            {% endif %}
+                                        </span>
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">{{ websiteWidget.buttonText|default('Anfrage senden') }}</button>
+                            </div>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+    <script>
+        (() => {
+            const sendWidgetHeight = () => {
+                const shell = document.querySelector('.widget-inquiry-shell');
+                const page = document.querySelector('.widget-inquiry-page');
+                const root = shell || page || document.body;
+                if (!root) {
+                    return;
+                }
+
+                const rect = root.getBoundingClientRect();
+                const height = Math.max(
+                    root.scrollHeight || 0,
+                    root.offsetHeight || 0,
+                    Math.ceil(rect.height || 0)
+                );
+
+                window.parent?.postMessage({
+                    type: 'tuningfux-widget-height',
+                    height: height + 8,
+                }, '*');
+            };
+
+            let resizeFrame = 0;
+            const scheduleWidgetHeight = () => {
+                window.cancelAnimationFrame(resizeFrame);
+                resizeFrame = window.requestAnimationFrame(sendWidgetHeight);
+            };
+
+            window.addEventListener('load', scheduleWidgetHeight);
+            window.addEventListener('resize', scheduleWidgetHeight);
+            window.addEventListener('message', (event) => {
+                if (event.data?.type === 'tuningfux-widget-height-request') {
+                    scheduleWidgetHeight();
+                }
+            });
+
+            if ('ResizeObserver' in window) {
+                const observer = new ResizeObserver(scheduleWidgetHeight);
+                observer.observe(document.documentElement);
+                if (document.body) {
+                    observer.observe(document.body);
+                }
+            }
+
+            if ('MutationObserver' in window && document.body) {
+                new MutationObserver(scheduleWidgetHeight).observe(document.body, {
+                    attributes: true,
+                    childList: true,
+                    subtree: true,
+                });
+            }
+
+            [50, 250, 700, 1400].forEach((delay) => {
+                window.setTimeout(scheduleWidgetHeight, delay);
+            });
+        })();
+    </script>
+{% endblock %}

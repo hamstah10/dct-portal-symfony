@@ -1,0 +1,1819 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chiptuning Leistungskurve + Social Card Export</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #FCFEF9;
+      --panel: #EAF5D2;
+      --text: #283B51;
+      --original: #81A76A;
+      --stage: #82CC00;
+      --stage-fill: #ADD96A;
+      --grid: #C8CED1;
+      --accent-soft: rgba(40, 59, 81, 0.08);
+      --canvas-bg: rgba(255, 255, 255, 0.45);
+      --btn-primary: #283B51;
+      --btn-secondary: #82CC00;
+      --btn-export: #81A76A;
+      --card-bg: #ffffff;
+      --card-muted: rgba(40, 59, 81, 0.75);
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 18px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      transition: background .25s ease, color .25s ease;
+    }
+
+    .container {
+      max-width: 1450px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      margin: 0 0 28px;
+      opacity: .85;
+      max-width: 1000px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 20px;
+    }
+
+    .panel,
+    .chart-panel,
+    .social-panel,
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--accent-soft);
+      border-radius: 0;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .panel,
+    .chart-panel,
+    .social-panel {
+      padding: 20px;
+    }
+
+    .panel h2,
+    .social-panel h2 {
+      margin: 0 0 18px;
+      font-size: 20px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .field select,
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="file"],
+    .field input[type="url"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 0;
+      border: 1px solid rgba(40, 59, 81, 0.15);
+      background: #fff;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .upload-note {
+      font-size: 12px;
+      opacity: .72;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .preview-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .mini-preview {
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid var(--accent-soft);
+      border-radius: 0;
+      padding: 10px;
+      min-height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .mini-preview img {
+      max-width: 100%;
+      max-height: 88px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .mini-preview.car img {
+      object-fit: cover;
+      width: 100%;
+      height: 88px;
+      border-radius: 0;
+    }
+
+    .mini-placeholder {
+      font-size: 12px;
+      opacity: .65;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 0;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: var(--btn-primary);
+      transition: transform .15s ease, opacity .15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: .94;
+    }
+
+    .btn-secondary {
+      background: var(--btn-secondary);
+    }
+
+    .btn-export {
+      background: var(--btn-export);
+    }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 13px;
+      opacity: .8;
+      line-height: 1.5;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      padding: 18px;
+    }
+
+    .stat .label {
+      font-size: 13px;
+      margin-bottom: 8px;
+      opacity: .8;
+    }
+
+    .stat .value {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .stat .note {
+      margin-top: 6px;
+      font-size: 12px;
+      opacity: .75;
+    }
+
+    .chart-top,
+    .social-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend-mini {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
+    .legend-mini span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 0;
+      display: inline-block;
+    }
+
+    .dot.original {
+      background: var(--original);
+    }
+
+    .dot.stage {
+      background: var(--stage);
+    }
+
+    .dot.ps {
+      background: var(--text);
+    }
+
+    .dot.ps-stage {
+      background: var(--stage-fill);
+    }
+
+    .canvas-wrap {
+      height: 620px;
+      background: var(--canvas-bg);
+      border-radius: 0;
+      padding: 10px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .social-card-wrap {
+      overflow: auto;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 0;
+      padding: 14px;
+    }
+
+    .social-card {
+      width: 1200px;
+      min-height: 630px;
+      background: var(--card-bg);
+      color: var(--text);
+      border-radius: 0;
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--accent-soft);
+      transition: width .2s ease, min-height .2s ease;
+    }
+
+    .social-header {
+      padding: 28px 34px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0)),
+        linear-gradient(90deg, var(--text), var(--stage));
+      color: #fff;
+      position: relative;
+    }
+
+    .social-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 0;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: .03em;
+    }
+
+    .social-title {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.08;
+      margin: 0 0 8px;
+    }
+
+    .social-subtitle {
+      margin: 0;
+      font-size: 18px;
+      opacity: .92;
+    }
+
+    .logo-box {
+      min-width: 220px;
+      max-width: 260px;
+      min-height: 96px;
+      padding: 16px 18px;
+      border-radius: 0;
+      background: rgba(255, 255, 255, 0.14);
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-label {
+      font-size: 12px;
+      opacity: .82;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.15;
+      word-break: break-word;
+    }
+
+    .logo-image {
+      max-width: 100%;
+      max-height: 70px;
+      object-fit: contain;
+      object-position: right center;
+      display: none;
+      margin-left: auto;
+    }
+
+    .social-watermark {
+      position: absolute;
+      right: 28px;
+      bottom: 22px;
+      width: 160px;
+      height: 70px;
+      display: none;
+      opacity: .11;
+      object-fit: contain;
+      object-position: right center;
+      pointer-events: none;
+    }
+
+    .social-body {
+      padding: 28px 34px 30px;
+      display: grid;
+      grid-template-columns: 1.18fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .perf-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .perf-box {
+      border-radius: 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--accent-soft);
+    }
+
+    .perf-box.stage-box {
+      outline: 2px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .perf-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      opacity: .75;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .perf-main {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .perf-sub {
+      font-size: 22px;
+      font-weight: 700;
+      opacity: .9;
+    }
+
+    .gain-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .gain-box {
+      border-radius: 0;
+      padding: 20px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--text), var(--stage));
+    }
+
+    .gain-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      opacity: .88;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .gain-value {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .gain-note {
+      margin-top: 8px;
+      font-size: 14px;
+      opacity: .88;
+    }
+
+    .car-photo-box {
+      margin-top: 4px;
+      border-radius: 0;
+      overflow: hidden;
+      height: 190px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.35));
+      border: 1px solid var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .car-photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .car-photo-placeholder {
+      font-size: 15px;
+      opacity: .6;
+      text-align: center;
+      padding: 20px;
+      line-height: 1.5;
+    }
+
+    .social-chart-box {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--accent-soft);
+      border-radius: 0;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .social-chart-box canvas {
+      width: 100% !important;
+      height: 460px !important;
+    }
+
+    .social-footer {
+      padding: 0 34px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      color: var(--card-muted);
+      font-size: 15px;
+    }
+
+    .social-footer strong {
+      color: var(--text);
+    }
+
+    .format-note {
+      font-size: 12px;
+      opacity: .7;
+    }
+
+    @media (max-width: 1080px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .canvas-wrap {
+        height: 460px;
+      }
+
+      .preview-row,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Chiptuning Leistungskurve</h1>
+    <p class="subtitle">
+      Komplettversion mit Theme-Switcher, Logo-Upload, Fahrzeugbild-Upload, Bild-URL, Diagramm-Export und
+      Social-Card-Export in mehreren Formaten.
+    </p>
+
+    <div class="layout">
+      <aside class="panel">
+        <h2>Einstellungen</h2>
+
+        <div class="field">
+          <label for="themeSwitcher">Farbpalette</label>
+          <select id="themeSwitcher">
+            <option value="steelred">Steel Red</option>
+            <option value="green">Theme Green</option>
+            <option value="blue">Theme Blue</option>
+            <option value="red">Theme Red</option>
+            <option value="dark">Dark Tuning</option>
+            <option value="motorsport">Motorsport</option>
+            <option value="oem">OEM Style</option>
+            <option value="eco">Eco</option>
+            <option value="limeblue">Lime Blue</option>
+          </select>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="vehicleSelect">Fahrzeug</label>
+            <select id="vehicleSelect"></select>
+          </div>
+
+          <div class="field">
+            <label for="engineType">Kurventyp</label>
+            <select id="engineType">
+              <option value="diesel">Turbo Diesel</option>
+              <option value="petrol">Turbo Benziner</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="brandText">Markenname</label>
+            <input id="brandText" type="text" value="">
+          </div>
+
+          <div class="field">
+            <label for="socialTagline">Unterzeile</label>
+            <input id="socialTagline" type="text" value="Stage 1 Leistungsoptimierung">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="socialFormat">Social Format</label>
+            <select id="socialFormat">
+              <option value="facebook">Facebook / OG 1200×630</option>
+              <option value="instagram-square">Instagram 1080×1080</option>
+              <option value="instagram-portrait">Instagram 1080×1350</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="watermarkToggle">Watermark Logo</label>
+            <select id="watermarkToggle">
+              <option value="on">Ein</option>
+              <option value="off">Aus</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="logoUpload">Logo hochladen</label>
+          <input id="logoUpload" type="file" accept="image/*">
+          <div class="upload-note">Bei Logo-Upload verschwindet das Wort „Branding“ automatisch.</div>
+        </div>
+
+        <div class="field">
+          <label for="carUpload">Fahrzeugbild hochladen</label>
+          <input id="carUpload" type="file" accept="image/*">
+        </div>
+
+        <div class="field">
+          <label for="carImageUrl">Oder Fahrzeugbild per URL</label>
+          <input id="carImageUrl" type="url" placeholder="https://.../fahrzeug.jpg">
+          <div class="upload-note">Ohne Backend ist das die einfachste Alternative zu einer API-/Google-Bildquelle.
+          </div>
+        </div>
+
+        <div class="preview-row">
+          <div class="mini-preview" id="logoMiniPreview">
+            <div class="mini-placeholder">Kein Logo gewählt</div>
+          </div>
+          <div class="mini-preview car" id="carMiniPreview">
+            <div class="mini-placeholder">Kein Fahrzeugbild gewählt</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:14px;">
+          <div class="field">
+            <label for="origPs">Serie PS</label>
+            <input id="origPs" type="number">
+          </div>
+
+          <div class="field">
+            <label for="origNm">Serie Nm</label>
+            <input id="origNm" type="number">
+          </div>
+
+          <div class="field">
+            <label for="stagePs">Stage 1 PS</label>
+            <input id="stagePs" type="number">
+          </div>
+
+          <div class="field">
+            <label for="stageNm">Stage 1 Nm</label>
+            <input id="stageNm" type="number">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="updateBtn">Aktualisieren</button>
+          <button id="resetBtn" class="btn-secondary">Fahrzeug neu laden</button>
+          <button id="downloadChartBtn" class="btn-export">Diagramm PNG</button>
+          <button id="downloadSocialBtn" class="btn-export">Social Card PNG</button>
+        </div>
+
+        <div class="hint">
+          Alle bisherigen Funktionen bleiben erhalten. Du kannst weiterhin Themes, Fahrzeuge, Werte, Export und
+          Social-Formate frei wechseln.
+        </div>
+      </aside>
+
+      <main>
+        <div class="stats">
+          <div class="stat">
+            <div class="label">Mehrleistung</div>
+            <div class="value" id="deltaPs">+0 PS</div>
+            <div class="note">Stage 1 minus Serie</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Mehrdrehmoment</div>
+            <div class="value" id="deltaNm">+0 Nm</div>
+            <div class="note">zusätzlicher Durchzug</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Peak Leistung</div>
+            <div class="value" id="peakPsValue">0 PS</div>
+            <div class="note" id="peakPsNote">bei 0 U/min</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">Peak Drehmoment</div>
+            <div class="value" id="peakNmValue">0 Nm</div>
+            <div class="note" id="peakNmNote">bei 0 U/min</div>
+          </div>
+        </div>
+
+        <div class="chart-panel">
+          <div class="chart-top">
+            <strong>Leistungsdiagramm</strong>
+            <div class="legend-mini">
+              <span><i class="dot original"></i> Nm Serie</span>
+              <span><i class="dot stage"></i> Nm Stage 1</span>
+              <span><i class="dot ps"></i> PS Serie</span>
+              <span><i class="dot ps-stage"></i> PS Stage 1</span>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <canvas id="powerChart"></canvas>
+          </div>
+        </div>
+
+        <div class="stack">
+          <div class="social-panel">
+            <div class="social-top">
+              <h2>Social-Media-Card Vorschau</h2>
+              <div class="legend-mini">
+                <span><i class="dot stage"></i> Format umschaltbar</span>
+              </div>
+            </div>
+
+            <div class="format-note" id="formatInfo">Aktuell: 1200 × 630</div>
+
+            <div class="social-card-wrap">
+              <div class="social-card" id="socialCard">
+                <img id="socialWatermark" class="social-watermark" alt="Watermark">
+
+                <div class="social-header">
+                  <div>
+                    <div class="social-badge">CHIPTUNING / STAGE 1</div>
+                    <h3 class="social-title" id="socialVehicleTitle">VW Golf 7 GTD 2.0 TDI</h3>
+                    <p class="social-subtitle" id="socialTaglinePreview">Stage 1 Leistungsoptimierung</p>
+                  </div>
+
+                  <div class="logo-box">
+                    <div class="logo-label" id="brandingLabel">Branding</div>
+                    <img id="socialLogoImage" class="logo-image" alt="Logo">
+                    <div class="logo-text" id="socialBrandText">TFD Performance</div>
+                  </div>
+                </div>
+
+                <div class="social-body">
+                  <div>
+                    <div class="perf-grid">
+                      <div class="perf-box">
+                        <div class="perf-label">Serie</div>
+                        <div class="perf-main" id="socialOrigPs">184 PS</div>
+                        <div class="perf-sub" id="socialOrigNm">380 Nm</div>
+                      </div>
+
+                      <div class="perf-box stage-box">
+                        <div class="perf-label">Stage 1</div>
+                        <div class="perf-main" id="socialStagePs">225 PS</div>
+                        <div class="perf-sub" id="socialStageNm">450 Nm</div>
+                      </div>
+                    </div>
+
+                    <div class="gain-row">
+                      <div class="gain-box">
+                        <div class="gain-label">Mehrleistung</div>
+                        <div class="gain-value" id="socialDeltaPs">+41 PS</div>
+                        <div class="gain-note">spürbar mehr Performance</div>
+                      </div>
+
+                      <div class="gain-box">
+                        <div class="gain-label">Mehrdrehmoment</div>
+                        <div class="gain-value" id="socialDeltaNm">+70 Nm</div>
+                        <div class="gain-note">mehr Durchzug im Alltag</div>
+                      </div>
+                    </div>
+
+                    <div class="car-photo-box">
+                      <img id="socialCarImage" alt="Fahrzeugbild">
+                      <div id="socialCarPlaceholder" class="car-photo-placeholder">
+                        Hier erscheint dein Fahrzeugbild
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="social-chart-box">
+                    <canvas id="socialChart"></canvas>
+                  </div>
+                </div>
+
+                <div class="social-footer">
+                  <div><strong id="socialFooterBrand">TFD Performance</strong> · individuelle Optimierung</div>
+                  <div>Leistungsdiagramm als modellierte Vergleichsdarstellung</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const themes = {
+      green: {
+        bg: "#FCFEF9", panel: "#EAF5D2", text: "#283B51", original: "#81A76A", stage: "#82CC00", stageFill: "#ADD96A",
+        grid: "#C8CED1", canvasBg: "rgba(255,255,255,0.45)", btnPrimary: "#283B51", btnSecondary: "#82CC00", btnExport: "#81A76A",
+        cardBg: "#ffffff", cardMuted: "rgba(40,59,81,0.75)"
+      },
+      blue: {
+        bg: "#F6F8F8", panel: "#D7DDE2", text: "#1E3D6B", original: "#9D8A85", stage: "#2C5E9E", stageFill: "#5995DD",
+        grid: "#D0DAE4", canvasBg: "rgba(255,255,255,0.5)", btnPrimary: "#1E3D6B", btnSecondary: "#2C5E9E", btnExport: "#5995DD",
+        cardBg: "#ffffff", cardMuted: "rgba(30,61,107,0.72)"
+      },
+      red: {
+        bg: "#EBECED", panel: "#FFFFFF", text: "#242222", original: "#A5A5A5", stage: "#F11C24", stageFill: "#CE1D24",
+        grid: "#A5A5A5", canvasBg: "rgba(255,255,255,0.6)", btnPrimary: "#242222", btnSecondary: "#F11C24", btnExport: "#9C1E23",
+        cardBg: "#ffffff", cardMuted: "rgba(36,34,34,0.75)"
+      },
+      dark: {
+        bg: "#0F1113", panel: "#1B1E22", text: "#E6E8EA", original: "#6C757D", stage: "#FF3B30", stageFill: "#B91C1C",
+        grid: "#2E3338", canvasBg: "rgba(27,30,34,0.9)", btnPrimary: "#FF3B30", btnSecondary: "#B91C1C", btnExport: "#6C757D",
+        cardBg: "#15181c", cardMuted: "rgba(230,232,234,0.78)"
+      },
+      motorsport: {
+        bg: "#111111", panel: "#1C1C1C", text: "#FFFFFF", original: "#7A7A7A", stage: "#FFD000", stageFill: "#FFAA00",
+        grid: "#333333", canvasBg: "rgba(28,28,28,0.9)", btnPrimary: "#FFD000", btnSecondary: "#FFAA00", btnExport: "#7A7A7A",
+        cardBg: "#171717", cardMuted: "rgba(255,255,255,0.78)"
+      },
+      oem: {
+        bg: "#F4F6F8", panel: "#FFFFFF", text: "#1C2A39", original: "#8C9AA6", stage: "#007AFF", stageFill: "#5AC8FA",
+        grid: "#D6DCE2", canvasBg: "rgba(255,255,255,0.95)", btnPrimary: "#1C2A39", btnSecondary: "#007AFF", btnExport: "#5AC8FA",
+        cardBg: "#ffffff", cardMuted: "rgba(28,42,57,0.75)"
+      },
+      eco: {
+        bg: "#F3F7F1", panel: "#E4EFE0", text: "#1F3A24", original: "#7C8F7A", stage: "#3FA34D", stageFill: "#8ED081",
+        grid: "#C9D8C6", canvasBg: "rgba(255,255,255,0.7)", btnPrimary: "#1F3A24", btnSecondary: "#3FA34D", btnExport: "#8ED081",
+        cardBg: "#ffffff", cardMuted: "rgba(31,58,36,0.75)"
+      },
+      limeblue: {
+        bg: "#EBECED", panel: "#FFFFFF", text: "#002145", original: "#7B9E23", stage: "#004D92", stageFill: "#A8CB10",
+        grid: "#D6DADF", canvasBg: "rgba(255,255,255,0.75)", btnPrimary: "#002145", btnSecondary: "#004D92", btnExport: "#CBEC01",
+        cardBg: "#ffffff", cardMuted: "rgba(0,33,69,0.75)"
+      },
+      steelred: {
+        bg: "#FDFDFD",
+        panel: "#FDFDFD",
+        text: "#2B2D2F",
+        original: "#9FA0A1",
+        stage: "#F45252",
+        stageFill: "#CD4B4B",
+        grid: "#D1D1D1",
+        canvasBg: "rgba(255,255,255,0.82)",
+        btnPrimary: "#2B2D2F",
+        btnSecondary: "#F45252",
+        btnExport: "#9D4242",
+        cardBg: "#FDFDFD",
+        cardMuted: "rgba(43,45,47,0.72)"
+      }
+    };
+
+    const vehicles = [
+      { id: "audirs7", name: "Audi RS7", type: "petrol", original: { ps: 630, nm: 700 }, stage1: { ps: 750, nm: 950 } },
+
+      { id: "golf7-gtd", name: "VW Golf 7 GTD 2.0 TDI", type: "diesel", original: { ps: 184, nm: 380 }, stage1: { ps: 225, nm: 450 } },
+      { id: "a45-amg", name: "Mercedes A45 AMG", type: "petrol", original: { ps: 381, nm: 475 }, stage1: { ps: 430, nm: 560 } },
+      { id: "320d-g20", name: "BMW 320d G20", type: "diesel", original: { ps: 190, nm: 400 }, stage1: { ps: 225, nm: 470 } },
+      { id: "golf8-gti", name: "VW Golf 8 GTI", type: "petrol", original: { ps: 245, nm: 370 }, stage1: { ps: 300, nm: 450 } }
+    ];
+
+    const socialFormats = {
+      facebook: { width: 1200, height: 630, label: "1200 × 630" },
+      "instagram-square": { width: 1080, height: 1080, label: "1080 × 1080" },
+      "instagram-portrait": { width: 1080, height: 1350, label: "1080 × 1350" }
+    };
+
+    let currentTheme = themes.steelred;
+    let chart = null;
+    let socialChart = null;
+    let latestData = null;
+    const defaultCarImage = "/images/beno_rs7.jpg";
+    let logoImageData = null;
+    let carImageData = defaultCarImage;
+    let currentFormat = "facebook";
+
+    const rpmStart = 1200;
+    const rpmEnd = 7000;
+    const rpmStep = 100;
+    const rpmArray = createRpmArray(rpmStart, rpmEnd, rpmStep);
+
+    const vehicleSelect = document.getElementById("vehicleSelect");
+    const themeSwitcher = document.getElementById("themeSwitcher");
+    const engineType = document.getElementById("engineType");
+    const brandText = document.getElementById("brandText");
+    const socialTagline = document.getElementById("socialTagline");
+    const origPs = document.getElementById("origPs");
+    const origNm = document.getElementById("origNm");
+    const stagePs = document.getElementById("stagePs");
+    const stageNm = document.getElementById("stageNm");
+    const logoUpload = document.getElementById("logoUpload");
+    const carUpload = document.getElementById("carUpload");
+    const carImageUrl = document.getElementById("carImageUrl");
+    const socialFormat = document.getElementById("socialFormat");
+    const watermarkToggle = document.getElementById("watermarkToggle");
+
+    const powerChartCtx = document.getElementById("powerChart").getContext("2d");
+    const socialChartCtx = document.getElementById("socialChart").getContext("2d");
+
+    vehicles.forEach(vehicle => {
+      const option = document.createElement("option");
+      option.value = vehicle.id;
+      option.textContent = vehicle.name;
+      vehicleSelect.appendChild(option);
+    });
+
+    function hexToRgba(hex, alpha) {
+      const value = hex.replace("#", "");
+      const bigint = parseInt(value, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function setCssVars(theme) {
+      document.documentElement.style.setProperty("--bg", theme.bg);
+      document.documentElement.style.setProperty("--panel", theme.panel);
+      document.documentElement.style.setProperty("--text", theme.text);
+      document.documentElement.style.setProperty("--original", theme.original);
+      document.documentElement.style.setProperty("--stage", theme.stage);
+      document.documentElement.style.setProperty("--stage-fill", theme.stageFill);
+      document.documentElement.style.setProperty("--grid", theme.grid);
+      document.documentElement.style.setProperty("--accent-soft", hexToRgba(theme.text, 0.08));
+      document.documentElement.style.setProperty("--canvas-bg", theme.canvasBg);
+      document.documentElement.style.setProperty("--card-bg", theme.cardBg);
+      document.documentElement.style.setProperty("--card-muted", theme.cardMuted);
+      document.documentElement.style.setProperty("--btn-primary", theme.btnPrimary);
+      document.documentElement.style.setProperty("--btn-secondary", theme.btnSecondary);
+      document.documentElement.style.setProperty("--btn-export", theme.btnExport);
+    }
+
+    function createRpmArray(start, end, step) {
+      const arr = [];
+      for (let i = start; i <= end; i += step) arr.push(i);
+      return arr;
+    }
+
+    function rpmToPs(nm, rpm) {
+      return +(nm * rpm / 7023).toFixed(1);
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function smoothstep(edge0, edge1, x) {
+      const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+      return t * t * (3 - 2 * t);
+    }
+
+    function generateTorqueCurve(maxNm, rpmArray, type, variant = "stock") {
+      const min = rpmArray[0];
+      const max = rpmArray[rpmArray.length - 1];
+      const span = max - min;
+
+      let riseStart, riseEnd, plateauEnd, endFactor, lowFactor;
+
+      if (type === "diesel") {
+        riseStart = min + span * 0.03;
+        riseEnd = min + span * 0.23;
+        plateauEnd = min + span * 0.56;
+        lowFactor = variant === "stage" ? 0.66 : 0.58;
+        endFactor = variant === "stage" ? 0.42 : 0.36;
+      } else {
+        riseStart = min + span * 0.08;
+        riseEnd = min + span * 0.34;
+        plateauEnd = min + span * 0.68;
+        lowFactor = variant === "stage" ? 0.58 : 0.50;
+        endFactor = variant === "stage" ? 0.50 : 0.45;
+      }
+
+      return rpmArray.map((rpm) => {
+        let value;
+        if (rpm <= riseEnd) {
+          const t = smoothstep(riseStart, riseEnd, rpm);
+          value = maxNm * (lowFactor + (1 - lowFactor) * t);
+        } else if (rpm <= plateauEnd) {
+          const t = smoothstep(riseEnd, plateauEnd, rpm);
+          const drop = type === "diesel" ? 0.07 : 0.04;
+          value = maxNm * (1 - drop * t);
+        } else {
+          const t = smoothstep(plateauEnd, max, rpm);
+          value = maxNm * ((type === "diesel" ? 0.93 : 0.96) - ((type === "diesel" ? 0.93 : 0.96) - endFactor) * t);
+        }
+        return +value.toFixed(1);
+      });
+    }
+
+    function fitCurveToTargetPs(torqueCurve, rpmArray, targetPs, type) {
+      const currentPs = torqueCurve.map((nm, i) => rpmToPs(nm, rpmArray[i]));
+      const peak = Math.max(...currentPs);
+      const factor = targetPs / peak;
+
+      return torqueCurve.map((nm, i) => {
+        const rpm = rpmArray[i];
+        const bias = type === "diesel"
+          ? 0.80 + 0.22 * smoothstep(rpmArray[0], rpmArray[rpmArray.length - 1], rpm)
+          : 0.84 + 0.16 * smoothstep(rpmArray[0], rpmArray[rpmArray.length - 1], rpm);
+
+        return +(nm * (1 + ((factor - 1) * bias))).toFixed(1);
+      });
+    }
+
+    function findPeak(data, labels) {
+      const value = Math.max(...data);
+      const index = data.indexOf(value);
+      return { value, index, rpm: labels[index] };
+    }
+
+    function animateNumber(el, target, suffix = "", prefix = "") {
+      const duration = 500;
+      const startTime = performance.now();
+      const currentText = el.textContent.replace(/[^\d.-]/g, "");
+      const start = parseFloat(currentText) || 0;
+
+      function frame(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = start + (target - start) * eased;
+        const rounded = Math.round(value * 10) / 10;
+        el.textContent = `${prefix}${Number.isInteger(rounded) ? rounded : rounded.toFixed(1)}${suffix}`;
+        if (progress < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    const peakMarkerPlugin = {
+      id: "peakMarkerPlugin",
+      afterDatasetsDraw(chart, args, options) {
+        if (!options || !options.enabled) return;
+        const { ctx } = chart;
+        options.markers.forEach(marker => {
+          const meta = chart.getDatasetMeta(marker.datasetIndex);
+          if (!meta || !meta.data || !meta.data[marker.index]) return;
+          const point = meta.data[marker.index];
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = marker.color;
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+
+          ctx.fillStyle = currentTheme.text;
+          ctx.font = "bold 12px Arial";
+          ctx.fillText(marker.label, point.x + 10, point.y - 10);
+          ctx.restore();
+        });
+      }
+    };
+    Chart.register(peakMarkerPlugin);
+
+    function loadVehicle(vehicleId) {
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      if (!vehicle) return;
+      engineType.value = vehicle.type;
+      origPs.value = vehicle.original.ps;
+      origNm.value = vehicle.original.nm;
+      stagePs.value = vehicle.stage1.ps;
+      stageNm.value = vehicle.stage1.nm;
+      buildCharts();
+    }
+
+    function updateSocialFormatPreview() {
+      const format = socialFormats[currentFormat];
+      document.getElementById("formatInfo").textContent = `Aktuell: ${format.label}`;
+
+      const socialCard = document.getElementById("socialCard");
+      if (currentFormat === "facebook") {
+        socialCard.style.width = "1200px";
+        socialCard.style.minHeight = "630px";
+      } else if (currentFormat === "instagram-square") {
+        socialCard.style.width = "1080px";
+        socialCard.style.minHeight = "1080px";
+      } else {
+        socialCard.style.width = "1080px";
+        socialCard.style.minHeight = "1350px";
+      }
+    }
+
+    function updateSocialText() {
+      const vehicleName = vehicleSelect.selectedOptions[0]?.textContent || "Fahrzeug";
+      const brand = brandText.value.trim() || "TFD Performance";
+      const tagline = socialTagline.value.trim() || "Stage 1 Leistungsoptimierung";
+
+      document.getElementById("socialVehicleTitle").textContent = vehicleName;
+      document.getElementById("socialTaglinePreview").textContent = tagline;
+      document.getElementById("socialBrandText").textContent = brand;
+      document.getElementById("socialFooterBrand").textContent = brand;
+
+      if (latestData) {
+        document.getElementById("socialOrigPs").textContent = `${latestData.stockPs} PS`;
+        document.getElementById("socialOrigNm").textContent = `${latestData.stockNm} Nm`;
+        document.getElementById("socialStagePs").textContent = `${latestData.tunedPs} PS`;
+        document.getElementById("socialStageNm").textContent = `${latestData.tunedNm} Nm`;
+        document.getElementById("socialDeltaPs").textContent = `+${latestData.tunedPs - latestData.stockPs} PS`;
+        document.getElementById("socialDeltaNm").textContent = `+${latestData.tunedNm - latestData.stockNm} Nm`;
+      }
+    }
+
+    function updateImagePreviews() {
+      const logoMini = document.getElementById("logoMiniPreview");
+      const carMini = document.getElementById("carMiniPreview");
+      const brandingLabel = document.getElementById("brandingLabel");
+      const socialLogoImage = document.getElementById("socialLogoImage");
+      const socialBrandText = document.getElementById("socialBrandText");
+      const socialWatermark = document.getElementById("socialWatermark");
+      const socialCarImage = document.getElementById("socialCarImage");
+      const socialCarPlaceholder = document.getElementById("socialCarPlaceholder");
+
+      logoMini.innerHTML = logoImageData
+        ? `<img src="${logoImageData}" alt="Logo Vorschau">`
+        : `<div class="mini-placeholder">Kein Logo gewählt</div>`;
+
+      carMini.innerHTML = carImageData
+        ? `<img src="${carImageData}" alt="Fahrzeug Vorschau">`
+        : `<div class="mini-placeholder">Kein Fahrzeugbild gewählt</div>`;
+
+      if (logoImageData) {
+        socialLogoImage.src = logoImageData;
+        socialLogoImage.style.display = "block";
+        socialBrandText.style.display = "none";
+        brandingLabel.style.display = "none";
+      } else {
+        socialLogoImage.removeAttribute("src");
+        socialLogoImage.style.display = "none";
+        socialBrandText.style.display = "block";
+        brandingLabel.style.display = "block";
+      }
+
+      if (logoImageData && watermarkToggle.value === "on") {
+        socialWatermark.src = logoImageData;
+        socialWatermark.style.display = "block";
+      } else {
+        socialWatermark.removeAttribute("src");
+        socialWatermark.style.display = "none";
+      }
+
+      if (carImageData) {
+        socialCarImage.src = carImageData;
+        socialCarImage.style.display = "block";
+        socialCarPlaceholder.style.display = "none";
+      } else {
+        socialCarImage.removeAttribute("src");
+        socialCarImage.style.display = "none";
+        socialCarPlaceholder.style.display = "block";
+      }
+    }
+
+    function buildCharts() {
+      const type = engineType.value;
+      const stockPs = +origPs.value;
+      const stockNm = +origNm.value;
+      const tunedPs = +stagePs.value;
+      const tunedNm = +stageNm.value;
+
+      let stockTorque = generateTorqueCurve(stockNm, rpmArray, type, "stock");
+      let tunedTorque = generateTorqueCurve(tunedNm, rpmArray, type, "stage");
+
+      stockTorque = fitCurveToTargetPs(stockTorque, rpmArray, stockPs, type);
+      tunedTorque = fitCurveToTargetPs(tunedTorque, rpmArray, tunedPs, type);
+
+      const stockPower = stockTorque.map((nm, i) => rpmToPs(nm, rpmArray[i]));
+      const tunedPower = tunedTorque.map((nm, i) => rpmToPs(nm, rpmArray[i]));
+      const peakNm = findPeak(tunedTorque, rpmArray);
+      const peakPs = findPeak(tunedPower, rpmArray);
+
+      latestData = {
+        stockPs, stockNm, tunedPs, tunedNm,
+        stockTorque, tunedTorque, stockPower, tunedPower,
+        peakNm, peakPs
+      };
+
+      animateNumber(document.getElementById("deltaPs"), tunedPs - stockPs, " PS", "+");
+      animateNumber(document.getElementById("deltaNm"), tunedNm - stockNm, " Nm", "+");
+      animateNumber(document.getElementById("peakPsValue"), peakPs.value, " PS", "");
+      animateNumber(document.getElementById("peakNmValue"), peakNm.value, " Nm", "");
+
+      document.getElementById("peakPsNote").textContent = `bei ${peakPs.rpm} U/min`;
+      document.getElementById("peakNmNote").textContent = `bei ${peakNm.rpm} U/min`;
+
+      updateSocialText();
+      updateImagePreviews();
+      updateSocialFormatPreview();
+      buildMainChart();
+      buildSocialChart();
+    }
+
+    function buildMainChart() {
+      if (!latestData) return;
+      if (chart) chart.destroy();
+
+      const stageGradient = powerChartCtx.createLinearGradient(0, 0, 0, 520);
+      stageGradient.addColorStop(0, hexToRgba(currentTheme.stageFill, 0.55));
+      stageGradient.addColorStop(1, hexToRgba(currentTheme.stageFill, 0.10));
+
+      chart = new Chart(powerChartCtx, {
+        type: "line",
+        data: {
+          labels: rpmArray,
+          datasets: [
+            {
+              label: "Drehmoment Serie",
+              data: latestData.stockTorque,
+              borderColor: currentTheme.original,
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              yAxisID: "yNm"
+            },
+            {
+              label: "Drehmoment Stage 1",
+              data: latestData.tunedTorque,
+              borderColor: currentTheme.stage,
+              backgroundColor: stageGradient,
+              borderWidth: 4,
+              tension: 0.34,
+              pointRadius: 0,
+              fill: true,
+              yAxisID: "yNm"
+            },
+            {
+              label: "Leistung Serie",
+              data: latestData.stockPower,
+              borderColor: currentTheme.text,
+              borderDash: [7, 5],
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              yAxisID: "yPs"
+            },
+            {
+              label: "Leistung Stage 1",
+              data: latestData.tunedPower,
+              borderColor: currentTheme.stageFill,
+              borderDash: [7, 5],
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              yAxisID: "yPs"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: "easeOutQuart" },
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#fff",
+              titleColor: currentTheme.text,
+              bodyColor: currentTheme.text,
+              borderColor: currentTheme.grid,
+              borderWidth: 1,
+              callbacks: {
+                title(items) { return `${items[0].label} U/min`; }
+              }
+            },
+            peakMarkerPlugin: {
+              enabled: true,
+              markers: [
+                { datasetIndex: 1, index: latestData.peakNm.index, color: currentTheme.stage, label: `${latestData.peakNm.value} Nm` },
+                { datasetIndex: 3, index: latestData.peakPs.index, color: currentTheme.text, label: `${latestData.peakPs.value} PS` }
+              ]
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Drehzahl (U/min)", color: currentTheme.text, font: { weight: "bold" } },
+              ticks: { color: currentTheme.text, maxTicksLimit: 12 },
+              grid: { color: currentTheme.grid }
+            },
+            yNm: {
+              type: "linear",
+              position: "left",
+              title: { display: true, text: "Drehmoment (Nm)", color: currentTheme.text, font: { weight: "bold" } },
+              ticks: { color: currentTheme.text },
+              grid: { color: currentTheme.grid }
+            },
+            yPs: {
+              type: "linear",
+              position: "right",
+              title: { display: true, text: "Leistung (PS)", color: currentTheme.text, font: { weight: "bold" } },
+              ticks: { color: currentTheme.text },
+              grid: { drawOnChartArea: false }
+            }
+          }
+        }
+      });
+    }
+
+    function buildSocialChart() {
+      if (!latestData) return;
+      if (socialChart) socialChart.destroy();
+
+      const gradient = socialChartCtx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, hexToRgba(currentTheme.stageFill, 0.45));
+      gradient.addColorStop(1, hexToRgba(currentTheme.stageFill, 0.04));
+
+      socialChart = new Chart(socialChartCtx, {
+        type: "line",
+        data: {
+          labels: rpmArray,
+          datasets: [
+            {
+              data: latestData.stockTorque,
+              borderColor: currentTheme.original,
+              borderWidth: 2.5,
+              tension: 0.34,
+              pointRadius: 0,
+              yAxisID: "yNm"
+            },
+            {
+              data: latestData.tunedTorque,
+              borderColor: currentTheme.stage,
+              backgroundColor: gradient,
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              fill: true,
+              yAxisID: "yNm"
+            },
+            {
+              data: latestData.tunedPower,
+              borderColor: currentTheme.text,
+              borderDash: [5, 4],
+              borderWidth: 2.5,
+              tension: 0.34,
+              pointRadius: 0,
+              yAxisID: "yPs"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: {
+            x: { ticks: { color: currentTheme.text, maxTicksLimit: 6 }, grid: { color: currentTheme.grid } },
+            yNm: { ticks: { color: currentTheme.text, maxTicksLimit: 5 }, grid: { color: currentTheme.grid } },
+            yPs: { position: "right", ticks: { color: currentTheme.text, maxTicksLimit: 5 }, grid: { drawOnChartArea: false } }
+          }
+        }
+      });
+    }
+
+    function readImage(file, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => callback(e.target.result);
+      reader.readAsDataURL(file);
+    }
+
+    async function loadImageFromUrl(url) {
+      if (!url) {
+        carImageData = null;
+        updateImagePreviews();
+        return;
+      }
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = url;
+        });
+
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        carImageData = canvas.toDataURL("image/png");
+        updateImagePreviews();
+      } catch (e) {
+        console.warn("Bild-URL konnte nicht geladen werden:", e);
+      }
+    }
+
+    function sanitizeFilename(input) {
+      return input.toLowerCase()
+        .replace(/[^a-z0-9äöüß]+/gi, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = filename;
+      link.click();
+    }
+
+    function drawRoundedRect(ctx, x, y, w, h, r, fill = true, stroke = false) {
+      r = 0;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function drawImageCover(ctx, img, x, y, w, h, radius = 0) {
+      ctx.save();
+      radius = 0;
+      if (radius > 0) {
+        drawRoundedRect(ctx, x, y, w, h, radius, false, false);
+        ctx.clip();
+      }
+      const imgRatio = img.width / img.height;
+      const boxRatio = w / h;
+      let drawW, drawH, drawX, drawY;
+      if (imgRatio > boxRatio) {
+        drawH = h;
+        drawW = h * imgRatio;
+        drawX = x - (drawW - w) / 2;
+        drawY = y;
+      } else {
+        drawW = w;
+        drawH = w / imgRatio;
+        drawX = x;
+        drawY = y - (drawH - h) / 2;
+      }
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+      ctx.restore();
+    }
+
+    function drawImageContain(ctx, img, x, y, w, h) {
+      const imgRatio = img.width / img.height;
+      const boxRatio = w / h;
+      let drawW, drawH, drawX, drawY;
+      if (imgRatio > boxRatio) {
+        drawW = w;
+        drawH = w / imgRatio;
+        drawX = x;
+        drawY = y + (h - drawH) / 2;
+      } else {
+        drawH = h;
+        drawW = h * imgRatio;
+        drawX = x + (w - drawW) / 2;
+        drawY = y;
+      }
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    function layoutForFormat(formatKey) {
+      if (formatKey === "facebook") {
+        return {
+          width: 1200,
+          height: 630,
+          headerH: 150,
+          leftX: 34,
+          top: 178,
+          leftW: 520,
+          rightX: 580,
+          rightW: 586,
+          chartH: 374,
+          carH: 190,
+          footerY: 596,
+          titleSize: 40,
+          bodyGap: 24
+        };
+      }
+
+      if (formatKey === "instagram-square") {
+        return {
+          width: 1080,
+          height: 1080,
+          headerH: 170,
+          leftX: 36,
+          top: 206,
+          leftW: 470,
+          rightX: 536,
+          rightW: 508,
+          chartH: 540,
+          carH: 230,
+          footerY: 1036,
+          titleSize: 38,
+          bodyGap: 22
+        };
+      }
+
+      return {
+        width: 1080,
+        height: 1350,
+        headerH: 180,
+        leftX: 36,
+        top: 220,
+        leftW: 1008,
+        rightX: 36,
+        rightW: 1008,
+        chartH: 420,
+        carH: 260,
+        footerY: 1306,
+        titleSize: 40,
+        portrait: true
+      };
+    }
+
+    async function exportSocialCard() {
+      if (!latestData) return;
+
+      const vehicleName = vehicleSelect.selectedOptions[0]?.textContent || "fahrzeug";
+      const safeName = sanitizeFilename(vehicleName);
+      const format = layoutForFormat(currentFormat);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = format.width;
+      canvas.height = format.height;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = currentTheme.cardBg;
+      ctx.fillRect(0, 0, format.width, format.height);
+
+      const headerGradient = ctx.createLinearGradient(0, 0, format.width, 0);
+      headerGradient.addColorStop(0, currentTheme.text);
+      headerGradient.addColorStop(1, currentTheme.stage);
+      ctx.fillStyle = headerGradient;
+      ctx.fillRect(0, 0, format.width, format.headerH);
+
+      ctx.fillStyle = "rgba(255,255,255,0.16)";
+      drawRoundedRect(ctx, 34, 28, 170, 32, 16, true, false);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 13px Arial";
+      ctx.fillText("CHIPTUNING / STAGE 1", 48, 49);
+
+      ctx.font = `800 ${format.titleSize}px Arial`;
+      ctx.fillText(document.getElementById("socialVehicleTitle").textContent, 34, 102);
+
+      ctx.font = "18px Arial";
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fillText(document.getElementById("socialTaglinePreview").textContent, 34, 132);
+
+      ctx.fillStyle = "rgba(255,255,255,0.14)";
+      drawRoundedRect(ctx, format.width - 270, 26, 236, 96, 18, true, false);
+
+      if (!logoImageData) {
+        ctx.fillStyle = "rgba(255,255,255,0.82)";
+        ctx.font = "12px Arial";
+        ctx.fillText("BRANDING", format.width - 248, 48);
+      }
+
+      if (logoImageData) {
+        try {
+          const logoImg = await loadImage(logoImageData);
+          drawImageContain(ctx, logoImg, format.width - 248, 50, 190, 52);
+        } catch { }
+      } else {
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "800 24px Arial";
+        ctx.fillText(brandText.value.trim() || "TFD Performance", format.width - 248, 87);
+      }
+
+      if (format.portrait) {
+        const boxW = (format.leftW - 14) / 2;
+
+        drawInfoBox(ctx, format.leftX, format.top, boxW, 132, "Serie", `${latestData.stockPs} PS`, `${latestData.stockNm} Nm`);
+        drawInfoBox(ctx, format.leftX + boxW + 14, format.top, boxW, 132, "Stage 1", `${latestData.tunedPs} PS`, `${latestData.tunedNm} Nm`, true);
+
+        drawGainBox(ctx, format.leftX, format.top + 146, boxW, 132, "Mehrleistung", `+${latestData.tunedPs - latestData.stockPs} PS`, "spürbar mehr Performance");
+        drawGainBox(ctx, format.leftX + boxW + 14, format.top + 146, boxW, 132, "Mehrdrehmoment", `+${latestData.tunedNm - latestData.stockNm} Nm`, "mehr Durchzug im Alltag");
+
+        ctx.fillStyle = "rgba(255,255,255,0.72)";
+        drawRoundedRect(ctx, format.leftX, format.top + 292, format.leftW, format.carH, 20, true, false);
+        ctx.strokeStyle = hexToRgba(currentTheme.text, 0.08);
+        drawRoundedRect(ctx, format.leftX, format.top + 292, format.leftW, format.carH, 20, false, true);
+
+        if (carImageData) {
+          try {
+            const carImg = await loadImage(carImageData);
+            drawImageCover(ctx, carImg, format.leftX, format.top + 292, format.leftW, format.carH, 20);
+          } catch { }
+        } else {
+          ctx.fillStyle = hexToRgba(currentTheme.text, 0.62);
+          ctx.font = "16px Arial";
+          ctx.fillText("Hier erscheint dein Fahrzeugbild", format.leftX + 20, format.top + 430);
+        }
+
+        ctx.fillStyle = "rgba(255,255,255,0.72)";
+        drawRoundedRect(ctx, format.rightX, format.top + 292 + format.carH + 18, format.rightW, format.chartH, 20, true, false);
+        ctx.strokeStyle = hexToRgba(currentTheme.text, 0.08);
+        drawRoundedRect(ctx, format.rightX, format.top + 292 + format.carH + 18, format.rightW, format.chartH, 20, false, true);
+
+        ctx.drawImage(document.getElementById("socialChart"), format.rightX + 16, format.top + 292 + format.carH + 34, format.rightW - 32, format.chartH - 32);
+      } else {
+        const leftW = format.leftW;
+        const gap = 14;
+        const perfW = (leftW - gap) / 2;
+
+        drawInfoBox(ctx, format.leftX, format.top, perfW, 132, "Serie", `${latestData.stockPs} PS`, `${latestData.stockNm} Nm`);
+        drawInfoBox(ctx, format.leftX + perfW + gap, format.top, perfW, 132, "Stage 1", `${latestData.tunedPs} PS`, `${latestData.tunedNm} Nm`, true);
+
+        drawGainBox(ctx, format.leftX, format.top + 146, perfW, 132, "Mehrleistung", `+${latestData.tunedPs - latestData.stockPs} PS`, "spürbar mehr Performance");
+        drawGainBox(ctx, format.leftX + perfW + gap, format.top + 146, perfW, 132, "Mehrdrehmoment", `+${latestData.tunedNm - latestData.stockNm} Nm`, "mehr Durchzug im Alltag");
+
+        ctx.fillStyle = "rgba(255,255,255,0.72)";
+        drawRoundedRect(ctx, format.leftX, format.top + 292, leftW, format.carH, 20, true, false);
+        ctx.strokeStyle = hexToRgba(currentTheme.text, 0.08);
+        drawRoundedRect(ctx, format.leftX, format.top + 292, leftW, format.carH, 20, false, true);
+
+        if (carImageData) {
+          try {
+            const carImg = await loadImage(carImageData);
+            drawImageCover(ctx, carImg, format.leftX, format.top + 292, leftW, format.carH, 20);
+          } catch { }
+        } else {
+          ctx.fillStyle = hexToRgba(currentTheme.text, 0.62);
+          ctx.font = "16px Arial";
+          ctx.fillText("Hier erscheint dein Fahrzeugbild", format.leftX + 20, format.top + 390);
+        }
+
+        ctx.fillStyle = "rgba(255,255,255,0.72)";
+        drawRoundedRect(ctx, format.rightX, format.top, format.rightW, format.chartH, 20, true, false);
+        ctx.strokeStyle = hexToRgba(currentTheme.text, 0.08);
+        drawRoundedRect(ctx, format.rightX, format.top, format.rightW, format.chartH, 20, false, true);
+
+        ctx.drawImage(document.getElementById("socialChart"), format.rightX + 16, format.top + 16, format.rightW - 32, format.chartH - 32);
+      }
+
+      if (logoImageData && watermarkToggle.value === "on") {
+        try {
+          const wm = await loadImage(logoImageData);
+          ctx.save();
+          ctx.globalAlpha = 0.11;
+          drawImageContain(ctx, wm, format.width - 210, format.height - 110, 160, 70);
+          ctx.restore();
+        } catch { }
+      }
+
+      ctx.fillStyle = currentTheme.cardMuted;
+      ctx.font = "15px Arial";
+      ctx.fillText(`${brandText.value.trim() || "TFD Performance"} · individuelle Optimierung`, 34, format.footerY);
+      ctx.textAlign = "right";
+      ctx.fillText("Leistungsdiagramm als modellierte Vergleichsdarstellung", format.width - 36, format.footerY);
+      ctx.textAlign = "left";
+
+      downloadCanvas(canvas, `${safeName}-${latestData.stockPs}-${latestData.tunedPs}-${currentFormat}.png`);
+    }
+
+    function drawInfoBox(ctx, x, y, w, h, label, main, sub, highlight = false) {
+      ctx.fillStyle = "rgba(255,255,255,0.78)";
+      drawRoundedRect(ctx, x, y, w, h, 18, true, false);
+
+      ctx.strokeStyle = highlight ? hexToRgba(currentTheme.stage, 0.18) : hexToRgba(currentTheme.text, 0.08);
+      ctx.lineWidth = highlight ? 2 : 1;
+      drawRoundedRect(ctx, x, y, w, h, 18, false, true);
+
+      ctx.fillStyle = hexToRgba(currentTheme.text, 0.76);
+      ctx.font = "700 13px Arial";
+      ctx.fillText(label.toUpperCase(), x + 20, y + 30);
+
+      ctx.fillStyle = currentTheme.text;
+      ctx.font = "800 38px Arial";
+      ctx.fillText(main, x + 20, y + 72);
+
+      ctx.font = "700 22px Arial";
+      ctx.fillText(sub, x + 20, y + 106);
+    }
+
+    function drawGainBox(ctx, x, y, w, h, label, value, note) {
+      const grad = ctx.createLinearGradient(x, y, x + w, y + h);
+      grad.addColorStop(0, currentTheme.text);
+      grad.addColorStop(1, currentTheme.stage);
+      ctx.fillStyle = grad;
+      drawRoundedRect(ctx, x, y, w, h, 18, true, false);
+
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.font = "700 13px Arial";
+      ctx.fillText(label.toUpperCase(), x + 20, y + 30);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 40px Arial";
+      ctx.fillText(value, x + 20, y + 76);
+
+      ctx.font = "14px Arial";
+      ctx.fillText(note, x + 20, y + 108);
+    }
+
+    function applyTheme(name) {
+      currentTheme = themes[name] || themes.green;
+      setCssVars(currentTheme);
+      buildCharts();
+    }
+
+    function onLogoUpload(file) {
+      if (!file) {
+        logoImageData = null;
+        updateImagePreviews();
+        return;
+      }
+      readImage(file, (data) => {
+        logoImageData = data;
+        updateImagePreviews();
+      });
+    }
+
+    function onCarUpload(file) {
+      if (!file) {
+        carImageData = null;
+        updateImagePreviews();
+        return;
+      }
+      readImage(file, (data) => {
+        carImageData = data;
+        carImageUrl.value = "";
+        updateImagePreviews();
+      });
+    }
+
+    themeSwitcher.addEventListener("change", (e) => applyTheme(e.target.value));
+    vehicleSelect.addEventListener("change", (e) => loadVehicle(e.target.value));
+    socialFormat.addEventListener("change", (e) => {
+      currentFormat = e.target.value;
+      updateSocialFormatPreview();
+    });
+    watermarkToggle.addEventListener("change", updateImagePreviews);
+
+    document.getElementById("updateBtn").addEventListener("click", buildCharts);
+    document.getElementById("resetBtn").addEventListener("click", () => loadVehicle(vehicleSelect.value));
+    document.getElementById("downloadChartBtn").addEventListener("click", () => {
+      if (!chart || !latestData) return;
+      const safeName = sanitizeFilename(vehicleSelect.selectedOptions[0]?.textContent || "leistungskurve");
+      downloadCanvas(chart.canvas, `${safeName}-${latestData.stockPs}-${latestData.tunedPs}-ps-stage-1.png`);
+    });
+    document.getElementById("downloadSocialBtn").addEventListener("click", exportSocialCard);
+
+    logoUpload.addEventListener("change", (e) => onLogoUpload(e.target.files[0]));
+    carUpload.addEventListener("change", (e) => onCarUpload(e.target.files[0]));
+
+    let urlDebounce;
+    carImageUrl.addEventListener("input", () => {
+      clearTimeout(urlDebounce);
+      urlDebounce = setTimeout(() => {
+        const url = carImageUrl.value.trim();
+        if (url) loadImageFromUrl(url);
+      }, 500);
+    });
+
+    [engineType, brandText, socialTagline, origPs, origNm, stagePs, stageNm].forEach(el => {
+      el.addEventListener("input", buildCharts);
+      el.addEventListener("change", buildCharts);
+    });
+
+    setCssVars(currentTheme);
+    themeSwitcher.value = "red";
+    socialFormat.value = "facebook";
+    currentFormat = "facebook";
+    vehicleSelect.value = vehicles[0].id;
+    updateSocialFormatPreview();
+    loadVehicle(vehicles[0].id);
+  </script>
+</body>
+
+</html>

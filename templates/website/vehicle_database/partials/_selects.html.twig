@@ -1,0 +1,57 @@
+<div class="vdb-selects container-fluid">
+    {% set hasPoolSwitcher = availableDataPools|default([])|length > 1 %}
+    {% if hasPoolSwitcher %}
+        <div class="row g-3 align-items-end mb-2">
+            <div class="col-12 col-lg-6">
+                <label for="dataPoolSelect" class="form-label">
+                    <i class="fa fa-database vdb-label-icon" aria-hidden="true"></i> Datenbestand testen
+                </label>
+                <select id="dataPoolSelect" class="form-select shadow-sm">
+                    {% for pool in availableDataPools %}
+                        <option
+                            value="{{ pool.key }}"
+                            {{ pool.key == currentDataPoolKey|default('live') ? 'selected' : '' }}
+                        >
+                            {{ pool.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row g-3 align-items-end" id="vdbSelectRow">
+        <div class="col-12 col-md-6 col-lg-2 col-xl-2" id="typeSelectField">
+            <label for="typeSelect" class="form-label"><i class="fa fa-layer-group vdb-label-icon" aria-hidden="true"></i> Fahrzeugtypen</label>
+            <select id="typeSelect" class="form-select shadow-sm vdb-stage-card-red">
+                <option></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-2 col-xl-2" data-vdb-select-field>
+            <label for="brandSelect" class="form-label"><i class="fa fa-flag vdb-label-icon" aria-hidden="true"></i> Marken</label>
+            <select id="brandSelect" class="form-select shadow-sm" disabled>
+                <option></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-2 col-xl-2" data-vdb-select-field>
+            <label for="seriesSelect" class="form-label"><i class="fa fa-sitemap vdb-label-icon" aria-hidden="true"></i> Baureihen</label>
+            <select id="seriesSelect" class="form-select shadow-sm" disabled>
+                <option></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-2 col-xl-2" data-vdb-select-field>
+            <label for="modelSelect" class="form-label"><i class="fa fa-list vdb-label-icon" aria-hidden="true"></i> Modelle</label>
+            <select id="modelSelect" class="form-select shadow-sm" disabled>
+                <option></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-2 col-xl-2" data-vdb-select-field>
+            <label for="engineSelect" class="form-label"><i class="fa fa-cog vdb-label-icon" aria-hidden="true"></i> Motoren</label>
+            <select id="engineSelect" class="form-select shadow-sm" disabled>
+                <option></option>
+            </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-2 col-xl-2 d-flex align-items-end" id="resetSelectionField">
+            <button type="button" id="resetSelectionBtn" class="btn btn-tuningfux vdb-reset-btn" title="Auswahl zurücksetzen" aria-label="Auswahl zurücksetzen"><i class="fa fa-rotate-left" aria-hidden="true"></i></button>
+        </div>
+    </div>
+</div>

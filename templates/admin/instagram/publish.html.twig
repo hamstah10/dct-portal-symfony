@@ -1,0 +1,42 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Instagram Bild posten{% endblock %}
+
+{% block main %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} mb-3">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="mb-3">
+        <a href="{{ path('admin_instagram_index') }}" class="btn btn-secondary">Zurück</a>
+    </div>
+
+    <form method="post" class="content-panel">
+        <div class="content-panel-body">
+            <div class="mb-3">
+                <label class="form-label">Bild-URL</label>
+                <input type="url" name="image_url" class="form-control" required placeholder="https://deine-domain.de/uploads/post.jpg">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Caption</label>
+                <textarea name="caption" class="form-control" rows="8"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Jetzt posten
+            </button>
+        </div>
+    </form>
+
+    {% if result is not null %}
+        <div class="mt-4">
+            <h5>API-Antwort</h5>
+            <pre>{{ result|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+        </div>
+    {% endif %}
+{% endblock %}

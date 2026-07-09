@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reifen- & Felgenrechner</title>
+    <style>
+        :root {
+            --bg: #0b1020;
+            --panel: #121a2f;
+            --panel-2: #18223d;
+            --line: rgba(255, 255, 255, .08);
+            --text: #eef3ff;
+            --muted: #a6b3d1;
+            --accent: #5da2ff;
+            --accent-2: #7cf3d0;
+            --warn: #ffb84d;
+            --danger: #ff6b6b;
+            --ok: #6fe3a1;
+            --shadow: 0 16px 50px rgba(0, 0, 0, .35);
+            --radius: 22px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(93, 162, 255, .18), transparent 28%),
+                radial-gradient(circle at left bottom, rgba(124, 243, 208, .1), transparent 25%),
+                linear-gradient(180deg, #09101d 0%, #0b1020 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: min(1320px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .hero {
+            padding: 42px 0 18px;
+        }
+
+        .hero-card {
+            display: grid;
+            grid-template-columns: 1.4fr .8fr;
+            gap: 20px;
+            padding: 28px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .02));
+            border: 1px solid var(--line);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid rgba(93, 162, 255, .28);
+            border-radius: 999px;
+            font-size: 12px;
+            color: #d3e3ff;
+            background: rgba(93, 162, 255, .08);
+            margin-bottom: 14px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+        }
+
+        h1 {
+            font-size: clamp(30px, 5vw, 58px);
+            line-height: .98;
+            letter-spacing: -.03em;
+            max-width: 760px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.65;
+            max-width: 760px;
+            margin: 16px 0 0;
+        }
+
+        .stat-grid {
+            display: grid;
+            gap: 14px;
+            align-content: start;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, .035);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .stat .label {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .stat .value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 10px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.08fr .92fr;
+            gap: 22px;
+            padding: 18px 0 42px;
+        }
+
+        .card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .025));
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 22px 22px 12px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, .015);
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .card-subtitle {
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .card-body {
+            padding: 22px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        button {
+            border: 0;
+            cursor: pointer;
+            transition: .2s ease;
+            font: inherit;
+        }
+
+        .btn {
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .06);
+            color: var(--text);
+            border: 1px solid var(--line);
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #346bff);
+            box-shadow: 0 12px 28px rgba(54, 107, 255, .28);
+            border: 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .panel {
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .025);
+        }
+
+        .panel h3 {
+            font-size: 16px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 6px 8px;
+            border-radius: 999px;
+            color: #d6ebff;
+            background: rgba(93, 162, 255, .12);
+            border: 1px solid rgba(93, 162, 255, .22);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .field {
+            display: grid;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap span {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8fa0c7;
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: #0e162b;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, .09);
+            border-radius: 14px;
+            padding: 13px 42px 13px 13px;
+            outline: none;
+            font: inherit;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: rgba(93, 162, 255, .55);
+            box-shadow: 0 0 0 4px rgba(93, 162, 255, .12);
+        }
+
+        input.invalid {
+            border-color: rgba(255, 107, 107, .8);
+            background: rgba(255, 107, 107, .06);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .results-table th {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .metric {
+            display: inline-block;
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--line);
+            color: #dbe5ff;
+        }
+
+        .delta-pos {
+            color: var(--warn);
+            font-weight: 700;
+        }
+
+        .delta-neg {
+            color: var(--ok);
+            font-weight: 700;
+        }
+
+        .delta-neutral {
+            color: #dfe7fb;
+            font-weight: 700;
+        }
+
+        .warning-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .notice {
+            padding: 14px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.55;
+            border: 1px solid transparent;
+        }
+
+        .notice.info {
+            background: rgba(93, 162, 255, .1);
+            border-color: rgba(93, 162, 255, .2);
+        }
+
+        .notice.warn {
+            background: rgba(255, 184, 77, .1);
+            border-color: rgba(255, 184, 77, .25);
+        }
+
+        .notice.danger {
+            background: rgba(255, 107, 107, .1);
+            border-color: rgba(255, 107, 107, .25);
+        }
+
+        .viz-wrap {
+            display: grid;
+            gap: 18px;
+        }
+
+        .viz-box {
+            min-height: 520px;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(93, 162, 255, .08), transparent 32%),
+                linear-gradient(90deg, rgba(8, 14, 28, .96) 0%, rgba(10, 19, 40, .98) 50%, rgba(8, 14, 28, .96) 100%);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 26px;
+            padding: 24px;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .03), inset 0 0 120px rgba(93, 162, 255, .05);
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .swatch {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+        }
+
+        .faq {
+            padding: 8px 0 54px;
+            color: var(--muted);
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .faq-item {
+            padding: 22px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+        }
+
+        .faq-item h3 {
+            font-size: 18px;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .faq-item p {
+            margin: 0;
+            line-height: 1.65;
+        }
+
+        .footer {
+            padding: 0 0 40px;
+            color: #8290b2;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1100px) {
+
+            .hero-card,
+            .layout,
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+
+            .compare-grid,
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card,
+            .card-body,
+            .card-header {
+                padding: 18px;
+            }
+
+            .container {
+                width: min(100% - 18px, 1320px);
+            }
+
+            .viz-box {
+                min-height: 340px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <section class="hero">
+        <div class="container">
+            <div class="hero-card">
+                <div>
+                    <div class="eyebrow">Reifenrechner inspiriert von reifenrechner.at</div>
+                    <h1>Reifen- & Felgenrechner mit Vergleich, Differenzen und Live-Grafik</h1>
+                    <p>
+                        Vergleiche vorhandene und gewünschte Reifen-/Felgenkombinationen inklusive Abrollumfang,
+                        Durchmesser, Tachoabweichung, Bodenfreiheit sowie Außen- und Innenkante. Die Berechnung läuft
+                        direkt im Browser – ohne Backend.
+                    </p>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat">
+                        <div class="label">Schnellprüfung</div>
+                        <div class="value" id="heroDiff">0.00 %</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Tacho bei real 100 km/h</div>
+                        <div class="value" id="heroSpeedo">100.0 km/h</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">Bodenfreiheit</div>
+                        <div class="value" id="heroClearance">0 mm</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="container layout">
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">Reifenberechnung & Felgenberechnung</div>
+                <div class="card-subtitle">Gib aktuelle und gewünschte Werte ein. Die Vergleichswerte aktualisieren sich
+                    sofort.</div>
+            </div>
+            <div class="card-body">
+                <div class="controls">
+                    <button class="btn btn-primary" id="loadExample">Beispielwerte laden</button>
+                    <button class="btn" id="resetValues">Zurücksetzen</button>
+                </div>
+
+                <div class="compare-grid">
+                    <div class="panel">
+                        <h3>1: Vorhanden <span class="badge">Aktuell</span></h3>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="currentWidth">Reifenbreite</label>
+                                <div class="input-wrap"><input id="currentWidth" type="number" min="105" max="405"
+                                        step="1" value="225"><span>mm</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="currentAspect">Reifenhöhe</label>
+                                <div class="input-wrap"><input id="currentAspect" type="number" min="25" max="100"
+                                        step="1" value="45"><span>%</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="currentRimDiameter">Felgendurchmesser</label>
+                                <div class="input-wrap"><input id="currentRimDiameter" type="number" min="5" max="25"
+                                        step="0.5" value="17"><span>Zoll</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="currentRimWidth">Felgenbreite</label>
+                                <div class="input-wrap"><input id="currentRimWidth" type="number" min="3" max="15"
+                                        step="0.5" value="7.5"><span>Zoll</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="currentEt">Einpresstiefe</label>
+                                <div class="input-wrap"><input id="currentEt" type="number" min="-165" max="165"
+                                        step="1" value="35"><span>mm</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="currentSpacer">Distanzscheibe</label>
+                                <div class="input-wrap"><input id="currentSpacer" type="number" min="0" max="150"
+                                        step="1" value="0"><span>mm</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3>2: Gewünscht <span class="badge">Neu</span></h3>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="targetWidth">Reifenbreite</label>
+                                <div class="input-wrap"><input id="targetWidth" type="number" min="105" max="405"
+                                        step="1" value="245"><span>mm</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="targetAspect">Reifenhöhe</label>
+                                <div class="input-wrap"><input id="targetAspect" type="number" min="25" max="100"
+                                        step="1" value="40"><span>%</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="targetRimDiameter">Felgendurchmesser</label>
+                                <div class="input-wrap"><input id="targetRimDiameter" type="number" min="5" max="25"
+                                        step="0.5" value="18"><span>Zoll</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="targetRimWidth">Felgenbreite</label>
+                                <div class="input-wrap"><input id="targetRimWidth" type="number" min="3" max="15"
+                                        step="0.5" value="8.5"><span>Zoll</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="targetEt">Einpresstiefe</label>
+                                <div class="input-wrap"><input id="targetEt" type="number" min="-165" max="165" step="1"
+                                        value="35"><span>mm</span></div>
+                            </div>
+                            <div class="field">
+                                <label for="targetSpacer">Distanzscheibe</label>
+                                <div class="input-wrap"><input id="targetSpacer" type="number" min="0" max="150"
+                                        step="1" value="0"><span>mm</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-list" id="warningList"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <div class="card-title">Ergebnisse & grafische Darstellung</div>
+                <div class="card-subtitle">Alle Werte werden live berechnet. Die Differenzen dienen als technische
+                    Orientierung.</div>
+            </div>
+            <div class="card-body">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Wert</th>
+                            <th>Vorhanden</th>
+                            <th>Gewünscht</th>
+                            <th>Differenz</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Reifenhöhe (Flanke)</td>
+                            <td id="sidewallCurrent"></td>
+                            <td id="sidewallTarget"></td>
+                            <td id="sidewallDelta"></td>
+                        </tr>
+                        <tr>
+                            <td>Reifendurchmesser</td>
+                            <td id="diameterCurrent"></td>
+                            <td id="diameterTarget"></td>
+                            <td id="diameterDelta"></td>
+                        </tr>
+                        <tr>
+                            <td>Reifenumfang</td>
+                            <td id="circumferenceCurrent"></td>
+                            <td id="circumferenceTarget"></td>
+                            <td id="circumferenceDelta"></td>
+                        </tr>
+                        <tr>
+                            <td>Abrollumfang</td>
+                            <td id="rollingCurrent"></td>
+                            <td id="rollingTarget"></td>
+                            <td id="rollingDelta"></td>
+                        </tr>
+                        <tr>
+                            <td>Felgenbreite</td>
+                            <td id="rimWidthCurrent"></td>
+                            <td id="rimWidthTarget"></td>
+                            <td id="rimWidthDelta"></td>
+                        </tr>
+                        <tr>
+                            <td>Außenkante</td>
+                            <td id="outerCurrent"></td>
+                            <td id="outerTarget"></td>
+                            <td id="outerDelta"></td>
+                        </tr>
+                        <tr>
+                            <td>Innenkante</td>
+                            <td id="innerCurrent"></td>
+                            <td id="innerTarget"></td>
+                            <td id="innerDelta"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-list" style="margin-top:16px;">
+                    <div class="notice info"><strong>Abrollumfang-Differenz:</strong> <span
+                            id="rollingDiffPercent"></span></div>
+                    <div class="notice info"><strong>Tachoanzeige bei realen 100 km/h:</strong> <span
+                            id="speedometerAt100"></span></div>
+                    <div class="notice info"><strong>Änderung der Bodenfreiheit:</strong> <span
+                            id="groundClearance"></span></div>
+                </div>
+
+                <div class="viz-wrap" style="margin-top:20px;">
+                    <div class="legend">
+                        <div class="legend-item"><span class="swatch" style="background:#7da6ff;"></span>Vorhanden</div>
+                        <div class="legend-item"><span class="swatch" style="background:#7cf3d0;"></span>Gewünscht</div>
+                        <div class="legend-item"><span class="metric">Maße in mm</span></div>
+                    </div>
+                    <div class="viz-box">
+                        <svg id="comparisonSvg" viewBox="0 0 700 420" width="100%" height="100%"
+                            aria-label="Vergleichsgrafik"></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="container faq">
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h3>Was wird berechnet?</h3>
+                <p>Reifenhöhe, Durchmesser, Umfang, prozentuale Abrollumfang-Differenz, Tachoabweichung, Bodenfreiheit
+                    sowie die Änderung an Innen- und Außenkante der Felge.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Wofür ist die ET wichtig?</h3>
+                <p>Die Einpresstiefe beeinflusst, wie weit das Rad nach innen oder außen steht. Zusammen mit
+                    Distanzscheiben ist sie entscheidend für Freigängigkeit und Optik.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Hinweis</h3>
+                <p>Die Berechnungen sind eine technische Vorprüfung. Ob eine Kombination zulässig ist, muss immer
+                    fahrzeugspezifisch und gegebenenfalls durch eine Prüforganisation bestätigt werden.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container footer">
+        Eigene Nachbau-Version mit ähnlicher Funktionalität. Kein 1:1 Branding-Clone.
+    </div>
+
+    <script>
+    const ids = [
+      'currentWidth','currentAspect','currentRimDiameter','currentRimWidth','currentEt','currentSpacer',
+      'targetWidth','targetAspect','targetRimDiameter','targetRimWidth','targetEt','targetSpacer'
+    ];
+
+    const exampleValues = {
+      currentWidth: 225,
+      currentAspect: 45,
+      currentRimDiameter: 17,
+      currentRimWidth: 7.5,
+      currentEt: 35,
+      currentSpacer: 0,
+      targetWidth: 245,
+      targetAspect: 40,
+      targetRimDiameter: 18,
+      targetRimWidth: 8.5,
+      targetEt: 35,
+      targetSpacer: 0
+    };
+
+    const rangeMap = {
+      currentWidth: [105,405], currentAspect: [25,100], currentRimDiameter: [5,25], currentRimWidth: [3,15], currentEt: [-165,165], currentSpacer: [0,150],
+      targetWidth: [105,405], targetAspect: [25,100], targetRimDiameter: [5,25], targetRimWidth: [3,15], targetEt: [-165,165], targetSpacer: [0,150]
+    };
+
+    const etrto = [
+      { rim: 5.0, min: 155, rec: [165,175], max: 185 },
+      { rim: 5.5, min: 165, rec: [175,185], max: 195 },
+      { rim: 6.0, min: 175, rec: [185,195], max: 205 },
+      { rim: 6.5, min: 185, rec: [195,205], max: 215 },
+      { rim: 7.0, min: 195, rec: [205,215], max: 225 },
+      { rim: 7.5, min: 205, rec: [215,225], max: 235 },
+      { rim: 8.0, min: 215, rec: [225,235], max: 245 },
+      { rim: 8.5, min: 225, rec: [235,245], max: 255 },
+      { rim: 9.0, min: 235, rec: [245,255], max: 265 },
+      { rim: 9.5, min: 245, rec: [255,265], max: 275 },
+      { rim: 10.0, min: 255, rec: [265,275], max: 285 },
+      { rim: 10.5, min: 265, rec: [275,285], max: 295 },
+      { rim: 11.0, min: 275, rec: [285,295], max: 305 },
+      { rim: 11.5, min: 285, rec: [295,305], max: 315 },
+      { rim: 12.0, min: 295, rec: [305,315], max: 325 },
+      { rim: 12.5, min: 305, rec: [315,325], max: 335 }
+    ];
+
+    function get(id) {
+      return parseFloat(document.getElementById(id).value || '0');
+    }
+
+    function fmtMm(value) {
+      return `${round(value, 1).toFixed(1)} mm`;
+    }
+
+    function fmtIn(value) {
+      return `${round(value, 2).toFixed(2)}"`;
+    }
+
+    function fmtPercent(value) {
+      return `${value >= 0 ? '+' : ''}${round(value, 2).toFixed(2)} %`;
+    }
+
+    function round(n, d = 2) {
+      const p = Math.pow(10, d);
+      return Math.round(n * p) / p;
+    }
+
+    function compute(prefix) {
+      const width = get(prefix + 'Width');
+      const aspect = get(prefix + 'Aspect');
+      const rimDiameterIn = get(prefix + 'RimDiameter');
+      const rimWidthIn = get(prefix + 'RimWidth');
+      const et = get(prefix + 'Et');
+      const spacer = get(prefix + 'Spacer');
+
+      const sidewall = width * (aspect / 100);
+      const rimDiameterMm = rimDiameterIn * 25.4;
+      const tireDiameter = rimDiameterMm + 2 * sidewall;
+      const circumference = Math.PI * tireDiameter;
+      const rollingCircumference = circumference; // nominal approximation
+      const rimWidthMm = rimWidthIn * 25.4;
+      const effectiveEt = et - spacer;
+      const outerEdge = (rimWidthMm / 2) - effectiveEt;
+      const innerEdge = (rimWidthMm / 2) + effectiveEt;
+
+      return {
+        width, aspect, rimDiameterIn, rimWidthIn, et, spacer,
+        sidewall, rimDiameterMm, tireDiameter, circumference, rollingCircumference,
+        rimWidthMm, effectiveEt, outerEdge, innerEdge
+      };
+    }
+
+    function diffClass(value) {
+      if (Math.abs(value) < 0.01) return 'delta-neutral';
+      return value > 0 ? 'delta-pos' : 'delta-neg';
+    }
+
+    function setDelta(id, value, suffix = ' mm', precision = 1) {
+      const el = document.getElementById(id);
+      el.className = diffClass(value);
+      el.textContent = `${value >= 0 ? '+' : ''}${round(value, precision).toFixed(precision)}${suffix}`;
+    }
+
+    function nearestEtrto(rimWidth) {
+      return etrto.reduce((prev, curr) => Math.abs(curr.rim - rimWidth) < Math.abs(prev.rim - rimWidth) ? curr : prev, etrto[0]);
+    }
+
+    function rimTireNotice(setName, data) {
+      const row = nearestEtrto(data.rimWidthIn);
+      if (data.width < row.min || data.width > row.max) {
+        return {
+          type: 'danger',
+          text: `${setName}: Das Verhältnis aus Reifenbreite ${data.width} mm zu Felgenbreite ${data.rimWidthIn.toFixed(1)}" liegt außerhalb der empfohlenen Zuordnung (${row.min}–${row.max} mm).`
+        };
+      }
+      if (!row.rec.includes(data.width)) {
+        return {
+          type: 'warn',
+          text: `${setName}: Die Kombination ist grundsätzlich im Bereich, liegt aber nicht im empfohlenen Kernbereich (${row.rec.join(' oder ')} mm für ${row.rim.toFixed(1)}").`
+        };
+      }
+      return null;
+    }
+
+    function validateInputs() {
+      let invalid = false;
+      ids.forEach(id => {
+        const input = document.getElementById(id);
+        const [min, max] = rangeMap[id];
+        const value = parseFloat(input.value || '0');
+        const bad = Number.isNaN(value) || value < min || value > max;
+        input.classList.toggle('invalid', bad);
+        if (bad) invalid = true;
+      });
+      return invalid;
+    }
+
+    function updateWarnings(current, target, diffPct, speedo) {
+      const list = document.getElementById('warningList');
+      const notices = [];
+
+      const currentNotice = rimTireNotice('Vorhanden', current);
+      const targetNotice = rimTireNotice('Gewünscht', target);
+      if (currentNotice) notices.push(currentNotice);
+      if (targetNotice) notices.push(targetNotice);
+
+      if (diffPct > 1.5 || diffPct < -2.5) {
+        notices.push({ type: 'danger', text: `Die Abrollumfang-Differenz liegt mit ${fmtPercent(diffPct)} außerhalb eines häufig genutzten Richtbereichs von -2,5 % bis +1,5 %.` });
+      } else {
+        notices.push({ type: 'info', text: `Die Abrollumfang-Differenz liegt mit ${fmtPercent(diffPct)} im üblichen Richtbereich von -2,5 % bis +1,5 %.` });
+      }
+
+      if (speedo < 100) {
+        notices.push({ type: 'danger', text: `Die berechnete Tachoanzeige wäre bei realen 100 km/h niedriger als 100 km/h. Das ist kritisch und muss geprüft werden.` });
+      }
+
+      if (validateInputs()) {
+        notices.unshift({ type: 'danger', text: 'Mindestens ein Eingabewert liegt außerhalb des definierten Bereichs. Bitte markierte Felder korrigieren.' });
+      }
+
+      list.innerHTML = notices.map(n => `<div class="notice ${n.type}">${n.text}</div>`).join('');
+    }
+
+    function drawVisualization(current, target) {
+      const svg = document.getElementById('comparisonSvg');
+
+      const maxDiameter = Math.max(current.tireDiameter, target.tireDiameter);
+      const scale = 320 / maxDiameter;
+
+      const baseY = 262;
+      const centerX = 348;
+      const axisX = 350;
+      const labelY = 30;
+
+      const currentHalfWidth = Math.max(18, (current.width * 0.18) / 2);
+      const targetHalfWidth = Math.max(18, (target.width * 0.18) / 2);
+      const currentTireR = (current.tireDiameter / 2) * scale;
+      const targetTireR = (target.tireDiameter / 2) * scale;
+
+      const currentOuterX = centerX - currentHalfWidth;
+      const currentInnerX = centerX + currentHalfWidth;
+      const targetOuterX = centerX - targetHalfWidth;
+      const targetInnerX = centerX + targetHalfWidth;
+
+      const currentTop = baseY - currentTireR;
+      const currentBottom = baseY + currentTireR;
+      const targetTop = baseY - targetTireR;
+      const targetBottom = baseY + targetTireR;
+
+      const topY = Math.min(currentTop, targetTop);
+      const bottomY = Math.max(currentBottom, targetBottom);
+
+      const upperShape = (outerX, innerX, color, y, h1, h2) => `
+        <path d="M${outerX - 12} ${y} L${innerX + 12} ${y} L${innerX + 6} ${y + h1} L${outerX - 6} ${y + h1} Z" fill="rgba(0,0,0,0)" stroke="${color}" stroke-width="4" stroke-linejoin="round" />
+      `;
+
+      const lowerShape = (outerX, innerX, color, y, h) => `
+        <path d="M${outerX - 4} ${y} L${innerX + 4} ${y} L${innerX + 14} ${y + h} L${outerX - 14} ${y + h} Z" fill="rgba(0,0,0,0)" stroke="${color}" stroke-width="4" stroke-linejoin="round" />
+      `;
+
+      const formatSigned = (value) => `${value >= 0 ? '+' : ''}${round(value, 1).toFixed(1)} mm`;
+      const diameterDelta = target.tireDiameter - current.tireDiameter;
+      const outerDelta = target.outerEdge - current.outerEdge;
+      const innerDelta = target.innerEdge - current.innerEdge;
+
+      const outerArrowLeft = Math.min(currentOuterX, targetOuterX) - 36;
+      const outerArrowRight = Math.max(currentOuterX, targetOuterX) - 2;
+      const innerArrowLeft = Math.min(currentInnerX, targetInnerX) + 2;
+      const innerArrowRight = Math.max(currentInnerX, targetInnerX) + 36;
+
+      svg.setAttribute('viewBox', '0 0 700 520');
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="panelGlow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,255,255,.015)"/>
+            <stop offset="50%" stop-color="rgba(255,255,255,.03)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,.015)"/>
+          </linearGradient>
+          <linearGradient id="tubeFill" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="rgba(255,255,255,.03)"/>
+            <stop offset="50%" stop-color="rgba(255,255,255,.06)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,.03)"/>
+          </linearGradient>
+          <marker id="arrowHeadLight" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#d8e4ff"></path>
+          </marker>
+        </defs>
+
+        <rect x="0" y="0" width="700" height="520" rx="24" fill="url(#panelGlow)" />
+
+        <!-- axis / suspension background -->
+        <g opacity="0.13" stroke="#c9d6f7" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M525 58 C555 66, 577 96, 576 122 C575 142, 558 153, 551 168 C544 183, 559 198, 558 216 C557 232, 542 242, 540 257" />
+          <path d="M541 55 C570 65, 592 96, 592 123 C592 144, 575 157, 567 171 C559 186, 575 198, 574 217 C573 235, 558 247, 556 260" opacity=".65" />
+          <path d="M490 240 C529 232, 549 250, 554 286 L558 368" />
+          <path d="M558 304 L620 304" />
+          <path d="M558 368 L620 368" />
+          <circle cx="620" cy="304" r="12" />
+          <circle cx="620" cy="304" r="4" />
+        </g>
+
+        <!-- center guide -->
+        <line x1="${axisX}" y1="48" x2="${axisX}" y2="470" stroke="rgba(255,255,255,.09)" stroke-dasharray="9 12" />
+
+        <!-- labels -->
+        <text x="260" y="${labelY}" text-anchor="middle" fill="var(--accent-2)" font-size="16" font-weight="800">Aktuell</text>
+        <text x="440" y="${labelY}" text-anchor="middle" fill="var(--accent)" font-size="16" font-weight="800">Neu</text>
+
+        <!-- top trapezoids -->
+        ${upperShape(currentOuterX, currentInnerX, 'var(--accent-2)', 68, 56, 56)}
+        ${upperShape(targetOuterX, targetInnerX, 'var(--accent)', 66, 58, 58)}
+
+        <!-- central body -->
+        <rect x="${currentOuterX}" y="${currentTop}" width="${currentInnerX - currentOuterX}" height="${currentBottom - currentTop}" fill="none" stroke="var(--accent-2)" stroke-width="4" />
+        <rect x="${targetOuterX}" y="${targetTop}" width="${targetInnerX - targetOuterX}" height="${targetBottom - targetTop}" fill="none" stroke="var(--accent)" stroke-width="4" />
+
+        <!-- hub / axle -->
+        <rect x="332" y="${baseY - 86}" width="36" height="172" rx="5" fill="url(#tubeFill)" stroke="rgba(255,255,255,.18)" stroke-width="1.5" />
+        <rect x="286" y="${baseY - 29}" width="46" height="58" rx="3" fill="none" stroke="var(--accent)" stroke-width="3" />
+        <circle cx="332" cy="${baseY}" r="10" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.18)" />
+        <circle cx="332" cy="${baseY}" r="4" fill="rgba(255,255,255,.45)" />
+
+        <!-- bottom trapezoids -->
+        ${lowerShape(currentOuterX, currentInnerX, 'var(--accent-2)', currentBottom, 78)}
+        ${lowerShape(targetOuterX, targetInnerX, 'var(--accent)', targetBottom, 74)}
+
+        <!-- diameter measurement -->
+        <g stroke="#d8e4ff" stroke-width="2.5" fill="none" marker-start="url(#arrowHeadLight)" marker-end="url(#arrowHeadLight)">
+          <line x1="258" y1="${topY}" x2="258" y2="${bottomY}" />
+        </g>
+        <g stroke="rgba(255,255,255,.15)" stroke-width="1.5" stroke-dasharray="6 8">
+          <line x1="282" y1="${topY}" x2="402" y2="${topY}" />
+          <line x1="282" y1="${bottomY}" x2="402" y2="${bottomY}" />
+        </g>
+        <text x="238" y="${(topY + bottomY) / 2}" transform="rotate(-90 238 ${(topY + bottomY) / 2})" text-anchor="middle" fill="#e3ecff" font-size="14" font-weight="700">Differenz Ø ${formatSigned(diameterDelta)}</text>
+
+        <!-- outer edge measurement -->
+        <g stroke="#d8e4ff" stroke-width="2.5" fill="none" marker-start="url(#arrowHeadLight)" marker-end="url(#arrowHeadLight)">
+          <line x1="${outerArrowLeft}" y1="${baseY + 96}" x2="${outerArrowRight}" y2="${baseY + 96}" />
+        </g>
+        <text x="${(outerArrowLeft + outerArrowRight) / 2}" y="${baseY + 88}" text-anchor="middle" fill="#e3ecff" font-size="13" font-weight="700">Außenkante ${formatSigned(outerDelta)}</text>
+
+        <!-- inner edge measurement -->
+        <g stroke="#d8e4ff" stroke-width="2.5" fill="none" marker-start="url(#arrowHeadLight)" marker-end="url(#arrowHeadLight)">
+          <line x1="${innerArrowLeft}" y1="${baseY + 126}" x2="${innerArrowRight}" y2="${baseY + 126}" />
+        </g>
+        <text x="${(innerArrowLeft + innerArrowRight) / 2}" y="${baseY + 118}" text-anchor="middle" fill="#e3ecff" font-size="13" font-weight="700">Innenkante ${formatSigned(innerDelta)}</text>
+      `;
+    }
+
+    function update() {
+      const current = compute('current');
+      const target = compute('target');
+
+      const rollingDiffPct = ((target.rollingCircumference - current.rollingCircumference) / current.rollingCircumference) * 100;
+      const speedometerAt100 = 100 * (current.rollingCircumference / target.rollingCircumference);
+      const groundClearanceDelta = (target.tireDiameter - current.tireDiameter) / 2;
+
+      document.getElementById('sidewallCurrent').textContent = fmtMm(current.sidewall);
+      document.getElementById('sidewallTarget').textContent = fmtMm(target.sidewall);
+      setDelta('sidewallDelta', target.sidewall - current.sidewall);
+
+      document.getElementById('diameterCurrent').textContent = fmtMm(current.tireDiameter);
+      document.getElementById('diameterTarget').textContent = fmtMm(target.tireDiameter);
+      setDelta('diameterDelta', target.tireDiameter - current.tireDiameter);
+
+      document.getElementById('circumferenceCurrent').textContent = fmtMm(current.circumference);
+      document.getElementById('circumferenceTarget').textContent = fmtMm(target.circumference);
+      setDelta('circumferenceDelta', target.circumference - current.circumference);
+
+      document.getElementById('rollingCurrent').textContent = fmtMm(current.rollingCircumference);
+      document.getElementById('rollingTarget').textContent = fmtMm(target.rollingCircumference);
+      const rollingDeltaEl = document.getElementById('rollingDelta');
+      rollingDeltaEl.className = diffClass(rollingDiffPct);
+      rollingDeltaEl.textContent = fmtPercent(rollingDiffPct);
+
+      document.getElementById('rimWidthCurrent').textContent = fmtIn(current.rimWidthIn);
+      document.getElementById('rimWidthTarget').textContent = fmtIn(target.rimWidthIn);
+      setDelta('rimWidthDelta', (target.rimWidthMm - current.rimWidthMm), ' mm', 1);
+
+      document.getElementById('outerCurrent').textContent = fmtMm(current.outerEdge);
+      document.getElementById('outerTarget').textContent = fmtMm(target.outerEdge);
+      setDelta('outerDelta', target.outerEdge - current.outerEdge);
+
+      document.getElementById('innerCurrent').textContent = fmtMm(current.innerEdge);
+      document.getElementById('innerTarget').textContent = fmtMm(target.innerEdge);
+      setDelta('innerDelta', target.innerEdge - current.innerEdge);
+
+      document.getElementById('rollingDiffPercent').textContent = fmtPercent(rollingDiffPct);
+      document.getElementById('speedometerAt100').textContent = `${round(speedometerAt100, 1).toFixed(1)} km/h`;
+      document.getElementById('groundClearance').textContent = `${groundClearanceDelta >= 0 ? '+' : ''}${round(groundClearanceDelta, 1).toFixed(1)} mm`;
+
+      document.getElementById('heroDiff').textContent = fmtPercent(rollingDiffPct);
+      document.getElementById('heroSpeedo').textContent = `${round(speedometerAt100, 1).toFixed(1)} km/h`;
+      document.getElementById('heroClearance').textContent = `${groundClearanceDelta >= 0 ? '+' : ''}${round(groundClearanceDelta, 1).toFixed(1)} mm`;
+
+      updateWarnings(current, target, rollingDiffPct, speedometerAt100);
+      drawVisualization(current, target);
+    }
+
+    document.getElementById('loadExample').addEventListener('click', () => {
+      Object.entries(exampleValues).forEach(([id, value]) => document.getElementById(id).value = value);
+      update();
+    });
+
+    document.getElementById('resetValues').addEventListener('click', () => {
+      ids.forEach(id => document.getElementById(id).value = '');
+      update();
+    });
+
+    ids.forEach(id => document.getElementById(id).addEventListener('input', update));
+
+    update();
+    </script>
+</body>
+
+</html>

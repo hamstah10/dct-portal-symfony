@@ -1,0 +1,455 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}ECU{% endblock %}
+
+{% block main %}
+    {% set activeTab = activeTab|default('manufacturer') %}
+
+    <div class="container-fluid px-0 mt-3">
+        <ul class="nav nav-tabs mb-3 tab-style-6" id="admin-vehicle-ecu-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'manufacturer' ? 'active' : '' }}"
+                        id="tab-vehicle-ecu-manufacturer"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-ecu-manufacturer"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-ecu-manufacturer"
+                        aria-selected="{{ activeTab == 'manufacturer' ? 'true' : 'false' }}">
+                    {{ ux_icon('streamline-ultimate:computer-chip-flash-bold') }} ECU-Hersteller
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'ecu' ? 'active' : '' }}"
+                        id="tab-vehicle-ecu-list"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-ecu-list"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-ecu-list"
+                        aria-selected="{{ activeTab == 'ecu' ? 'true' : 'false' }}">
+                    {{ ux_icon('streamline:computer-chip-1') }} ECUs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'option' ? 'active' : '' }}"
+                        id="tab-vehicle-ecu-option"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-ecu-option"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-ecu-option"
+                        aria-selected="{{ activeTab == 'option' ? 'true' : 'false' }}">
+                    {{ ux_icon('streamline:controller-1-remix') }} ECU-Optionen
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade {{ activeTab == 'manufacturer' ? 'show active' : '' }}"
+                 id="panel-vehicle-ecu-manufacturer"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-ecu-manufacturer">
+                {{ render(path('admin_ecu_manufacturer_index', { embed: 1 })) }}
+            </div>
+            <div class="tab-pane fade {{ activeTab == 'ecu' ? 'show active' : '' }}"
+                 id="panel-vehicle-ecu-list"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-ecu-list">
+                {{ render(path('admin_ecu_index', { embed: 1 })) }}
+            </div>
+            <div class="tab-pane fade {{ activeTab == 'option' ? 'show active' : '' }}"
+                 id="panel-vehicle-ecu-option"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-ecu-option">
+                {{ render(path('admin_ecu_option_index', { embed: 1 })) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const tabs = document.querySelectorAll('#admin-vehicle-ecu-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+
+                const initializeEmbeddedFilters = () => {
+                    document.querySelectorAll('#admin-vehicle-ecu-tabs ~ .tab-content .tab-pane').forEach((pane, index) => {
+                        const filterButton = pane.querySelector('.datagrid-filters .action-filters-button');
+                        const filterModal = pane.querySelector('#modal-filters');
+
+                        if (!filterButton || !filterModal || filterButton.dataset.vehicleEcuFilterBound === '1') {
+                            return;
+                        }
+
+                        const modalId = `modal-filters-vehicle-ecu-${index}`;
+                        filterModal.id = modalId;
+                        filterButton.dataset.bsTarget = `#${modalId}`;
+
+                        const href = filterButton.dataset.href || filterButton.getAttribute('href') || '';
+                        if (href && '#' !== href) {
+                            filterButton.setAttribute('href', href);
+                            filterButton.removeAttribute('data-href');
+                            filterButton.classList.remove('disabled');
+                        }
+
+                        filterButton.dataset.vehicleEcuFilterBound = '1';
+                        filterButton.addEventListener('click', () => {
+                            const body = filterModal.querySelector('.modal-body');
+                            const filtersUrl = filterButton.getAttribute('href') || '';
+
+                            if (!body || !filtersUrl || '#' === filtersUrl) {
+                                return;
+                            }
+
+                            body.innerHTML = '<div class="modal-body-loader"></div>';
+                            fetch(filtersUrl)
+                                .then((response) => response.text())
+                                .then((html) => {
+                                    body.innerHTML = html;
+                                    bindEmbeddedFilterForm(filterModal);
+                                });
+                        });
+
+                        filterModal.querySelector('#modal-clear-button')?.addEventListener('click', () => {
+                            filterModal.querySelectorAll('.filter-field').forEach((filterField) => removeEmbeddedFilter(filterField));
+                            filterModal.querySelector('form')?.submit();
+                        });
+
+                        filterModal.querySelector('#modal-apply-button')?.addEventListener('click', () => {
+                            filterModal.querySelectorAll('.filter-checkbox:not(:checked)').forEach((checkbox) => {
+                                const filterField = checkbox.closest('.filter-field');
+                                if (filterField) {
+                                    removeEmbeddedFilter(filterField);
+                                }
+                            });
+
+                            filterModal.querySelector('form')?.submit();
+                        });
+                    });
+                };
+
+                const removeEmbeddedFilter = (filterField) => {
+                    const property = filterField?.dataset?.filterProperty || '';
+                    if (property) {
+                        filterField
+                            .querySelectorAll(`input[name^="filters[${property}]"]`)
+                            .forEach((input) => input.remove());
+                    }
+
+                    filterField?.remove();
+                };
+
+                const bindEmbeddedFilterForm = (filterModal) => {
+                    filterModal.querySelectorAll('.filter-field').forEach((filterField, index) => {
+                        const heading = filterField.querySelector('.filter-heading');
+                        const toggle = heading?.querySelector('a[data-bs-toggle="collapse"]');
+                        const content = filterField.querySelector('.filter-content');
+
+                        if (!heading || !toggle || !content) {
+                            return;
+                        }
+
+                        const headingId = `${filterModal.id}-heading-${index}`;
+                        const contentId = `${filterModal.id}-content-${index}`;
+
+                        heading.id = headingId;
+                        content.id = contentId;
+                        content.setAttribute('aria-labelledby', headingId);
+                        toggle.setAttribute('href', `#${contentId}`);
+                        toggle.setAttribute('aria-controls', contentId);
+                    });
+
+                    filterModal.querySelectorAll('.filter-checkbox').forEach((checkbox) => {
+                        if (checkbox.dataset.vehicleEcuFilterBound === '1') {
+                            return;
+                        }
+
+                        checkbox.dataset.vehicleEcuFilterBound = '1';
+                        checkbox.addEventListener('change', () => {
+                            const toggle = checkbox.nextElementSibling;
+                            const expanded = toggle?.getAttribute('aria-expanded');
+                            if (
+                                toggle
+                                && ((checkbox.checked && 'false' === expanded) || (!checkbox.checked && 'true' === expanded))
+                            ) {
+                                toggle.click();
+                            }
+                        });
+                    });
+
+                    filterModal.querySelectorAll('form[data-ea-filters-form-id]').forEach((form) => {
+                        if (form.dataset.vehicleEcuFilterBound === '1') {
+                            return;
+                        }
+
+                        form.dataset.vehicleEcuFilterBound = '1';
+                        form.addEventListener('change', (event) => {
+                            if (event.target?.classList?.contains('filter-checkbox')) {
+                                return;
+                            }
+
+                            const filterField = event.target?.closest?.('.filter-field');
+                            const filterCheckbox = filterField?.querySelector?.('.filter-checkbox');
+                            if (filterCheckbox && !filterCheckbox.checked) {
+                                filterCheckbox.checked = true;
+                            }
+                        });
+                    });
+                };
+
+                const replaceEmbeddedPane = (pane, html) => {
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const replacement = doc.querySelector('.ea-embedded');
+
+                    if (!replacement) {
+                        return;
+                    }
+
+                    pane.innerHTML = replacement.outerHTML;
+                    initializeEmbeddedFilters();
+                    initializeEmbeddedPagination();
+                    window.dispatchEvent(new Event('resize'));
+                };
+
+                const loadEmbeddedPaneUrl = (pane, url) => {
+                    pane.classList.add('is-loading');
+                    fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                        .then((response) => response.text())
+                        .then((html) => replaceEmbeddedPane(pane, html))
+                        .finally(() => pane.classList.remove('is-loading'));
+                };
+
+                const initializeEmbeddedPagination = () => {
+                    document.querySelectorAll('#admin-vehicle-ecu-tabs ~ .tab-content .tab-pane').forEach((pane) => {
+                        pane.querySelectorAll('.list-pagination .page-link').forEach((link) => {
+                            if (link.dataset.vehicleEcuPaginationBound === '1') {
+                                return;
+                            }
+
+                            link.dataset.vehicleEcuPaginationBound = '1';
+                            link.addEventListener('click', (event) => {
+                                const href = link.getAttribute('href') || '';
+                                if (!href || '#' === href || link.closest('.page-item')?.classList.contains('disabled')) {
+                                    return;
+                                }
+
+                                event.preventDefault();
+                                loadEmbeddedPaneUrl(pane, href);
+                            });
+                        });
+                    });
+                };
+
+                initializeEmbeddedFilters();
+                initializeEmbeddedPagination();
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const tabs = document.querySelectorAll('#admin-vehicle-ecu-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+
+                const initializeEmbeddedFilters = () => {
+                    document.querySelectorAll('#admin-vehicle-ecu-tabs ~ .tab-content .tab-pane').forEach((pane, index) => {
+                        const filterButton = pane.querySelector('.datagrid-filters .action-filters-button');
+                        const filterModal = pane.querySelector('#modal-filters');
+
+                        if (!filterButton || !filterModal || filterButton.dataset.vehicleEcuFilterBound === '1') {
+                            return;
+                        }
+
+                        const modalId = `modal-filters-vehicle-ecu-${index}`;
+                        filterModal.id = modalId;
+                        filterButton.dataset.bsTarget = `#${modalId}`;
+
+                        const href = filterButton.dataset.href || filterButton.getAttribute('href') || '';
+                        if (href && '#' !== href) {
+                            filterButton.setAttribute('href', href);
+                            filterButton.removeAttribute('data-href');
+                            filterButton.classList.remove('disabled');
+                        }
+
+                        filterButton.dataset.vehicleEcuFilterBound = '1';
+                        filterButton.addEventListener('click', () => {
+                            const body = filterModal.querySelector('.modal-body');
+                            const filtersUrl = filterButton.getAttribute('href') || '';
+
+                            if (!body || !filtersUrl || '#' === filtersUrl) {
+                                return;
+                            }
+
+                            body.innerHTML = '<div class="modal-body-loader"></div>';
+                            fetch(filtersUrl)
+                                .then((response) => response.text())
+                                .then((html) => {
+                                    body.innerHTML = html;
+                                    bindEmbeddedFilterForm(filterModal);
+                                });
+                        });
+
+                        filterModal.querySelector('#modal-clear-button')?.addEventListener('click', () => {
+                            filterModal.querySelectorAll('.filter-field').forEach((filterField) => removeEmbeddedFilter(filterField));
+                            filterModal.querySelector('form')?.submit();
+                        });
+
+                        filterModal.querySelector('#modal-apply-button')?.addEventListener('click', () => {
+                            filterModal.querySelectorAll('.filter-checkbox:not(:checked)').forEach((checkbox) => {
+                                const filterField = checkbox.closest('.filter-field');
+                                if (filterField) {
+                                    removeEmbeddedFilter(filterField);
+                                }
+                            });
+
+                            filterModal.querySelector('form')?.submit();
+                        });
+                    });
+                };
+
+                const removeEmbeddedFilter = (filterField) => {
+                    const property = filterField?.dataset?.filterProperty || '';
+                    if (property) {
+                        filterField
+                            .querySelectorAll(`input[name^="filters[${property}]"]`)
+                            .forEach((input) => input.remove());
+                    }
+
+                    filterField?.remove();
+                };
+
+                const bindEmbeddedFilterForm = (filterModal) => {
+                    filterModal.querySelectorAll('.filter-field').forEach((filterField, index) => {
+                        const heading = filterField.querySelector('.filter-heading');
+                        const toggle = heading?.querySelector('a[data-bs-toggle="collapse"]');
+                        const content = filterField.querySelector('.filter-content');
+
+                        if (!heading || !toggle || !content) {
+                            return;
+                        }
+
+                        const headingId = `${filterModal.id}-heading-${index}`;
+                        const contentId = `${filterModal.id}-content-${index}`;
+
+                        heading.id = headingId;
+                        content.id = contentId;
+                        content.setAttribute('aria-labelledby', headingId);
+                        toggle.setAttribute('href', `#${contentId}`);
+                        toggle.setAttribute('aria-controls', contentId);
+                    });
+
+                    filterModal.querySelectorAll('.filter-checkbox').forEach((checkbox) => {
+                        if (checkbox.dataset.vehicleEcuFilterBound === '1') {
+                            return;
+                        }
+
+                        checkbox.dataset.vehicleEcuFilterBound = '1';
+                        checkbox.addEventListener('change', () => {
+                            const toggle = checkbox.nextElementSibling;
+                            const expanded = toggle?.getAttribute('aria-expanded');
+                            if (
+                                toggle
+                                && ((checkbox.checked && 'false' === expanded) || (!checkbox.checked && 'true' === expanded))
+                            ) {
+                                toggle.click();
+                            }
+                        });
+                    });
+
+                    filterModal.querySelectorAll('form[data-ea-filters-form-id]').forEach((form) => {
+                        if (form.dataset.vehicleEcuFilterBound === '1') {
+                            return;
+                        }
+
+                        form.dataset.vehicleEcuFilterBound = '1';
+                        form.addEventListener('change', (event) => {
+                            if (event.target?.classList?.contains('filter-checkbox')) {
+                                return;
+                            }
+
+                            const filterField = event.target?.closest?.('.filter-field');
+                            const filterCheckbox = filterField?.querySelector?.('.filter-checkbox');
+                            if (filterCheckbox && !filterCheckbox.checked) {
+                                filterCheckbox.checked = true;
+                            }
+                        });
+                    });
+                };
+
+                const replaceEmbeddedPane = (pane, html) => {
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const replacement = doc.querySelector('.ea-embedded');
+
+                    if (!replacement) {
+                        return;
+                    }
+
+                    pane.innerHTML = replacement.outerHTML;
+                    initializeEmbeddedFilters();
+                    initializeEmbeddedPagination();
+                    window.dispatchEvent(new Event('resize'));
+                };
+
+                const loadEmbeddedPaneUrl = (pane, url) => {
+                    pane.classList.add('is-loading');
+                    fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    })
+                        .then((response) => response.text())
+                        .then((html) => replaceEmbeddedPane(pane, html))
+                        .finally(() => pane.classList.remove('is-loading'));
+                };
+
+                const initializeEmbeddedPagination = () => {
+                    document.querySelectorAll('#admin-vehicle-ecu-tabs ~ .tab-content .tab-pane').forEach((pane) => {
+                        pane.querySelectorAll('.list-pagination .page-link').forEach((link) => {
+                            if (link.dataset.vehicleEcuPaginationBound === '1') {
+                                return;
+                            }
+
+                            link.dataset.vehicleEcuPaginationBound = '1';
+                            link.addEventListener('click', (event) => {
+                                const href = link.getAttribute('href') || '';
+                                if (!href || '#' === href || link.closest('.page-item')?.classList.contains('disabled')) {
+                                    return;
+                                }
+
+                                event.preventDefault();
+                                loadEmbeddedPaneUrl(pane, href);
+                            });
+                        });
+                    });
+                };
+
+                initializeEmbeddedFilters();
+                initializeEmbeddedPagination();
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

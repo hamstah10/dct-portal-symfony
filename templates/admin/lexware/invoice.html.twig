@@ -1,0 +1,642 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block content_title %}Lexoffice Rechnung{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-xl">
+        <h1 class="page-title">Lexoffice Rechnung erstellen</h1>
+
+        {% if error %}
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i>
+                <strong>Fehler:</strong> {{ error }}
+            </div>
+        {% endif %}
+
+        {% if debugPayload %}
+            <div class="lexware-debug-card">
+                <div class="lexware-debug-title">Debug-Payload</div>
+                <pre>{{ debugPayload|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+            </div>
+        {% endif %}
+
+        {% if errorDetails %}
+            <div class="lexware-error-details">
+                <div class="lexware-error-title">Lexoffice Details</div>
+                <div class="lexware-error-block">
+                    {% if errorDetails.url %}
+                        <div class="lexware-error-line"><strong>URL:</strong> {{ errorDetails.url }}</div>
+                    {% endif %}
+                    {% if errorDetails.response %}
+                        <pre>{{ errorDetails.response }}</pre>
+                    {% else %}
+                        <div class="text-muted">Keine Detailantwort erhalten.</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        {% if createdInvoice %}
+            <div class="card mb-4 lexware-success-card">
+                <div class="card-body">
+                    <div class="lexware-success-header">
+                        <div>
+                            <div class="lexware-success-title">Rechnung erstellt</div>
+                            <div class="text-muted small">
+                                Lexoffice ID: <code>{{ createdInvoice.lexwareInvoiceId }}</code>
+                                {% if createdInvoice.voucherNumber %} · Nummer: <strong>{{ createdInvoice.voucherNumber }}</strong>{% endif %}
+                                {% if createdInvoice.kunde and createdInvoice.kunde.lexwareContactId %}
+                                    · Kontakt: <code>{{ createdInvoice.kunde.lexwareContactId }}</code>
+                                {% endif %}
+                            </div>
+                            {% if createdInvoiceView and createdInvoiceView.statusHint %}
+                                <div class="text-muted small mt-1">{{ createdInvoiceView.statusHint }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="lexware-success-status">{{ createdInvoiceView.status|default(createdInvoice.status) }}</div>
+                    </div>
+                    {% if createdInvoiceView and createdInvoiceView.rawStatus != createdInvoiceView.status %}
+                        <div class="text-muted small mt-2">Lexoffice Status: {{ createdInvoiceView.rawStatus }}</div>
+                    {% endif %}
+                    {% if createdInvoice.filePath %}
+                        {% set fileUrl = createdInvoice.filePath starts with 'http' ? createdInvoice.filePath : '/' ~ createdInvoice.filePath %}
+                        <a class="btn btn-primary mt-3" href="{{ fileUrl }}" target="_blank" rel="noopener">
+                            <i class="fa fa-file-pdf"></i> PDF öffnen
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-body">
+                {% set lineItems = formData.lineItems is defined and formData.lineItems is not empty
+                    ? formData.lineItems
+                    : [{'article': '', 'quantity': '1'}] %}
+                <form method="post" class="lexware-form">
+                    <div class="lexware-grid">
+                        <div>
+                            <label class="form-label">Kunde</label>
+                            <select name="kunde" class="form-select" required>
+                                <option value="">Bitte auswählen...</option>
+                                {% for kunde in customers %}
+                                    {% set label = (kunde.firmenname ? kunde.firmenname ~ ' · ' : '') ~ (kunde.vorname ~ ' ' ~ kunde.nachname) ~ ' · ' ~ (kunde.email ?? '') %}
+                                    <option value="{{ kunde.id }}" {{ formData.kunde == kunde.id ? 'selected' : '' }}>
+                                        {{ label|trim }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="lexware-check">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input" name="finalize" value="1" {{ formData.finalize ? 'checked' : '' }}>
+                                Rechnung direkt finalisieren (PDF erzeugen)
+                            </label>
+                        </div>
+                    </div>
+                    <div class="lexware-grid mt-3">
+                        <div class="lexware-note-field">
+                            <label class="form-label">Zahlhinweis (Rechnungstext)</label>
+                            <select name="paymentNote" class="form-select">
+                                {% set paymentNoteValue = formData.paymentNote|default('') %}
+                                <option value="">Bitte auswählen...</option>
+                                <option value="Paypal bezahlt" {{ paymentNoteValue == 'Paypal bezahlt' ? 'selected' : '' }}>Paypal bezahlt</option>
+                                <option value="Vorkasse" {{ paymentNoteValue == 'Vorkasse' ? 'selected' : '' }}>Vorkasse</option>
+                            </select>
+                            <div class="form-text">Diese Auswahl wird auf der Rechnung angezeigt.</div>
+                        </div>
+                        <div class="lexware-note-field">
+                            <label class="form-label">Zahlungsziel (Tage)</label>
+                            <input name="paymentTermDays" type="number" min="0" step="1" class="form-control" value="{{ formData.paymentTermDays|default('0') }}">
+                            <div class="form-text">0 = sofort fällig.</div>
+                        </div>
+                    </div>
+
+                    <div class="lexware-lineitems-card">
+                        <div class="lexware-lineitems-header">
+                            <div>
+                                <div class="lexware-lineitems-title">Positionen</div>
+                                <div class="lexware-lineitems-sub">Mehrere Produkte pro Rechnung. Lexoffice Kontakt wird automatisch synchronisiert.</div>
+                            </div>
+                            <button type="button" class="btn btn-outline" id="lexware-add-lineitem">
+                                <i class="fa fa-plus"></i> Position hinzufügen
+                            </button>
+                        </div>
+                        <div id="lexware-lineitems" class="lexware-lineitems">
+                            {% for item in lineItems %}
+                                <div class="lexware-lineitem" data-index="{{ loop.index0 }}">
+                                    <div class="lexware-lineitem-main">
+                                    <div class="lexware-lineitem-field">
+                                        <label class="form-label">Produkt (Lexoffice)</label>
+                                        <select name="lineItems[{{ loop.index0 }}][article]" class="form-select lexware-article-select" data-selected="{{ item.article|default('')|e('html_attr') }}">
+                                            <option value="">Produkte werden geladen...</option>
+                                        </select>
+                                        <input type="hidden" name="lineItems[{{ loop.index0 }}][snapshot]" class="lexware-article-snapshot" value="">
+                                    </div>
+                                        <div class="lexware-lineitem-field lexware-lineitem-qty">
+                                            <label class="form-label">Menge</label>
+                                            <input name="lineItems[{{ loop.index0 }}][quantity]" type="number" step="0.01" min="0.01" class="form-control" value="{{ item.quantity|default('1') }}">
+                                        </div>
+                                        <div class="lexware-lineitem-actions">
+                                            <button type="button" class="btn btn-outline-danger lexware-lineitem-remove">Entfernen</button>
+                                        </div>
+                                    </div>
+                                    <div class="lexware-article-preview"></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" type="submit">
+                        <i class="fa fa-file-invoice"></i> Rechnung erstellen
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-3">Letzte Rechnungen</h3>
+                {% if recentInvoiceViews is empty %}
+                    <div class="text-muted">Noch keine Rechnungen erstellt.</div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Kunde</th>
+                                    <th>Lexoffice ID</th>
+                                    <th>Nummer</th>
+                                    <th>Status</th>
+                                    <th>PDF</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoiceView in recentInvoiceViews %}
+                                    {% set invoice = invoiceView.invoice %}
+                                    {% set fileUrl = invoiceView.downloadUrl %}
+                                    <tr>
+                                        <td>{{ invoice.createdAt ? invoice.createdAt|date('d.m.Y H:i') : '-' }}</td>
+                                        <td>{{ invoice.kunde ? invoice.kunde : '-' }}</td>
+                                        <td><code>{{ invoice.lexwareInvoiceId }}</code></td>
+                                        <td>{{ invoice.voucherNumber ?? '-' }}</td>
+                                        <td>
+                                            <div>{{ invoiceView.status }}</div>
+                                            {% if invoiceView.rawStatus != invoiceView.status %}
+                                                <div class="text-muted small">Lexoffice: {{ invoiceView.rawStatus }}</div>
+                                            {% endif %}
+                                            {% if invoiceView.statusHint %}
+                                                <div class="text-muted small">{{ invoiceView.statusHint }}</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if fileUrl %}
+                                                <a class="btn btn-outline btn-sm" href="{{ fileUrl }}" target="_blank" rel="noopener">
+                                                    PDF
+                                                </a>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const lineItemsContainer = document.getElementById('lexware-lineitems');
+const addLineItemButton = document.getElementById('lexware-add-lineitem');
+const articleEndpoint = '{{ path('admin_lexware_invoice_articles') }}';
+
+let articlesCache = [];
+
+const buildOptions = (items) => {
+    const options = items.map((item) => {
+        const label = `${item.title || item.name || 'Artikel'} (${item.articleNumber || item.id})`;
+        return `<option value="${item.id}">${label}</option>`;
+    }).join('');
+
+    return `<option value="">Bitte auswählen...</option>${options}`;
+};
+
+const renderArticlePreview = (row, article) => {
+    const preview = row ? row.querySelector('.lexware-article-preview') : null;
+    if (!preview) {
+        return;
+    }
+
+    if (!article) {
+        preview.innerHTML = '';
+        return;
+    }
+
+    const price = article.price || {};
+    const taxRate = price.taxRate || price.taxRatePercentage || '-';
+    const leadingPrice = price.leadingPrice || 'NET';
+    const netPrice = price.netPrice || '';
+    const grossPrice = price.grossPrice || '';
+    preview.innerHTML = `
+        <div class="lexware-article-card">
+            <div class="lexware-article-title">${article.title || article.name || 'Artikel'}</div>
+            <div class="lexware-article-meta">
+                <span>Typ: ${article.type || '-'}</span>
+                <span>Einheit: ${article.unitName || 'Stk'}</span>
+                <span>Steuer: ${taxRate}%</span>
+            </div>
+            <div class="lexware-article-prices">
+                <div>Netto: ${netPrice}</div>
+                <div>Brutto: ${grossPrice}</div>
+                <div>Preisführung: ${leadingPrice}</div>
+            </div>
+        </div>
+    `;
+};
+
+const buildArticleSnapshot = (article) => {
+    if (!article) {
+        return null;
+    }
+
+    return {
+        id: article.id || null,
+        title: article.title || null,
+        name: article.name || null,
+        unitName: article.unitName || null,
+        type: article.type || null,
+        articleNumber: article.articleNumber || null,
+        price: article.price || null
+    };
+};
+
+const setSnapshot = (row, article) => {
+    const snapshotInput = row ? row.querySelector('.lexware-article-snapshot') : null;
+    if (!snapshotInput) {
+        return;
+    }
+
+    if (!article) {
+        snapshotInput.value = '';
+        return;
+    }
+
+    const snapshot = buildArticleSnapshot(article);
+    snapshotInput.value = snapshot ? JSON.stringify(snapshot) : '';
+};
+
+const attachRowHandlers = (row) => {
+    const removeButton = row.querySelector('.lexware-lineitem-remove');
+    if (removeButton && !removeButton.dataset.bound) {
+        removeButton.dataset.bound = '1';
+        removeButton.addEventListener('click', () => {
+            const rows = Array.from(lineItemsContainer.querySelectorAll('.lexware-lineitem'));
+            if (rows.length <= 1) {
+                const select = row.querySelector('.lexware-article-select');
+                const qtyInput = row.querySelector('input[type="number"]');
+        if (select) {
+            select.value = '';
+        }
+        if (qtyInput) {
+            qtyInput.value = '1';
+        }
+        setSnapshot(row, null);
+        renderArticlePreview(row, null);
+        return;
+    }
+
+            row.remove();
+            reindexRows();
+        });
+    }
+};
+
+const applyArticlesToSelect = (select) => {
+    select.innerHTML = buildOptions(articlesCache);
+
+    const selected = select.dataset.selected || '';
+    if (selected) {
+        select.value = selected;
+    }
+
+    const row = select.closest('.lexware-lineitem');
+    const renderSelected = () => {
+        const article = articlesCache.find((item) => item.id === select.value);
+        renderArticlePreview(row, article || null);
+        setSnapshot(row, article || null);
+    };
+
+    if (!select.dataset.bound) {
+        select.dataset.bound = '1';
+        select.addEventListener('change', renderSelected);
+    }
+
+    renderSelected();
+};
+
+const reindexRows = () => {
+    const rows = Array.from(lineItemsContainer.querySelectorAll('.lexware-lineitem'));
+    rows.forEach((row, index) => {
+        row.dataset.index = String(index);
+        const select = row.querySelector('.lexware-article-select');
+        const qtyInput = row.querySelector('input[type="number"]');
+        if (select) {
+            select.name = `lineItems[${index}][article]`;
+        }
+        if (qtyInput) {
+            qtyInput.name = `lineItems[${index}][quantity]`;
+        }
+    });
+};
+
+const addLineItemRow = (data = {}) => {
+    const index = lineItemsContainer.querySelectorAll('.lexware-lineitem').length;
+    const row = document.createElement('div');
+    row.className = 'lexware-lineitem';
+    row.dataset.index = String(index);
+    row.innerHTML = `
+        <div class="lexware-lineitem-main">
+            <div class="lexware-lineitem-field">
+                <label class="form-label">Produkt (Lexoffice)</label>
+                <select name="lineItems[${index}][article]" class="form-select lexware-article-select" data-selected="${data.article || ''}">
+                    <option value="">Produkte werden geladen...</option>
+                </select>
+                <input type="hidden" name="lineItems[${index}][snapshot]" class="lexware-article-snapshot" value="">
+            </div>
+            <div class="lexware-lineitem-field lexware-lineitem-qty">
+                <label class="form-label">Menge</label>
+                <input name="lineItems[${index}][quantity]" type="number" step="0.01" min="0.01" class="form-control" value="${data.quantity || '1'}">
+            </div>
+            <div class="lexware-lineitem-actions">
+                <button type="button" class="btn btn-outline-danger lexware-lineitem-remove">Entfernen</button>
+            </div>
+        </div>
+        <div class="lexware-article-preview"></div>
+    `;
+
+    lineItemsContainer.appendChild(row);
+    attachRowHandlers(row);
+
+    const select = row.querySelector('.lexware-article-select');
+    if (select && articlesCache.length) {
+        applyArticlesToSelect(select);
+    } else {
+        setSnapshot(row, null);
+    }
+};
+
+const loadArticles = async () => {
+    try {
+        const response = await fetch(`${articleEndpoint}?size=200`);
+        const payload = await response.json();
+        if (!payload.success) {
+            document.querySelectorAll('.lexware-article-select').forEach((select) => {
+                select.innerHTML = '<option value="">Fehler beim Laden</option>';
+            });
+            return;
+        }
+
+        articlesCache = Array.isArray(payload.data) ? payload.data : [];
+        document.querySelectorAll('.lexware-article-select').forEach((select) => {
+            applyArticlesToSelect(select);
+        });
+    } catch (error) {
+        document.querySelectorAll('.lexware-article-select').forEach((select) => {
+            select.innerHTML = '<option value="">Fehler beim Laden</option>';
+        });
+    }
+};
+
+if (addLineItemButton) {
+    addLineItemButton.addEventListener('click', () => {
+        addLineItemRow({ article: '', quantity: '1' });
+        reindexRows();
+    });
+}
+
+Array.from(document.querySelectorAll('.lexware-lineitem')).forEach((row) => attachRowHandlers(row));
+
+loadArticles();
+</script>
+
+<style>
+.lexware-form .form-label {
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+.lexware-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+.lexware-check {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+}
+
+.lexware-lineitems-card {
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    background: radial-gradient(circle at top right, rgba(226, 232, 240, 0.4), transparent 55%),
+        linear-gradient(135deg, #f8fafc, #ffffff);
+}
+
+.lexware-lineitems-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.lexware-lineitems-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.lexware-lineitems-sub {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.lexware-lineitems {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lexware-lineitem {
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+}
+
+.lexware-lineitem-main {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(120px, 160px) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.lexware-lineitem-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lexware-lineitem-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.lexware-note-field .form-text {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.lexware-success-card {
+    border: 1px solid #c7d2fe;
+    background: #eef2ff;
+}
+
+.lexware-error-details {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+}
+
+.lexware-error-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #7f1d1d;
+}
+
+.lexware-error-block {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.06);
+}
+
+.lexware-error-line {
+    font-size: 12px;
+    color: #1f2937;
+    margin-bottom: 6px;
+}
+
+.lexware-error-block pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 12px;
+    color: #0f172a;
+}
+
+.lexware-debug-card {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px dashed #cbd5f5;
+    background: #f8fafc;
+}
+
+.lexware-debug-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1e293b;
+}
+
+.lexware-debug-card pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 12px;
+    color: #0f172a;
+}
+
+.lexware-success-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.lexware-success-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e3a8a;
+}
+
+.lexware-success-status {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #c7d2fe;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.lexware-article-preview {
+    margin-top: 10px;
+}
+
+.lexware-article-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: #f8fafc;
+}
+
+.lexware-article-title {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.lexware-article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 12px;
+    color: #475569;
+    margin-top: 6px;
+}
+
+.lexware-article-prices {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #1f2937;
+    margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+    .lexware-lineitem-main {
+        grid-template-columns: 1fr;
+    }
+
+    .lexware-lineitem-actions {
+        justify-content: flex-start;
+    }
+}
+</style>
+{% endblock %}

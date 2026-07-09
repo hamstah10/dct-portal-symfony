@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No1 Tuningfiles — Design System</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 32px; }
+  .eyebrow { font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--fw-medium); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--accent-text); }
+  .display { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); text-transform: uppercase; letter-spacing: var(--ls-tight); }
+  .grid-surface {
+    background-image:
+      linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+    background-size: 34px 34px;
+  }
+
+  /* ---- header ---- */
+  header.top { position: sticky; top: 0; z-index: 50; background: color-mix(in oklch, var(--bg) 82%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  .top-inner { display: flex; align-items: center; gap: 18px; height: 60px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .brand .logo { height: 26px; display: block; }
+  .brand .tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted); border-left: 1px solid var(--border-strong); padding-left: 11px; }
+  .top nav { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  .top nav a { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); padding: 8px 11px; border-radius: var(--radius-sm); transition: color var(--dur-fast), background var(--dur-fast); }
+  .top nav a:hover { color: var(--text); background: var(--surface-2); }
+  .top nav a.cta { color: var(--text-on-accent); background: var(--accent); }
+  .top nav a.cta:hover { background: var(--accent-hover); }
+
+  /* ---- hero ---- */
+  .hero { border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .hero .container { padding-top: 76px; padding-bottom: 60px; }
+  .hero h1 { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); text-transform: uppercase; letter-spacing: var(--ls-tight); line-height: 0.9; font-size: var(--text-5xl); margin: 16px 0 0; max-width: 15ch; text-wrap: balance; }
+  .hero h1 .hl { color: var(--accent); }
+  .hero p.lede { margin: 22px 0 0; max-width: 58ch; font-size: var(--text-lg); line-height: var(--lh-relaxed); color: var(--text-muted); }
+  .stats { display: flex; flex-wrap: wrap; gap: 0; margin-top: 38px; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); width: fit-content; max-width: 100%; box-shadow: var(--shadow-sm); }
+  .stat { padding: 16px 26px; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: 0; }
+  .stat .n { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); font-size: var(--text-2xl); line-height: 1; letter-spacing: var(--ls-tight); }
+  .stat .n span { color: var(--accent); }
+  .stat .l { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted); margin-top: 7px; }
+
+  /* ---- sections ---- */
+  section.block { padding: 64px 0 8px; }
+  .sec-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 30px; }
+  .sec-head h2 { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); text-transform: uppercase; letter-spacing: var(--ls-tight); font-size: var(--text-2xl); margin: 6px 0 0; line-height: 1; }
+  .sec-head .desc { font-size: var(--text-sm); color: var(--text-muted); max-width: 50ch; margin-top: 6px; }
+  .sec-head .count { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-subtle); white-space: nowrap; }
+
+  /* card shell */
+  .panel { border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); overflow: hidden; }
+  .panel-h { display: flex; align-items: center; gap: 10px; padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .panel-h .t { font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted); }
+  .panel-b { padding: 22px 20px; }
+  .cols { display: grid; gap: 20px; }
+  .cols.two { grid-template-columns: 1fr 1fr; }
+  .cols.three { grid-template-columns: repeat(3, 1fr); }
+
+  /* ---- logo lockup ---- */
+  .lockup { display: grid; grid-template-columns: 1.3fr 1fr; gap: 0; }
+  .lockup .show { display: flex; align-items: center; justify-content: center; padding: 44px; background: var(--surface); }
+  .lockup .show.inv { background: var(--carbon-900); border-left: 1px solid var(--border); }
+  .lockup .show img { max-width: 100%; height: auto; max-height: 130px; }
+  .lockup .show.inv img { filter: brightness(0) invert(1); }
+  .lockup-meta { display: flex; gap: 24px; flex-wrap: wrap; padding: 16px 20px; border-top: 1px solid var(--border); background: var(--surface-2); }
+  .lockup-meta div { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-subtle); }
+  .lockup-meta div b { display: block; color: var(--text); font-size: var(--text-sm); letter-spacing: 0; text-transform: none; font-family: var(--font-sans); margin-top: 3px; }
+
+  /* ---- color swatches ---- */
+  .ramp { display: flex; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border); }
+  .ramp .sw { flex: 1; height: 64px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.04em; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+  .swatch { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+  .swatch .chip { height: 56px; }
+  .swatch .lab { padding: 8px 10px; }
+  .swatch .lab .nm { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.04em; text-transform: uppercase; color: var(--text); }
+  .swatch .lab .hx { font-family: var(--font-mono); font-size: 10px; color: var(--text-subtle); margin-top: 2px; }
+
+  /* ---- type specimens ---- */
+  .spec + .spec { border-top: 1px solid var(--border); margin-top: 22px; padding-top: 22px; }
+  .spec .lbl { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-subtle); margin-bottom: 10px; }
+  .scale-row { display: flex; align-items: baseline; gap: 18px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+  .scale-row:last-child { border-bottom: 0; }
+  .scale-row .tk { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-subtle); width: 78px; flex: 0 0 auto; }
+  .scale-row .sample { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-bold); text-transform: uppercase; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---- spacing / radii ---- */
+  .space-row { display: flex; align-items: center; gap: 14px; padding: 7px 0; }
+  .space-row .tk { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-subtle); width: 88px; }
+  .space-row .bar { height: 16px; background: var(--accent); border-radius: 2px; }
+  .radii { display: flex; gap: 18px; flex-wrap: wrap; }
+  .radii .r { text-align: center; }
+  .radii .r .box { width: 72px; height: 56px; background: var(--surface-2); border: 1.5px solid var(--accent); }
+  .radii .r .tk { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-subtle); margin-top: 8px; }
+  .elev { display: flex; gap: 22px; flex-wrap: wrap; }
+  .elev .e { width: 120px; height: 80px; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--text-subtle); }
+
+  /* ---- components ---- */
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .stk { display: flex; flex-direction: column; gap: 14px; }
+
+  .btn { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.02em; font-size: var(--text-sm); border-radius: var(--radius-sm); padding: 11px 20px; cursor: pointer; border: 1px solid transparent; transition: all var(--dur-fast); display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); box-shadow: var(--glow-power); }
+  .btn-dark { background: var(--carbon-800); color: #fff; }
+  .btn-dark:hover { background: var(--carbon-900); }
+  .btn-outline { background: transparent; color: var(--text); border-color: var(--border-strong); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent-text); }
+  .btn-ghost { background: transparent; color: var(--text-muted); }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+  .btn-sm { padding: 7px 13px; font-size: var(--text-xs); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+  .badge { font-family: var(--font-mono); font-size: var(--text-2xs); font-weight: var(--fw-medium); letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 9px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: 5px; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge.b-red { background: var(--accent-soft); color: var(--accent-text); }
+  .badge.b-green { background: var(--success-soft); color: var(--success); }
+  .badge.b-blue { background: var(--info-soft); color: var(--info); }
+  .badge.b-amber { background: var(--warning-soft); color: var(--warning); }
+  .badge.b-gray { background: var(--surface-3); color: var(--text-muted); }
+  .tag { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); color: var(--text-muted); }
+
+  .field { display: flex; flex-direction: column; gap: 7px; }
+  .field label { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted); }
+  .input { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 10px 12px; transition: border-color var(--dur-fast), box-shadow var(--dur-fast); width: 100%; }
+  .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .input::placeholder { color: var(--text-subtle); }
+  .switch { position: relative; width: 42px; height: 24px; border-radius: var(--radius-pill); background: var(--surface-3); border: 1px solid var(--border-strong); cursor: pointer; transition: background var(--dur-fast); flex: 0 0 auto; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-xs); transition: transform var(--dur-base) var(--ease-snap); }
+  .switch.on { background: var(--accent); border-color: var(--accent); }
+  .switch.on::after { transform: translateX(18px); }
+  .check { width: 20px; height: 20px; border-radius: var(--radius-xs); border: 1.5px solid var(--border-strong); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+  .check.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* product card */
+  .pcard { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); transition: border-color var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base); }
+  .pcard:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .pcard .top { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .pcard .top .veh { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-bold); text-transform: uppercase; font-size: var(--text-lg); }
+  .pcard .top .sub { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-subtle); letter-spacing: 0.05em; margin-top: 3px; }
+  .pcard .body { padding: 16px 18px; }
+  .dyno { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+  .dyno .c { flex: 1; padding: 12px 14px; border-right: 1px solid var(--border); }
+  .dyno .c:last-child { border-right: 0; }
+  .dyno .c .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-subtle); }
+  .dyno .c .v { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); font-size: var(--text-xl); line-height: 1; margin-top: 5px; }
+  .dyno .c .v .g { color: var(--success); font-size: var(--text-sm); }
+  .dyno .c .v .r { color: var(--accent); }
+
+  /* stat tiles */
+  .stat-tile { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; background: var(--surface); position: relative; overflow: hidden; }
+  .stat-tile::before { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); }
+  .stat-tile .k { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted); }
+  .stat-tile .v { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); font-size: var(--text-3xl); line-height: 1; margin-top: 8px; letter-spacing: var(--ls-tight); }
+  .stat-tile .d { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--success); margin-top: 6px; }
+
+  /* progress */
+  .prog { height: 8px; border-radius: var(--radius-pill); background: var(--surface-3); overflow: hidden; }
+  .prog > i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+  .prog-lab { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 7px; }
+
+  /* table */
+  table.tbl { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+  table.tbl th { font-family: var(--font-mono); font-size: var(--text-2xs); letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-subtle); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border-strong); }
+  table.tbl td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  table.tbl tr:last-child td { border-bottom: 0; }
+  table.tbl td .mono { font-family: var(--font-mono); }
+
+  /* dropzone */
+  .drop { border: 1.5px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 30px; text-align: center; background: var(--surface-2); transition: border-color var(--dur-fast), background var(--dur-fast); cursor: pointer; }
+  .drop:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .drop .ic { width: 38px; height: 38px; border-radius: var(--radius-md); background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; }
+  .drop .t { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-bold); text-transform: uppercase; margin-top: 12px; }
+  .drop .s { font-family: var(--font-mono); font-size: var(--text-2xs); color: var(--text-subtle); margin-top: 4px; letter-spacing: 0.04em; }
+
+  /* alert */
+  .alert { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); align-items: flex-start; }
+  .alert .ico { width: 22px; height: 22px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+  .alert.success { background: var(--success-soft); border-color: color-mix(in oklch, var(--success) 30%, transparent); }
+  .alert.success .ico { background: var(--success); }
+  .alert.warn { background: var(--warning-soft); border-color: color-mix(in oklch, var(--warning) 30%, transparent); }
+  .alert.warn .ico { background: var(--warning); }
+  .alert .txt { font-size: var(--text-sm); line-height: var(--lh-snug); }
+  .alert .txt b { font-weight: var(--fw-bold); }
+
+  /* screen tiles */
+  .screen-tile { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); transition: border-color var(--dur-base), box-shadow var(--dur-base), transform var(--dur-base); }
+  .screen-tile:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .screen-tile__bar { display: flex; align-items: center; gap: 7px; padding: 11px 14px; background: var(--carbon-900); }
+  .screen-tile__bar .d { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.22); }
+  .screen-tile__bar .d.r { background: var(--accent); }
+  .screen-tile__url { margin-left: 10px; font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.5); letter-spacing: 0.03em; }
+  .screen-tile__body { padding: 22px; }
+  .screen-tile__tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--accent-text); }
+  .screen-tile__h { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-black); text-transform: uppercase; letter-spacing: var(--ls-tight); font-size: var(--text-xl); margin-top: 8px; }
+  .screen-tile__s { font-size: var(--text-sm); color: var(--text-muted); line-height: var(--lh-snug); margin-top: 8px; max-width: 46ch; }
+  .screen-tile__open { margin-top: 16px; display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: var(--text-xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-text); }
+  .screen-tile:hover .screen-tile__open .arrow { transform: translateX(3px); }
+  .screen-tile__open .arrow { transition: transform var(--dur-base) var(--ease-out); }
+  .screen-soon { border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 22px; background: var(--surface-2); display: flex; flex-direction: column; justify-content: center; }
+  .screen-soon__t { font-family: var(--font-display); font-style: italic; font-weight: var(--fw-bold); text-transform: uppercase; font-size: var(--text-lg); color: var(--text-muted); }
+  .screen-soon__s { font-size: var(--text-sm); color: var(--text-subtle); line-height: var(--lh-snug); margin-top: 8px; }
+
+  footer.foot { margin-top: 72px; border-top: 1px solid var(--border); }
+  .foot .container { padding-top: 26px; padding-bottom: 44px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .foot .note { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-subtle); letter-spacing: 0.04em; }
+  .foot .note b { color: var(--text-muted); font-weight: var(--fw-medium); }
+
+  @media (max-width: 860px) { .cols.two, .cols.three, .lockup { grid-template-columns: 1fr; } .top nav a:not(.cta) { display: none; } }
+  @media (max-width: 560px) { .container { padding: 0 18px; } .stat { padding: 13px 18px; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="container top-inner">
+    <a class="brand" href="#top">
+      <img class="logo" src="assets/No1-logo.png" alt="No1 Tuningfiles">
+      <span class="tag">Design System</span>
+    </a>
+    <nav>
+      <a href="#brand">Brand</a>
+      <a href="#color">Farbe</a>
+      <a href="#type">Type</a>
+      <a href="#components">Komponenten</a>
+      <a href="#screens">Screens</a>
+      <a href="portal/Portal.html" class="cta">Portal ↗</a>
+    </nav>
+  </div>
+</header>
+
+<a id="top"></a>
+<section class="hero grid-surface">
+  <div class="container">
+    <div class="eyebrow">Design System · Tuning-File-Service · v1.0</div>
+    <h1>Echte Leistung.<br><span class="hl">Eine</span> Designsprache.</h1>
+    <p class="lede">Das komplette visuelle System von No1 Tuningfiles — Marke, Farbe, Typografie und einsatzbereite UI-Komponenten. Carbon-Schwarz, ein einziges Ignition-Rot, kompromisslos hell. Scroll dich durch alles.</p>
+    <div class="stats">
+      <div class="stat"><div class="n"><span>#E31E24</span></div><div class="l">Brand Red</div></div>
+      <div class="stat"><div class="n">14</div><div class="l">Komponenten</div></div>
+      <div class="stat"><div class="n">3</div><div class="l">Schriftfamilien</div></div>
+      <div class="stat"><div class="n">8<span>px</span></div><div class="l">Raster-Basis</div></div>
+    </div>
+  </div>
+</section>
+
+<main class="container">
+
+  <!-- BRAND -->
+  <section class="block" id="brand">
+    <div class="sec-head">
+      <div><div class="eyebrow">Marke</div><h2>Logo & Wordmark</h2><div class="desc">Die Bildmarke: schweres, kursiv-condensed „No1" mit Ignition-Rot-Akzent auf der 1. Niemals strecken, neigen oder umfärben.</div></div>
+      <div class="count">1 Asset</div>
+    </div>
+    <div class="panel">
+      <div class="lockup">
+        <div class="show"><img src="assets/No1-logo.png" alt="No1 Tuningfiles Logo"></div>
+        <div class="show inv"><img src="assets/No1-logo.png" alt="No1 Tuningfiles Logo invertiert"></div>
+      </div>
+      <div class="lockup-meta">
+        <div>Clearspace<b>≥ Höhe der „o"</b></div>
+        <div>Min-Breite<b>120 px digital</b></div>
+        <div>Hintergrund<b>Weiß / Carbon-900</b></div>
+        <div>Verboten<b>Strecken · Drehen · Umfärben</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLOR -->
+  <section class="block" id="color">
+    <div class="sec-head">
+      <div><div class="eyebrow">Fundament</div><h2>Farbsystem</h2><div class="desc">Ein Carbon-Neutral-Gerüst trägt das UI; Ignition-Rot ist der einzige Marken-Akzent. Sparsam einsetzen — für Aktionen, Live-Werte, Highlights.</div></div>
+      <div class="count">2 Ramps · 4 semantisch</div>
+    </div>
+    <div class="cols two">
+      <div class="panel">
+        <div class="panel-h"><span class="t">Ignition Red — Marken-Akzent</span></div>
+        <div class="panel-b">
+          <div class="ramp">
+            <div class="sw" style="background:#FDECEC;color:#9E1115">50</div>
+            <div class="sw" style="background:#F5A8AA;color:#9E1115">200</div>
+            <div class="sw" style="background:#E84A4E;color:#fff">400</div>
+            <div class="sw" style="background:#E31E24;color:#fff">500</div>
+            <div class="sw" style="background:#C5161B;color:#fff">600</div>
+            <div class="sw" style="background:#9E1115;color:#fff">700</div>
+            <div class="sw" style="background:#6E0C0F;color:#fff">800</div>
+          </div>
+          <div style="margin-top:14px" class="row">
+            <span class="tag" style="border-color:var(--accent);color:var(--accent-text)">--accent · #E31E24</span>
+            <span class="tag">--accent-hover · #C5161B</span>
+            <span class="tag">--accent-soft · #FDECEC</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="t">Carbon — Neutral-Gerüst</span></div>
+        <div class="panel-b">
+          <div class="ramp">
+            <div class="sw" style="background:#FAFAFA;color:#6B6B6E">25</div>
+            <div class="sw" style="background:#ECECEC;color:#4A4A4B">100</div>
+            <div class="sw" style="background:#C7C7C8;color:#2B2A29">300</div>
+            <div class="sw" style="background:#9A9A9D;color:#fff">400</div>
+            <div class="sw" style="background:#6B6B6E;color:#fff">500</div>
+            <div class="sw" style="background:#2B2A29;color:#fff">800</div>
+            <div class="sw" style="background:#1C1B1B;color:#fff">900</div>
+          </div>
+          <div style="margin-top:14px" class="row">
+            <span class="tag">--text · #2B2A29</span>
+            <span class="tag">--text-muted · #6B6B6E</span>
+            <span class="tag">--border · #E6E6E6</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-h"><span class="t">Semantisch — Status & Feedback</span></div>
+      <div class="panel-b">
+        <div class="swatches">
+          <div class="swatch"><div class="chip" style="background:#1F9D55"></div><div class="lab"><div class="nm">Success</div><div class="hx">#1F9D55 · Dyno</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#E31E24"></div><div class="lab"><div class="nm">Danger</div><div class="hx">#E31E24 · Redline</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#1F6FEB"></div><div class="lab"><div class="nm">Info</div><div class="hx">#1F6FEB · Telemetry</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#C7820B"></div><div class="lab"><div class="nm">Warning</div><div class="hx">#C7820B · Amber</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#FFFFFF;border-bottom:1px solid #E6E6E6"></div><div class="lab"><div class="nm">Surface</div><div class="hx">#FFFFFF</div></div></div>
+          <div class="swatch"><div class="chip" style="background:#F5F5F5"></div><div class="lab"><div class="nm">Surface-2</div><div class="hx">#F5F5F5</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section class="block" id="type">
+    <div class="sec-head">
+      <div><div class="eyebrow">Fundament</div><h2>Typografie</h2><div class="desc">Saira Condensed Italic für laute, kursive Headlines im Logo-Geist. Archivo trägt den Fließtext, IBM Plex Mono die technischen Werte.</div></div>
+      <div class="count">3 Familien</div>
+    </div>
+    <div class="cols three">
+      <div class="panel">
+        <div class="panel-h"><span class="t">Display · Saira Condensed</span></div>
+        <div class="panel-b">
+          <div style="font-family:var(--font-display);font-style:italic;font-weight:800;text-transform:uppercase;font-size:46px;line-height:0.9;letter-spacing:-0.01em">Stage 2<br>+72 PS</div>
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-subtle);margin:14px 0 0;letter-spacing:0.04em">UPPERCASE · ITALIC · 700/800<br>Headlines, Zahlen, Buttons</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="t">Body · Archivo</span></div>
+        <div class="panel-b">
+          <div style="font-size:18px;line-height:1.55">Echte Kennfeld­optimierung, geprüft auf dem Prüfstand. Mehr Drehmoment, sauberer Durchzug, volle Alltagstauglichkeit.</div>
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-subtle);margin:14px 0 0;letter-spacing:0.04em">REGULAR–BOLD · 400–800<br>Fließtext & UI</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="t">Mono · IBM Plex Mono</span></div>
+        <div class="panel-b">
+          <div style="font-family:var(--font-mono);font-size:15px;line-height:1.7;color:var(--text)">ECU: EDC17C64<br>STAGE: 2<br>+72 PS / +110 NM<br>STATUS: <span style="color:var(--success)">FREIGEGEBEN</span></div>
+          <p style="font-family:var(--font-mono);font-size:11px;color:var(--text-subtle);margin:14px 0 0;letter-spacing:0.04em">400–600<br>Specs · Labels · Eyebrows</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:20px">
+      <div class="panel-h"><span class="t">Type-Scale</span></div>
+      <div class="panel-b">
+        <div class="scale-row"><span class="tk">5xl · 88</span><span class="sample" style="font-size:54px">No1 Tuningfiles</span></div>
+        <div class="scale-row"><span class="tk">3xl · 42</span><span class="sample" style="font-size:42px">Stage Upgrades</span></div>
+        <div class="scale-row"><span class="tk">2xl · 32</span><span class="sample" style="font-size:32px">Fahrzeug wählen</span></div>
+        <div class="scale-row"><span class="tk">xl · 24</span><span class="sample" style="font-size:24px">Leistungsdaten</span></div>
+        <div class="scale-row"><span class="tk">lg · 19</span><span class="sample" style="font-size:19px">Datei hochladen</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKENS: spacing / radii / elevation -->
+  <section class="block" id="tokens">
+    <div class="sec-head">
+      <div><div class="eyebrow">Fundament</div><h2>Spacing · Radii · Elevation</h2><div class="desc">8px-Raster, mechanisch-enge Radien und flache Schatten. Struktur kommt aus Hairlines, nicht aus Tiefe.</div></div>
+      <div class="count">3 Skalen</div>
+    </div>
+    <div class="cols three">
+      <div class="panel">
+        <div class="panel-h"><span class="t">Spacing · 8px-Basis</span></div>
+        <div class="panel-b">
+          <div class="space-row"><span class="tk">space-2 · 8</span><span class="bar" style="width:8px"></span></div>
+          <div class="space-row"><span class="tk">space-4 · 16</span><span class="bar" style="width:16px"></span></div>
+          <div class="space-row"><span class="tk">space-5 · 24</span><span class="bar" style="width:24px"></span></div>
+          <div class="space-row"><span class="tk">space-6 · 32</span><span class="bar" style="width:32px"></span></div>
+          <div class="space-row"><span class="tk">space-7 · 48</span><span class="bar" style="width:48px"></span></div>
+          <div class="space-row"><span class="tk">space-8 · 64</span><span class="bar" style="width:64px"></span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="t">Corner Radii</span></div>
+        <div class="panel-b">
+          <div class="radii">
+            <div class="r"><div class="box" style="border-radius:2px"></div><div class="tk">xs · 2</div></div>
+            <div class="r"><div class="box" style="border-radius:4px"></div><div class="tk">sm · 4</div></div>
+            <div class="r"><div class="box" style="border-radius:6px"></div><div class="tk">md · 6</div></div>
+            <div class="r"><div class="box" style="border-radius:10px"></div><div class="tk">lg · 10</div></div>
+            <div class="r"><div class="box" style="border-radius:14px"></div><div class="tk">xl · 14</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-h"><span class="t">Elevation</span></div>
+        <div class="panel-b">
+          <div class="elev">
+            <div class="e" style="box-shadow:var(--shadow-xs)">xs</div>
+            <div class="e" style="box-shadow:var(--shadow-sm)">sm</div>
+            <div class="e" style="box-shadow:var(--shadow-md)">md</div>
+            <div class="e" style="box-shadow:var(--shadow-lg)">lg</div>
+            <div class="e" style="box-shadow:var(--glow-power);border-color:var(--accent)">glow</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section class="block" id="components">
+    <div class="sec-head">
+      <div><div class="eyebrow">Bausteine</div><h2>Komponenten</h2><div class="desc">Einsatzbereite Primitives im No1-Stil — interaktiv. Buttons, Badges, Formulare, Daten-Views und Feedback.</div></div>
+      <div class="count">14 Komponenten</div>
+    </div>
+
+    <div class="cols two">
+      <!-- buttons -->
+      <div class="panel">
+        <div class="panel-h"><span class="t">Buttons</span></div>
+        <div class="panel-b stk">
+          <div class="row">
+            <button class="btn btn-primary">Jetzt tunen</button>
+            <button class="btn btn-dark">Fahrzeug wählen</button>
+            <button class="btn btn-outline">Mehr Infos</button>
+            <button class="btn btn-ghost">Abbrechen</button>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary btn-sm">Hochladen</button>
+            <button class="btn btn-outline btn-sm">Reset</button>
+            <button class="btn btn-primary" disabled>Deaktiviert</button>
+          </div>
+        </div>
+      </div>
+      <!-- badges & tags -->
+      <div class="panel">
+        <div class="panel-h"><span class="t">Badges & Tags</span></div>
+        <div class="panel-b stk">
+          <div class="row">
+            <span class="badge b-green">Freigegeben</span>
+            <span class="badge b-red">Redline</span>
+            <span class="badge b-blue">In Bearbeitung</span>
+            <span class="badge b-amber">Prüfung</span>
+            <span class="badge b-gray">Entwurf</span>
+          </div>
+          <div class="row">
+            <span class="tag">Stage 1</span>
+            <span class="tag">EGR off</span>
+            <span class="tag">DPF</span>
+            <span class="tag">Pop &amp; Bang</span>
+            <span class="tag">EDC17</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cols two" style="margin-top:20px">
+      <!-- forms -->
+      <div class="panel">
+        <div class="panel-h"><span class="t">Formular-Controls</span></div>
+        <div class="panel-b stk">
+          <div class="field"><label>Fahrzeug</label><input class="input" placeholder="z. B. Golf 7 GTD 2.0 TDI"></div>
+          <div class="field"><label>ECU-Typ</label><input class="input" value="Bosch EDC17C64"></div>
+          <div class="row" style="gap:22px;margin-top:2px">
+            <div class="row" style="gap:9px"><span class="switch on" data-switch></span><span style="font-size:14px">EGR entfernen</span></div>
+            <div class="row" style="gap:9px"><span class="switch" data-switch></span><span style="font-size:14px">DPF entfernen</span></div>
+          </div>
+          <div class="row" style="gap:22px">
+            <div class="row" style="gap:9px"><span class="check on" data-check>✓</span><span style="font-size:14px">AGB akzeptiert</span></div>
+            <div class="row" style="gap:9px"><span class="check" data-check></span><span style="font-size:14px">Newsletter</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- upload -->
+      <div class="panel">
+        <div class="panel-h"><span class="t">File-Upload</span></div>
+        <div class="panel-b stk">
+          <div class="drop"><div class="ic">↑</div><div class="t">Datei hierher ziehen</div><div class="s">.bin · .ori · .mod — max 32 MB</div></div>
+          <div>
+            <div class="prog-lab"><span>Upload · winols_dump.bin</span><span>72%</span></div>
+            <div class="prog"><i style="width:72%"></i></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- stat tiles -->
+    <div class="cols three" style="margin-top:20px">
+      <div class="stat-tile"><div class="k">Mehrleistung</div><div class="v">+72<span style="font-size:18px;color:var(--text-muted)"> PS</span></div><div class="d">▲ +38% vs. Serie</div></div>
+      <div class="stat-tile"><div class="k">Drehmoment</div><div class="v">+110<span style="font-size:18px;color:var(--text-muted)"> Nm</span></div><div class="d">▲ +29% vs. Serie</div></div>
+      <div class="stat-tile"><div class="k">Bearbeitungszeit</div><div class="v">14<span style="font-size:18px;color:var(--text-muted)"> min</span></div><div class="d" style="color:var(--text-muted)">Ø letzte 30 Tage</div></div>
+    </div>
+
+    <div class="cols two" style="margin-top:20px">
+      <!-- product / dyno card -->
+      <div class="pcard">
+        <div class="top">
+          <div><div class="veh">Golf 7 GTD</div><div class="sub">2.0 TDI · 184 PS · EDC17C64</div></div>
+          <span class="badge b-green">Stage 2</span>
+        </div>
+        <div class="body">
+          <div class="dyno">
+            <div class="c"><div class="k">Leistung</div><div class="v">256 <span class="g">+72</span></div></div>
+            <div class="c"><div class="k">Drehmoment</div><div class="v">490 <span class="g">+110</span></div></div>
+            <div class="c"><div class="k">Preis</div><div class="v"><span class="r">249€</span></div></div>
+          </div>
+          <div class="row" style="margin-top:16px">
+            <button class="btn btn-primary btn-sm">In den Warenkorb</button>
+            <button class="btn btn-outline btn-sm">Datenblatt</button>
+          </div>
+        </div>
+      </div>
+      <!-- table + alerts -->
+      <div class="panel">
+        <div class="panel-h"><span class="t">Tabelle & Feedback</span></div>
+        <div class="panel-b stk" style="padding:0">
+          <table class="tbl">
+            <thead><tr><th>Auftrag</th><th>Fahrzeug</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">#10482</td><td>A4 B9 2.0 TDI</td><td><span class="badge b-green">Fertig</span></td></tr>
+              <tr><td class="mono">#10483</td><td>320d G20</td><td><span class="badge b-blue">Läuft</span></td></tr>
+              <tr><td class="mono">#10484</td><td>Octavia RS</td><td><span class="badge b-amber">Prüfung</span></td></tr>
+            </tbody>
+          </table>
+          <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+            <div class="alert success"><span class="ico">✓</span><div class="txt"><b>Datei freigegeben.</b> Dein optimiertes Kennfeld steht zum Download bereit.</div></div>
+            <div class="alert warn"><span class="ico">!</span><div class="txt"><b>Prüfstand empfohlen.</b> Stage 2 erfordert eine angepasste Hardware.</div></div>
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <!-- SCREENS -->
+  <section class="block" id="screens">
+    <div class="sec-head">
+      <div><div class="eyebrow">Produkt</div><h2>Screens</h2><div class="desc">Vollständige, interaktive Oberflächen im No1-System — aufgebaut aus den Komponenten oben.</div></div>
+      <div class="count">3 Screens</div>
+    </div>
+    <div class="cols two">
+      <a class="screen-tile" href="portal/Portal.html">
+        <div class="screen-tile__bar"><span class="d r"></span><span class="d"></span><span class="d"></span><span class="screen-tile__url">portal/Portal.html</span></div>
+        <div class="screen-tile__body">
+          <div class="screen-tile__tag">Händler-Portal</div>
+          <div class="screen-tile__h">Neuer Auftrag · Wizard</div>
+          <div class="screen-tile__s">Sidebar-Navigation, globale Suche, Credits, Stepper und der komplette „File &amp; Lesegerät"-Schritt mit segmentierten Optionen und Dropzone.</div>
+          <div class="screen-tile__open">Portal öffnen <span class="arrow">→</span></div>
+        </div>
+      </a>
+      <a class="screen-tile" href="portal/Auftraege.html">
+        <div class="screen-tile__bar"><span class="d r"></span><span class="d"></span><span class="d"></span><span class="screen-tile__url">portal/Auftraege.html</span></div>
+        <div class="screen-tile__body">
+          <div class="screen-tile__tag">Händler-Portal</div>
+          <div class="screen-tile__h">Alle Aufträge · Liste</div>
+          <div class="screen-tile__s">KPI-Kacheln plus die durchsuchbare Auftrags-Tabelle: Fahrzeug, Tuning-Tags, Status-Pills, Credits und Aktionen.</div>
+          <div class="screen-tile__open">Liste öffnen <span class="arrow">→</span></div>
+        </div>
+      </a>
+      <a class="screen-tile" href="portal/Portal (helle Sidebar).html">
+        <div class="screen-tile__bar"><span class="d r"></span><span class="d"></span><span class="d"></span><span class="screen-tile__url">portal/Portal (helle Sidebar).html</span></div>
+        <div class="screen-tile__body">
+          <div class="screen-tile__tag">Händler-Portal · Variante</div>
+          <div class="screen-tile__h">Neuer Auftrag · helle Sidebar</div>
+          <div class="screen-tile__s">Dieselbe Auftrags-Maske mit heller Sidebar auf weißem Grund — luftiger, für hell-dominante Setups.</div>
+          <div class="screen-tile__open">Portal öffnen <span class="arrow">→</span></div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+<footer class="foot">
+  <div class="container">
+    <div class="note">NO1 TUNINGFILES DESIGN SYSTEM · <b>Carbon #2B2A29 + Ignition Red #E31E24</b> · Saira Condensed · Archivo · IBM Plex Mono</div>
+  </div>
+</footer>
+
+<script>
+  // interactive toggles for the showcase
+  document.querySelectorAll('[data-switch]').forEach(s => s.addEventListener('click', () => s.classList.toggle('on')));
+  document.querySelectorAll('[data-check]').forEach(c => c.addEventListener('click', () => {
+    c.classList.toggle('on');
+    c.textContent = c.classList.contains('on') ? '✓' : '';
+  }));
+</script>
+</body>
+</html>

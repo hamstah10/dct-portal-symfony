@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dimsport ECU Tuning Preisliste 2026</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#121a2b;
+      --panel-2:#182338;
+      --line:#26324a;
+      --text:#e8eefc;
+      --muted:#9eb0d1;
+      --accent:#3ea6ff;
+      --accent-2:#6ee7ff;
+      --success:#22c55e;
+      --warning:#f59e0b;
+    }
+
+    html,body{
+      background:
+        radial-gradient(circle at top right, rgba(62,166,255,.14), transparent 25%),
+        radial-gradient(circle at bottom left, rgba(110,231,255,.10), transparent 25%),
+        var(--bg);
+      color:var(--text);
+      font-family: Inter, Arial, sans-serif;
+    }
+
+    .page-wrap{
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 16px 60px;
+    }
+
+    .hero{
+      background: linear-gradient(135deg, rgba(24,35,56,.95), rgba(11,18,32,.95));
+      border:1px solid rgba(62,166,255,.18);
+      border-radius:24px;
+      padding:32px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      margin-bottom:24px;
+    }
+
+    .hero h1{
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+
+    .hero p{
+      color: var(--muted);
+      margin:0;
+      max-width: 1000px;
+    }
+
+    .glow{
+      color: var(--accent-2);
+      text-shadow: 0 0 18px rgba(110,231,255,.25);
+    }
+
+    .toolbar{
+      position: sticky;
+      top: 12px;
+      z-index: 1000;
+      margin-bottom: 18px;
+    }
+
+    .toolbar-card{
+      background: rgba(18,26,43,.92);
+      backdrop-filter: blur(12px);
+      border:1px solid rgba(62,166,255,.16);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.22);
+    }
+
+    .form-control, .form-select{
+      background: #0f1728;
+      border:1px solid #2b3956;
+      color: var(--text);
+    }
+
+    .form-control:focus, .form-select:focus{
+      background:#0f1728;
+      color: var(--text);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 .25rem rgba(62,166,255,.15);
+    }
+
+    .stat-box{
+      background: linear-gradient(180deg, #10192a, #0d1524);
+      border:1px solid #24324d;
+      border-radius:16px;
+      padding:12px 16px;
+      height:100%;
+    }
+
+    .stat-label{
+      color:var(--muted);
+      font-size:.85rem;
+      margin-bottom:2px;
+    }
+
+    .stat-value{
+      font-size:1.25rem;
+      font-weight:700;
+    }
+
+    .table-wrap{
+      background: rgba(18,26,43,.9);
+      border:1px solid rgba(62,166,255,.12);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    }
+
+    .table{
+      margin:0;
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--text);
+      --bs-table-border-color: var(--line);
+      --bs-table-hover-color: #fff;
+      --bs-table-hover-bg: rgba(62,166,255,.07);
+    }
+
+    .table thead th{
+      position: sticky;
+      top: 92px;
+      z-index: 20;
+      background: linear-gradient(180deg, #16243a, #121d31);
+      color:#dff5ff;
+      border-bottom:1px solid #31415f;
+      white-space: nowrap;
+    }
+
+    .section-row td{
+      background: linear-gradient(90deg, rgba(62,166,255,.18), rgba(110,231,255,.06));
+      color:#dff5ff;
+      font-weight:800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size:.88rem;
+      border-top:1px solid rgba(110,231,255,.15);
+      border-bottom:1px solid rgba(110,231,255,.15);
+    }
+
+    .code-badge{
+      display:inline-block;
+      background:#20314e;
+      color:#d9ecff;
+      border:1px solid #3a537b;
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:.82rem;
+      font-weight:700;
+    }
+
+    .price-badge{
+      display:inline-block;
+      background: rgba(34,197,94,.12);
+      color:#bdf7cf;
+      border:1px solid rgba(34,197,94,.28);
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:.85rem;
+      font-weight:800;
+    }
+
+    .note{
+      color: var(--muted);
+      font-size:.93rem;
+    }
+
+    .footer-note{
+      margin-top:16px;
+      color:var(--muted);
+      font-size:.92rem;
+    }
+
+    .hidden-row{
+      display:none !important;
+    }
+
+    .small-muted{
+      color:var(--muted);
+      font-size:.82rem;
+    }
+
+    .btn-tech{
+      border:1px solid rgba(62,166,255,.22);
+      color:#dff5ff;
+      background:#142038;
+    }
+
+    .btn-tech:hover{
+      background:#1a2947;
+      color:#fff;
+      border-color:rgba(110,231,255,.28);
+    }
+
+    @media (max-width: 991.98px){
+      .table thead th{
+        top: 150px;
+      }
+    }
+
+    @media (max-width: 767.98px){
+      .hero{
+        padding:22px;
+      }
+      .table{
+        font-size:.9rem;
+      }
+      .table thead th{
+        top: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <section class="hero">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+          <h1>Dimsport <span class="glow">ECU Tuning Preisliste 2026</span></h1>
+          <p>
+            Deutsche Übersicht als durchsuchbare HTML-Tabelle mit Kategorien, Codes, Preisen und Hinweisen.
+            Ideal für interne Nutzung, Website, Admin-Bereich oder spätere JSON-/DB-Übernahme.
+          </p>
+        </div>
+        <div class="text-lg-end">
+          <div class="small-muted">Release B2</div>
+          <div class="fw-bold">gültig ab 16.03.2026</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="toolbar-card">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-lg-5">
+            <label class="form-label">Suche</label>
+            <input id="searchInput" type="text" class="form-control" placeholder="Suche nach Produkt, Code, Kategorie, Hinweis ...">
+          </div>
+          <div class="col-12 col-md-6 col-lg-3">
+            <label class="form-label">Bereich</label>
+            <select id="categoryFilter" class="form-select">
+              <option value="all">Alle Bereiche</option>
+              <option value="1">1) Software / Credits / Lizenztransfer</option>
+              <option value="2">2) Schulungen</option>
+              <option value="3">3) Hardware Base</option>
+              <option value="4">4) Master</option>
+              <option value="5">5) Slave</option>
+              <option value="6">6) MYGENIUS</option>
+              <option value="7">7) Spare Parts</option>
+              <option value="8">8) OBD Zubehör</option>
+              <option value="9">9) Bench+Open Zubehör</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6 col-lg-2">
+            <button id="resetBtn" class="btn btn-tech w-100">Filter zurücksetzen</button>
+          </div>
+          <div class="col-12 col-lg-2">
+            <div class="stat-box">
+              <div class="stat-label">Sichtbare Positionen</div>
+              <div class="stat-value" id="visibleCount">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-wrap">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle" id="priceTable">
+          <thead>
+            <tr>
+              <th style="min-width:120px;">Bereich</th>
+              <th style="min-width:160px;">Unterbereich</th>
+              <th style="min-width:420px;">Produkt / Beschreibung</th>
+              <th style="min-width:150px;">Code</th>
+              <th style="min-width:120px;">Preis</th>
+              <th style="min-width:260px;">Hinweis</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="section-row" data-section="1"><td colspan="6">1) RACE EVO Software, Credits & Lizenztransfer</td></tr>
+            <tr class="data-row" data-section="1">
+              <td>Software</td><td>HASP Key</td><td>HASP-Key-Kit für RACE EVO und DS Manager</td><td><span class="code-badge">K03RK005</span></td><td><span class="price-badge">150,00 €</span></td><td>Max. 2 USB-Keys pro Kunde</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Software</td><td>RACE EVO</td><td>RACE EVO Standard Editing Software</td><td><span class="code-badge">K03R8002ES</span></td><td><span class="price-badge">150,00 €</span></td><td>300 Credits inklusive</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Software</td><td>RACE EVO</td><td>RACE EVO Plus Full Editing Software</td><td><span class="code-badge">K03R8002EPF</span></td><td><span class="price-badge">1.000,00 €</span></td><td>1.000 Credits inklusive</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Upgrade</td><td>RACE EVO</td><td>Upgrade von Standard auf Plus Full</td><td><span class="code-badge">V03UP015</span></td><td><span class="price-badge">1.000,00 €</span></td><td>500 Credits inklusive</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Credits</td><td>Dateien</td><td>300 Credits</td><td><span class="code-badge">V03CR001</span></td><td><span class="price-badge">300,00 €</span></td><td>Für Setting / Option / Protune / Ori Files</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Credits</td><td>Dateien</td><td>600 Credits</td><td><span class="code-badge">V03CR005</span></td><td><span class="price-badge">550,00 €</span></td><td>Für Setting / Option / Protune / Ori Files</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Credits</td><td>Dateien</td><td>1200 Credits</td><td><span class="code-badge">V03CR006</span></td><td><span class="price-badge">950,00 €</span></td><td>Für Setting / Option / Protune / Ori Files</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Credits</td><td>Dateien</td><td>3000 Credits</td><td><span class="code-badge">V03CR007</span></td><td><span class="price-badge">1.800,00 €</span></td><td>Für Setting / Option / Protune / Ori Files</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Bundle</td><td>Dateien</td><td>Truck / LCV / Tractor / OHW Setting File Bundle</td><td><span class="code-badge">V03TIRABBX</span></td><td><span class="price-badge">1.990,00 €</span></td><td>Max. 150 Dateien oder 1 Jahr gültig</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Lizenz</td><td>Transfer</td><td>Master License</td><td><span class="code-badge">V03R8100_L</span></td><td><span class="price-badge">500,00 €</span></td><td>Für bereits von anderem Nutzer aktivierte Master-Tools/Software</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Lizenz</td><td>Transfer</td><td>Slave License</td><td><span class="code-badge">V99NGSRES</span></td><td><span class="price-badge">150,00 €</span></td><td>Tool-Transfer unter anderem Kundencode</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Lizenz</td><td>DS Manager</td><td>DS Manager License</td><td><span class="code-badge">V03DSM00_L</span></td><td><span class="price-badge">500,00 €</span></td><td>Zusätzlicher HASP-Key</td>
+            </tr>
+            <tr class="data-row" data-section="1">
+              <td>Checksummen</td><td>Paket</td><td>Checksum Recalculation Modules – Complete Packet</td><td><span class="code-badge">V03CKALL01</span></td><td><span class="price-badge">2.990,00 €</span></td><td>Nur zusammen mit zusätzlicher DS Manager License</td>
+            </tr>
+
+            <tr class="section-row" data-section="2"><td colspan="6">2) Schulungen</td></tr>
+            <tr class="data-row" data-section="2">
+              <td>Training</td><td>Seminar</td><td>4-Stunden-Seminar</td><td><span class="code-badge">V04CF007</span></td><td><span class="price-badge">350,00 €</span></td><td>Online / vor Ort</td>
+            </tr>
+            <tr class="data-row" data-section="2">
+              <td>Training</td><td>Seminar</td><td>1-Tages-Seminar</td><td><span class="code-badge">V04CF005</span></td><td><span class="price-badge">750,00 €</span></td><td>Bis zu 2 Teilnehmer derselben Firma</td>
+            </tr>
+            <tr class="data-row" data-section="2">
+              <td>Training</td><td>Seminar</td><td>2-Tages-Seminar</td><td><span class="code-badge">V04CF001</span></td><td><span class="price-badge">1.200,00 €</span></td><td>1 Hotelnacht inklusive</td>
+            </tr>
+
+            <tr class="section-row" data-section="3"><td colspan="6">3) Reading / Programming Tools – Hardware Base</td></tr>
+            <tr class="data-row" data-section="3">
+              <td>Hardware</td><td>THEGENIUS</td><td>THEGENIUS OBD & Bench+Open Reading/Programming/Cloning Tool Hardware Kit</td><td><span class="code-badge">KTHEGENIUS_00</span></td><td><span class="price-badge">1.150,00 €</span></td><td>Erforderlich für neue Protokolle/Applikationen ab Juni 2026</td>
+            </tr>
+            <tr class="data-row" data-section="3">
+              <td>Zubehör</td><td>THEGENIUS</td><td>HD-SUB 44 F auf DB15 F Adapterkabel</td><td><span class="code-badge">F36TG105</span></td><td><span class="price-badge">60,00 €</span></td><td>Nicht im Hardware-Set enthalten</td>
+            </tr>
+            <tr class="data-row" data-section="3">
+              <td>Hardware</td><td>NEW GENIUS</td><td>NEW GENIUS OBD Serial Reading/Programming Tool</td><td><span class="code-badge">KNEWGENIUSVERD</span></td><td><span class="price-badge">500,00 €</span></td><td>Aktivierung erforderlich</td>
+            </tr>
+            <tr class="data-row" data-section="3">
+              <td>Hardware</td><td>NEW TRASDATA</td><td>NEW TRASDATA Bench+Open ECU/TCU Reading/Programming/Cloning Tool</td><td><span class="code-badge">KNTVER-B</span></td><td><span class="price-badge">500,00 €</span></td><td>Aktivierung erforderlich</td>
+            </tr>
+
+            <tr class="section-row" data-section="4"><td colspan="6">4) Master Activations & Subscriptions</td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Bike & ATV</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV36-ALL001B</span></td><td><span class="price-badge">1.790,00 €</span></td><td>12 Monate Subscription inklusive</td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Bike & ATV</td><td>OBD Activation</td><td><span class="code-badge">AV36-OBD001B</span></td><td><span class="price-badge">1.290,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Bike & ATV</td><td>Bench+Open Activation</td><td><span class="code-badge">AV36-BOP001B</span></td><td><span class="price-badge">990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Car & LCV</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV36-ALL001C</span></td><td><span class="price-badge">3.290,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Car & LCV</td><td>OBD Activation</td><td><span class="code-badge">AV36-OBD001C</span></td><td><span class="price-badge">2.290,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Car & LCV</td><td>Bench+Open Activation</td><td><span class="code-badge">AV36-BOP001C</span></td><td><span class="price-badge">1.990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Marine</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV36-ALL001M</span></td><td><span class="price-badge">3.290,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Marine</td><td>OBD Activation</td><td><span class="code-badge">AV36-OBD001M</span></td><td><span class="price-badge">2.290,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Marine</td><td>Bench+Open Activation</td><td><span class="code-badge">AV36-BOP001M</span></td><td><span class="price-badge">1.990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Tractor / Agricultural / OHW</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV36-ALL001A</span></td><td><span class="price-badge">4.790,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Tractor / Agricultural / OHW</td><td>OBD Activation</td><td><span class="code-badge">AV36-OBD001A</span></td><td><span class="price-badge">3.790,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Tractor / Agricultural / OHW</td><td>Bench+Open Activation</td><td><span class="code-badge">AV36-BOP001A</span></td><td><span class="price-badge">1.990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Truck / Bus / LCV / OHW</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV36-ALL001T</span></td><td><span class="price-badge">4.790,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Truck / Bus / LCV / OHW</td><td>OBD Activation</td><td><span class="code-badge">AV36-OBD001T</span></td><td><span class="price-badge">3.790,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Truck / Bus / LCV / OHW</td><td>Bench+Open Activation</td><td><span class="code-badge">AV36-BOP001T</span></td><td><span class="price-badge">1.990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Alle Kategorien</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV36-ALL001</span></td><td><span class="price-badge">6.790,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Alle Kategorien</td><td>OBD Activation</td><td><span class="code-badge">AV36-OBD001</span></td><td><span class="price-badge">4.990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master</td><td>Alle Kategorien</td><td>Bench+Open Activation</td><td><span class="code-badge">AV36-BOP001</span></td><td><span class="price-badge">2.690,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Subscription</td><td>Master</td><td>THEGENIUS Master Premium Subscription 12 Monate</td><td><span class="code-badge">AV-ALL1YTGX</span></td><td><span class="price-badge">1.600,00 €</span></td><td>inkl. 1.000 Credits</td></tr>
+            <tr class="data-row" data-section="4"><td>Subscription</td><td>Master</td><td>THEGENIUS Master Subscription 12 Monate</td><td><span class="code-badge">AV-ALL1YTG</span></td><td><span class="price-badge">1.100,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master Mod</td><td>NEW GENIUS / NEW TRASDATA</td><td>Alle Kategorien – Joint Activation</td><td><span class="code-badge">AV-ALL001_F</span></td><td><span class="price-badge">2.290,00 €</span></td><td>Neue Entwicklungen bis Juni 2026 mit möglichen Einschränkungen</td></tr>
+            <tr class="data-row" data-section="4"><td>Master Mod</td><td>NEW GENIUS</td><td>Alle Kategorien – OBD only</td><td><span class="code-badge">AV3230006_F</span></td><td><span class="price-badge">1.890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="4"><td>Master Mod</td><td>NEW TRASDATA</td><td>Alle Kategorien – Bench+Open only</td><td><span class="code-badge">AV34NT001_F</span></td><td><span class="price-badge">1.590,00 €</span></td><td></td></tr>
+
+            <tr class="section-row" data-section="5"><td colspan="6">5) Slave Activations & Subscriptions</td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Bike & ATV</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV99TG-ALL001B</span></td><td><span class="price-badge">690,00 €</span></td><td>12 Monate Subscription inklusive</td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Bike & ATV</td><td>OBD Activation</td><td><span class="code-badge">AV99TG-OBD001B</span></td><td><span class="price-badge">490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Bike & ATV</td><td>Bench+Open Activation</td><td><span class="code-badge">AV99TG-BOP001B</span></td><td><span class="price-badge">490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Car & LCV</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV99TG-ALL001C</span></td><td><span class="price-badge">1.490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Car & LCV</td><td>OBD Activation</td><td><span class="code-badge">AV99TG-OBD001C</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Car & LCV</td><td>Bench+Open Activation</td><td><span class="code-badge">AV99TG-BOP001C</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Marine</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV99TG-ALL001M</span></td><td><span class="price-badge">1.490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Marine</td><td>OBD Activation</td><td><span class="code-badge">AV99TG-OBD001M</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Marine</td><td>Bench+Open Activation</td><td><span class="code-badge">AV99TG-BOP001M</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Tractor / Agricultural / OHW</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV99TG-ALL001A</span></td><td><span class="price-badge">1.490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Tractor / Agricultural / OHW</td><td>OBD Activation</td><td><span class="code-badge">AV99TG-OBD001A</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Tractor / Agricultural / OHW</td><td>Bench+Open Activation</td><td><span class="code-badge">AV99TG-BOP001A</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Truck / Bus / LCV / OHW</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV99TG-ALL001T</span></td><td><span class="price-badge">1.490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Truck / Bus / LCV / OHW</td><td>OBD Activation</td><td><span class="code-badge">AV99TG-OBD001T</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Truck / Bus / LCV / OHW</td><td>Bench+Open Activation</td><td><span class="code-badge">AV99TG-BOP001T</span></td><td><span class="price-badge">890,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Alle Kategorien</td><td>OBD & Bench+Open Joint Activation</td><td><span class="code-badge">AV99TG-ALL001</span></td><td><span class="price-badge">2.790,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Alle Kategorien</td><td>OBD Activation</td><td><span class="code-badge">AV99TG-OBD001</span></td><td><span class="price-badge">1.990,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave</td><td>Alle Kategorien</td><td>Bench+Open Activation</td><td><span class="code-badge">AV99TG-BOP001</span></td><td><span class="price-badge">1.390,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Subscription</td><td>Slave</td><td>Slave Tool Subscription 12 Monate</td><td><span class="code-badge">V99YFP001X</span></td><td><span class="price-badge">600,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave Mod</td><td>NEW GENIUS / NEW TRASDATA</td><td>Alle Kategorien – Joint Activation</td><td><span class="code-badge">AV99ALL001_F</span></td><td><span class="price-badge">1.590,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave Mod</td><td>NEW GENIUS</td><td>Alle Kategorien – OBD only</td><td><span class="code-badge">AV99NFPGALL_F</span></td><td><span class="price-badge">1.190,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="5"><td>Slave Mod</td><td>NEW TRASDATA</td><td>Alle Kategorien – Bench+Open only</td><td><span class="code-badge">AV99NT001_F</span></td><td><span class="price-badge">1.190,00 €</span></td><td></td></tr>
+
+            <tr class="section-row" data-section="6"><td colspan="6">6) MYGENIUS End User OBDII Programmer</td></tr>
+            <tr class="data-row" data-section="6"><td>MYGENIUS</td><td>Kit</td><td>MYGENIUS Reading/Programming Kit</td><td><span class="code-badge">KMYGENIUS_00</span></td><td><span class="price-badge">169,00 €</span></td><td>Stecker nicht enthalten</td></tr>
+            <tr class="data-row" data-section="6"><td>MYGENIUS</td><td>Service</td><td>Reset auf Virgin-Status für MYGENIUS</td><td><span class="code-badge">V32MYGRES</span></td><td><span class="price-badge">130,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="6"><td>MYGENIUS</td><td>Service</td><td>10er-Bundle Reset auf Virgin-Status</td><td><span class="code-badge">V32MYGRES_10</span></td><td><span class="price-badge">900,00 €</span></td><td></td></tr>
+
+            <tr class="section-row" data-section="7"><td colspan="6">7) Spare Parts and Replacements</td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Power Feeder + AC Plug-MIX4</td><td><span class="code-badge">C36TGALIM</span></td><td><span class="price-badge">60,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Standard 12V OBD Connector</td><td><span class="code-badge">F36TG102</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>ABS Case</td><td><span class="code-badge">C36TGVAL</span></td><td><span class="price-badge">130,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>USB-Kabel PC/Laptop</td><td><span class="code-badge">C32GNUSB01</span></td><td><span class="price-badge">15,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Power Feeding Battery Wiring</td><td><span class="code-badge">F36TG003</span></td><td><span class="price-badge">15,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>D-SUB 25P F to IDC 26P Wiring</td><td><span class="code-badge">F36TG103</span></td><td><span class="price-badge">15,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>HD-SUB 44 F to DB25 Conversion Wiring</td><td><span class="code-badge">F36TG104</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>D-SUB 44 Test Module (Port1)</td><td><span class="code-badge">F36TG106-DB44</span></td><td><span class="price-badge">15,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>D-SUB 25 Test Module (Port2)</td><td><span class="code-badge">F36TG106-DB25</span></td><td><span class="price-badge">15,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>DB44F Complete Replacement Kit</td><td><span class="code-badge">K36TG101</span></td><td><span class="price-badge">100,00 €</span></td><td>Main cable, terminals, flats, splitters</td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>DB44F Main Cable</td><td><span class="code-badge">F36TG101</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Small Terminals for DB44F Cable</td><td><span class="code-badge">K36TG101-S1</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Medium Terminals for DB44F Cable</td><td><span class="code-badge">K36TG101-S2</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Large + Crocodile Terminals for DB44F Cable</td><td><span class="code-badge">K36TG101-S34</span></td><td><span class="price-badge">20,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>Splitters for DB44F Cable</td><td><span class="code-badge">K36TG101-S56</span></td><td><span class="price-badge">10,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>THEGENIUS</td><td>IDC 26 Flat Cables Kit</td><td><span class="code-badge">K36TGF5X</span></td><td><span class="price-badge">20,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>Universal Wiring for Pin-to-Pin Connections</td><td><span class="code-badge">F32GN011</span></td><td><span class="price-badge">30,00 €</span></td><td>Für NEW GENIUS und MYGENIUS</td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>Standard OBD Connector (12V)</td><td><span class="code-badge">F32GN024B</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>Touchscreen Stylus</td><td><span class="code-badge">C32GNPEN</span></td><td><span class="price-badge">6,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>Power Feeding Kit with International Plugs</td><td><span class="code-badge">C32GNALIM12</span></td><td><span class="price-badge">34,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>USB-Kabel PC/Laptop</td><td><span class="code-badge">C32GNUSB01</span></td><td><span class="price-badge">15,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>Touchscreen Replacement Kit</td><td><span class="code-badge">KNGDISP2</span></td><td><span class="price-badge">225,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>ABS Transparent Case Replacement Kit</td><td><span class="code-badge">KNGCASE</span></td><td><span class="price-badge">60,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="7"><td>Ersatzteil</td><td>NEW GENIUS</td><td>Battery Pack Replacement Kit</td><td><span class="code-badge">KNGBATP</span></td><td><span class="price-badge">80,00 €</span></td><td></td></tr>
+
+            <tr class="section-row" data-section="8"><td colspan="6">8) OBD – Optional Wirings and Connectors</td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Bike & ATV</td><td>Bike Bag – Set of Wirings and Connectors</td><td><span class="code-badge">K32BIKEALL/7</span></td><td><span class="price-badge">400,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Bike & ATV</td><td>BMW Motorrad Diagnostic Connector</td><td><span class="code-badge">F32GN046B</span></td><td><span class="price-badge">39,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Bike & ATV</td><td>Ducati / Piaggio / Vespa 3 Pin Connector</td><td><span class="code-badge">F32GN042B</span></td><td><span class="price-badge">39,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Bike & ATV</td><td>Harley Davidson 4 Pin Connector</td><td><span class="code-badge">F32GN061</span></td><td><span class="price-badge">39,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Bike & ATV</td><td>KTM 6 Pin Connector for Keihin ECUs</td><td><span class="code-badge">F32GN054</span></td><td><span class="price-badge">39,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>Car Bag – New Set of Wirings and Connectors</td><td><span class="code-badge">K32CARALL/5</span></td><td><span class="price-badge">400,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>12V Standard OBD Connector</td><td><span class="code-badge">F32GN024B</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>BMW 20 Pin Round Diagnostic Connector</td><td><span class="code-badge">F32GN012</span></td><td><span class="price-badge">119,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>Fiat / Alfa Romeo / Lancia 3 Pin Connector</td><td><span class="code-badge">F32GN023</span></td><td><span class="price-badge">69,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>Mercedes 38 Pin Round Diagnostic Connector</td><td><span class="code-badge">F32GN014</span></td><td><span class="price-badge">119,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>Porsche Specific OBD Connector</td><td><span class="code-badge">F32GN013</span></td><td><span class="price-badge">99,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Car Engine</td><td>VAG Bosch EDC15 ECU Connector</td><td><span class="code-badge">F32GN015</span></td><td><span class="price-badge">140,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Transmission</td><td>DSG Wiring Kit for NEW GENIUS & NEW TRASDATA</td><td><span class="code-badge">K32DSG01-NT</span></td><td><span class="price-badge">490,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Transmission</td><td>DSG DQ250 20 Pin Connector</td><td><span class="code-badge">F32GN055</span></td><td><span class="price-badge">100,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Transmission</td><td>DSG DQ500 16 Pin Connector</td><td><span class="code-badge">F32GN056</span></td><td><span class="price-badge">110,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Marine</td><td>Marine Bag – Set of Wirings and Connectors</td><td><span class="code-badge">K32MARALL</span></td><td><span class="price-badge">750,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Marine</td><td>Standard OBD Connector 24V</td><td><span class="code-badge">F32GN005</span></td><td><span class="price-badge">99,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Marine</td><td>Scania 16 Pin Connector</td><td><span class="code-badge">F32GN020</span></td><td><span class="price-badge">69,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Tractor / OHW</td><td>Tractor Bag – Set of Wirings and Connectors</td><td><span class="code-badge">K32AGRIALL/3</span></td><td><span class="price-badge">770,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Tractor / OHW</td><td>3 Pin Plug Power Supply Cable</td><td><span class="code-badge">F32GN081</span></td><td><span class="price-badge">45,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Tractor / OHW</td><td>Deutz / Same 14 Pin K-Line</td><td><span class="code-badge">F32GN035</span></td><td><span class="price-badge">55,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Tractor / OHW</td><td>Massey Ferguson 16 Pin Connector</td><td><span class="code-badge">F32GN030</span></td><td><span class="price-badge">55,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Truck / LCV / Bus</td><td>Truck Bag – Set of Wirings and Connectors</td><td><span class="code-badge">K32TRUCKALL/6</span></td><td><span class="price-badge">1.600,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Truck / LCV / Bus</td><td>DAF 16 Pin Connector</td><td><span class="code-badge">F32GN019</span></td><td><span class="price-badge">89,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Truck / LCV / Bus</td><td>MAN 37 Pin Connector</td><td><span class="code-badge">F32GN025</span></td><td><span class="price-badge">70,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="8"><td>OBD</td><td>Truck / LCV / Bus</td><td>Mercedes LCV 14 Pin Connector</td><td><span class="code-badge">F32GN010</span></td><td><span class="price-badge">99,00 €</span></td><td></td></tr>
+
+            <tr class="section-row" data-section="9"><td colspan="6">9) Bench+Open – Optional Wirings and Connectors</td></tr>
+            <tr class="data-row" data-section="9"><td>Bench</td><td>ECU Connector</td><td>Renesas (M32/M32R/M32Rx) Board for Direct Connections</td><td><span class="code-badge">F34NTA13</span></td><td><span class="price-badge">60,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Bench</td><td>ECU Connector</td><td>Continental-Siemens MCM2.1 TC1797 Wiring</td><td><span class="code-badge">F34NTA19</span></td><td><span class="price-badge">110,00 €</span></td><td>Mercedes Truck</td></tr>
+            <tr class="data-row" data-section="9"><td>Bench</td><td>ECU Connector</td><td>Continental-Temic ACM2.1/AT25256 TC1796 Wiring</td><td><span class="code-badge">F34NTA20</span></td><td><span class="price-badge">110,00 €</span></td><td>Mercedes Truck</td></tr>
+            <tr class="data-row" data-section="9"><td>Bench</td><td>ECU Connector</td><td>EMS2.x TRW Wiring with ECU Connector</td><td><span class="code-badge">F34NTA23</span></td><td><span class="price-badge">399,00 €</span></td><td>Volvo / Renault Trucks</td></tr>
+            <tr class="data-row" data-section="9"><td>Bench</td><td>ECU Connector</td><td>DSG DB15/25 Adapter</td><td><span class="code-badge">F34NTA24</span></td><td><span class="price-badge">30,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Positioning Frame</td><td>BNP Positioning Frame for NEW TRASDATA</td><td><span class="code-badge">K34DIMABNP</span></td><td><span class="price-badge">250,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Positioning Frame</td><td>Additional Set of 4 Sticks with Needle Tips</td><td><span class="code-badge">K34ACD_01</span></td><td><span class="price-badge">99,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Positioning Frame</td><td>Optional Set of 4 Needle Tips</td><td><span class="code-badge">K34ACD_02</span></td><td><span class="price-badge">38,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Metallic Frame</td><td>Metallic Frame (DIMA) for NEW TRASDATA</td><td><span class="code-badge">K34DIMA</span></td><td><span class="price-badge">350,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Metallic Frame</td><td>Set of most used terminal adapters for Car / LCV</td><td><span class="code-badge">K34NTDIMAL06</span></td><td><span class="price-badge">1.450,00 €</span></td><td>ohne K34DIMA</td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Metallic Frame</td><td>ABS Hard Case for Terminal Adapters</td><td><span class="code-badge">K34NTVAL02B</span></td><td><span class="price-badge">69,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF001 Motorola MPC5xx</td><td>Bosch ME9/MED9/EDC16 CPU Terminal Adapter</td><td><span class="code-badge">F34DM002</span></td><td><span class="price-badge">70,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF001 Motorola MPC5xx</td><td>Delphi DCI CPU Terminal Adapter</td><td><span class="code-badge">F34DM001</span></td><td><span class="price-badge">70,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF001 Motorola MPC5xx</td><td>Delphi DCM CPU Terminal Adapter</td><td><span class="code-badge">F34DM009</span></td><td><span class="price-badge">70,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF002 / TF003</td><td>Bosch MED17/MEV17/EDC17 - Infineon Tricore CPU Terminal Adapter</td><td><span class="code-badge">F34DM011</span></td><td><span class="price-badge">90,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF002 / TF003</td><td>Continental SID208/SID209 Ford Adapter</td><td><span class="code-badge">F34DM032</span></td><td><span class="price-badge">90,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF004 Nexus MPC55xx</td><td>EFI T6 Lotus Adapter</td><td><span class="code-badge">F34DM022</span></td><td><span class="price-badge">70,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF004 Nexus MPC55xx</td><td>Campi / Lie Lamborghini Adapter</td><td><span class="code-badge">F34DM039</span></td><td><span class="price-badge">90,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF005 Renesas</td><td>Renesas CN-1 Set</td><td><span class="code-badge">K34DIMA010</span></td><td><span class="price-badge">90,00 €</span></td><td>Beschreibung im PDF-Layout nicht vollständig sauber extrahierbar</td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF005 Renesas</td><td>Renesas CN-2 / CN-3 Set</td><td><span class="code-badge">K34DIMA011</span></td><td><span class="price-badge">130,00 €</span></td><td>Beschreibung im PDF-Layout nicht vollständig sauber extrahierbar</td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF005 Renesas</td><td>Base Board for SH725xxx-36 / SH725xxx-26</td><td><span class="code-badge">F34DM036</span></td><td><span class="price-badge">80,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>TF010 NEC 76F00xx</td><td>Denso Toyota NEC NBD 20 Pin Terminal Adapter</td><td><span class="code-badge">F34DM023</span></td><td><span class="price-badge">70,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Soldering Boards</td><td>Denso Toyota / Lexus NEC 26 Pin Board/Strips</td><td><span class="code-badge">F34NTA17</span></td><td><span class="price-badge">50,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Soldering Boards</td><td>10 Soldering Strips for F34NTA17</td><td><span class="code-badge">F34NTA17-S1</span></td><td><span class="price-badge">40,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Soldering Boards</td><td>Denso Kubota / Subaru / Daihatsu Board + Sockets</td><td><span class="code-badge">F34NTA21</span></td><td><span class="price-badge">60,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Soldering Boards</td><td>Siemens SIDxxx / Bosch EDC7 Board/Strips</td><td><span class="code-badge">F34NTA06</span></td><td><span class="price-badge">40,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Soldering Boards</td><td>TRW Volvo / Renault Trucks Board/Strips</td><td><span class="code-badge">F34NTA05</span></td><td><span class="price-badge">45,00 €</span></td><td></td></tr>
+            <tr class="data-row" data-section="9"><td>Open</td><td>Soldering Boards</td><td>Soldering Boards Connecting Kit to ECU for NEW TRASDATA</td><td><span class="code-badge">K34NT-S5</span></td><td><span class="price-badge">60,00 €</span></td><td></td></tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Hinweis: Diese HTML-Version ist bereits für Website/Admin nutzbar. Die zwei Positionen <strong>K34DIMA010</strong> und <strong>K34DIMA011</strong> sind preislich eindeutig, ihre Beschreibung ist im PDF-Layout aber nur eingeschränkt maschinell lesbar.
+    </div>
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const resetBtn = document.getElementById('resetBtn');
+    const visibleCount = document.getElementById('visibleCount');
+
+    const rows = Array.from(document.querySelectorAll('#priceTable tbody tr'));
+    const dataRows = rows.filter(row => row.classList.contains('data-row'));
+    const sectionRows = rows.filter(row => row.classList.contains('section-row'));
+
+    function normalize(str) {
+      return (str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function applyFilters() {
+      const term = normalize(searchInput.value);
+      const sectionValue = categoryFilter.value;
+
+      let visibleRows = 0;
+
+      dataRows.forEach(row => {
+        const rowText = normalize(row.innerText);
+        const rowSection = row.dataset.section;
+        const matchSearch = !term || rowText.includes(term);
+        const matchSection = sectionValue === 'all' || rowSection === sectionValue;
+        const show = matchSearch && matchSection;
+
+        row.classList.toggle('hidden-row', !show);
+        if (show) visibleRows++;
+      });
+
+      sectionRows.forEach(sectionRow => {
+        const section = sectionRow.dataset.section;
+        const hasVisibleChild = dataRows.some(row =>
+          row.dataset.section === section && !row.classList.contains('hidden-row')
+        );
+        sectionRow.classList.toggle('hidden-row', !hasVisibleChild);
+      });
+
+      visibleCount.textContent = visibleRows;
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    categoryFilter.addEventListener('change', applyFilters);
+
+    resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      categoryFilter.value = 'all';
+      applyFilters();
+    });
+
+    applyFilters();
+  </script>
+</body>
+</html>

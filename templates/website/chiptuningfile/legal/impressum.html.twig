@@ -1,0 +1,40 @@
+{% extends 'website/chiptuningfile/legal/_base.html.twig' %}
+
+{% set title = 'Impressum' %}
+
+{% block legal_body %}
+    <div class="mb-5">
+        <span class="legal-badge"><i class="bi bi-building"></i> Rechtliche Angaben</span>
+        <h1 class="display-5 fw-semibold mt-4 mb-3">Impressum</h1>
+        <p class="legal-muted mb-0">Die folgenden Angaben werden automatisiert aus den im CRM gepflegten Firmenstammdaten des aktiven Markenportals erstellt.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <h2 class="h4 mb-3">Angaben gemaess § 5 TMG</h2>
+            <p class="mb-1"><strong>{{ firma and firma.name ? firma.name : brandName }}</strong>{% if firma and firma.rechtsform %}, {{ firma.rechtsform }}{% endif %}</p>
+            {% if addressLine1 %}<p class="mb-1">{{ addressLine1 }}</p>{% endif %}
+            {% if addressLine2 %}<p class="mb-0">{{ addressLine2 }}</p>{% endif %}
+        </div>
+
+        <div class="col-lg-6">
+            <h2 class="h4 mb-3">Kontakt</h2>
+            {% if firma and firma.email %}<p class="mb-1"><strong>E-Mail:</strong> <a href="mailto:{{ firma.email }}">{{ firma.email }}</a></p>{% endif %}
+            {% if firma and firma.telefon %}<p class="mb-1"><strong>Telefon:</strong> <a href="tel:{{ firma.telefon|replace({' ':'','/':'','(':'',')':'','-':''}) }}">{{ firma.telefon }}</a></p>{% endif %}
+            {% if websiteUrl %}<p class="mb-0"><strong>Website:</strong> <a href="{{ websiteUrl }}" target="_blank" rel="noopener noreferrer">{{ websiteUrl|replace({'https://':'','http://':''}) }}</a></p>{% endif %}
+        </div>
+
+        {% if firma and (firma.ustId or firma.steuernummer) %}
+            <div class="col-lg-6">
+                <h2 class="h4 mb-3">Steuerliche Angaben</h2>
+                {% if firma.ustId %}<p class="mb-1"><strong>USt-IdNr.:</strong> {{ firma.ustId }}</p>{% endif %}
+                {% if firma.steuernummer %}<p class="mb-0"><strong>Steuernummer:</strong> {{ firma.steuernummer }}</p>{% endif %}
+            </div>
+        {% endif %}
+
+        <div class="col-lg-6">
+            <h2 class="h4 mb-3">Hinweis</h2>
+            <p class="legal-muted mb-0">Bitte pruefen Sie die im CRM gepflegten Firmendaten regelmaessig. Diese Seite uebernimmt die Informationen direkt aus dem System und zeigt keine manuell gepflegte Kopie.</p>
+        </div>
+    </div>
+{% endblock %}

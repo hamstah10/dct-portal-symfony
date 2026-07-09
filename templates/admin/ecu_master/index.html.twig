@@ -1,0 +1,55 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    {% set crudController = ea.request.attributes.get('crudControllerFqcn') %}
+    {% set formActionUrl = ea_url().setController(crudController).setAction('index').set('page', 1) %}
+    {% set selectedManufacturer = app.request.query.get('ecuMasterManufacturer') ?? '' %}
+    {% set selectedType = app.request.query.get('ecuMasterType') ?? '' %}
+    {% set searchQuery = app.request.query.get('query') ?? '' %}
+    {% set hasInlineFilters = selectedManufacturer or selectedType or searchQuery %}
+
+    <div class="mb-3">
+        <form method="get" action="{{ formActionUrl }}">
+            <div class="d-flex gap-2 flex-wrap mb-2" style="max-width:860px;">
+                <select class="form-select" name="ecuMasterManufacturer" aria-label="Hersteller-Master" style="max-width:260px;">
+                    <option value="">Alle Hersteller-Master</option>
+                    {% for manufacturer in ecuMasterManufacturerOptions|default([]) %}
+                        <option value="{{ manufacturer.id }}" {{ selectedManufacturer == manufacturer.id ? 'selected' }}>
+                            {{ manufacturer.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <select class="form-select" name="ecuMasterType" aria-label="Typ" style="max-width:200px;">
+                    <option value="">Alle Typen</option>
+                    {% for type in ecuMasterTypeOptions|default([]) %}
+                        <option value="{{ type }}" {{ selectedType == type ? 'selected' }}>
+                            {{ type }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                {% if hasInlineFilters %}
+                    <a class="btn btn-secondary" href="{{ ea_url().unset('ecuMasterManufacturer').unset('ecuMasterType').unset('query').unset('page').setController(crudController).setAction('index') }}">
+                        Zurücksetzen
+                    </a>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2" style="max-width:860px;">
+                <input
+                    class="form-control"
+                    type="search"
+                    name="query"
+                    value="{{ searchQuery }}"
+                    placeholder="ECU-Master durchsuchen (Name, Typ, Hersteller)..."
+                    spellcheck="false"
+                    autocomplete="off"
+                >
+                <button class="btn btn-primary" type="submit">Suchen</button>
+            </div>
+        </form>
+    </div>
+
+    {{ parent() }}
+{% endblock %}

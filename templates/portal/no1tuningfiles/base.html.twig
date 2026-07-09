@@ -1,0 +1,692 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}No1tuningfiles Portal{% endblock %}
+
+{% block html_attributes %} lang="de" dir="ltr" data-nav-layout="{{ app.request.attributes.get('_route') starts with 'no1_portal_order' ? 'horizontal' : 'vertical' }}" data-force-nav-layout="{{ app.request.attributes.get('_route') starts with 'no1_portal_order' ? 'horizontal' : '' }}" data-nav-style="menu-click" data-theme-mode="light" data-page-style="modern" data-width="fullwidth" data-menu-position="fixed" data-header-position="fixed" data-header-styles="light" data-menu-styles="dark"{% endblock %}
+
+{% block body_attributes %} class="{{ app.user and app.request.attributes.get('_route') not in ['no1_portal_login', 'no1_portal_register', 'no1_portal_password_reset_request', 'no1_portal_password_reset_confirm'] ? '' : 'bg-white' }}" data-force-nav-layout="{{ app.request.attributes.get('_route') starts with 'no1_portal_order' ? 'horizontal' : '' }}"{% endblock %}
+
+{% block stylesheets %}
+    {% set xintra_asset_base = asset('assets/portals/no1tuningfiles/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets') %}
+    <link rel="icon" href="{{ asset('assets/portals/no1tuningfiles/favicon-cpt.svg') }}" type="image/svg+xml">
+    <script>
+        (() => {
+            [
+                'xintrabgColor',
+                'xintrabgwhite',
+                'xintraboxed',
+                'xintraclassic',
+                'xintradarktheme',
+                'xintrafullwidth',
+                'xintraHeader',
+                'xintraheaderbg',
+                'xintraheaderfixed',
+                'xintraheaderscrollable',
+                'xintralighttheme',
+                'xintraltr',
+                'xintraMenu',
+                'xintramenubg',
+                'xintramenufixed',
+                'xintramenuscrollable',
+                'xintramodern',
+                'xintranavstyles',
+                'xintraregular',
+                'xintrartl',
+                'xintraverticalstyles',
+            ].forEach((key) => localStorage.removeItem(key));
+        })();
+    </script>
+    <script>
+        (() => {
+            const html = document.documentElement;
+            const storedTheme = localStorage.getItem('no1PortalTheme');
+            const storedNavLayout = localStorage.getItem('no1PortalNavLayout');
+            const forcedNavLayout = html.dataset.forceNavLayout || null;
+            const preferredTheme = storedTheme === 'dark' || storedTheme === 'light'
+                ? storedTheme
+                : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const preferredNavLayout = forcedNavLayout ?? (storedNavLayout === 'horizontal' ? 'horizontal' : 'vertical');
+
+            html.setAttribute('data-theme-mode', preferredTheme);
+            html.setAttribute('data-header-styles', 'light');
+            html.setAttribute('data-menu-styles', 'dark');
+            html.setAttribute('data-nav-layout', preferredNavLayout);
+            html.setAttribute('data-nav-style', 'menu-click');
+            localStorage.setItem('xintralayout', preferredNavLayout);
+        })();
+    </script>
+    <script>
+        var clearNavDropdown = window.clearNavDropdown || function () {};
+        var checkHoriMenu = window.checkHoriMenu || function () {};
+        var horizontalClickFn = window.horizontalClickFn || function () {
+            const html = document.documentElement;
+            html.setAttribute('data-nav-layout', 'horizontal');
+            html.setAttribute('data-nav-style', 'menu-click');
+        };
+
+        window.clearNavDropdown = clearNavDropdown;
+        window.checkHoriMenu = checkHoriMenu;
+        window.horizontalClickFn = horizontalClickFn;
+    </script>
+    <script src="{{ xintra_asset_base }}/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="{{ xintra_asset_base }}/js/main.js"></script>
+    <link id="style" href="{{ xintra_asset_base }}/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ xintra_asset_base }}/css/styles.css" rel="stylesheet">
+    <link href="{{ xintra_asset_base }}/css/icons.css" rel="stylesheet">
+    <link href="{{ xintra_asset_base }}/libs/node-waves/waves.min.css" rel="stylesheet">
+    <link href="{{ xintra_asset_base }}/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ xintra_asset_base }}/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="{{ xintra_asset_base }}/libs/@simonwep/pickr/themes/nano.min.css">
+    <link rel="stylesheet" href="{{ xintra_asset_base }}/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="{{ xintra_asset_base }}/libs/@tarekraafat/autocomplete.js/css/autoComplete.css">
+    <link rel="stylesheet" href="{{ asset('assets/portals/no1tuningfiles/portal/css/portal.css') }}?v={{ 'now'|date('U') }}">
+{% endblock %}
+
+{% block javascripts %}
+    {% set route = app.request.attributes.get('_route') %}
+    {% set is_authenticated_portal = app.user and route not in ['no1_portal_login', 'no1_portal_register', 'no1_portal_password_reset_request', 'no1_portal_password_reset_confirm'] %}
+    {% set xintra_asset_base = asset('assets/portals/no1tuningfiles/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets') %}
+    {% block importmap %}{{ importmap('app') }}{% endblock %}
+    <script>
+        document.addEventListener('autocomplete:pre-connect', (event) => {
+            const input = event.target;
+            if (!(input instanceof HTMLInputElement) || input.dataset.portalHeaderSearch !== '1') {
+                return;
+            }
+
+            const { options } = event.detail;
+            options.valueField = 'url';
+            options.labelField = 'text';
+            options.searchField = ['text', 'subtext', 'keywords'];
+            options.maxOptions = 8;
+            options.persist = false;
+            options.onItemAdd = (value) => {
+                if (typeof value === 'string' && '' !== value.trim()) {
+                    window.location.assign(value);
+                }
+            };
+            options.render = {
+                ...options.render,
+                item: (item, escape) => `<div>${escape(item.text || '')}</div>`,
+                option: (item, escape) => {
+                    const text = escape(item.text || '');
+                    const subtext = item.subtext ? `<div class="text-muted small mt-1">${escape(item.subtext)}</div>` : '';
+                    const meta = item.meta ? `<span class="badge bg-primary-transparent text-primary ms-2">${escape(item.meta)}</span>` : '';
+
+                    return `
+                        <div class="d-flex align-items-start justify-content-between gap-3">
+                            <div class="min-w-0">
+                                <div class="fw-medium text-truncate">${text}</div>
+                                ${subtext}
+                            </div>
+                            ${meta}
+                        </div>
+                    `;
+                },
+            };
+        });
+
+        document.addEventListener('autocomplete:connect', (event) => {
+            const input = event.target;
+            if (!(input instanceof HTMLInputElement) || input.dataset.portalHeaderSearch !== '1') {
+                return;
+            }
+
+            const { tomSelect } = event.detail;
+            if (!tomSelect || input.dataset.portalHeaderSearchBound === '1') {
+                return;
+            }
+
+            input.dataset.portalHeaderSearchBound = '1';
+            tomSelect.on('type', (query) => {
+                input.value = query;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            tomSelect.on('clear', () => {
+                input.value = '';
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        });
+    </script>
+
+    {% if is_authenticated_portal %}
+        <script src="{{ xintra_asset_base }}/libs/@popperjs/core/umd/popper.min.js"></script>
+        <script src="{{ xintra_asset_base }}/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ xintra_asset_base }}/js/defaultmenu.min.js?v={{ 'now'|date('U') }}"></script>
+        <script src="{{ xintra_asset_base }}/libs/node-waves/waves.min.js"></script>
+        <script src="{{ xintra_asset_base }}/js/sticky.js?v={{ 'now'|date('U') }}"></script>
+        <script src="{{ xintra_asset_base }}/libs/simplebar/simplebar.min.js"></script>
+        <script src="{{ xintra_asset_base }}/js/simplebar.js?v={{ 'now'|date('U') }}"></script>
+        <script src="{{ xintra_asset_base }}/libs/@tarekraafat/autocomplete.js/autoComplete.min.js"></script>
+        <script src="{{ xintra_asset_base }}/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+        <script src="{{ xintra_asset_base }}/libs/flatpickr/flatpickr.min.js"></script>
+        <script>
+            const getForcedPortalNavLayout = () => document.body?.dataset.forceNavLayout || document.documentElement.dataset.forceNavLayout || null;
+
+            const applyPortalTheme = (theme, persist = true) => {
+                const html = document.documentElement;
+                const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+                const themeToggle = document.querySelector('.layout-setting');
+
+                html.setAttribute('data-theme-mode', normalizedTheme);
+                html.setAttribute('data-header-styles', 'light');
+                html.setAttribute('data-menu-styles', 'dark');
+
+                if (persist) {
+                    localStorage.setItem('no1PortalTheme', normalizedTheme);
+                }
+
+                if (themeToggle) {
+                    const isDark = normalizedTheme === 'dark';
+                    themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                    themeToggle.setAttribute('title', isDark ? 'Zum hellen Design wechseln' : 'Zum dunklen Design wechseln');
+                    themeToggle.setAttribute('aria-label', isDark ? 'Zum hellen Design wechseln' : 'Zum dunklen Design wechseln');
+                    themeToggle.dataset.cptThemeBound = '1';
+                }
+            };
+
+            const applyPortalNavLayout = (layout, persist = true) => {
+                const html = document.documentElement;
+                const normalizedLayout = layout === 'horizontal' ? 'horizontal' : 'vertical';
+                const navLayoutToggle = document.querySelector('.layout-nav-toggle');
+                const isHorizontal = normalizedLayout === 'horizontal';
+
+                html.setAttribute('data-nav-layout', normalizedLayout);
+                html.setAttribute('data-nav-style', 'menu-click');
+
+                if (isHorizontal) {
+                    html.removeAttribute('data-toggled');
+                }
+
+                if (persist) {
+                    localStorage.setItem('no1PortalNavLayout', normalizedLayout);
+                    localStorage.setItem('xintralayout', normalizedLayout);
+                }
+
+                if (navLayoutToggle) {
+                    navLayoutToggle.setAttribute('aria-pressed', isHorizontal ? 'true' : 'false');
+                    navLayoutToggle.setAttribute('title', isHorizontal ? 'Zu vertikaler Navigation wechseln' : 'Zu horizontaler Navigation wechseln');
+                    navLayoutToggle.setAttribute('aria-label', isHorizontal ? 'Zu vertikaler Navigation wechseln' : 'Zu horizontaler Navigation wechseln');
+                    navLayoutToggle.dataset.layout = normalizedLayout;
+                    navLayoutToggle.dataset.cptNavBound = '1';
+                }
+            };
+
+            const initPortalHeaderControls = () => {
+                const html = document.documentElement;
+                const toggle = document.querySelector('.sidemenu-toggle');
+                const themeToggle = document.querySelector('.layout-setting');
+                const navLayoutToggle = document.querySelector('.layout-nav-toggle');
+                const profileToggle = document.querySelector('#mainHeaderProfile');
+                const profileMenu = document.querySelector('.header-profile-dropdown');
+                const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+                const storedTheme = localStorage.getItem('no1PortalTheme');
+                applyPortalTheme(
+                    storedTheme === 'dark' || storedTheme === 'light'
+                        ? storedTheme
+                        : (mediaQuery && mediaQuery.matches ? 'dark' : 'light'),
+                    false
+                );
+
+                const forcedPortalNavLayout = getForcedPortalNavLayout();
+                applyPortalNavLayout(
+                    forcedPortalNavLayout ?? (localStorage.getItem('no1PortalNavLayout') === 'horizontal' ? 'horizontal' : 'vertical'),
+                    false
+                );
+
+                if (themeToggle && themeToggle.dataset.cptThemeBound !== '1') {
+                    themeToggle.dataset.cptThemeBound = '1';
+                    themeToggle.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const nextTheme = html.getAttribute('data-theme-mode') === 'dark' ? 'light' : 'dark';
+                        applyPortalTheme(nextTheme);
+                    });
+                }
+
+                if (navLayoutToggle && navLayoutToggle.dataset.cptNavBound !== '1') {
+                    navLayoutToggle.dataset.cptNavBound = '1';
+                    navLayoutToggle.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        const forcedPortalNavLayout = getForcedPortalNavLayout();
+                        if (forcedPortalNavLayout) {
+                            applyPortalNavLayout(forcedPortalNavLayout, false);
+                            return;
+                        }
+
+                        const nextLayout = html.getAttribute('data-nav-layout') === 'horizontal' ? 'vertical' : 'horizontal';
+                        applyPortalNavLayout(nextLayout);
+                    });
+                }
+
+                if (profileToggle && profileMenu && profileToggle.dataset.cptProfileBound !== '1') {
+                    profileToggle.dataset.cptProfileBound = '1';
+
+                    const syncProfileMenu = (expanded) => {
+                        profileToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+                        profileMenu.classList.toggle('show', expanded);
+                    };
+
+                    profileToggle.addEventListener('click', (event) => {
+                        event.preventDefault();
+
+                        if (window.bootstrap && window.bootstrap.Dropdown) {
+                            window.bootstrap.Dropdown.getOrCreateInstance(profileToggle).toggle();
+                            window.setTimeout(() => {
+                                syncProfileMenu(profileMenu.classList.contains('show'));
+                            }, 0);
+
+                            return;
+                        }
+
+                        syncProfileMenu(!profileMenu.classList.contains('show'));
+                    });
+
+                    document.addEventListener('click', (event) => {
+                        if (!profileMenu.classList.contains('show')) {
+                            return;
+                        }
+
+                        if (profileMenu.contains(event.target) || profileToggle.contains(event.target)) {
+                            return;
+                        }
+
+                        syncProfileMenu(false);
+                    });
+                }
+
+                if (mediaQuery && mediaQuery.addEventListener) {
+                    mediaQuery.addEventListener('change', (event) => {
+                        const savedTheme = localStorage.getItem('no1PortalTheme');
+                        if (savedTheme === 'dark' || savedTheme === 'light') {
+                            return;
+                        }
+
+                        applyPortalTheme(event.matches ? 'dark' : 'light', false);
+                    });
+                }
+
+                if (toggle && toggle.dataset.cptSidebarBound !== '1') {
+                    toggle.dataset.cptSidebarBound = '1';
+                    toggle.addEventListener('click', () => {
+                        if (html.getAttribute('data-nav-layout') === 'horizontal') {
+                            return;
+                        }
+
+                        if (window.innerWidth < 992) {
+                            return;
+                        }
+
+                        window.setTimeout(() => {
+                            if (html.getAttribute('data-toggled') === 'menu-click-closed') {
+                                html.removeAttribute('data-toggled');
+                            } else if (!html.getAttribute('data-toggled') || html.getAttribute('data-toggled') === 'close') {
+                                html.setAttribute('data-toggled', 'menu-click-closed');
+                            }
+                        }, 25);
+                    });
+                }
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initPortalHeaderControls, { once: true });
+            } else {
+                initPortalHeaderControls();
+            }
+
+            document.addEventListener('turbo:visit', () => {
+                document.body?.classList.add('cpt-page-transitioning');
+            });
+
+            document.addEventListener('turbo:before-render', () => {
+                document.body?.classList.add('cpt-page-transitioning');
+            });
+
+            document.addEventListener('turbo:load', () => {
+                const forcedPortalNavLayout = getForcedPortalNavLayout();
+
+                applyPortalNavLayout(
+                    forcedPortalNavLayout ?? (localStorage.getItem('no1PortalNavLayout') === 'horizontal' ? 'horizontal' : 'vertical'),
+                    false
+                );
+                applyPortalTheme(localStorage.getItem('no1PortalTheme') === 'dark' ? 'dark' : 'light', false);
+                initPortalHeaderControls();
+
+                window.requestAnimationFrame(() => {
+                    window.requestAnimationFrame(() => {
+                        document.body?.classList.remove('cpt-page-transitioning');
+                    });
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                const themeTrigger = event.target instanceof Element ? event.target.closest('.layout-setting') : null;
+                if (themeTrigger) {
+                    event.preventDefault();
+                    const nextTheme = document.documentElement.getAttribute('data-theme-mode') === 'dark' ? 'light' : 'dark';
+                    applyPortalTheme(nextTheme);
+
+                    return;
+                }
+
+                const navTrigger = event.target instanceof Element ? event.target.closest('.layout-nav-toggle') : null;
+                if (navTrigger) {
+                    event.preventDefault();
+                    const forcedPortalNavLayout = getForcedPortalNavLayout();
+                    if (forcedPortalNavLayout) {
+                        applyPortalNavLayout(forcedPortalNavLayout, false);
+                        return;
+                    }
+
+                    const nextLayout = document.documentElement.getAttribute('data-nav-layout') === 'horizontal' ? 'vertical' : 'horizontal';
+                    applyPortalNavLayout(nextLayout);
+                }
+            });
+        </script>
+    {% else %}
+        <script src="{{ xintra_asset_base }}/js/authentication-main.js"></script>
+        <script src="{{ xintra_asset_base }}/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ xintra_asset_base }}/js/show-password.js"></script>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {% set route = app.request.attributes.get('_route') %}
+    {% set is_authenticated_portal = app.user and route not in ['no1_portal_login', 'no1_portal_register', 'no1_portal_password_reset_request', 'no1_portal_password_reset_confirm'] %}
+    {% set page_title = block('portal_page_title') is not empty ? block('portal_page_title') : 'Portal' %}
+    {% set page_subtitle = block('portal_page_subtitle') %}
+    {% set portal_name = portalConfig is defined and portalConfig ? portalConfig.name : 'No1tuningfiles' %}
+    {% set primary_rgb = portalConfig is defined and portalConfig ? portalConfig.primaryRgb : '255, 0, 0' %}
+    {% set primary_hex = portalConfig is defined and portalConfig ? portalConfig.primaryColor : '#ff0000' %}
+    {% set secondary_hex = portalConfig is defined and portalConfig ? portalConfig.secondaryColor : '#000000' %}
+    {% set cpt_logo = portalConfig is defined and portalConfig and portalConfig.logoPath ? asset(portalConfig.logoPath) : asset('assets/portals/no1tuningfiles/favicon-cpt.svg') %}
+    <style>
+        html {
+            --primary-rgb: {{ primary_rgb }};
+            --primary-color: {{ primary_hex }};
+            --menu-bg: {{ secondary_hex }};
+            --header-bg: #ffffff;
+            --header-prime-color: rgba(15, 23, 42, 0.72);
+            --header-border-color: rgba(15, 23, 42, 0.08);
+        }
+    </style>
+
+    {% if is_authenticated_portal %}
+        <div id="loader">
+            <img src="{{ asset('assets/portals/no1tuningfiles/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/images/media/loader.svg') }}" alt="">
+        </div>
+
+        <div class="page">
+            <header class="app-header sticky" id="header">
+                <div class="main-header-container container-fluid">
+                    <div class="header-content-left">
+                        <div class="header-element">
+                            <div class="horizontal-logo">
+                                <a href="{{ path('no1_portal_dashboard') }}" class="header-logo">
+                                    <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="desktop-logo img-fluid">
+                                    <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="toggle-dark img-fluid">
+                                    <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="desktop-dark img-fluid">
+                                    <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="toggle-logo img-fluid">
+                                    <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="toggle-white img-fluid">
+                                    <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="desktop-white img-fluid">
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="header-element mx-lg-0 mx-2">
+                            <a aria-label="Hide Sidebar" class="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle" data-bs-toggle="sidebar" href="javascript:void(0);"><span></span></a>
+                        </div>
+
+                        <div class="header-element header-search d-md-block d-none my-auto auto-complete-search">
+                            {{ component('portal_header_search', { enabledModules: portalConfig.enabledModules|default([]) }) }}
+                        </div>
+                    </div>
+
+                    <ul class="header-content-right">
+                        <li class="header-element d-md-none d-block">
+                            <a href="javascript:void(0);" class="header-link" data-bs-toggle="modal" data-bs-target="#header-responsive-search">
+                                <i class="bi bi-search header-link-icon"></i>
+                            </a>
+                        </li>
+                        <li class="header-element header-theme-mode">
+                            <a
+                                href="javascript:void(0);"
+                                class="header-link layout-setting"
+                                aria-label="Farbschema umschalten"
+                                aria-pressed="false"
+                                title="Zum dunklen Design wechseln"
+                            >
+                                <span class="light-layout">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 header-link-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                                    </svg>
+                                </span>
+                                <span class="dark-layout">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 header-link-icon" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                                    </svg>
+                                </span>
+                            </a>
+                        </li>
+                        {% if route is not defined or not (route starts with 'no1_portal_order') %}
+                            <li class="header-element">
+                                <a
+                                    href="javascript:void(0);"
+                                    class="header-link layout-nav-toggle"
+                                    aria-label="Zu horizontaler Navigation wechseln"
+                                    aria-pressed="false"
+                                    title="Zu horizontaler Navigation wechseln"
+                                >
+                                    <span class="nav-layout-vertical">
+                                        <i class="ri-layout-left-line header-link-icon"></i>
+                                    </span>
+                                    <span class="nav-layout-horizontal">
+                                        <i class="ri-layout-top-line header-link-icon"></i>
+                                    </span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="header-element dropdown">
+                            <a href="javascript:void(0);" class="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <span class="avatar avatar-sm bg-primary-transparent">
+                                            <i class="ti ti-user fs-16"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                            <ul class="main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end" aria-labelledby="mainHeaderProfile">
+                                <li>
+                                    <div class="dropdown-item text-center border-bottom">
+                                        <span>{{ app.user.customer }}</span>
+                                        <span class="d-block fs-12 text-muted">{{ app.user.userIdentifier }}</span>
+                                    </div>
+                                </li>
+                                {% if portalConfig is not defined or 'profile' in portalConfig.enabledModules %}
+                                    <li><a class="dropdown-item d-flex align-items-center" href="{{ path('no1_portal_profile') }}"><i class="fe fe-user p-1 rounded-circle bg-primary-transparent me-2 fs-16"></i>Profil</a></li>
+                                {% endif %}
+                                {% if portalConfig is not defined or 'order' in portalConfig.enabledModules %}
+                                    <li><a class="dropdown-item d-flex align-items-center" href="{{ path('no1_portal_order') }}"><i class="fe fe-clipboard p-1 rounded-circle bg-primary-transparent me-2 fs-16"></i>Auftrag</a></li>
+                                {% endif %}
+                                <li><a class="dropdown-item d-flex align-items-center" href="{{ path('no1_portal_credits') }}"><i class="fe fe-credit-card p-1 rounded-circle bg-primary-transparent me-2 fs-16"></i>Credits</a></li>
+                                {% if portalConfig is not defined or 'vehicle_database' in portalConfig.enabledModules %}
+                                    <li><a class="dropdown-item d-flex align-items-center" href="{{ path('no1_portal_vehicles') }}"><i class="fe fe-truck p-1 rounded-circle bg-primary-transparent me-2 fs-16"></i>Fahrzeugdatenbank</a></li>
+                                {% endif %}
+                                <li class="border-top bg-light"><a class="dropdown-item d-flex align-items-center" href="{{ path('no1_portal_logout') }}"><i class="fe fe-lock p-1 rounded-circle bg-primary-transparent me-2 fs-16"></i>Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </header>
+
+            <aside class="app-sidebar sticky" id="sidebar">
+                <div class="main-sidebar-header">
+                    <a href="{{ path('no1_portal_dashboard') }}" class="header-logo">
+                        <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="desktop-logo img-fluid">
+                        <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="toggle-dark img-fluid">
+                        <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="desktop-dark img-fluid">
+                        <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="toggle-logo img-fluid">
+                        <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="toggle-white img-fluid">
+                        <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="desktop-white img-fluid">
+                    </a>
+                </div>
+
+                <div class="main-sidebar" id="sidebar-scroll">
+                    <nav class="main-menu-container nav nav-pills flex-column sub-open">
+                        <div class="slide-left" id="slide-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"><path d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"></path></svg>
+                        </div>
+                        <ul class="main-menu">
+                            <li class="slide__category"><span class="category-name">Main</span></li>
+                            {% if portalConfig is not defined or 'dashboard' in portalConfig.enabledModules %}
+                                <li class="slide">
+                                    <a href="{{ path('no1_portal_dashboard') }}" class="side-menu__item {{ route == 'no1_portal_dashboard' ? 'active' : '' }}">
+                                        <i class="ti ti-layout-dashboard side-menu__icon"></i>
+                                        <span class="side-menu__label">Dashboard</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                          
+                            {% if portalConfig is not defined or 'order' in portalConfig.enabledModules %}
+                                <li class="slide">
+                                    <a href="{{ path('no1_portal_order') }}" class="side-menu__item {{ route starts with 'no1_portal_order' ? 'active' : '' }}">
+                                        <i class="ti ti-clipboard-text side-menu__icon"></i>
+                                        <span class="side-menu__label">Auftrag</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if portalConfig is not defined or 'vehicle_database' in portalConfig.enabledModules %}
+                                <li class="slide">
+                                    <a href="{{ path('no1_portal_vehicles') }}" class="side-menu__item {{ route == 'no1_portal_vehicles' ? 'active' : '' }}">
+                                        <i class="ti ti-car side-menu__icon"></i>
+                                        <span class="side-menu__label">Fahrzeugdatenbank</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="slide">
+                                <a href="{{ path('no1_portal_credits') }}" class="side-menu__item {{ route starts with 'no1_portal_credits' ? 'active' : '' }}">
+                                    <i class="ti ti-credit-card side-menu__icon"></i>
+                                    <span class="side-menu__label">Credits</span>
+                                </a>
+                            </li>
+                            <li class="slide__category"><span class="category-name">Account</span></li>
+                              {% if portalConfig is not defined or 'profile' in portalConfig.enabledModules %}
+                                <li class="slide">
+                                    <a href="{{ path('no1_portal_profile') }}" class="side-menu__item {{ route == 'no1_portal_profile' ? 'active' : '' }}">
+                                        <i class="ti ti-user-circle side-menu__icon"></i>
+                                        <span class="side-menu__label">Profil</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="slide">
+                                <a href="{{ path('no1_portal_logout') }}" class="side-menu__item">
+                                    <i class="ti ti-logout side-menu__icon"></i>
+                                    <span class="side-menu__label">Logout</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div class="slide-right" id="slide-right">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"><path d="m10.707 17.707 5.707-5.707-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z"></path></svg>
+                        </div>
+                    </nav>
+                </div>
+            </aside>
+
+            <div class="main-content app-content">
+                <div class="container-fluid">
+                    <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+                        <div>
+                            <ol class="breadcrumb mb-1">
+                                <li class="breadcrumb-item"><a href="{{ path('no1_portal_dashboard') }}">Portal</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ page_title }}</li>
+                            </ol>
+                            <h1 class="page-title fw-medium fs-18 mb-0">{{ page_title }}</h1>
+                            {% if page_subtitle is not empty %}
+                                <div class="text-muted mt-1">{{ page_subtitle }}</div>
+                            {% endif %}
+                        </div>
+                        {% if block('portal_page_actions') is not empty %}
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                {{ block('portal_page_actions') }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% for label, messages in app.flashes %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-3">{{ message }}</div>
+                        {% endfor %}
+                    {% endfor %}
+
+                    <div class="cpt-page-content">
+                        {{ block('portal_body') }}
+                    </div>
+                </div>
+            </div>
+
+            <footer class="footer mt-auto py-3 bg-white text-center">
+                <div class="container">
+                    <span class="text-muted">Copyright © {{ 'now'|date('Y') }} No1tuningfiles.com</span>
+                </div>
+            </footer>
+        </div>
+
+        <div class="modal fade" id="header-responsive-search" tabindex="-1" aria-labelledby="header-responsive-search" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <input type="text" class="form-control border-end-0" placeholder="Search Anything ..." aria-label="Search Anything ..." aria-describedby="button-addon2">
+                            <button class="btn btn-primary" type="button" id="button-addon2"><i class="bi bi-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scrollToTop">
+            <span class="arrow"><i class="ti ti-arrow-narrow-up fs-20"></i></span>
+        </div>
+        <div id="responsive-overlay"></div>
+    {% else %}
+        <div class="row authentication authentication-cover-main mx-0 min-vh-100">
+            <div class="col-xxl-6 col-xl-7 col-lg-12">
+                <div class="row justify-content-center align-items-center h-100">
+                    <div class="col-xxl-6 col-xl-8 col-lg-7 col-md-8 col-sm-10 col-12">
+                        <div class="cpt-auth-card py-5">
+                            {% for label, messages in app.flashes %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-3">{{ message }}</div>
+                                {% endfor %}
+                            {% endfor %}
+
+                            {{ block('portal_body') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xxl-6 col-xl-5 col-lg-12 d-xl-block d-none px-0">
+                    <div class="authentication-cover overflow-hidden">
+                        <div class="authentication-cover-logo">
+                            <a href="{{ path('no1_portal_login') }}" class="header-logo">
+                                <img src="{{ cpt_logo }}" alt="No1tuningfiles Logo" class="img-fluid">
+                            </a>
+                        </div>
+                        <div class="aunthentication-cover-content d-flex align-items-center justify-content-center">
+                            <div>
+                                <h3 class="text-fixed-white mb-1 fw-medium">{{ portal_name }}</h3>
+                                <h6 class="text-fixed-white mb-3 fw-medium">Login to Your Account</h6>
+                                <p class="text-fixed-white mb-1 op-6">Willkommen im {{ portal_name }} Kundenportal. Hier verwaltest du Uploads, Fahrzeugdaten und dein Kundenkonto sicher an einem Ort.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    {% endif %}
+{% endblock %}
+
+{% block portal_page_title %}{% endblock %}
+{% block portal_page_subtitle %}{% endblock %}
+{% block portal_page_actions %}{% endblock %}

@@ -1,0 +1,33 @@
+<!-- @dsCard group="Brand" viewport="700x200" name="Logo & wordmark" subtitle="Placeholder mark — replace with official asset" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; }
+  .pane { padding:24px 28px; display:flex; align-items:center; gap:14px; min-height:200px; }
+  .light { background:var(--white); }
+  .dark { background:var(--carbon-950); }
+  .mark { width:44px; height:44px; flex:none; }
+  .wm { display:flex; flex-direction:column; line-height:1; }
+  .wm .a { font-family:var(--font-display); font-weight:800; text-transform:uppercase; letter-spacing:-.01em; font-size:24px; }
+  .wm .a em { font-style:normal; color:var(--power-500); }
+  .wm .b { font-family:var(--font-mono); font-size:9.5px; letter-spacing:.34em; text-transform:uppercase; margin-top:4px; }
+  .light .a { color:var(--carbon-900); }
+  .light .b { color:var(--carbon-400); }
+  .dark .a { color:#fff; }
+  .dark .b { color:var(--carbon-400); }
+</style>
+</head>
+<body>
+  <div class="pane light">
+    <img class="mark" src="../assets/logo-mark.svg" alt="">
+    <div class="wm"><span class="a">Chip<em>tuning</em>file</span><span class="b">ECU Performance Files</span></div>
+  </div>
+  <div class="pane dark">
+    <img class="mark" src="../assets/logo-mark-solid.svg" alt="">
+    <div class="wm"><span class="a">Chip<em>tuning</em>file</span><span class="b">ECU Performance Files</span></div>
+  </div>
+</body>
+</html>

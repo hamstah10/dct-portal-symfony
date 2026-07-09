@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/assets/portals/chiptuningfile/react/static/css/main.css",
+    "main.js": "/assets/portals/chiptuningfile/react/static/js/main.js",
+    "index.html": "/assets/portals/chiptuningfile/react/index.html",
+    "main.css.map": "/assets/portals/chiptuningfile/react/static/css/main.css.map",
+    "main.js.map": "/assets/portals/chiptuningfile/react/static/js/main.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.css",
+    "static/js/main.js"
+  ]
+}

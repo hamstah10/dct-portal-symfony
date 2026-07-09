@@ -1,0 +1,367 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Bungee+Spice&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Orbitron:wght@400..900&family=Oswald:wght@200..700&display=swap');
+:root {
+    --pc-bg: #111931;
+    --pc-bg-soft: #111931;
+    --pc-card: #111931;
+    --pc-card-2: #111931;
+    --pc-line: rgba(255, 255, 255, 0.08);
+    --pc-text: #ffffff;
+    --pc-muted: #ffffff;
+    --pc-accent: #bbcf4e;
+    --pc-accent-strong: #bbcf4e;
+    --pc-glow: rgba(187, 207, 78, 0.25);
+    --pc-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+
+.pc-page.pc-page--eco {
+    --eco-blue: #2e89a7;
+    --eco-red: #c91c22;
+    --eco-green: #64d889;
+}
+
+body {
+    background-color: var(--pc-bg);
+    background-image: radial-gradient(circle at 20% 20%, #111931 0%, #111931 55%, #111931 100%) !important;
+    color: var(--pc-text);
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 0.02em;
+}
+
+.audiowide-regular {
+    font-family: "Audiowide", sans-serif !important;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.bungee-spice-regular {
+    font-family: "Bungee Spice", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.pc-page--eco .pc-header p {
+    max-width: 680px;
+}
+
+.pc-page--eco .pc-main {
+    display: grid;
+    gap: 24px;
+}
+
+.pc-page--eco .pc-vehicle-card {
+    overflow: visible;
+}
+
+.pc-page--eco .pc-vehicle-hero {
+    min-height: 96px;
+}
+
+.pc-page--eco .pc-vehicle-title {
+    align-items: flex-end;
+}
+
+.pc-page--eco .pc-vehicle-title-text {
+    display: inline-block;
+}
+
+.pc-page--eco .pc-vehicle-title-sub {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    opacity: 0.86;
+}
+
+.pc-page--eco .pc-vehicle-price strong {
+    font-size: 1.1rem;
+}
+
+.pc-page--eco .pc-vehicle-price span {
+    font-size: 0.85rem;
+}
+
+.eco-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.eco-form-grid--top {
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+}
+
+.eco-form-grid--adblue {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.eco-field {
+    display: block;
+}
+
+.eco-field-label,
+.eco-fuel-type legend {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--pc-text);
+    font-size: 1.12rem;
+    font-weight: 500;
+}
+
+.eco-field-hint,
+.eco-price-meta {
+    display: block;
+    margin-top: 10px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.eco-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 68px;
+    border-bottom: 1px solid var(--pc-line);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.eco-input-wrap input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--pc-text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    padding: 0;
+}
+
+.eco-input-wrap em,
+.eco-input-wrap strong {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 12px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--pc-text);
+    font-style: normal;
+    font-size: 1rem;
+}
+
+.eco-input-wrap strong {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95rem;
+}
+
+.eco-fuel-type {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.eco-fuel-options {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.eco-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+}
+
+.eco-radio input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--eco-red);
+}
+
+.eco-price-tools {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.eco-price-button {
+    border: 1px solid rgba(187, 207, 78, 0.55);
+    background: rgba(187, 207, 78, 0.12);
+    color: var(--pc-text);
+    padding: 10px 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.eco-price-button:disabled {
+    opacity: 0.75;
+    cursor: wait;
+}
+
+.eco-toggle-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 18px;
+    background: linear-gradient(90deg, rgba(46, 137, 167, 0.9), rgba(46, 137, 167, 0.72));
+}
+
+.eco-toggle-card.is-disabled {
+    opacity: 0.55;
+}
+
+.eco-toggle-copy {
+    display: grid;
+    gap: 6px;
+}
+
+.eco-toggle-copy strong {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.eco-toggle-copy span {
+    font-size: 1rem;
+}
+
+.eco-switch {
+    position: relative;
+    display: inline-flex;
+}
+
+.eco-switch input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.eco-switch span {
+    position: relative;
+    display: inline-block;
+    width: 78px;
+    height: 42px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+}
+
+.eco-switch span::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+.eco-switch input:checked + span::after {
+    transform: translateX(34px);
+}
+
+.eco-switch input:checked + span {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+.pc-page--eco .pc-btn-primary {
+    background: var(--eco-red);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(201, 28, 34, 0.35);
+}
+
+.pc-page--eco .pc-btn-primary:hover {
+    filter: brightness(1.05);
+}
+
+.pc-page--eco .pc-result {
+    margin-top: 0;
+}
+
+.eco-result-grid,
+.eco-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.eco-result-box,
+.eco-breakdown-card {
+    border: 1px solid var(--pc-line);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 16px;
+}
+
+.eco-result-box--primary {
+    border-color: rgba(187, 207, 78, 0.45);
+    background: rgba(187, 207, 78, 0.08);
+}
+
+.eco-result-box span,
+.eco-breakdown-card span {
+    display: block;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.eco-result-box strong,
+.eco-breakdown-card strong {
+    display: block;
+    margin-top: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.35rem;
+}
+
+.eco-result-box small,
+.eco-breakdown-card small {
+    display: block;
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.95rem;
+}
+
+.eco-breakdown-grid {
+    margin-top: 14px;
+}
+
+.eco-breakdown-card strong.eco-positive {
+    color: var(--eco-green);
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+@media (max-width: 1100px) {
+    .eco-form-grid,
+    .eco-form-grid--top,
+    .eco-form-grid--adblue {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .eco-price-tools,
+    .eco-toggle-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .eco-input-wrap input {
+        font-size: 1.7rem;
+    }
+}

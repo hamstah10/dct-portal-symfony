@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chiptuning Werkstatt | Leistungsprüfstand | 24h Online Service</title>
+    <meta name="description"
+        content="Modernes Chiptuning mit Leistungsprüfstand, individueller ECU-Optimierung, TCU/DSG-Tuning und 24h Online Service." />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg: #0b0b0d;
+            --bg2: #111216;
+            --bg3: #17191f;
+            --text: #f5f7fa;
+            --muted: #9da3af;
+            --line: rgba(255, 255, 255, .08);
+            --red: #e10600;
+            --red2: #ff2a23;
+            --white: #ffffff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(180deg, var(--bg) 0%, #0d0f13 100%);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .navbar {
+            background: rgba(6, 6, 8, .88);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: .08em;
+        }
+
+        .nav-link {
+            color: #d9dde5 !important;
+        }
+
+        .nav-link:hover {
+            color: var(--white) !important;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, var(--red), var(--red2));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 26px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(225, 6, 0, .25);
+            transition: .25s ease;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            color: #fff;
+            box-shadow: 0 16px 34px rgba(225, 6, 0, .32);
+        }
+
+        .btn-outline-custom {
+            border: 1px solid rgba(255, 255, 255, .18);
+            color: #fff;
+            border-radius: 14px;
+            padding: 14px 26px;
+            font-weight: 700;
+            transition: .25s ease;
+        }
+
+        .btn-outline-custom:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 120px 0 80px;
+            background:
+                radial-gradient(circle at 80% 20%, rgba(225, 6, 0, .18), transparent 28%),
+                radial-gradient(circle at 20% 0%, rgba(255, 255, 255, .05), transparent 22%);
+        }
+
+        .hero:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .02) 50%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .9rem;
+            color: #dbe1ea;
+            padding: 8px 14px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .03);
+            margin-bottom: 22px;
+        }
+
+        .eyebrow .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--red);
+            box-shadow: 0 0 0 6px rgba(225, 6, 0, .12);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 5vw, 4.7rem);
+            line-height: 1.02;
+            font-weight: 900;
+            letter-spacing: -.03em;
+            margin-bottom: 22px;
+        }
+
+        .hero p.lead {
+            color: #c8d0db;
+            font-size: 1.1rem;
+            line-height: 1.75;
+            max-width: 700px;
+        }
+
+        .hero-card {
+            position: relative;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025));
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+        }
+
+        .service-badge {
+            max-width: 270px;
+            width: 100%;
+            background: #d9d9d9;
+            border-radius: 18px;
+            padding: 10px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .28);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 28px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .stat-box h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-box p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .95rem;
+        }
+
+        .section {
+            padding: 88px 0;
+        }
+
+        .section-dark {
+            background: var(--bg2);
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 3.2vw, 3rem);
+            font-weight: 900;
+            letter-spacing: -.02em;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            color: #c8d0db;
+            max-width: 860px;
+            line-height: 1.75;
+            margin-bottom: 0;
+        }
+
+        .glass-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .02));
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 22px;
+            padding: 28px;
+            height: 100%;
+            transition: .25s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, .14);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .22);
+        }
+
+        .icon-circle {
+            width: 58px;
+            height: 58px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(225, 6, 0, .22), rgba(225, 6, 0, .08));
+            border: 1px solid rgba(225, 6, 0, .35);
+            color: #fff;
+            font-weight: 800;
+            margin-bottom: 18px;
+        }
+
+        .glass-card h4 {
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .glass-card p {
+            color: #c0c7d1;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        .dyno-panel,
+        .config-panel,
+        .chart-panel,
+        .cta-panel {
+            background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .02));
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
+        }
+
+        .feature-list {
+            padding-left: 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .feature-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 14px;
+            color: #d5dbe4;
+        }
+
+        .feature-list li:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: .55rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--red);
+            box-shadow: 0 0 0 6px rgba(225, 6, 0, .12);
+        }
+
+        .dyno-visual {
+            min-height: 420px;
+            border-radius: 22px;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(225, 6, 0, .16), transparent 40%),
+                linear-gradient(180deg, #101218, #0b0d12);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .dyno-visual:before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                repeating-linear-gradient(90deg,
+                    rgba(255, 255, 255, .035) 0,
+                    rgba(255, 255, 255, .035) 1px,
+                    transparent 1px,
+                    transparent 60px),
+                repeating-linear-gradient(180deg,
+                    rgba(255, 255, 255, .03) 0,
+                    rgba(255, 255, 255, .03) 1px,
+                    transparent 1px,
+                    transparent 60px);
+            opacity: .35;
+        }
+
+        .dyno-car {
+            position: absolute;
+            left: 50%;
+            bottom: 56px;
+            transform: translateX(-50%);
+            width: 75%;
+            max-width: 470px;
+            height: 120px;
+            background: linear-gradient(135deg, #2f343d, #161a1f);
+            border-radius: 32px 90px 22px 22px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, .4);
+        }
+
+        .dyno-car:before,
+        .dyno-car:after {
+            content: "";
+            position: absolute;
+            bottom: -28px;
+            width: 68px;
+            height: 68px;
+            background: #0b0d10;
+            border: 10px solid #2c3138;
+            border-radius: 50%;
+        }
+
+        .dyno-car:before {
+            left: 58px;
+        }
+
+        .dyno-car:after {
+            right: 58px;
+        }
+
+        .dyno-window {
+            position: absolute;
+            top: 18px;
+            left: 130px;
+            width: 140px;
+            height: 40px;
+            background: linear-gradient(135deg, #7d8794, #45515f);
+            border-radius: 16px 18px 10px 10px;
+            opacity: .8;
+        }
+
+        .roller {
+            position: absolute;
+            bottom: 18px;
+            width: 130px;
+            height: 18px;
+            background: linear-gradient(180deg, #4d5560, #1e2329);
+            border-radius: 999px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, .4);
+        }
+
+        .roller.left {
+            left: 18%;
+        }
+
+        .roller.right {
+            right: 18%;
+        }
+
+        .red-line {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            opacity: .8;
+            animation: pulseline 2.4s infinite ease-in-out;
+        }
+
+        .red-line.l1 {
+            top: 80px;
+            left: 10%;
+            width: 55%;
+        }
+
+        .red-line.l2 {
+            top: 130px;
+            right: 8%;
+            width: 45%;
+            animation-delay: .6s;
+        }
+
+        .red-line.l3 {
+            top: 210px;
+            left: 18%;
+            width: 40%;
+            animation-delay: 1.1s;
+        }
+
+        @keyframes pulseline {
+
+            0%,
+            100% {
+                opacity: .2;
+                transform: scaleX(.96);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scaleX(1.02);
+            }
+        }
+
+        .form-label {
+            color: #d6dde7;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            background: #10131a;
+            border: 1px solid rgba(255, 255, 255, .1);
+            color: #fff;
+            border-radius: 14px;
+            min-height: 52px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: #10131a;
+            color: #fff;
+            border-color: rgba(225, 6, 0, .5);
+            box-shadow: 0 0 0 .25rem rgba(225, 6, 0, .12);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            background: rgba(225, 6, 0, .08);
+            border: 1px solid rgba(225, 6, 0, .28);
+            border-radius: 18px;
+            padding: 22px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .result-item {
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .result-item .small-label {
+            color: #aab2be;
+            font-size: .85rem;
+            margin-bottom: 5px;
+        }
+
+        .result-item .big-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        canvas {
+            background: linear-gradient(180deg, #0f1218, #0c0f14);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 18px;
+            padding: 12px;
+        }
+
+        .step {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .step-num {
+            width: 52px;
+            min-width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--red), #8d0501);
+            box-shadow: 0 10px 26px rgba(225, 6, 0, .25);
+        }
+
+        .step h5 {
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: #c5ccd6;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .cta-panel {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-panel:before {
+            content: "";
+            position: absolute;
+            inset: -20%;
+            background: radial-gradient(circle, rgba(225, 6, 0, .18), transparent 38%);
+            pointer-events: none;
+        }
+
+        .footer {
+            padding: 26px 0;
+            color: #98a2af;
+            border-top: 1px solid var(--line);
+            background: #090a0d;
+        }
+
+        @media (max-width: 991.98px) {
+            .hero {
+                padding-top: 110px;
+            }
+
+            .stats,
+            .result-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .dyno-visual {
+                min-height: 320px;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+
+            .stats,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-card,
+            .glass-card,
+            .dyno-panel,
+            .config-panel,
+            .chart-panel,
+            .cta-panel {
+                padding: 22px;
+            }
+
+            .service-badge {
+                max-width: 220px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">CHIPTUNING PERFORMANCE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="#leistungen">Leistungen</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pruefstand">Leistungsprüfstand</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#konfigurator">Konfigurator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ablauf">Ablauf</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn btn-main btn-sm" href="#kontakt">Jetzt anfragen</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <div class="eyebrow">
+                        <span class="dot"></span>
+                        Moderne Werkstatt · Chiptuning · Leistungsprüfstand · 24h Service
+                    </div>
+
+                    <h1>
+                        Mehr Leistung.<br>
+                        Mehr Drehmoment.<br>
+                        Präzise abgestimmt.
+                    </h1>
+
+                    <p class="lead">
+                        Professionelles Chiptuning für moderne Fahrzeuge mit sauberer Diagnose, individueller
+                        ECU-Optimierung,
+                        optionalem Getriebetuning und exakter Messung auf dem Leistungsprüfstand. Für Fahrer, die nicht
+                        einfach
+                        irgendein File wollen, sondern ein technisch sauberes Ergebnis mit nachvollziehbarer
+                        Performance.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <a href="#konfigurator" class="btn btn-main">Leistung berechnen</a>
+                        <a href="#pruefstand" class="btn btn-outline-custom">Prüfstand entdecken</a>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-box">
+                            <h3>Stage 1</h3>
+                            <p>Saubere Leistungsoptimierung für Serie</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>Dyno</h3>
+                            <p>PS- und Nm-Messung mit Diagramm</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3>24/7</h3>
+                            <p>Online Service & schnelle Abläufe</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="hero-card text-center">
+                        <img src="24h-service.png" alt="24h online service" class="img-fluid service-badge mb-4">
+
+                        <h3 class="fw-bold mb-3">Performance trifft Verfügbarkeit</h3>
+                        <p class="text-secondary-emphasis" style="color:#c3cad5 !important; line-height:1.75;">
+                            Die Kombination aus moderner Tuning-Werkstatt, digitalem Workflow und leistungsstarker
+                            Abstimmung schafft eine Umgebung, in der Fahrzeuge effizient analysiert, optimiert und
+                            dokumentiert werden.
+                        </p>
+
+                        <div class="row g-3 mt-2 text-start">
+                            <div class="col-12">
+                                <div class="glass-card p-3">
+                                    <strong>ECU / TCU Optimierung</strong><br>
+                                    <small class="text-secondary">Motor- und Getriebesoftware präzise abgestimmt</small>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="glass-card p-3">
+                                    <strong>Vorher-/Nachher-Messung</strong><br>
+                                    <small class="text-secondary">Leistung und Drehmoment transparent
+                                        dokumentiert</small>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="glass-card p-3">
+                                    <strong>Technischer Fokus</strong><br>
+                                    <small class="text-secondary">Datenbasiert, nachvollziehbar und fahrbar
+                                        abgestimmt</small>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="leistungen" class="section section-dark">
+        <div class="container">
+            <div class="mb-5">
+                <h2 class="section-title">Unsere Leistungen für moderne Performance-Fahrzeuge</h2>
+                <p class="section-subtitle">
+                    Eine gute Chiptuning-Werkstatt liefert nicht nur mehr Peak-Leistung, sondern ein stimmiges
+                    Gesamtpaket:
+                    bessere Gasannahme, sauberer Drehmomentverlauf, passende Schutzfunktionen und auf Wunsch eine exakte
+                    Leistungsmessung auf dem Prüfstand.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="glass-card">
+                        <div class="icon-circle">ECU</div>
+                        <h4>ECU Chiptuning</h4>
+                        <p>
+                            Optimierung der Motorsoftware für mehr Leistung, verbessertes Ansprechverhalten und
+                            einen harmonischen Drehmomentaufbau im gesamten nutzbaren Drehzahlbereich.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="glass-card">
+                        <div class="icon-circle">TCU</div>
+                        <h4>DSG / TCU Tuning</h4>
+                        <p>
+                            Anpassung der Getriebesoftware für sauberere Schaltpunkte, höhere Drehmomentfreigaben,
+                            schnellere Reaktionen und ein sportlicheres Fahrgefühl.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="glass-card">
+                        <div class="icon-circle">DYNO</div>
+                        <h4>Leistungsprüfstand</h4>
+                        <p>
+                            Messung von Leistung und Drehmoment vor und nach der Optimierung. So wird sichtbar,
+                            was das Fahrzeug tatsächlich leistet und wie sich das Tuning auswirkt.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="glass-card">
+                        <div class="icon-circle">24H</div>
+                        <h4>Online Service</h4>
+                        <p>
+                            Moderne Abläufe, digitale Prozesse und schnelle Verfügbarkeit für effiziente Bearbeitung,
+                            Planung und Betreuung rund um Tuningfiles und Fahrzeugoptimierung.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pruefstand" class="section">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-6">
+                    <div class="dyno-panel">
+                        <h2 class="section-title mb-3">Leistungsprüfstand mit technischer Transparenz</h2>
+                        <p class="section-subtitle mb-4">
+                            Der Prüfstand ist mehr als nur ein Marketing-Tool. Er zeigt, wie das Fahrzeug unter Last
+                            arbeitet,
+                            wie sich Leistung und Drehmoment entwickeln und ob die Abstimmung sauber und reproduzierbar
+                            umgesetzt wurde.
+                        </p>
+
+                        <ul class="feature-list">
+                            <li>Vorher-/Nachher-Vergleich von PS und Nm</li>
+                            <li>Analyse des Drehmomentverlaufs über das Drehzahlband</li>
+                            <li>Mehr Sicherheit durch datenbasierte Kontrolle</li>
+                            <li>Saubere Dokumentation für Kunden und Werkstatt</li>
+                            <li>Bessere Abstimmung durch nachvollziehbare Ergebnisse</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="dyno-visual">
+                        <div class="red-line l1"></div>
+                        <div class="red-line l2"></div>
+                        <div class="red-line l3"></div>
+                        <div class="dyno-car">
+                            <div class="dyno-window"></div>
+                        </div>
+                        <div class="roller left"></div>
+                        <div class="roller right"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="konfigurator" class="section section-dark">
+        <div class="container">
+            <div class="mb-5">
+                <h2 class="section-title">Chiptuning Konfigurator</h2>
+                <p class="section-subtitle">
+                    Beispielhafte Fahrzeugauswahl mit automatischer Berechnung von Serie, Stage 1 und Zugewinn.
+                    Ideal als Landingpage-Element für den Einstieg in die Anfrage oder als Vorschau auf einen
+                    erweiterten Konfigurator.
+                </p>
+            </div>
+
+            <div class="config-panel">
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label" for="vehicle">Fahrzeug</label>
+                        <select id="vehicle" class="form-select">
+                            <option value="golf_gti">VW Golf GTI 2.0 TSI</option>
+                            <option value="a6_3tdi">Audi A6 3.0 TDI</option>
+                            <option value="bmw_330d">BMW 330d</option>
+                            <option value="rs3">Audi RS3 2.5 TFSI</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label" for="stage">Tuning-Stufe</label>
+                        <select id="stage" class="form-select">
+                            <option value="stage1">Stage 1</option>
+                            <option value="stage1plus">Stage 1+</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label" for="fuel">Kraftstoff</label>
+                        <select id="fuel" class="form-select">
+                            <option value="standard">Standard</option>
+                            <option value="premium">Premium / 102 Oktan</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3 col-md-6 d-flex align-items-end">
+                        <button id="calcBtn" class="btn btn-main w-100">Berechnen</button>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <h4 class="fw-bold mb-2">Ergebnis</h4>
+                    <p class="mb-0" style="color:#ccd4df;">
+                        Beispielwerte zur Darstellung des Konfigurators. Die finalen Leistungsdaten hängen immer vom
+                        Fahrzeugzustand,
+                        der Hardware, der Kraftstoffqualität und der konkreten Motor-/Getriebekonfiguration ab.
+                    </p>
+
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="small-label">Serie Leistung</div>
+                            <div class="big-value" id="stockPs">245 PS</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Serie Drehmoment</div>
+                            <div class="big-value" id="stockNm">370 Nm</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Stage Leistung</div>
+                            <div class="big-value" id="tunedPs">300 PS</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Stage Drehmoment</div>
+                            <div class="big-value" id="tunedNm">460 Nm</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Mehrleistung</div>
+                            <div class="big-value" id="gainPs">+55 PS</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Mehr Drehmoment</div>
+                            <div class="big-value" id="gainNm">+90 Nm</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Empfehlung</div>
+                            <div class="big-value" id="recommend">Prüfstand</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="small-label">Hinweis</div>
+                            <div class="big-value" id="note">TCU sinnvoll</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="mb-5">
+                <h2 class="section-title">Leistungsdiagramm Serie vs. Stage</h2>
+                <p class="section-subtitle">
+                    Visualisierung der Leistungs- und Drehmomententwicklung über die Drehzahl. Das Diagramm reagiert auf
+                    die Auswahl
+                    im Konfigurator und zeigt eine typische Kurvenform für Serie und optimierte Software.
+                </p>
+            </div>
+
+            <div class="chart-panel">
+                <canvas id="powerChart" height="120"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section id="ablauf" class="section section-dark">
+        <div class="container">
+            <div class="mb-5">
+                <h2 class="section-title">So läuft ein professionelles Chiptuning ab</h2>
+                <p class="section-subtitle">
+                    Ein sauberes Tuning folgt einem klaren technischen Ablauf. Ziel ist nicht nur mehr Leistung,
+                    sondern eine stimmige Abstimmung, die im Alltag und unter Last überzeugend funktioniert.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="glass-card">
+                        <div class="step">
+                            <div class="step-num">1</div>
+                            <div>
+                                <h5>Diagnose & Fahrzeugcheck</h5>
+                                <p>
+                                    Vor jeder Optimierung wird das Fahrzeug geprüft. Dazu gehören Fehleranalyse,
+                                    Ist-Zustand,
+                                    technische Plausibilität und die Bewertung, ob das Fahrzeug für die gewünschte
+                                    Leistungsstufe geeignet ist.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-num">2</div>
+                            <div>
+                                <h5>Software-Auslesung & Datenbasis</h5>
+                                <p>
+                                    Die originale Software wird ausgelesen oder die passende Datenbasis vorbereitet.
+                                    Auf dieser Grundlage erfolgt die gezielte Anpassung relevanter Kennfelder.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="step mb-0">
+                            <div class="step-num">3</div>
+                            <div>
+                                <h5>Abstimmung & Optimierung</h5>
+                                <p>
+                                    Drehmomentbegrenzungen, Ladedruck, Einspritzung, Lastanforderung und weitere
+                                    Parameter
+                                    werden auf ein sauberes Zusammenspiel abgestimmt.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="glass-card">
+                        <div class="step">
+                            <div class="step-num">4</div>
+                            <div>
+                                <h5>Prüfstand / Kontrolle</h5>
+                                <p>
+                                    Auf dem Leistungsprüfstand wird überprüft, wie sich die Optimierung in der Praxis
+                                    auswirkt.
+                                    So lassen sich reale Ergebnisse transparent darstellen.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-num">5</div>
+                            <div>
+                                <h5>Feinschliff & Fahrbarkeit</h5>
+                                <p>
+                                    Gute Software fühlt sich nicht nur stark an, sondern auch rund. Deshalb ist ein
+                                    harmonischer
+                                    Verlauf von Leistung und Drehmoment genauso wichtig wie Spitzenwerte.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="step mb-0">
+                            <div class="step-num">6</div>
+                            <div>
+                                <h5>Dokumentation & Beratung</h5>
+                                <p>
+                                    Der Kunde erhält eine nachvollziehbare Übersicht über die Optimierung und kann auf
+                                    Wunsch
+                                    weitere Schritte wie DSG-/TCU-Tuning oder zusätzliche Hardware-Upgrades planen.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="kontakt" class="section">
+        <div class="container">
+            <div class="cta-panel">
+                <h2 class="section-title mb-3">Bereit für deine Leistungssteigerung?</h2>
+                <p class="section-subtitle mx-auto mb-4" style="max-width:760px;">
+                    Nutze den Konfigurator als ersten Einstieg, präsentiere deine Werkstatt professionell
+                    und zeige Kunden auf einen Blick, dass hier nicht nur Leistung versprochen, sondern technisch
+                    nachvollziehbar umgesetzt wird.
+                </p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="#" class="btn btn-main">Jetzt Anfrage starten</a>
+                    <a href="#" class="btn btn-outline-custom">Kontakt aufnehmen</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container d-flex flex-column flex-lg-row justify-content-between gap-2">
+            <div>© Chiptuning Performance</div>
+            <div>Moderne Werkstatt · Leistungsprüfstand · 24h Online Service</div>
+        </div>
+    </footer>
+
+    <script>
+        const vehicleData = {
+            golf_gti: {
+                name: "VW Golf GTI 2.0 TSI",
+                stockPs: 245,
+                stockNm: 370,
+                stage1: { ps: 300, nm: 460, recommend: "Prüfstand", note: "TCU sinnvoll" },
+                stage1plus: { ps: 315, nm: 480, recommend: "Premium Kraftstoff", note: "TCU empfohlen" }
+            },
+            a6_3tdi: {
+                name: "Audi A6 3.0 TDI",
+                stockPs: 286,
+                stockNm: 620,
+                stage1: { ps: 340, nm: 700, recommend: "Prüfstand", note: "Sehr harmonisch" },
+                stage1plus: { ps: 355, nm: 730, recommend: "Getriebe beachten", note: "TCU stark empfohlen" }
+            },
+            bmw_330d: {
+                name: "BMW 330d",
+                stockPs: 265,
+                stockNm: 580,
+                stage1: { ps: 320, nm: 660, recommend: "Prüfstand", note: "Sehr guter Alltag" },
+                stage1plus: { ps: 335, nm: 690, recommend: "Saubere Kontrolle", note: "TCU optional" }
+            },
+            rs3: {
+                name: "Audi RS3 2.5 TFSI",
+                stockPs: 400,
+                stockNm: 500,
+                stage1: { ps: 470, nm: 620, recommend: "Prüfstand Pflicht", note: "Premium sinnvoll" },
+                stage1plus: { ps: 500, nm: 650, recommend: "102 Oktan", note: "TCU empfohlen" }
+            }
+        };
+
+        const vehicleSelect = document.getElementById("vehicle");
+        const stageSelect = document.getElementById("stage");
+        const fuelSelect = document.getElementById("fuel");
+        const calcBtn = document.getElementById("calcBtn");
+
+        const stockPsEl = document.getElementById("stockPs");
+        const stockNmEl = document.getElementById("stockNm");
+        const tunedPsEl = document.getElementById("tunedPs");
+        const tunedNmEl = document.getElementById("tunedNm");
+        const gainPsEl = document.getElementById("gainPs");
+        const gainNmEl = document.getElementById("gainNm");
+        const recommendEl = document.getElementById("recommend");
+        const noteEl = document.getElementById("note");
+
+        const rpmLabels = [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500];
+
+        function generatePowerCurve(stockPs, tunedPs) {
+            return rpmLabels.map((rpm, i) => {
+                const factor = [0.28, 0.42, 0.58, 0.72, 0.83, 0.9, 0.96, 1, 0.99, 0.95, 0.88][i];
+                return Math.round(stockPs * factor);
+            }).map((val, i) => i > 7 ? val : val);
+
+            // kept simple
+        }
+
+        function generateTunedCurve(stockPs, tunedPs) {
+            return rpmLabels.map((rpm, i) => {
+                const factor = [0.34, 0.5, 0.68, 0.8, 0.9, 0.96, 1, 1.02, 1, 0.97, 0.92][i];
+                return Math.round(tunedPs * factor);
+            });
+        }
+
+        function generateTorqueCurve(stockNm, tunedNm) {
+            return rpmLabels.map((rpm, i) => {
+                const factor = [0.78, 0.92, 1, 0.99, 0.97, 0.93, 0.88, 0.82, 0.74, 0.64, 0.55][i];
+                return Math.round(stockNm * factor);
+            });
+        }
+
+        function generateTunedTorqueCurve(stockNm, tunedNm) {
+            return rpmLabels.map((rpm, i) => {
+                const factor = [0.82, 0.96, 1, 1, 0.99, 0.96, 0.92, 0.87, 0.8, 0.71, 0.62][i];
+                return Math.round(tunedNm * factor);
+            });
+        }
+
+        const ctx = document.getElementById("powerChart").getContext("2d");
+        const powerChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: rpmLabels,
+                datasets: [
+                    {
+                        label: "Leistung Serie (PS)",
+                        data: [],
+                        borderColor: "rgba(200,200,200,1)",
+                        backgroundColor: "rgba(200,200,200,.08)",
+                        tension: .35,
+                        borderWidth: 2,
+                        pointRadius: 2
+                    },
+                    {
+                        label: "Leistung Stage (PS)",
+                        data: [],
+                        borderColor: "rgba(225,6,0,1)",
+                        backgroundColor: "rgba(225,6,0,.12)",
+                        tension: .35,
+                        borderWidth: 3,
+                        pointRadius: 2
+                    },
+                    {
+                        label: "Drehmoment Serie (Nm)",
+                        data: [],
+                        borderColor: "rgba(120,130,145,1)",
+                        backgroundColor: "rgba(120,130,145,.08)",
+                        tension: .35,
+                        borderDash: [6, 5],
+                        borderWidth: 2,
+                        pointRadius: 1
+                    },
+                    {
+                        label: "Drehmoment Stage (Nm)",
+                        data: [],
+                        borderColor: "rgba(255,110,110,1)",
+                        backgroundColor: "rgba(255,110,110,.08)",
+                        tension: .35,
+                        borderDash: [6, 5],
+                        borderWidth: 2,
+                        pointRadius: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        labels: { color: "#e7edf5" }
+                    },
+                    tooltip: {
+                        mode: "index",
+                        intersect: false
+                    }
+                },
+                interaction: {
+                    mode: "nearest",
+                    axis: "x",
+                    intersect: false
+                },
+                scales: {
+                    x: {
+                        ticks: { color: "#b6bfcb" },
+                        grid: { color: "rgba(255,255,255,.06)" },
+                        title: {
+                            display: true,
+                            text: "Drehzahl (rpm)",
+                            color: "#dfe6ef"
+                        }
+                    },
+                    y: {
+                        ticks: { color: "#b6bfcb" },
+                        grid: { color: "rgba(255,255,255,.06)" },
+                        title: {
+                            display: true,
+                            text: "Leistung / Drehmoment",
+                            color: "#dfe6ef"
+                        }
+                    }
+                }
+            }
+        });
+
+        function updateConfigurator() {
+            const vehicleKey = vehicleSelect.value;
+            const stageKey = stageSelect.value;
+            const fuel = fuelSelect.value;
+
+            const vehicle = vehicleData[vehicleKey];
+            let tuned = { ...vehicle[stageKey] };
+
+            if (fuel === "premium") {
+                tuned.ps += Math.round(tuned.ps * 0.015);
+                tuned.nm += Math.round(tuned.nm * 0.015);
+            }
+
+            const gainPs = tuned.ps - vehicle.stockPs;
+            const gainNm = tuned.nm - vehicle.stockNm;
+
+            stockPsEl.textContent = vehicle.stockPs + " PS";
+            stockNmEl.textContent = vehicle.stockNm + " Nm";
+            tunedPsEl.textContent = tuned.ps + " PS";
+            tunedNmEl.textContent = tuned.nm + " Nm";
+            gainPsEl.textContent = "+" + gainPs + " PS";
+            gainNmEl.textContent = "+" + gainNm + " Nm";
+            recommendEl.textContent = tuned.recommend;
+            noteEl.textContent = tuned.note;
+
+            powerChart.data.datasets[0].data = generatePowerCurve(vehicle.stockPs, tuned.ps);
+            powerChart.data.datasets[1].data = generateTunedCurve(vehicle.stockPs, tuned.ps);
+            powerChart.data.datasets[2].data = generateTorqueCurve(vehicle.stockNm, tuned.nm);
+            powerChart.data.datasets[3].data = generateTunedTorqueCurve(vehicle.stockNm, tuned.nm);
+            powerChart.update();
+        }
+
+        calcBtn.addEventListener("click", updateConfigurator);
+        vehicleSelect.addEventListener("change", updateConfigurator);
+        stageSelect.addEventListener("change", updateConfigurator);
+        fuelSelect.addEventListener("change", updateConfigurator);
+
+        updateConfigurator();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

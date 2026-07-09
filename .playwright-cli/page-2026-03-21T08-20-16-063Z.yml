@@ -1,0 +1,168 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - banner [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e6]:
+            - link "Chiptuningfile Logo" [ref=e201] [cursor=pointer]:
+              - /url: /
+              - img "Chiptuningfile Logo" [ref=e202]
+            - generic [ref=e12]:
+              - searchbox "Search anything here ..." [ref=e13]
+              - combobox "Search anything here ..." [ref=e16]
+              - button "" [ref=e17] [cursor=pointer]:
+                - generic [ref=e18]: 
+          - list [ref=e19]:
+            - text: 
+            - listitem [ref=e20]:
+              - link "Zum hellen Design wechseln" [ref=e195] [cursor=pointer]:
+                - /url: javascript:void(0);
+                - img [ref=e197]
+            - listitem [ref=e25]:
+              - link "Zu vertikaler Navigation wechseln" [ref=e203] [cursor=pointer]:
+                - /url: javascript:void(0);
+                - text: 
+                - generic [ref=e205]: 
+            - listitem [ref=e29]:
+              - link "" [active] [ref=e30] [cursor=pointer]:
+                - /url: javascript:void(0);
+                - generic [ref=e34]: 
+              - text:      
+      - complementary [ref=e35]:
+        - navigation [ref=e40]:
+          - list [ref=e41]:
+            - listitem [ref=e43]:
+              - link " Dashboard" [ref=e44] [cursor=pointer]:
+                - /url: /
+                - generic [ref=e206]: 
+                - generic [ref=e45]: Dashboard
+            - listitem [ref=e46]:
+              - link " Profil" [ref=e47] [cursor=pointer]:
+                - /url: /profil
+                - generic [ref=e207]: 
+                - generic [ref=e48]: Profil
+            - listitem [ref=e49]:
+              - link " Auftrag" [ref=e50] [cursor=pointer]:
+                - /url: /auftrag
+                - generic [ref=e208]: 
+                - generic [ref=e51]: Auftrag
+            - listitem [ref=e52]:
+              - link " Fahrzeugdatenbank" [ref=e53] [cursor=pointer]:
+                - /url: /fahrzeuge
+                - generic [ref=e209]: 
+                - generic [ref=e54]: Fahrzeugdatenbank
+            - listitem [ref=e55]:
+              - link " Uploads" [ref=e56] [cursor=pointer]:
+                - /url: /uploads
+                - generic [ref=e210]: 
+                - generic [ref=e57]: Uploads
+            - listitem [ref=e58]:
+              - link " Credits" [ref=e59] [cursor=pointer]:
+                - /url: /credits
+                - generic [ref=e211]: 
+                - generic [ref=e60]: Credits
+            - listitem [ref=e62]:
+              - link " Logout" [ref=e63] [cursor=pointer]:
+                - /url: /logout
+                - generic [ref=e212]: 
+                - generic [ref=e64]: Logout
+      - generic [ref=e66]:
+        - generic [ref=e67]:
+          - generic [ref=e68]:
+            - list [ref=e69]:
+              - listitem [ref=e70]:
+                - link "Portal" [ref=e71] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e72]:  Dashboard
+            - heading "Dashboard" [level=1] [ref=e73]
+            - generic [ref=e74]: Dein schneller Ueberblick ueber Konto, Credits und letzte Uploads.
+          - generic [ref=e75]:
+            - link "Neue Datei hochladen" [ref=e76] [cursor=pointer]:
+              - /url: /uploads
+            - link "Credits aufladen" [ref=e77] [cursor=pointer]:
+              - /url: /credits
+        - generic [ref=e79]:
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - generic [ref=e85]: Kundenkonto
+                - heading "Sarah Maas" [level=2] [ref=e86]
+                - paragraph [ref=e87]: dummy.chip08@example.com
+              - generic [ref=e89]: 
+            - generic [ref=e90]:
+              - generic [ref=e91]: Verfuegbare Credits
+              - generic [ref=e92]: "0"
+              - link "Jetzt Credits kaufen" [ref=e93] [cursor=pointer]:
+                - /url: /credits
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - heading "Letzte Uploads" [level=2] [ref=e98]
+              - link "Alle Uploads" [ref=e99] [cursor=pointer]:
+                - /url: /uploads
+            - generic [ref=e100]: Noch keine Uploads vorhanden. Ueber den Upload-Bereich kannst du direkt deine erste Datei einsenden.
+      - contentinfo [ref=e101]:
+        - generic [ref=e102]: Copyright © 2026 Chiptuningfile. Powered by Xintra.
+    - text:  
+  - region "Symfony Web Debug Toolbar" [ref=e103]:
+    - generic [ref=e106]:
+      - link "200 @ cpt_portal_dashboard" [ref=e108] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=request
+        - generic [ref=e109]:
+          - generic [ref=e110]: "200"
+          - generic [ref=e111]: "@"
+          - generic [ref=e112]: cpt_portal_dashboard
+      - link "101 ms" [ref=e114] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=time
+        - generic [ref=e115]:
+          - generic [ref=e116]: "101"
+          - generic [ref=e117]: ms
+      - link "8.0 MiB" [ref=e119] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=time
+        - generic [ref=e120]:
+          - generic [ref=e121]: "8.0"
+          - generic [ref=e122]: MiB
+      - generic [ref=e124] [cursor=pointer]:
+        - img [ref=e125]
+        - generic [ref=e129]: "3"
+      - link "Logger 7" [ref=e131] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=logger
+        - generic [ref=e132]:
+          - img "Logger" [ref=e133]
+          - generic [ref=e137]: "7"
+      - link "Cache 5 in 0.11 ms" [ref=e139] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=cache
+        - generic [ref=e140]:
+          - img "Cache" [ref=e141]
+          - generic [ref=e146]: "5"
+          - generic [ref=e147]: in 0.11 ms
+      - link "Security dummy.chip08@example.com" [ref=e149] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=security
+        - generic [ref=e150]:
+          - img "Security" [ref=e151]
+          - generic [ref=e155]: dummy.chip08@example.com
+      - link "Twig 37 ms" [ref=e157] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=twig
+        - generic [ref=e158]:
+          - img "Twig" [ref=e159]
+          - generic [ref=e163]: "37"
+          - generic [ref=e164]: ms
+      - link "1 in 1 ms" [ref=e166] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=twig_component
+        - generic [ref=e167]:
+          - img [ref=e168]
+          - generic [ref=e170]: "1"
+          - generic [ref=e171]: in 1 ms
+      - link "5 in 2.81 ms" [ref=e173] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=db
+        - generic [ref=e174]:
+          - img [ref=e175]
+          - generic [ref=e180]: "5"
+          - generic [ref=e181]: in 2.81 ms
+      - link "Symfony 8.0.6" [ref=e183] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/33f6af?panel=config
+        - generic [ref=e184]:
+          - img "Symfony" [ref=e186]
+          - generic [ref=e188]: 8.0.6
+      - button [expanded] [ref=e189] [cursor=pointer]:
+        - generic "Close Toolbar" [ref=e190]:
+          - img [ref=e191]

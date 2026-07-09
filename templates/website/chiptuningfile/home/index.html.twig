@@ -1,0 +1,245 @@
+{% extends 'website/chiptuningfile/base.html.twig' %}
+
+{% block title %}Chiptuningfile.de | Test-Website{% endblock %}
+
+{% block website_body %}
+    {% set portal_register_url = path('cpt_portal_register') %}
+    <section class="cpt-hero">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-xl-7">
+                    <span class="cpt-kicker">Test-Website fuer Chiptuningfile</span>
+                    <h1>Software. Files. Performance. Alles auf einer Marke.</h1>
+                    <p class="cpt-hero-copy">
+                        Diese erste Website trennt oeffentlichen Markenauftritt und Kundenportal sauber voneinander.
+                        Endkunden finden hier Leistungen, Ablauf und Einstieg ins Portal, waehrend Uploads und Konto im geschuetzten Bereich bleiben.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <a href="{{ portalUrl }}" class="btn btn-lg cpt-primary-btn px-4">Zum Kundenportal</a>
+                        <a href="{{ portal_register_url }}" class="btn btn-lg cpt-outline-btn px-4">Registrieren</a>
+                        <a href="#leistungen" class="btn btn-lg cpt-outline-btn px-4">Mehr erfahren</a>
+                    </div>
+                </div>
+                <div class="col-xl-5">
+                    <div class="cpt-hero-panel p-4 p-lg-5 text-white">
+                        <div class="small text-uppercase text-white-50 mb-3">Markenstart</div>
+                        <h2 class="h3 mb-3">Die Website als oeffentliche Front</h2>
+                        <p class="text-white-50 mb-4">
+                            Sauber getrennt vom Portal, aber mit denselben Farben, derselben Marke und klaren CTAs fuer Kunden.
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="cpt-stage-badge">Leistungen</span>
+                            <span class="cpt-stage-badge">Fahrzeugdatenbank</span>
+                            <span class="cpt-stage-badge">Kundenlogin</span>
+                            <span class="cpt-stage-badge">Credits spaeter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="cpt-stat-card h-100 p-4">
+                        <div class="text-muted text-uppercase small mb-2">Portalbereit</div>
+                        <div class="cpt-stat-value">1 Login</div>
+                        <p class="mb-0 text-muted">Kunden gelangen direkt von der Website in ihr Chiptuningfile-Portal.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cpt-stat-card h-100 p-4">
+                        <div class="text-muted text-uppercase small mb-2">Vehicle DB</div>
+                        <div class="cpt-stat-value">Live</div>
+                        <p class="mb-0 text-muted">Die Fahrzeugdatenbank kann als naechster Schritt an die Website angebunden werden.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cpt-stat-card h-100 p-4">
+                        <div class="text-muted text-uppercase small mb-2">Brand Setup</div>
+                        <div class="cpt-stat-value">Getrennt</div>
+                        <p class="mb-0 text-muted">Website, Portal und Superadmin bleiben technisch sauber voneinander getrennt.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cpt-section" id="leistungen">
+        <div class="container">
+            <div class="row g-4 align-items-start mb-4">
+                <div class="col-lg-5">
+                    <span class="badge text-bg-light border text-uppercase mb-3">Leistungen</span>
+                    <h2 class="display-6 fw-semibold">Erste Test-Sektion fuer den Markenauftritt</h2>
+                </div>
+                <div class="col-lg-7">
+                    <p class="lead text-muted mb-0">
+                        Diese erste Website ist bewusst als Test gedacht: genug Struktur fuer Eindruck und Navigation, aber noch ohne finalen Content-Overhead.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="cpt-section-card h-100 p-4">
+                        <div class="cpt-feature-icon mb-3"><i class="ti ti-file-code-2"></i></div>
+                        <h3 class="h4">Tuningfiles</h3>
+                        <p class="text-muted mb-0">Originaldateien hochladen, bearbeiten lassen und sauber wieder zurueckbekommen.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cpt-section-card h-100 p-4">
+                        <div class="cpt-feature-icon mb-3"><i class="ti ti-car"></i></div>
+                        <h3 class="h4">Fahrzeugdatenbank</h3>
+                        <p class="text-muted mb-0">Fahrzeuge, Motoren und Stages fuer Kunden transparent und sauber auffindbar machen.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="cpt-section-card h-100 p-4">
+                        <div class="cpt-feature-icon mb-3"><i class="ti ti-credit-card"></i></div>
+                        <h3 class="h4">Credits</h3>
+                        <p class="text-muted mb-0">Spaeter direkt ueber die Website und das Portal Credits kaufen und verwalten.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cpt-section cpt-section-dark" id="ablauf">
+        <div class="container">
+            <div class="row g-4 align-items-start">
+                <div class="col-lg-4">
+                    <span class="badge border border-light-subtle text-uppercase mb-3">Ablauf</span>
+                    <h2 class="display-6 fw-semibold">So kann der Kundenfluss aussehen</h2>
+                </div>
+                <div class="col-lg-8">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="cpt-section-card h-100 p-4">
+                                <div class="small text-uppercase text-white-50 mb-2">01</div>
+                                <h3 class="h4">Website</h3>
+                                <p class="mb-0 text-white-50">Kunde informiert sich, schaut Fahrzeuge an und startet den Login.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="cpt-section-card h-100 p-4">
+                                <div class="small text-uppercase text-white-50 mb-2">02</div>
+                                <h3 class="h4">Portal</h3>
+                                <p class="mb-0 text-white-50">Upload, Historie, Profil und spaeter Credits laufen im geschuetzten Bereich.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="cpt-section-card h-100 p-4">
+                                <div class="small text-uppercase text-white-50 mb-2">03</div>
+                                <h3 class="h4">Superadmin</h3>
+                                <p class="mb-0 text-white-50">Alles wird zentral im CRM gesteuert, aber nicht im Frontend vermischt.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cpt-section" id="fahrzeugdatenbank">
+        <div class="container">
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-6">
+                    <span class="badge text-bg-light border text-uppercase mb-3">Naechster Schritt</span>
+                    <h2 class="display-6 fw-semibold">Fahrzeugdatenbank auch oeffentlich anteasern</h2>
+                    <p class="lead text-muted">
+                        Als naechsten Ausbau koennen wir diese Website direkt mit einer oeffentlichen Fahrzeugsuche oder Landingpages pro Fahrzeugserie verbinden.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="cpt-section-card p-4 p-lg-5">
+                        <h3 class="h4 mb-3">Test-CTA</h3>
+                        <p class="text-muted mb-4">
+                            Die Website ist jetzt als eigener Markenbereich angelegt und kann sauber weiter ausgebaut werden.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="{{ portalUrl }}" class="btn cpt-primary-btn">Portal testen</a>
+                            <a href="{{ portal_register_url }}" class="btn btn-outline-dark">Jetzt registrieren</a>
+                            <a href="#leistungen" class="btn btn-outline-dark">Sections ansehen</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-12">
+                <div class="cpt-section-card p-4" data-controller="vehicle-database">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="h4 mb-0">Live-Fahrzeugsuche</h3>
+                        <small class="text-muted fst-italic">Daten kommen direkt aus der API</small>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-sm-6 col-lg-4">
+                            <label class="form-label small">Fahrzeugtyp</label>
+                            <select
+                                class="form-select form-select-sm"
+                                data-vehicle-database-target="type"
+                                data-action="change->vehicle-database#typeChanged"
+                                disabled
+                            >
+                                <option value="">Fahrzeugtyp wählen</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <label class="form-label small">Marke</label>
+                            <select
+                                class="form-select form-select-sm"
+                                data-vehicle-database-target="brand"
+                                data-action="change->vehicle-database#brandChanged"
+                                disabled
+                            >
+                                <option value="">Marke wählen</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <label class="form-label small">Baureihe</label>
+                            <select
+                                class="form-select form-select-sm"
+                                data-vehicle-database-target="series"
+                                data-action="change->vehicle-database#seriesChanged"
+                                disabled
+                            >
+                                <option value="">Baureihe wählen</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <label class="form-label small">Modell</label>
+                            <select
+                                class="form-select form-select-sm"
+                                data-vehicle-database-target="model"
+                                data-action="change->vehicle-database#modelChanged"
+                                disabled
+                            >
+                                <option value="">Modell wählen</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6 col-lg-4">
+                            <label class="form-label small">Motor</label>
+                            <select
+                                class="form-select form-select-sm"
+                                data-vehicle-database-target="engine"
+                                data-action="change->vehicle-database#engineChanged"
+                                disabled
+                            >
+                                <option value="">Motor wählen</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <p class="small text-muted mb-2" data-vehicle-database-target="status">
+                                Lade Fahrzeugtypen …
+                            </p>
+                            <div data-vehicle-database-target="details">
+                                <p class="text-muted mb-0">Wähle einen Motor, um Details zu sehen.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

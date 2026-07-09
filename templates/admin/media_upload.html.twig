@@ -1,0 +1,208 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Media Upload{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/dropzone.min.css') }}">
+{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="{{ path('admin_media_manager') }}" class="btn btn-light border">
+            <i class="fa fa-arrow-left"></i> Zurueck zum Media Manager
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <div class="fw-semibold">Upload</div>
+            <div class="small text-muted">Alle Dateien werden zuerst im Ordner <strong>{{ targetFolderName }}</strong> abgelegt.</div>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                    <label for="media-upload-type" class="form-label fw-semibold">Typ</label>
+                    <select id="media-upload-type" name="mediaType" class="form-select">
+                        {% for label, value in mediaTypeChoices %}
+                            <option value="{{ value }}" {{ value == 'image' ? 'selected' : '' }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Der Typ wird fuer alle Dateien dieses Uploads gesetzt.</div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="form-label fw-semibold">Dateien</label>
+                <form
+                    id="media-upload-dropzone"
+                    class="tfd-media-upload-dropzone mt-2"
+                    action="{{ path('admin_media_manager_upload_ajax') }}"
+                    data-upload-token="{{ csrf_token('media_manager_upload') }}"
+                >
+                    <div class="dz-message">
+                        <div class="tfd-media-upload-dropzone__icon"><i class="fa fa-cloud-upload-alt"></i></div>
+                        <div class="fw-semibold">Dateien hier ablegen oder klicken</div>
+                        <div class="text-muted small">Mehrere Bilder/Dateien koennen gleichzeitig hochgeladen werden.</div>
+                    </div>
+                </form>
+                <div id="media-upload-status" class="small text-muted mt-2"></div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <a href="{{ path('admin_media_manager') }}" class="btn btn-light border">Fertig</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tfd-media-upload-dropzone {
+        position: relative;
+        min-height: 240px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 10px;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: border-color .16s ease, background .16s ease, transform .16s ease;
+        cursor: pointer;
+        padding: 2rem;
+    }
+
+    .tfd-media-upload-dropzone.dz-drag-hover {
+        border-color: #dc2626;
+        background: #fff1f2;
+        transform: translateY(-1px);
+    }
+
+    .tfd-media-upload-dropzone .dz-message {
+        margin: 0;
+    }
+
+    .tfd-media-upload-dropzone__icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #dc2626;
+        font-size: 24px;
+        margin: 0 auto .75rem;
+    }
+
+    .tfd-media-upload-dropzone .dz-preview {
+        margin: 12px 0 0;
+    }
+
+    .tfd-media-upload-dropzone .dz-preview .dz-progress {
+        height: 6px;
+        border-radius: 6px;
+    }
+
+    .tfd-media-upload-dropzone .dz-preview .dz-progress .dz-upload {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+    }
+
+    .tfd-media-upload-dropzone .dz-preview .dz-error-message,
+    .tfd-media-upload-dropzone .dz-preview .dz-success-mark,
+    .tfd-media-upload-dropzone .dz-preview .dz-error-mark {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/dropzone.min.js') }}"></script>
+    <script>
+        (function () {
+            function initMediaUploadDropzone() {
+                const dropzoneEl = document.getElementById('media-upload-dropzone');
+                if (!dropzoneEl || dropzoneEl.dataset.dropzoneInitialized === '1') {
+                    return;
+                }
+
+                dropzoneEl.dataset.dropzoneInitialized = '1';
+
+                if (typeof Dropzone === 'undefined') {
+                    return;
+                }
+
+                Dropzone.autoDiscover = false;
+
+                const uploadToken = dropzoneEl.dataset.uploadToken;
+                const typeSelect = document.getElementById('media-upload-type');
+                const statusEl = document.getElementById('media-upload-status');
+                const setStatus = (text, tone) => {
+                    if (!statusEl) {
+                        return;
+                    }
+                    statusEl.textContent = text;
+                    statusEl.classList.remove('text-success', 'text-danger', 'text-muted');
+                    statusEl.classList.add(tone === 'success' ? 'text-success' : (tone === 'danger' ? 'text-danger' : 'text-muted'));
+                };
+
+                const dz = new Dropzone(dropzoneEl, {
+                    url: dropzoneEl.getAttribute('action') || dropzoneEl.action,
+                    method: 'post',
+                    paramName: 'file',
+                    parallelUploads: 5,
+                    uploadMultiple: false,
+                    addRemoveLinks: true,
+                    autoProcessQueue: true,
+                    autoQueue: true,
+                    clickable: true,
+                    withCredentials: true,
+                    headers: {
+                        'X-CSRF-TOKEN': uploadToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    params: () => ({
+                        _token: uploadToken,
+                        mediaType: typeSelect ? typeSelect.value : 'image'
+                    })
+                });
+                dropzoneEl.classList.add('dropzone');
+
+                dz.on('dragover', () => dropzoneEl.classList.add('dz-drag-hover'));
+                dz.on('dragleave', () => dropzoneEl.classList.remove('dz-drag-hover'));
+                dz.on('drop', () => dropzoneEl.classList.remove('dz-drag-hover'));
+
+                dz.on('sending', () => {
+                    setStatus('Upload laeuft...', 'muted');
+                });
+
+                dz.on('success', () => {
+                    setStatus('Datei gespeichert.', 'success');
+                });
+
+                dz.on('error', (file, message, xhr) => {
+                    let text = 'Upload fehlgeschlagen.';
+                    if (xhr && typeof xhr.status === 'number') {
+                        text = `Upload fehlgeschlagen (HTTP ${xhr.status}).`;
+                    }
+                    if (typeof message === 'string' && message.trim() !== '') {
+                        text = message;
+                    } else if (message && typeof message === 'object' && message.error) {
+                        text = message.error;
+                    }
+                    setStatus(text, 'danger');
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initMediaUploadDropzone);
+            } else {
+                initMediaUploadDropzone();
+            }
+        })();
+    </script>
+{% endblock %}

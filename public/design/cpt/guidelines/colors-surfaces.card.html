@@ -1,0 +1,35 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Surfaces — light vs dark" subtitle="Every token flips with data-theme" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  body { margin: 0; padding: 18px; background: var(--carbon-100); font-family: var(--font-mono); display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .pane { border-radius: var(--radius-lg); border:1px solid var(--border); background:var(--bg); padding:14px; }
+  .tag { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); margin-bottom:10px; }
+  .stack { display:flex; flex-direction:column; gap:7px; }
+  .bar { height:26px; border-radius:var(--radius-sm); border:1px solid var(--border-strong); display:flex; align-items:center; padding:0 10px; font-size:10px; color:var(--text); }
+</style>
+</head>
+<body>
+  <div class="pane" data-theme="light">
+    <div class="tag">Hell · light</div>
+    <div class="stack">
+      <div class="bar" style="background:var(--bg)">--bg</div>
+      <div class="bar" style="background:var(--surface)">--surface</div>
+      <div class="bar" style="background:var(--surface-2)">--surface-2</div>
+      <div class="bar" style="background:var(--surface-sunken)">--surface-sunken</div>
+    </div>
+  </div>
+  <div class="pane" data-theme="dark">
+    <div class="tag">Dunkel · dark</div>
+    <div class="stack">
+      <div class="bar" style="background:var(--bg)">--bg</div>
+      <div class="bar" style="background:var(--surface)">--surface</div>
+      <div class="bar" style="background:var(--surface-2)">--surface-2</div>
+      <div class="bar" style="background:var(--surface-sunken)">--surface-sunken</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,859 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Leistungskurve Original vs. Stage 1{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --panel: #121821;
+            --panel-2: #171f2b;
+            --border: rgba(255,255,255,0.08);
+            --text: #f5f7fa;
+            --muted: #9aa4b2;
+            --accent: #ff3b30;
+            --accent-2: #4da3ff;
+            --success: #27c93f;
+            --warning: #ffb020;
+            --shadow: 0 18px 40px rgba(0,0,0,0.28);
+            --radius: 18px;
+        }
+
+        .powercurve-page {
+            margin: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255,59,48,0.12), transparent 28%),
+                radial-gradient(circle at top left, rgba(77,163,255,0.10), transparent 25%),
+                linear-gradient(180deg, #0a0f14 0%, #0d131b 100%);
+            color: var(--text);
+            padding: 40px 0 60px;
+        }
+
+        .powercurve-page * {
+            box-sizing: border-box;
+        }
+
+        .powercurve-container {
+            max-width: 1360px;
+            margin: 0 auto;
+            padding: 0 18px;
+        }
+
+        .powercurve-hero {
+            margin-bottom: 24px;
+        }
+
+        .powercurve-eyebrow {
+            display: inline-block;
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--warning);
+            margin-bottom: 10px;
+        }
+
+        .powercurve-title {
+            margin: 0 0 10px;
+            font-size: clamp(30px, 4vw, 48px);
+            line-height: 1.05;
+            font-weight: 800;
+        }
+
+        .powercurve-lead {
+            margin: 0;
+            max-width: 920px;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .powercurve-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 22px;
+            margin-top: 28px;
+        }
+
+        .powercurve-panel {
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .powercurve-controls {
+            padding: 22px;
+            height: fit-content;
+            position: sticky;
+            top: 24px;
+        }
+
+        .powercurve-panel-title {
+            margin: 0 0 18px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .powercurve-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .powercurve-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .powercurve-field-full {
+            grid-column: 1 / -1;
+        }
+
+        .powercurve-label {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .powercurve-input,
+        .powercurve-select {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--panel-2);
+            color: var(--text);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .powercurve-input:focus,
+        .powercurve-select:focus {
+            border-color: rgba(255,59,48,0.45);
+            box-shadow: 0 0 0 4px rgba(255,59,48,0.10);
+        }
+
+        .powercurve-switches {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .powercurve-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+        }
+
+        .powercurve-switch input {
+            transform: scale(1.05);
+        }
+
+        .powercurve-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .powercurve-btn {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .powercurve-btn-primary {
+            background: linear-gradient(135deg, #ff3b30, #ff6a3d);
+            color: white;
+            box-shadow: 0 10px 24px rgba(255,59,48,0.22);
+        }
+
+        .powercurve-btn-primary:hover {
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .powercurve-btn-secondary {
+            background: #1c2532;
+            color: white;
+            border: 1px solid var(--border);
+        }
+
+        .powercurve-btn-secondary:hover {
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .powercurve-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .powercurve-stat {
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+            min-height: 108px;
+        }
+
+        .powercurve-stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .powercurve-stat-value {
+            font-size: clamp(22px, 2vw, 34px);
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .powercurve-stat-note {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .powercurve-chart-panel {
+            padding: 16px;
+        }
+
+        .powercurve-chart-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .powercurve-chart-topbar h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .powercurve-legend {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .powercurve-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .powercurve-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .powercurve-dot-red { background: #ff5b52; }
+        .powercurve-dot-gray { background: #9aa4b2; }
+        .powercurve-dot-blue { background: #5ba8ff; }
+        .powercurve-dot-yellow { background: #ffc94d; }
+
+        .powercurve-canvas-wrap {
+            height: 620px;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005));
+            border: 1px solid var(--border);
+            padding: 12px;
+        }
+
+        .powercurve-hint,
+        .powercurve-footer-note {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .powercurve-hint {
+            margin-top: 14px;
+        }
+
+        .powercurve-footer-note {
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        .powercurve-cta {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1100px) {
+            .powercurve-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .powercurve-controls {
+                position: static;
+            }
+
+            .powercurve-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .powercurve-grid,
+            .powercurve-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .powercurve-canvas-wrap {
+                height: 460px;
+            }
+
+            .powercurve-buttons,
+            .powercurve-cta {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% set vehicleTitle = vehicleTitle|default('Chiptuning Leistungskurve') %}
+    {% set vehicleSubtitle = vehicleSubtitle|default('Original vs. Stage 1 – interaktive Visualisierung für Fahrzeugseiten, Landingpages und deinen Chiptuning-Konfigurator.') %}
+    {% set originalPs = originalPs|default(150) %}
+    {% set originalNm = originalNm|default(320) %}
+    {% set stage1Ps = stage1Ps|default(190) %}
+    {% set stage1Nm = stage1Nm|default(400) %}
+    {% set rpmStart = rpmStart|default(1200) %}
+    {% set rpmEnd = rpmEnd|default(5000) %}
+    {% set engineType = engineType|default('diesel') %}
+    {% set ctaUrlPrimary = ctaUrlPrimary|default('#') %}
+    {% set ctaLabelPrimary = ctaLabelPrimary|default('Jetzt konfigurieren') %}
+    {% set ctaUrlSecondary = ctaUrlSecondary|default('#') %}
+    {% set ctaLabelSecondary = ctaLabelSecondary|default('Stage 1 anfragen') %}
+
+    <section class="powercurve-page">
+        <div class="powercurve-container">
+            <div class="powercurve-hero">
+                <div class="powercurve-eyebrow">Chiptuning Konfigurator / Symfony Twig</div>
+                <h1 class="powercurve-title">{{ vehicleTitle }}</h1>
+                <p class="powercurve-lead">{{ vehicleSubtitle }}</p>
+            </div>
+
+            <div class="powercurve-layout">
+                <aside class="powercurve-panel powercurve-controls">
+                    <h2 class="powercurve-panel-title">Fahrzeugdaten</h2>
+
+                    <div class="powercurve-grid">
+                        <div class="powercurve-field">
+                            <label class="powercurve-label" for="origPs">Original PS</label>
+                            <input class="powercurve-input" id="origPs" type="number" value="{{ originalPs }}" min="1" step="1">
+                        </div>
+
+                        <div class="powercurve-field">
+                            <label class="powercurve-label" for="origNm">Original Nm</label>
+                            <input class="powercurve-input" id="origNm" type="number" value="{{ originalNm }}" min="1" step="1">
+                        </div>
+
+                        <div class="powercurve-field">
+                            <label class="powercurve-label" for="stagePs">Stage 1 PS</label>
+                            <input class="powercurve-input" id="stagePs" type="number" value="{{ stage1Ps }}" min="1" step="1">
+                        </div>
+
+                        <div class="powercurve-field">
+                            <label class="powercurve-label" for="stageNm">Stage 1 Nm</label>
+                            <input class="powercurve-input" id="stageNm" type="number" value="{{ stage1Nm }}" min="1" step="1">
+                        </div>
+
+                        <div class="powercurve-field">
+                            <label class="powercurve-label" for="rpmStart">Start Drehzahl</label>
+                            <input class="powercurve-input" id="rpmStart" type="number" value="{{ rpmStart }}" min="500" step="100">
+                        </div>
+
+                        <div class="powercurve-field">
+                            <label class="powercurve-label" for="rpmEnd">Ende Drehzahl</label>
+                            <input class="powercurve-input" id="rpmEnd" type="number" value="{{ rpmEnd }}" min="2000" step="100">
+                        </div>
+
+                        <div class="powercurve-field powercurve-field-full">
+                            <label class="powercurve-label" for="engineType">Kurvencharakter</label>
+                            <select class="powercurve-select" id="engineType">
+                                <option value="diesel" {{ engineType == 'diesel' ? 'selected' : '' }}>Turbo Diesel / frühes Drehmoment</option>
+                                <option value="petrol" {{ engineType == 'petrol' ? 'selected' : '' }}>Turbo Benziner / breiteres Band</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="powercurve-switches">
+                        <label class="powercurve-switch">
+                            <span>Fläche unter Stage 1 anzeigen</span>
+                            <input id="toggleFill" type="checkbox" checked>
+                        </label>
+                        <label class="powercurve-switch">
+                            <span>Peak-Marker anzeigen</span>
+                            <input id="togglePeaks" type="checkbox" checked>
+                        </label>
+                        <label class="powercurve-switch">
+                            <span>PS-Kurven anzeigen</span>
+                            <input id="togglePs" type="checkbox" checked>
+                        </label>
+                    </div>
+
+                    <div class="powercurve-buttons">
+                        <button class="powercurve-btn powercurve-btn-primary" id="updateBtn" type="button">Diagramm aktualisieren</button>
+                        <button class="powercurve-btn powercurve-btn-secondary" id="resetBtn" type="button">Standardwerte</button>
+                    </div>
+
+                    <div class="powercurve-hint">
+                        Diese Version ist für Symfony/Twig gedacht und kann direkt in eine Fahrzeugseite, Landingpage oder einen Konfigurator eingebaut werden.
+                    </div>
+
+                    <div class="powercurve-cta">
+                        <a href="{{ ctaUrlPrimary }}" class="powercurve-btn powercurve-btn-primary">{{ ctaLabelPrimary }}</a>
+                        <a href="{{ ctaUrlSecondary }}" class="powercurve-btn powercurve-btn-secondary">{{ ctaLabelSecondary }}</a>
+                    </div>
+
+                    <div class="powercurve-footer-note">
+                        Hinweis: Die Kurve basiert auf einer plausiblen Modellierung aus Maximalwerten und ersetzt keine echte Prüfstandsmessung.
+                    </div>
+                </aside>
+
+                <section>
+                    <div class="powercurve-stats">
+                        <div class="powercurve-stat">
+                            <div class="powercurve-stat-label">Mehrleistung</div>
+                            <div class="powercurve-stat-value" id="deltaPs">+0 PS</div>
+                            <div class="powercurve-stat-note">Stage 1 minus Serie</div>
+                        </div>
+                        <div class="powercurve-stat">
+                            <div class="powercurve-stat-label">Mehrdrehmoment</div>
+                            <div class="powercurve-stat-value" id="deltaNm">+0 Nm</div>
+                            <div class="powercurve-stat-note">spürbarer Zugewinn</div>
+                        </div>
+                        <div class="powercurve-stat">
+                            <div class="powercurve-stat-label">Peak Leistung</div>
+                            <div class="powercurve-stat-value" id="peakPs">0 PS</div>
+                            <div class="powercurve-stat-note" id="peakPsNote">bei ca. 0 U/min</div>
+                        </div>
+                        <div class="powercurve-stat">
+                            <div class="powercurve-stat-label">Peak Drehmoment</div>
+                            <div class="powercurve-stat-value" id="peakNm">0 Nm</div>
+                            <div class="powercurve-stat-note" id="peakNmNote">bei ca. 0 U/min</div>
+                        </div>
+                    </div>
+
+                    <div class="powercurve-panel powercurve-chart-panel">
+                        <div class="powercurve-chart-topbar">
+                            <h2>Leistungsdiagramm</h2>
+                            <div class="powercurve-legend">
+                                <span><i class="powercurve-dot powercurve-dot-gray"></i> Nm Original</span>
+                                <span><i class="powercurve-dot powercurve-dot-red"></i> Nm Stage 1</span>
+                                <span><i class="powercurve-dot powercurve-dot-blue"></i> PS Original</span>
+                                <span><i class="powercurve-dot powercurve-dot-yellow"></i> PS Stage 1</span>
+                            </div>
+                        </div>
+
+                        <div class="powercurve-canvas-wrap">
+                            <canvas id="powerChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const rpmFormula = (nm, rpm) => +(nm * rpm / 7023).toFixed(1);
+
+            function createRpmArray(start, end, step = 100) {
+                const arr = [];
+                for (let rpm = start; rpm <= end; rpm += step) arr.push(rpm);
+                return arr;
+            }
+
+            function clamp(val, min, max) {
+                return Math.max(min, Math.min(max, val));
+            }
+
+            function smoothstep(edge0, edge1, x) {
+                const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+                return t * t * (3 - 2 * t);
+            }
+
+            function generateTorqueCurve(maxNm, rpmArray, type, variant = 'stock') {
+                const minRpm = rpmArray[0];
+                const maxRpm = rpmArray[rpmArray.length - 1];
+                const span = maxRpm - minRpm;
+
+                let riseStart, riseEnd, plateauStart, plateauEnd, fallEnd, lowFactor, plateauFactor, endFactor;
+
+                if (type === 'diesel') {
+                    riseStart = minRpm + span * 0.02;
+                    riseEnd = minRpm + span * 0.30;
+                    plateauStart = minRpm + span * 0.32;
+                    plateauEnd = minRpm + span * 0.56;
+                    fallEnd = maxRpm;
+                    lowFactor = variant === 'stage' ? 0.63 : 0.56;
+                    plateauFactor = 1.0;
+                    endFactor = variant === 'stage' ? 0.57 : 0.50;
+                } else {
+                    riseStart = minRpm + span * 0.05;
+                    riseEnd = minRpm + span * 0.36;
+                    plateauStart = minRpm + span * 0.38;
+                    plateauEnd = minRpm + span * 0.66;
+                    fallEnd = maxRpm;
+                    lowFactor = variant === 'stage' ? 0.58 : 0.50;
+                    plateauFactor = 1.0;
+                    endFactor = variant === 'stage' ? 0.63 : 0.56;
+                }
+
+                return rpmArray.map((rpm) => {
+                    let nm;
+
+                    if (rpm <= riseEnd) {
+                        const t = smoothstep(riseStart, riseEnd, rpm);
+                        nm = maxNm * (lowFactor + (plateauFactor - lowFactor) * t);
+                    } else if (rpm <= plateauEnd) {
+                        const t = smoothstep(plateauStart, plateauEnd, rpm);
+                        const plateauDrop = type === 'diesel'
+                            ? (variant === 'stage' ? 0.03 : 0.05)
+                            : (variant === 'stage' ? 0.02 : 0.04);
+                        nm = maxNm * (1 - plateauDrop * t);
+                    } else {
+                        const t = smoothstep(plateauEnd, fallEnd, rpm);
+                        nm = maxNm * ((type === 'diesel' ? 0.97 : 0.98) - ((type === 'diesel' ? 0.97 : 0.98) - endFactor) * t);
+                    }
+
+                    return +nm.toFixed(1);
+                });
+            }
+
+            function adjustCurveToPeakPs(torqueCurve, rpmArray, targetPs, type) {
+                const psCurve = torqueCurve.map((nm, i) => rpmFormula(nm, rpmArray[i]));
+                const currentPeak = Math.max(...psCurve);
+                const factor = targetPs / currentPeak;
+
+                return torqueCurve.map((nm, i) => {
+                    const rpm = rpmArray[i];
+                    const bias = type === 'diesel'
+                        ? smoothstep(rpmArray[0], rpmArray[rpmArray.length - 1], rpm) * 0.22 + 0.78
+                        : smoothstep(rpmArray[0], rpmArray[rpmArray.length - 1], rpm) * 0.18 + 0.82;
+
+                    return +(nm * (1 + ((factor - 1) * bias))).toFixed(1);
+                });
+            }
+
+            function findPeak(data, labels) {
+                const max = Math.max(...data);
+                const index = data.indexOf(max);
+                return { value: max, rpm: labels[index], index };
+            }
+
+            const peakMarkerPlugin = {
+                id: 'peakMarkerPlugin',
+                afterDatasetsDraw(chart, args, pluginOptions) {
+                    if (!pluginOptions || !pluginOptions.enabled) return;
+
+                    const { ctx } = chart;
+
+                    pluginOptions.markers.forEach(marker => {
+                        if (!marker || !marker.datasetIndexVisible) return;
+
+                        const meta = chart.getDatasetMeta(marker.datasetIndex);
+                        if (!meta || !meta.data || !meta.data[marker.index]) return;
+
+                        const point = meta.data[marker.index];
+                        const x = point.x;
+                        const y = point.y;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x, y, 5, 0, Math.PI * 2);
+                        ctx.fillStyle = marker.color;
+                        ctx.fill();
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '600 12px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(marker.label, x + 10, y - 10);
+                        ctx.restore();
+                    });
+                }
+            };
+
+            Chart.register(peakMarkerPlugin);
+
+            const canvas = document.getElementById('powerChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            let powerChart;
+
+            function buildChart() {
+                const origPs = +document.getElementById('origPs').value;
+                const origNm = +document.getElementById('origNm').value;
+                const stagePs = +document.getElementById('stagePs').value;
+                const stageNm = +document.getElementById('stageNm').value;
+                const rpmStart = +document.getElementById('rpmStart').value;
+                const rpmEnd = +document.getElementById('rpmEnd').value;
+                const engineType = document.getElementById('engineType').value;
+                const showFill = document.getElementById('toggleFill').checked;
+                const showPeaks = document.getElementById('togglePeaks').checked;
+                const showPs = document.getElementById('togglePs').checked;
+
+                const safeStart = Math.min(rpmStart, rpmEnd - 500);
+                const safeEnd = Math.max(rpmEnd, rpmStart + 500);
+                const rpmArray = createRpmArray(safeStart, safeEnd, 100);
+
+                let origTorque = generateTorqueCurve(origNm, rpmArray, engineType, 'stock');
+                let stageTorque = generateTorqueCurve(stageNm, rpmArray, engineType, 'stage');
+
+                origTorque = adjustCurveToPeakPs(origTorque, rpmArray, origPs, engineType);
+                stageTorque = adjustCurveToPeakPs(stageTorque, rpmArray, stagePs, engineType);
+
+                const origPower = origTorque.map((nm, i) => rpmFormula(nm, rpmArray[i]));
+                const stagePower = stageTorque.map((nm, i) => rpmFormula(nm, rpmArray[i]));
+
+                const peakNmStage = findPeak(stageTorque, rpmArray);
+                const peakPsStage = findPeak(stagePower, rpmArray);
+
+                document.getElementById('deltaPs').textContent = `+${stagePs - origPs} PS`;
+                document.getElementById('deltaNm').textContent = `+${stageNm - origNm} Nm`;
+                document.getElementById('peakPs').textContent = `${peakPsStage.value} PS`;
+                document.getElementById('peakPsNote').textContent = `bei ca. ${peakPsStage.rpm} U/min`;
+                document.getElementById('peakNm').textContent = `${peakNmStage.value} Nm`;
+                document.getElementById('peakNmNote').textContent = `bei ca. ${peakNmStage.rpm} U/min`;
+
+                if (powerChart) powerChart.destroy();
+
+                const gradientRed = ctx.createLinearGradient(0, 0, 0, 500);
+                gradientRed.addColorStop(0, 'rgba(255, 91, 82, 0.35)');
+                gradientRed.addColorStop(1, 'rgba(255, 91, 82, 0.02)');
+
+                const datasets = [
+                    {
+                        label: 'Drehmoment Original (Nm)',
+                        data: origTorque,
+                        borderColor: '#9aa4b2',
+                        backgroundColor: 'rgba(154,164,178,0.08)',
+                        borderWidth: 3,
+                        tension: 0.34,
+                        pointRadius: 0,
+                        pointHoverRadius: 5,
+                        yAxisID: 'yNm',
+                        fill: false
+                    },
+                    {
+                        label: 'Drehmoment Stage 1 (Nm)',
+                        data: stageTorque,
+                        borderColor: '#ff5b52',
+                        backgroundColor: showFill ? gradientRed : 'rgba(255,91,82,0.08)',
+                        borderWidth: 4,
+                        tension: 0.34,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        yAxisID: 'yNm',
+                        fill: showFill
+                    }
+                ];
+
+                if (showPs) {
+                    datasets.push(
+                        {
+                            label: 'Leistung Original (PS)',
+                            data: origPower,
+                            borderColor: '#5ba8ff',
+                            backgroundColor: 'rgba(91,168,255,0.08)',
+                            borderDash: [7, 5],
+                            borderWidth: 3,
+                            tension: 0.34,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            yAxisID: 'yPS',
+                            fill: false
+                        },
+                        {
+                            label: 'Leistung Stage 1 (PS)',
+                            data: stagePower,
+                            borderColor: '#ffc94d',
+                            backgroundColor: 'rgba(255,201,77,0.06)',
+                            borderDash: [7, 5],
+                            borderWidth: 3,
+                            tension: 0.34,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            yAxisID: 'yPS',
+                            fill: false
+                        }
+                    );
+                }
+
+                powerChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: rpmArray,
+                        datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 900,
+                            easing: 'easeOutQuart'
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(13,18,25,0.96)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#dce3ea',
+                                borderColor: 'rgba(255,255,255,0.10)',
+                                borderWidth: 1,
+                                padding: 12,
+                                displayColors: true,
+                                callbacks: {
+                                    title(items) {
+                                        return `${items[0].label} U/min`;
+                                    }
+                                }
+                            },
+                            peakMarkerPlugin: {
+                                enabled: showPeaks,
+                                markers: [
+                                    {
+                                        datasetIndex: 1,
+                                        datasetIndexVisible: true,
+                                        index: peakNmStage.index,
+                                        color: '#ff5b52',
+                                        label: `${peakNmStage.value} Nm`
+                                    },
+                                    ...(showPs ? [{
+                                        datasetIndex: 3,
+                                        datasetIndexVisible: true,
+                                        index: peakPsStage.index,
+                                        color: '#ffc94d',
+                                        label: `${peakPsStage.value} PS`
+                                    }] : [])
+                                ]
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Drehzahl (U/min)',
+                                    color: '#f5f7fa',
+                                    font: { weight: '600' }
+                                },
+                                ticks: {
+                                    color: '#9aa4b2',
+                                    maxTicksLimit: 12
+                                },
+                                grid: {
+                                    color: 'rgba(255,255,255,0.06)'
+                                }
+                            },
+                            yNm: {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Drehmoment (Nm)',
+                                    color: '#f5f7fa',
+                                    font: { weight: '600' }
+                                },
+                                ticks: {
+                                    color: '#9aa4b2'
+                                },
+                                grid: {
+                                    color: 'rgba(255,255,255,0.06)'
+                                }
+                            },
+                            yPS: {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Leistung (PS)',
+                                    color: '#f5f7fa',
+                                    font: { weight: '600' }
+                                },
+                                ticks: {
+                                    color: '#9aa4b2'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            document.getElementById('updateBtn').addEventListener('click', buildChart);
+            document.getElementById('resetBtn').addEventListener('click', function () {
+                document.getElementById('origPs').value = {{ originalPs|json_encode|raw }};
+                document.getElementById('origNm').value = {{ originalNm|json_encode|raw }};
+                document.getElementById('stagePs').value = {{ stage1Ps|json_encode|raw }};
+                document.getElementById('stageNm').value = {{ stage1Nm|json_encode|raw }};
+                document.getElementById('rpmStart').value = {{ rpmStart|json_encode|raw }};
+                document.getElementById('rpmEnd').value = {{ rpmEnd|json_encode|raw }};
+                document.getElementById('engineType').value = {{ engineType|json_encode|raw }};
+                document.getElementById('toggleFill').checked = true;
+                document.getElementById('togglePeaks').checked = true;
+                document.getElementById('togglePs').checked = true;
+                buildChart();
+            });
+
+            ['origPs', 'origNm', 'stagePs', 'stageNm', 'rpmStart', 'rpmEnd', 'engineType', 'toggleFill', 'togglePeaks', 'togglePs']
+                .forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('change', buildChart);
+                    }
+                });
+
+            buildChart();
+        });
+    </script>
+{% endblock %}

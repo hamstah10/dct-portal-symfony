@@ -1,0 +1,1002 @@
+{% extends 'admin/layout/base.html.twig' %}
+
+{% block content %}
+    {% set crud_help_message = ea.crud.helpMessage ?? null %}
+    {% set has_help_message = crud_help_message is not same as(false) and crud_help_message is not null and crud_help_message is not same as('') %}
+
+    <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+        <div>
+            <h1 class="page-title fw-medium fs-18 mb-0">
+                {% block content_title %}{% endblock %}
+                {% if has_help_message %}
+                    <a tabindex="0" class="content-header-help ms-2" data-bs-toggle="popover" data-bs-custom-class="ea-content-help-popover" data-bs-animation="true" data-bs-html="true" data-bs-placement="bottom" data-bs-trigger="focus" data-bs-content="{{ ea.crud.helpMessage|trans|e('html') }}">
+                        <twig:ea:Icon name="internal:circle-info" />
+                    </a>
+                {% endif %}
+            </h1>
+        </div>
+
+        {% if block('page_actions') is not empty %}
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                {% block page_actions_wrapper %}
+                    <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+                {% endblock %}
+            </div>
+        {% endif %}
+    </div>
+
+    <article class="content">
+        <section id="main" class="content-body">
+            {% block main %}{% endblock %}
+        </section>
+
+        {% if block('content_footer') is not empty %}
+            <section class="content-footer">
+                {% block content_footer %}{% endblock %}
+            </section>
+        {% endif %}
+    </article>
+{% endblock %}
+
+{% block topbar_quick_actions %}
+    <div class="tfd-topbar-actions">
+        <a href="{{ path('admin_test_actions') }}" class="btn btn-secondary">
+            <span class="tf-toolbar-icon">
+                {{ ux_icon('mdi:car-search') }}
+            </span>
+            <span>Test Actions</span>
+        </a>
+        <a href="{{ path('app_vehicle_database') }}" class="btn btn-primary">
+            <span class="tf-toolbar-icon">
+                {{ ux_icon('mdi:car-search') }}
+            </span>
+            <span>Fahrzeugdatenbank</span>
+        </a>
+        <a href="{{ path('app_profit_calculator') }}" class="btn btn-primary">
+            <span class="tf-toolbar-icon">
+                {{ ux_icon('line-md:external-link') }}
+            </span>
+            <span>Konfigurator</span>
+        </a>
+        <a href="{{ path('app_eco_tuning_calculator') }}" class="btn btn-primary">
+            <span class="tf-toolbar-icon">
+                {{ ux_icon('fluent:money-calculator-20-regular') }}
+            </span>
+            <span>Eco Calculator</span>
+        </a>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% set adminNotificationTopics = ['tfd/portal/global', 'tfd/portal/admin', 'tfd/portal/incoming'] %}
+
+    {#
+        Build an absolute URL that matches what the browser sees.
+        Behind proxies/CDNs the Symfony request scheme can be "http" even if the browser is on "https".
+        For UX Notify, a wrong scheme breaks EventSource (mixed-content) and session cookies.
+    #}
+    {% set forwardedProto = app.request.headers.get('x-forwarded-proto') %}
+    {% set cfVisitor = app.request.headers.get('cf-visitor') %}
+    {% set schemeCandidate = forwardedProto ? (forwardedProto|split(',')|first|trim) : (cfVisitor and 'https' in cfVisitor ? 'https' : app.request.scheme) %}
+    {% set scheme = schemeCandidate in ['http', 'https'] ? schemeCandidate : 'https' %}
+    {% if scheme == 'http' %}
+        {% set scheme = 'https' %}
+    {% endif %}
+    {% set portalHubUrl = scheme ~ '://' ~ app.request.httpHost ~ path('app_portal_mercure_hub') %}
+    {% set portalPollUrl = scheme ~ '://' ~ app.request.httpHost ~ path('app_portal_mercure_poll') %}
+    {% set navBadgeUrl = scheme ~ '://' ~ app.request.httpHost ~ path('admin_navigation_badges') %}
+
+    <div class="d-none"
+        {{ stimulus_controller('@symfony/ux-notify/notify', {
+            hub: portalHubUrl,
+            topics: adminNotificationTopics
+        }) }}
+    ></div>
+
+    <div id="tfd-toast-container"
+         class="toast-container position-fixed top-0 end-0 p-3"
+         aria-live="polite"
+         aria-atomic="true"></div>
+
+	    {% guard function csp_nonce %}
+	        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const autoHideDelayMs = 7000;
+                const fadeDurationMs = 220;
+
+                const initFlashToasts = () => {
+                    const flashWrapper = document.getElementById('flash-messages');
+                    if (!(flashWrapper instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const flashAlerts = Array.from(flashWrapper.querySelectorAll('.alert'));
+                    flashAlerts.forEach((alert, index) => {
+                        if (!(alert instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const delay = autoHideDelayMs + (index * 350);
+                        window.setTimeout(() => {
+                            if (!alert.isConnected) {
+                                return;
+                            }
+
+                            alert.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+                            alert.style.opacity = '0';
+                            alert.style.transform = 'translateY(-6px)';
+
+                            window.setTimeout(() => {
+                                if (alert.isConnected) {
+                                    alert.remove();
+                                }
+                            }, fadeDurationMs);
+                        }, delay);
+                    });
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initFlashToasts, { once: true });
+                } else {
+                    initFlashToasts();
+                }
+            })();
+	        </script>
+            <style nonce="{{ csp_nonce('style') }}">
+                .tfd-nav-live-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 1.35rem;
+                    height: 1.35rem;
+                    margin-left: 0.55rem;
+                    padding: 0 0.38rem;
+                    border-radius: 0;
+                    background: #d72638;
+                    color: #fff;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    line-height: 1;
+                    box-shadow: 0 0 0 2px rgba(17, 25, 49, 0.35);
+                }
+
+                .tfd-nav-live-badge[hidden] {
+                    display: none !important;
+                }
+            </style>
+	        <script nonce="{{ csp_nonce('script') }}">
+	            (() => {
+                if (window.__tfdAdminPortalNotificationsBound === true) {
+                    return;
+                }
+                window.__tfdAdminPortalNotificationsBound = true;
+
+	                const hubUrl = {{ portalHubUrl|json_encode|raw }};
+	                const pollUrl = {{ portalPollUrl|json_encode|raw }};
+                    const navBadgeUrl = {{ navBadgeUrl|json_encode|raw }};
+	                const topics = {{ adminNotificationTopics|json_encode|raw }};
+	                const eventSources = [];
+	                const toastTags = new Set();
+                    let latestSequence = 0;
+                    let pollTimer = null;
+                    let navBadgeTimer = null;
+                    const customerBadgeStorageKey = 'tfd-admin-customers-badge-count';
+                    const shopOrderBadgeStorageKey = 'tfd-admin-shop-orders-badge-count';
+
+                const getToastContainer = () => {
+                    const existing = document.getElementById('tfd-toast-container');
+                    if (existing instanceof HTMLElement) {
+                        return existing;
+                    }
+
+                    return null;
+                };
+
+                const escapeHtml = (value) => String(value)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+
+                const scheduleToastRemoval = (toast, normalizedTag) => {
+                    window.setTimeout(() => {
+                        toast.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-6px)';
+
+                        window.setTimeout(() => {
+                            if (normalizedTag !== '') {
+                                toastTags.delete(normalizedTag);
+                            }
+                            toast.remove();
+                        }, 220);
+                    }, 7000);
+                };
+
+                const showToast = (title, body = '', tag = '') => {
+                    const normalizedTitle = String(title || '').trim();
+                    if (!normalizedTitle) {
+                        return;
+                    }
+
+                    const normalizedTag = String(tag || '').trim();
+                    if (normalizedTag !== '') {
+                        if (toastTags.has(normalizedTag)) {
+                            return;
+                        }
+                        toastTags.add(normalizedTag);
+                    }
+
+                    const container = getToastContainer();
+                    if (!(container instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+                    if (normalizedTag !== '') {
+                        toast.dataset.tfdToastTag = normalizedTag;
+                    }
+
+                    const normalizedBody = String(body || '').trim();
+                    toast.innerHTML = `
+                        <div class="toast-header">
+                            <strong class="me-auto">${escapeHtml(normalizedTitle)}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Schliessen"></button>
+                        </div>
+                        ${normalizedBody ? `<div class="toast-body">${escapeHtml(normalizedBody)}</div>` : ''}
+                    `;
+
+                    container.appendChild(toast);
+                    toast.classList.add('show');
+                    toast.style.display = 'block';
+
+                    toast.addEventListener('hidden.bs.toast', () => {
+                        if (normalizedTag !== '') {
+                            toastTags.delete(normalizedTag);
+                        }
+                        toast.remove();
+                    }, { once: true });
+
+                    if (window.bootstrap && typeof window.bootstrap.Toast?.getOrCreateInstance === 'function') {
+                        window.bootstrap.Toast.getOrCreateInstance(toast, { autohide: true, delay: 7000 }).show();
+                    } else {
+                        scheduleToastRemoval(toast, normalizedTag);
+                    }
+                };
+
+	                const showBrowserNotification = (title, options = {}) => {
+                    if (!('Notification' in window)) {
+                        return;
+                    }
+
+                    if (window.Notification.permission === 'granted') {
+                        try {
+                            new window.Notification(title, options);
+                        } catch (_error) {
+                        }
+                    }
+	                };
+
+                    const getMenuBadgeHost = (selector) => {
+                        const menuItem = document.querySelector(selector);
+                        if (!(menuItem instanceof HTMLElement)) {
+                            return null;
+                        }
+
+                        return menuItem.querySelector('a, .menu-item-contents, .menu-item-label');
+                    };
+
+                    const renderMenuBadge = (selector, count) => {
+                        const badgeHost = getMenuBadgeHost(selector);
+                        if (!(badgeHost instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        let badge = badgeHost.querySelector('.tfd-nav-live-badge');
+                        if (!(badge instanceof HTMLElement)) {
+                            badge = document.createElement('span');
+                            badge.className = 'tfd-nav-live-badge';
+                            badge.hidden = true;
+                            badgeHost.appendChild(badge);
+                        }
+
+                        const normalizedCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+                        if (normalizedCount <= 0) {
+                            badge.hidden = true;
+                            badge.textContent = '';
+                            return;
+                        }
+
+                        badge.hidden = false;
+                        badge.textContent = normalizedCount > 99 ? '99+' : String(normalizedCount);
+                    };
+
+                    const updateNavBadges = async () => {
+                        try {
+                            const response = await window.fetch(navBadgeUrl, {
+                                credentials: 'same-origin',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                            });
+
+                            if (!response.ok) {
+                                return;
+                            }
+
+                            const payload = await response.json();
+                            renderMenuBadge('.tfd-nav-item--orders', Number.parseInt(String(payload?.orders?.count ?? 0), 10));
+                            renderMenuBadge('.tfd-nav-item--communication', Number.parseInt(String(payload?.communication?.count ?? 0), 10));
+                            renderMenuBadge('.tfd-nav-item--credits', Number.parseInt(String(payload?.credits?.count ?? 0), 10));
+                        } catch (_error) {
+                        }
+                    };
+
+                    const readCustomerBadgeCount = () => {
+                        try {
+                            const raw = window.localStorage.getItem(customerBadgeStorageKey);
+                            const count = Number.parseInt(String(raw ?? '0'), 10);
+
+                            return Number.isFinite(count) ? Math.max(0, count) : 0;
+                        } catch (_error) {
+                            return 0;
+                        }
+                    };
+
+                    const writeCustomerBadgeCount = (count) => {
+                        const normalizedCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+
+                        try {
+                            if (normalizedCount <= 0) {
+                                window.localStorage.removeItem(customerBadgeStorageKey);
+                            } else {
+                                window.localStorage.setItem(customerBadgeStorageKey, String(normalizedCount));
+                            }
+                        } catch (_error) {
+                        }
+
+                        renderMenuBadge('.tfd-nav-item--customers', normalizedCount);
+                    };
+
+                    const incrementCustomerBadgeCount = () => {
+                        writeCustomerBadgeCount(readCustomerBadgeCount() + 1);
+                    };
+
+                    const resetCustomerBadgeCount = () => {
+                        writeCustomerBadgeCount(0);
+                    };
+
+                    const bindCustomerBadgeReset = () => {
+                        const menuItem = document.querySelector('.tfd-nav-item--customers');
+                        if (!(menuItem instanceof HTMLElement) || menuItem.dataset.tfdCustomerBadgeBound === '1') {
+                            return;
+                        }
+
+                        menuItem.dataset.tfdCustomerBadgeBound = '1';
+                        const trigger = menuItem.querySelector('a');
+                        if (trigger instanceof HTMLElement) {
+                            trigger.addEventListener('click', () => {
+                                resetCustomerBadgeCount();
+                            });
+                        }
+                    };
+
+                    const readShopOrderBadgeCount = () => {
+                        try {
+                            const raw = window.localStorage.getItem(shopOrderBadgeStorageKey);
+                            const count = Number.parseInt(String(raw ?? '0'), 10);
+
+                            return Number.isFinite(count) ? Math.max(0, count) : 0;
+                        } catch (_error) {
+                            return 0;
+                        }
+                    };
+
+                    const writeShopOrderBadgeCount = (count) => {
+                        const normalizedCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+
+                        try {
+                            if (normalizedCount <= 0) {
+                                window.localStorage.removeItem(shopOrderBadgeStorageKey);
+                            } else {
+                                window.localStorage.setItem(shopOrderBadgeStorageKey, String(normalizedCount));
+                            }
+                        } catch (_error) {
+                        }
+
+                        renderMenuBadge('.tfd-nav-item--shop-orders', normalizedCount);
+                    };
+
+                    const incrementShopOrderBadgeCount = () => {
+                        writeShopOrderBadgeCount(readShopOrderBadgeCount() + 1);
+                    };
+
+                    const resetShopOrderBadgeCount = () => {
+                        writeShopOrderBadgeCount(0);
+                    };
+
+                    const bindShopOrderBadgeReset = () => {
+                        const menuItem = document.querySelector('.tfd-nav-item--shop-orders');
+                        if (!(menuItem instanceof HTMLElement) || menuItem.dataset.tfdShopOrderBadgeBound === '1') {
+                            return;
+                        }
+
+                        menuItem.dataset.tfdShopOrderBadgeBound = '1';
+                        const trigger = menuItem.querySelector('a');
+                        if (trigger instanceof HTMLElement) {
+                            trigger.addEventListener('click', () => {
+                                resetShopOrderBadgeCount();
+                            });
+                        }
+                    };
+
+	                const handlePayload = (payload) => {
+                    if (!payload || typeof payload !== 'object') {
+                        return;
+                    }
+
+                    const summary = String(payload.summary || '').trim();
+                    const content = payload.content || {};
+                    const body = String(content.body || '').trim();
+                    const tag = String(content.tag || '').trim();
+
+                    if (summary === '') {
+                        return;
+                    }
+
+                    if (tag.startsWith('customer-')) {
+                        incrementCustomerBadgeCount();
+                    }
+                    if (tag.startsWith('shop-order-')) {
+                        incrementShopOrderBadgeCount();
+                    }
+
+                    showToast(summary, body, tag);
+                    showBrowserNotification(summary, content);
+                };
+
+                const bindTopic = (topic) => {
+                    const url = new URL(hubUrl, window.location.origin);
+                    url.searchParams.append('topic', topic);
+
+                    const eventSource = new EventSource(url.toString(), { withCredentials: true });
+                    eventSource.addEventListener('message', (event) => {
+                        try {
+                            handlePayload(JSON.parse(event.data || '{}'));
+                        } catch (_error) {
+                        }
+                    });
+
+                    eventSource.addEventListener('error', () => {
+                        console.debug('TFD admin notification stream reconnecting', { topic });
+                    });
+
+                    eventSources.push(eventSource);
+                };
+
+                const pollNotifications = async () => {
+                    try {
+                        const isBootstrapPoll = latestSequence === 0;
+                        const url = new URL(pollUrl, window.location.origin);
+                        url.searchParams.set('after', String(latestSequence));
+                        topics.forEach((topic) => url.searchParams.append('topic', topic));
+
+                        const response = await window.fetch(url.toString(), {
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        if (!response.ok) {
+                            return;
+                        }
+
+                        const data = await response.json();
+                        const events = Array.isArray(data.events) ? data.events : [];
+                        const latestFromResponse = Number.parseInt(String(data.latestSequence ?? latestSequence), 10);
+                        if (Number.isFinite(latestFromResponse) && latestFromResponse > latestSequence) {
+                            latestSequence = latestFromResponse;
+                        }
+
+                        if (isBootstrapPoll) {
+                            return;
+                        }
+
+                        events.forEach((event) => {
+                            const eventSequence = Number.parseInt(String(event.sequence ?? 0), 10);
+                            if (Number.isFinite(eventSequence) && eventSequence > latestSequence) {
+                                latestSequence = eventSequence;
+                            }
+
+                            handlePayload(event.payload || null);
+                        });
+                    } catch (_error) {
+                    }
+                };
+
+	                // Keep PHP-FPM workers free: polling is enough for admin badges/toasts,
+	                // while EventSource streams keep one worker occupied per open tab.
+	                pollNotifications();
+	                pollTimer = window.setInterval(pollNotifications, 5000);
+                    updateNavBadges();
+                    navBadgeTimer = window.setInterval(updateNavBadges, 5000);
+                    writeCustomerBadgeCount(readCustomerBadgeCount());
+                    writeShopOrderBadgeCount(readShopOrderBadgeCount());
+                    bindCustomerBadgeReset();
+                    bindShopOrderBadgeReset();
+
+	                window.addEventListener('beforeunload', () => {
+                    eventSources.forEach((eventSource) => {
+                        try {
+                            eventSource.close();
+                        } catch (_error) {
+                        }
+                    });
+	                    if (pollTimer !== null) {
+	                        window.clearInterval(pollTimer);
+	                    }
+                        if (navBadgeTimer !== null) {
+                            window.clearInterval(navBadgeTimer);
+                        }
+	                }, { once: true });
+	            })();
+	        </script>
+	    {% else %}
+            <style>
+                .tfd-nav-live-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 1.35rem;
+                    height: 1.35rem;
+                    margin-left: 0.55rem;
+                    padding: 0 0.38rem;
+                    border-radius: 0;
+                    background: #d72638;
+                    color: #fff;
+                    font-size: 0.72rem;
+                    font-weight: 700;
+                    line-height: 1;
+                    box-shadow: 0 0 0 2px rgba(17, 25, 49, 0.35);
+                }
+
+                .tfd-nav-live-badge[hidden] {
+                    display: none !important;
+                }
+            </style>
+	        <script>
+            (() => {
+                const autoHideDelayMs = 7000;
+                const fadeDurationMs = 220;
+
+                const initFlashToasts = () => {
+                    const flashWrapper = document.getElementById('flash-messages');
+                    if (!(flashWrapper instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const flashAlerts = Array.from(flashWrapper.querySelectorAll('.alert'));
+                    flashAlerts.forEach((alert, index) => {
+                        if (!(alert instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const delay = autoHideDelayMs + (index * 350);
+                        window.setTimeout(() => {
+                            if (!alert.isConnected) {
+                                return;
+                            }
+
+                            alert.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+                            alert.style.opacity = '0';
+                            alert.style.transform = 'translateY(-6px)';
+
+                            window.setTimeout(() => {
+                                if (alert.isConnected) {
+                                    alert.remove();
+                                }
+                            }, fadeDurationMs);
+                        }, delay);
+                    });
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initFlashToasts, { once: true });
+                } else {
+                    initFlashToasts();
+                }
+            })();
+        </script>
+        <script>
+            (() => {
+                if (window.__tfdAdminPortalNotificationsBound === true) {
+                    return;
+                }
+                window.__tfdAdminPortalNotificationsBound = true;
+
+	                const hubUrl = {{ portalHubUrl|json_encode|raw }};
+	                const pollUrl = {{ portalPollUrl|json_encode|raw }};
+                    const navBadgeUrl = {{ navBadgeUrl|json_encode|raw }};
+	                const topics = {{ adminNotificationTopics|json_encode|raw }};
+	                const eventSources = [];
+	                const toastTags = new Set();
+                    let latestSequence = 0;
+                    let pollTimer = null;
+                    let navBadgeTimer = null;
+                    const customerBadgeStorageKey = 'tfd-admin-customers-badge-count';
+                    const shopOrderBadgeStorageKey = 'tfd-admin-shop-orders-badge-count';
+
+                const getToastContainer = () => {
+                    const existing = document.getElementById('tfd-toast-container');
+                    if (existing instanceof HTMLElement) {
+                        return existing;
+                    }
+
+                    return null;
+                };
+
+                const escapeHtml = (value) => String(value)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+
+                const scheduleToastRemoval = (toast, normalizedTag) => {
+                    window.setTimeout(() => {
+                        toast.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+                        toast.style.opacity = '0';
+                        toast.style.transform = 'translateY(-6px)';
+
+                        window.setTimeout(() => {
+                            if (normalizedTag !== '') {
+                                toastTags.delete(normalizedTag);
+                            }
+                            toast.remove();
+                        }, 220);
+                    }, 7000);
+                };
+
+                const showToast = (title, body = '', tag = '') => {
+                    const normalizedTitle = String(title || '').trim();
+                    if (!normalizedTitle) {
+                        return;
+                    }
+
+                    const normalizedTag = String(tag || '').trim();
+                    if (normalizedTag !== '') {
+                        if (toastTags.has(normalizedTag)) {
+                            return;
+                        }
+                        toastTags.add(normalizedTag);
+                    }
+
+                    const container = getToastContainer();
+                    if (!(container instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.setAttribute('role', 'alert');
+                    toast.setAttribute('aria-live', 'assertive');
+                    toast.setAttribute('aria-atomic', 'true');
+                    if (normalizedTag !== '') {
+                        toast.dataset.tfdToastTag = normalizedTag;
+                    }
+
+                    const normalizedBody = String(body || '').trim();
+                    toast.innerHTML = `
+                        <div class="toast-header">
+                            <strong class="me-auto">${escapeHtml(normalizedTitle)}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Schliessen"></button>
+                        </div>
+                        ${normalizedBody ? `<div class="toast-body">${escapeHtml(normalizedBody)}</div>` : ''}
+                    `;
+
+                    container.appendChild(toast);
+                    toast.classList.add('show');
+                    toast.style.display = 'block';
+
+                    toast.addEventListener('hidden.bs.toast', () => {
+                        if (normalizedTag !== '') {
+                            toastTags.delete(normalizedTag);
+                        }
+                        toast.remove();
+                    }, { once: true });
+
+                    if (window.bootstrap && typeof window.bootstrap.Toast?.getOrCreateInstance === 'function') {
+                        window.bootstrap.Toast.getOrCreateInstance(toast, { autohide: true, delay: 7000 }).show();
+                    } else {
+                        scheduleToastRemoval(toast, normalizedTag);
+                    }
+                };
+
+	                const showBrowserNotification = (title, options = {}) => {
+                    if (!('Notification' in window)) {
+                        return;
+                    }
+
+                    if (window.Notification.permission === 'granted') {
+                        try {
+                            new window.Notification(title, options);
+                        } catch (_error) {
+                        }
+                    }
+	                };
+
+                    const getMenuBadgeHost = (selector) => {
+                        const menuItem = document.querySelector(selector);
+                        if (!(menuItem instanceof HTMLElement)) {
+                            return null;
+                        }
+
+                        return menuItem.querySelector('a, .menu-item-contents, .menu-item-label');
+                    };
+
+                    const renderMenuBadge = (selector, count) => {
+                        const badgeHost = getMenuBadgeHost(selector);
+                        if (!(badgeHost instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        let badge = badgeHost.querySelector('.tfd-nav-live-badge');
+                        if (!(badge instanceof HTMLElement)) {
+                            badge = document.createElement('span');
+                            badge.className = 'tfd-nav-live-badge';
+                            badge.hidden = true;
+                            badgeHost.appendChild(badge);
+                        }
+
+                        const normalizedCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+                        if (normalizedCount <= 0) {
+                            badge.hidden = true;
+                            badge.textContent = '';
+                            return;
+                        }
+
+                        badge.hidden = false;
+                        badge.textContent = normalizedCount > 99 ? '99+' : String(normalizedCount);
+                    };
+
+                    const updateNavBadges = async () => {
+                        try {
+                            const response = await window.fetch(navBadgeUrl, {
+                                credentials: 'same-origin',
+                                headers: {
+                                    'Accept': 'application/json',
+                                },
+                            });
+
+                            if (!response.ok) {
+                                return;
+                            }
+
+                            const payload = await response.json();
+                            renderMenuBadge('.tfd-nav-item--orders', Number.parseInt(String(payload?.orders?.count ?? 0), 10));
+                            renderMenuBadge('.tfd-nav-item--communication', Number.parseInt(String(payload?.communication?.count ?? 0), 10));
+                            renderMenuBadge('.tfd-nav-item--credits', Number.parseInt(String(payload?.credits?.count ?? 0), 10));
+                        } catch (_error) {
+                        }
+                    };
+
+                    const readCustomerBadgeCount = () => {
+                        try {
+                            const raw = window.localStorage.getItem(customerBadgeStorageKey);
+                            const count = Number.parseInt(String(raw ?? '0'), 10);
+
+                            return Number.isFinite(count) ? Math.max(0, count) : 0;
+                        } catch (_error) {
+                            return 0;
+                        }
+                    };
+
+                    const writeCustomerBadgeCount = (count) => {
+                        const normalizedCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+
+                        try {
+                            if (normalizedCount <= 0) {
+                                window.localStorage.removeItem(customerBadgeStorageKey);
+                            } else {
+                                window.localStorage.setItem(customerBadgeStorageKey, String(normalizedCount));
+                            }
+                        } catch (_error) {
+                        }
+
+                        renderMenuBadge('.tfd-nav-item--customers', normalizedCount);
+                    };
+
+                    const incrementCustomerBadgeCount = () => {
+                        writeCustomerBadgeCount(readCustomerBadgeCount() + 1);
+                    };
+
+                    const resetCustomerBadgeCount = () => {
+                        writeCustomerBadgeCount(0);
+                    };
+
+                    const bindCustomerBadgeReset = () => {
+                        const menuItem = document.querySelector('.tfd-nav-item--customers');
+                        if (!(menuItem instanceof HTMLElement) || menuItem.dataset.tfdCustomerBadgeBound === '1') {
+                            return;
+                        }
+
+                        menuItem.dataset.tfdCustomerBadgeBound = '1';
+                        const trigger = menuItem.querySelector('a');
+                        if (trigger instanceof HTMLElement) {
+                            trigger.addEventListener('click', () => {
+                                resetCustomerBadgeCount();
+                            });
+                        }
+                    };
+
+                    const readShopOrderBadgeCount = () => {
+                        try {
+                            const raw = window.localStorage.getItem(shopOrderBadgeStorageKey);
+                            const count = Number.parseInt(String(raw ?? '0'), 10);
+
+                            return Number.isFinite(count) ? Math.max(0, count) : 0;
+                        } catch (_error) {
+                            return 0;
+                        }
+                    };
+
+                    const writeShopOrderBadgeCount = (count) => {
+                        const normalizedCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+
+                        try {
+                            if (normalizedCount <= 0) {
+                                window.localStorage.removeItem(shopOrderBadgeStorageKey);
+                            } else {
+                                window.localStorage.setItem(shopOrderBadgeStorageKey, String(normalizedCount));
+                            }
+                        } catch (_error) {
+                        }
+
+                        renderMenuBadge('.tfd-nav-item--shop-orders', normalizedCount);
+                    };
+
+                    const incrementShopOrderBadgeCount = () => {
+                        writeShopOrderBadgeCount(readShopOrderBadgeCount() + 1);
+                    };
+
+                    const resetShopOrderBadgeCount = () => {
+                        writeShopOrderBadgeCount(0);
+                    };
+
+                    const bindShopOrderBadgeReset = () => {
+                        const menuItem = document.querySelector('.tfd-nav-item--shop-orders');
+                        if (!(menuItem instanceof HTMLElement) || menuItem.dataset.tfdShopOrderBadgeBound === '1') {
+                            return;
+                        }
+
+                        menuItem.dataset.tfdShopOrderBadgeBound = '1';
+                        const trigger = menuItem.querySelector('a');
+                        if (trigger instanceof HTMLElement) {
+                            trigger.addEventListener('click', () => {
+                                resetShopOrderBadgeCount();
+                            });
+                        }
+                    };
+
+	                const handlePayload = (payload) => {
+                    if (!payload || typeof payload !== 'object') {
+                        return;
+                    }
+
+                    const summary = String(payload.summary || '').trim();
+                    const content = payload.content || {};
+                    const body = String(content.body || '').trim();
+                    const tag = String(content.tag || '').trim();
+
+                    if (summary === '') {
+                        return;
+                    }
+
+                    if (tag.startsWith('customer-')) {
+                        incrementCustomerBadgeCount();
+                    }
+                    if (tag.startsWith('shop-order-')) {
+                        incrementShopOrderBadgeCount();
+                    }
+
+                    showToast(summary, body, tag);
+                    showBrowserNotification(summary, content);
+                };
+
+                const bindTopic = (topic) => {
+                    const url = new URL(hubUrl, window.location.origin);
+                    url.searchParams.append('topic', topic);
+
+                    const eventSource = new EventSource(url.toString(), { withCredentials: true });
+                    eventSource.addEventListener('message', (event) => {
+                        try {
+                            handlePayload(JSON.parse(event.data || '{}'));
+                        } catch (_error) {
+                        }
+                    });
+
+                    eventSource.addEventListener('error', () => {
+                        console.debug('TFD admin notification stream reconnecting', { topic });
+                    });
+
+                    eventSources.push(eventSource);
+                };
+
+                const pollNotifications = async () => {
+                    try {
+                        const isBootstrapPoll = latestSequence === 0;
+                        const url = new URL(pollUrl, window.location.origin);
+                        url.searchParams.set('after', String(latestSequence));
+                        topics.forEach((topic) => url.searchParams.append('topic', topic));
+
+                        const response = await window.fetch(url.toString(), {
+                            credentials: 'same-origin',
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                        });
+
+                        if (!response.ok) {
+                            return;
+                        }
+
+                        const data = await response.json();
+                        const events = Array.isArray(data.events) ? data.events : [];
+                        const latestFromResponse = Number.parseInt(String(data.latestSequence ?? latestSequence), 10);
+                        if (Number.isFinite(latestFromResponse) && latestFromResponse > latestSequence) {
+                            latestSequence = latestFromResponse;
+                        }
+
+                        if (isBootstrapPoll) {
+                            return;
+                        }
+
+                        events.forEach((event) => {
+                            const eventSequence = Number.parseInt(String(event.sequence ?? 0), 10);
+                            if (Number.isFinite(eventSequence) && eventSequence > latestSequence) {
+                                latestSequence = eventSequence;
+                            }
+
+                            handlePayload(event.payload || null);
+                        });
+                    } catch (_error) {
+                    }
+                };
+
+	                // Keep PHP-FPM workers free: polling is enough for admin badges/toasts,
+	                // while EventSource streams keep one worker occupied per open tab.
+	                pollNotifications();
+	                pollTimer = window.setInterval(pollNotifications, 5000);
+                    updateNavBadges();
+                    navBadgeTimer = window.setInterval(updateNavBadges, 5000);
+                    writeCustomerBadgeCount(readCustomerBadgeCount());
+                    writeShopOrderBadgeCount(readShopOrderBadgeCount());
+                    bindCustomerBadgeReset();
+                    bindShopOrderBadgeReset();
+
+	                window.addEventListener('beforeunload', () => {
+                    eventSources.forEach((eventSource) => {
+                        try {
+                            eventSource.close();
+                        } catch (_error) {
+                        }
+                    });
+	                    if (pollTimer !== null) {
+	                        window.clearInterval(pollTimer);
+	                    }
+                        if (navBadgeTimer !== null) {
+                            window.clearInterval(navBadgeTimer);
+                        }
+	                }, { once: true });
+	            })();
+	        </script>
+    {% endguard %}
+{% endblock %}

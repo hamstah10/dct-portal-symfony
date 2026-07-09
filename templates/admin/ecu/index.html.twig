@@ -1,0 +1,27 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    {% set crudController = ea.request.attributes.get('crudControllerFqcn') %}
+    {% set formActionUrl = ea_url().setController(crudController).setAction('index').set('page', 1) %}
+    {% set searchQuery = app.request.query.get('query') ?? '' %}
+
+    <div class="mb-3 d-flex gap-2">
+        <form method="get" action="{{ formActionUrl }}" class="d-flex gap-2 flex-grow-1" style="max-width:600px;">
+            <input
+                class="form-control"
+                type="search"
+                name="query"
+                value="{{ searchQuery }}"
+                placeholder="ECUs durchsuchen (Name, Typ, Hersteller)..."
+                spellcheck="false"
+                autocomplete="off"
+            >
+            <button class="btn btn-primary" type="submit">Suchen</button>
+            {% if searchQuery %}
+                <a class="btn btn-secondary" href="{{ ea_url().unset('query').unset('page').setController(crudController).setAction('index') }}">Zurücksetzen</a>
+            {% endif %}
+        </form>
+    </div>
+
+    {{ parent() }}
+{% endblock %}

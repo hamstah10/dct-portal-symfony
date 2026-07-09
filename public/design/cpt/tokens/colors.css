@@ -1,0 +1,150 @@
+/* ============================================================
+   COLORS — Chiptuningfile Design System
+   Automotive-performance palette: carbon neutrals, ignition
+   accent, telemetry + dyno semantic colors. Light + dark.
+   ============================================================ */
+
+:root {
+  /* --- Carbon neutral ramp (cool graphite) --- */
+  --carbon-25:  #F8FAFB;
+  --carbon-50:  #F1F3F6;
+  --carbon-100: #E4E8EC;
+  --carbon-200: #C8CED6;
+  --carbon-300: #A3ABB7;
+  --carbon-400: #79828F;
+  --carbon-500: #565E6B;
+  --carbon-600: #3D4550;
+  --carbon-700: #2A313B;
+  --carbon-800: #1C222A;
+  --carbon-850: #161B22;
+  --carbon-900: #11151B;
+  --carbon-950: #0A0D11;
+
+  /* --- Ignition (primary power accent — red) --- */
+  --power-50:  #FFECED;
+  --power-100: #FFD2D5;
+  --power-200: #FFA5AB;
+  --power-300: #FB6E78;
+  --power-400: #F23B47;
+  --power-500: #E11226;  /* primary */
+  --power-600: #C00C1E;
+  --power-700: #960A18;
+  --power-800: #6F0712;
+
+  /* --- Redline (critical / danger — hot red) --- */
+  --redline-100: #FBD9DD;
+  --redline-300: #F08B96;
+  --redline-500: #E5283C;
+  --redline-600: #C71B2E;
+  --redline-700: #9E1424;
+
+  /* --- Telemetry (info / data — electric cyan-blue) --- */
+  --telemetry-100: #D2EEF6;
+  --telemetry-300: #74CDE3;
+  --telemetry-500: #1FA8CC;
+  --telemetry-600: #1487A8;
+  --telemetry-700: #0F6883;
+
+  /* --- Dyno (success / gain — green) --- */
+  --dyno-100: #D6F2E2;
+  --dyno-300: #74D3A1;
+  --dyno-500: #21B26C;
+  --dyno-600: #169059;
+  --dyno-700: #107046;
+
+  /* --- Amber (warning) --- */
+  --amber-100: #FCEFCB;
+  --amber-300: #F4CF6A;
+  --amber-500: #ECAE13;
+  --amber-600: #C68E07;
+  --amber-700: #9A6E05;
+
+  /* --- Pure --- */
+  --white: #FFFFFF;
+  --black: #000000;
+}
+
+/* ============================================================
+   SEMANTIC ALIASES — LIGHT (default, "hell")
+   ============================================================ */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:             var(--carbon-25);
+  --bg-grid:        var(--carbon-100);   /* hairline grid lines */
+  --surface:        var(--white);
+  --surface-2:      var(--carbon-50);
+  --surface-sunken: var(--carbon-100);
+  --surface-inverse: var(--carbon-900);
+
+  --border:         var(--carbon-100);
+  --border-strong:  var(--carbon-200);
+  --border-accent:  var(--power-500);
+
+  --text:           var(--carbon-900);
+  --text-muted:     var(--carbon-500);
+  --text-subtle:    var(--carbon-400);
+  --text-inverse:   var(--carbon-25);
+  --text-on-accent: var(--white);
+
+  --accent:         var(--power-500);
+  --accent-hover:   var(--power-600);
+  --accent-press:   var(--power-700);
+  --accent-soft:    var(--power-50);
+  --accent-soft-border: var(--power-200);
+  --accent-text:    var(--power-700);
+
+  --info:    var(--telemetry-600);
+  --info-soft: var(--telemetry-100);
+  --success: var(--dyno-600);
+  --success-soft: var(--dyno-100);
+  --warning: var(--amber-600);
+  --warning-soft: var(--amber-100);
+  --danger:  var(--redline-600);
+  --danger-soft: var(--redline-100);
+
+  --focus-ring: color-mix(in oklch, var(--power-500) 55%, transparent);
+}
+
+/* ============================================================
+   SEMANTIC ALIASES — DARK ("dunkel")
+   ============================================================ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:             var(--carbon-950);
+  --bg-grid:        var(--carbon-800);
+  --surface:        var(--carbon-900);
+  --surface-2:      var(--carbon-850);
+  --surface-sunken: var(--carbon-950);
+  --surface-inverse: var(--carbon-50);
+
+  --border:         var(--carbon-800);
+  --border-strong:  var(--carbon-700);
+  --border-accent:  var(--power-500);
+
+  --text:           var(--carbon-50);
+  --text-muted:     var(--carbon-400);
+  --text-subtle:    var(--carbon-500);
+  --text-inverse:   var(--carbon-900);
+  --text-on-accent: var(--white);
+
+  --accent:         var(--power-500);
+  --accent-hover:   var(--power-400);
+  --accent-press:   var(--power-300);
+  --accent-soft:    color-mix(in oklch, var(--power-500) 16%, var(--carbon-900));
+  --accent-soft-border: color-mix(in oklch, var(--power-500) 38%, var(--carbon-800));
+  --accent-text:    var(--power-400);
+
+  --info:    var(--telemetry-300);
+  --info-soft: color-mix(in oklch, var(--telemetry-500) 18%, var(--carbon-900));
+  --success: var(--dyno-300);
+  --success-soft: color-mix(in oklch, var(--dyno-500) 18%, var(--carbon-900));
+  --warning: var(--amber-300);
+  --warning-soft: color-mix(in oklch, var(--amber-500) 18%, var(--carbon-900));
+  --danger:  var(--redline-300);
+  --danger-soft: color-mix(in oklch, var(--redline-500) 20%, var(--carbon-900));
+
+  --focus-ring: color-mix(in oklch, var(--power-400) 65%, transparent);
+}

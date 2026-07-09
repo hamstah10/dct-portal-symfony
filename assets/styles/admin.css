@@ -1,0 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Bungee+Spice&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Orbitron:wght@400..900&family=Oswald:wght@200..700&display=swap');
+
+
+:root {
+    --button-bg: #bd1e21 !important;
+    --sidebar-bg: #ffffff !important;
+    --sidebar-border-color: #dcdfe4 !important;
+    --body-bg: #f5f5f5 !important;
+    --content-bg: #f5f5f5 !important;
+}
+
+@keyframes ea-select2-dropdown-open {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes ea-select2-dropdown-close {
+    from {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+    }
+}
+
+.select2-container--open .select2-dropdown {
+    transform-origin: top center;
+    animation: ea-select2-dropdown-open 0.16s ease-out;
+}
+
+.select2-container.ea-select2-closing .select2-dropdown {
+    transform-origin: top center;
+    pointer-events: none;
+    animation: ea-select2-dropdown-close 0.16s ease-in forwards;
+}
+.btn-primary {
+    --button-bg: #bd1e21 !important;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+.content-header-title,
+.content-title,
+.ea-content .content-header h1,
+.ea-content .content-header h2,
+.ea-content .content-header h3,
+.ea-content .content-header h4,
+.display-6 {
+    font-family: 'Chakra Petch', sans-serif !important;
+}
+
+.btn,
+.btn-group > .btn,
+.btn-check + .btn {
+    border-radius: 0 !important;
+}
+
+.btn-primary {
+    background-color: #bd1e21 !important;
+    border-color: #bd1e21 !important;
+}
+
+.btn-secondary {
+    background-color: #121212 !important;
+        border-color: #121212 !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.btn-check:checked + .btn-primary,
+.btn-check:active + .btn-primary,
+.show > .btn-primary.dropdown-toggle {
+    background-color: #a4191c !important;
+    border-color: #a4191c !important;
+}
+
+.btn-outline-primary {
+    color: #bd1e21 !important;
+    border-color: #bd1e21 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-check:checked + .btn-outline-primary,
+.btn-check:active + .btn-outline-primary,
+.show > .btn-outline-primary.dropdown-toggle {
+    color: #fff !important;
+    background-color: #bd1e21 !important;
+    border-color: #bd1e21 !important;
+}
+
+.chart-card,
+.chart-card .card-header,
+.chart-card .card-body,
+.chart-card .card-footer {
+    background: #f5f5f5 !important;
+}
+
+body:not(.page-login) .content-wrapper,
+body:not(.page-login) .ea-content,
+body:not(.page-login) .content {
+    background: #f5f5f5 !important;
+}
+
+/* DataTables handles sorting indicators itself; hide legacy EasyAdmin header icons */
+table.datagrid.dataTable thead th a .icon,
+table.datagrid.dataTable thead th a .ea-icon,
+table.datagrid.dataTable thead th a i,
+table.datagrid.dataTable thead th a svg {
+    display: none !important;
+}
+
+table.datagrid.dataTable thead th.ea-dt-no-order .dt-column-order {
+    display: none !important;
+}
+
+table.datagrid.dataTable tbody tr.ea-dt-rowgroup td {
+    background: #f1f5f9;
+    font-weight: 600;
+    color: #0f172a;
+    border-top: 1px solid #e2e8f0;
+}
+
+table.datagrid.dataTable tbody tr.ea-dt-rowgroup--level-1 td {
+    background: #f8fafc;
+    color: #334155;
+}
+
+table.datagrid.dataTable tbody tr.ea-dt-rowgroup--level-2 td {
+    background: #ffffff;
+    color: #475569;
+}
+
+table.datagrid.dataTable tbody tr.ea-dt-rowgroup--collapsible {
+    cursor: pointer;
+}
+
+.ea-dt-rowgroup__inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ea-dt-rowgroup__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #94a3b8;
+    display: inline-block;
+}
+
+.tfd-dashboard .card {
+    border-radius: 0 !important;
+}
+
+.tfd-dashboard__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.tfd-dashboard-hero {
+    background: linear-gradient(120deg, #4f77b2 0%, #5f8ac3 65%, #d9dde6 65%, #cfd4df 100%);
+    color: #ffffff;
+}
+
+.tfd-dashboard-hero .btn-secondary {
+    background-color: rgba(18, 18, 18, 0.75) !important;
+    border-color: rgba(18, 18, 18, 0.75) !important;
+}
+
+.tfd-kpi-card .display-6 {
+    font-size: 1.8rem;
+    line-height: 1.15;
+    margin-top: 0.25rem;
+}
+
+.tfd-kpi-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    color: #0d6efd;
+    background: #e9f1ff;
+    border: 1px solid #cfe0ff;
+}
+
+.tfd-summary-box {
+    border: 1px solid #e4e7ee;
+    background: #f8f9fc;
+    padding: 12px;
+}
+
+.tfd-dashboard .table > :not(caption) > * > * {
+    border-bottom-color: #e8ebf1;
+}
+
+#header-logo {
+    background: #111931 !important;
+}
+
+#header-logo .logo {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 14px !important;
+}
+
+#header-logo .logo-custom img {
+    display: block;
+    height: 40px;
+    width: auto;
+    max-width: 100%;
+}
+
+#responsive-header-logo {
+    background: #111931 !important;
+    padding: 8px 14px;
+}
+
+#responsive-header-logo .responsive-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#responsive-header-logo .responsive-logo img {
+    display: block;
+    height: 30px;
+    width: auto;
+    max-width: 100%;
+}

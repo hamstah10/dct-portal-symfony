@@ -1,0 +1,30 @@
+ai:
+    platform:
+        openai:
+            api_key: '%env(OPENAI_API_KEY)%'
+
+    agent:
+        default:
+            model: 'gpt-5-mini'
+            memory:
+                service: 'App\Service\Ai\AdminMemoryProvider'
+            tools:
+                services:
+                    - 'App\Service\Ai\VehicleDatabaseTool'
+
+    vectorizer:
+        project_knowledge:
+            platform: 'ai.platform.openai'
+            model: 'text-embedding-3-small'
+
+    indexer:
+        project_knowledge:
+            vectorizer: 'ai.vectorizer.project_knowledge'
+            store: 'App\Service\Ai\Project\AiProjectVectorStore'
+            transformers:
+                - 'App\Service\Ai\Project\AiProjectChunkTransformer'
+
+    retriever:
+        project_knowledge:
+            vectorizer: 'ai.vectorizer.project_knowledge'
+            store: 'App\Service\Ai\Project\AiProjectVectorStore'

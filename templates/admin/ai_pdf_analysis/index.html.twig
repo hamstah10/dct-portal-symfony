@@ -1,0 +1,120 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}AI PDF-Analyse{% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0 tfd-ai-pdf-analysis">
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <strong>Verlauf</strong>
+                    </div>
+                    <div class="list-group list-group-flush tfd-ai-pdf-analysis-list">
+                        {% if runs is empty %}
+                            <div class="p-3 text-muted">Noch keine Analysen.</div>
+                        {% else %}
+                            {% for run in runs %}
+                                <div class="list-group-item {{ run.id == activeRunId ? 'active' : '' }} p-0">
+                                    <a href="{{ path('admin_ai_pdf_analysis', { run: run.id }) }}"
+                                       class="d-block p-3 text-decoration-none">
+                                        <div class="d-flex justify-content-between align-items-start gap-2">
+                                            <span class="badge bg-secondary">{{ run.model }}</span>
+                                            <small class="text-muted text-nowrap">{{ run.updatedAt|date('d.m.Y H:i') }}</small>
+                                        </div>
+                                        <div class="fw-semibold text-truncate">{{ run.preview }}</div>
+                                    </a>
+                                    <div class="p-2 border-top">
+                                        <form method="post" class="m-0">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('admin_ai_pdf_analysis') }}">
+                                            <input type="hidden" name="runId" value="{{ run.id }}">
+                                            <input type="hidden" name="delete_run" value="1">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Löschen</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <strong>PDF analysieren</strong>
+                        <div class="text-muted small">PDF-Analyse mit OpenAI Vision</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_token" value="{{ csrf_token('admin_ai_pdf_analysis') }}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Modell</label>
+                                <select name="model" class="form-select">
+                                    <optgroup label="GPT-5">
+                                        <option value="gpt-5" {{ model == 'gpt-5' ? 'selected' : '' }}>GPT-5</option>
+                                        <option value="gpt-5-turbo" {{ model == 'gpt-5-turbo' ? 'selected' : '' }}>GPT-5 Turbo</option>
+                                    </optgroup>
+                                    <optgroup label="GPT-4">
+                                        <option value="gpt-4o" {{ model == 'gpt-4o' ? 'selected' : '' }}>GPT-4o</option>
+                                        <option value="gpt-4-turbo" {{ model == 'gpt-4-turbo' ? 'selected' : '' }}>GPT-4 Turbo</option>
+                                        <option value="gpt-4o-mini" {{ model == 'gpt-4o-mini' ? 'selected' : '' }}>GPT-4o Mini</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">PDF</label>
+                                <input type="file" name="pdf" class="form-control" accept="application/pdf" required>
+                                <div class="form-text">max. 20MB</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Analyse-Prompt</label>
+                                <textarea name="prompt" class="form-control" rows="6" placeholder="Was möchtest du über die PDF wissen?">{{ prompt }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-tuningfux w-100">Analysieren</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header">
+                        <strong>Analyse-Ergebnis</strong>
+                    </div>
+                    <div class="card-body">
+                        {% if response %}
+                            <div class="tfd-ai-pdf-analysis-response">
+                                {{ response|nl2br }}
+                            </div>
+                        {% else %}
+                            <div class="text-muted">Noch keine Analyse durchgeführt.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .tfd-ai-pdf-analysis-response {
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .tfd-ai-pdf-analysis-list .list-group-item.active {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: inherit;
+        }
+    </style>
+{% endblock %}

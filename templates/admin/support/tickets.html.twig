@@ -1,0 +1,447 @@
+{% extends embedded|default(false) ? 'admin/support/_embed_base.html.twig' : '@EasyAdmin/page/content.html.twig' %}
+
+{% block head %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/glightbox.min.css">
+{% endblock %}
+
+{% block content_title %}Support / Tickets{% endblock %}
+
+{% block main %}
+    {% set currentParams = {'status': statusFilter} %}
+    {% if firmaFilterId > 0 %}
+        {% set currentParams = currentParams|merge({'firma': firmaFilterId}) %}
+    {% endif %}
+
+    {% set statusBadge = statusBadgeClasses %}
+    {% set priorityBadge = priorityBadgeClasses %}
+
+    <div class="container-fluid px-0"
+         data-support-tickets="1"
+         data-support-ticket-customers-url="{{ path('admin_support_ticket_customers') }}">
+        {% if not ticketsEnabled %}
+            <div class="alert alert-warning mb-3">
+                Ticket-System ist noch nicht aktiv (Migration fehlt). Bitte einmal <code>php bin/console doctrine:migrations:migrate</code> ausführen.
+            </div>
+        {% endif %}
+        <div class="row g-2 mb-3">
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Gesamt</div>
+                        <div class="h4 mb-0">{{ ticketStats.total|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Offen</div>
+                        <div class="h4 mb-0 text-info">{{ ticketStats.open|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">In Bearbeitung</div>
+                        <div class="h4 mb-0 text-warning">{{ ticketStats.inProgress|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Geschlossen</div>
+                        <div class="h4 mb-0 text-secondary">{{ ticketStats.closed|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Nachrichten</div>
+                        <div class="h4 mb-0">{{ ticketStats.messages|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">Dringend</div>
+                        <div class="h4 mb-0 text-danger">{{ ticketStats.urgent|default(0) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">TFD Tickets</div>
+                        <div class="h4 mb-1">{{ ticketStatsByFirma.TFD.total|default(0) }}</div>
+                        <div class="small text-muted">
+                            O: {{ ticketStatsByFirma.TFD.open|default(0) }}
+                            | B: {{ ticketStatsByFirma.TFD.inProgress|default(0) }}
+                            | G: {{ ticketStatsByFirma.TFD.closed|default(0) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-6 col-xl-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body py-2">
+                        <div class="small text-muted">CPT Tickets</div>
+                        <div class="h4 mb-1">{{ ticketStatsByFirma.CPT.total|default(0) }}</div>
+                        <div class="small text-muted">
+                            O: {{ ticketStatsByFirma.CPT.open|default(0) }}
+                            | B: {{ ticketStatsByFirma.CPT.inProgress|default(0) }}
+                            | G: {{ ticketStatsByFirma.CPT.closed|default(0) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ component('support_ticket_search') }}
+        </div>
+        <div class="row g-3">
+            <div class="col-12 col-xl-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center gap-2">
+                        <span>Tickets</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#supportTicketNewModal"
+                                    {{ not ticketsEnabled ? 'disabled' : '' }}>
+                                {{ ux_icon('material-symbols:support-agent') }} Neues Ticket
+                            </button>
+                            <a href="{{ path('admin_support_tickets', currentParams) }}" class="btn btn-secondary">{{ ux_icon('radix-icons:update') }} Aktualisieren</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2 mb-2">
+                            <div class="col-7">
+                                <input type="search"
+                                       class="form-control form-control-sm"
+                                       placeholder="Ticket suchen..."
+                                       autocomplete="off"
+                                       data-support-ticket-filter>
+                            </div>
+                            <div class="col-5">
+                                <select class="form-select form-select-sm"
+                                        onchange="window.location.href=this.value">
+                                    {% for label, value in statusChoices %}
+                                        {% set optionParams = currentParams|merge({'status': value}) %}
+                                        <option value="{{ path('admin_support_tickets', optionParams) }}" {{ value == statusFilter ? 'selected' : '' }}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                    {% set allParams = currentParams|merge({'status': 'all'}) %}
+                                    <option value="{{ path('admin_support_tickets', allParams) }}" {{ statusFilter == 'all' ? 'selected' : '' }}>
+                                        Alle
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <select class="form-select form-select-sm mb-2" onchange="window.location.href=this.value">
+                            {% set allFirmsParams = currentParams|merge({'firma': 0}) %}
+                            <option value="{{ path('admin_support_tickets', allFirmsParams) }}" {{ firmaFilterId == 0 ? 'selected' : '' }}>
+                                Alle Firmen
+                            </option>
+                            {% for firma in firmen %}
+                                {% set firmaId = firma.id ?? 0 %}
+                                {% if firmaId %}
+                                    {% set firmaParams = currentParams|merge({'firma': firmaId}) %}
+                                    <option value="{{ path('admin_support_tickets', firmaParams) }}" {{ firmaId == firmaFilterId ? 'selected' : '' }}>
+                                        {{ firma.name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <div class="list-group tfd-ticket-list rounded-0" data-support-ticket-list>
+                            {% if tickets is empty %}
+                                <div class="text-muted">Keine Tickets gefunden.</div>
+                            {% else %}
+                                {% for ticket in tickets %}
+                                    {% set ticketId = ticket.id ?? 0 %}
+                                    {% if ticketId %}
+                                        {% set isActive = selectedTicket and selectedTicket.id == ticketId %}
+                                        {% set ticketParams = currentParams|merge({'ticket': ticketId}) %}
+                                        <a href="{{ path('admin_support_tickets', ticketParams) }}"
+                                           class="list-group-item list-group-item-action tfd-ticket-item {{ isActive ? 'is-active' : '' }}"
+                                           data-support-ticket-item
+                                           data-support-ticket-name="{{ (ticket.ticketNumber ~ ' ' ~ ticket.subject ~ ' ' ~ ticket.firma.name ~ ' ' ~ (ticket.kunde ? ticket.kunde : ''))|lower }}">
+                                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                                <div class="tfd-min-w-0 flex-grow-1">
+                                                    <div class="fw-semibold text-truncate">{{ ticket.subject }}</div>
+                                                    <div class="small text-muted text-truncate">
+                                                        {{ ticket.firma.name }}
+                                                        {% if ticket.kunde %}
+                                                            <span class="text-muted">•</span> {{ ticket.kunde }}
+                                                        {% endif %}
+                                                    </div>
+                                                    {% if ticket.lastMessagePreview %}
+                                                        <div class="small text-muted text-truncate">{{ ticket.lastMessagePreview }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-end flex-shrink-0">
+                                                    {% if ticket.lastMessageAt %}
+                                                        <div class="small text-muted">{{ ticket.lastMessageAt|date('d.m H:i') }}</div>
+                                                    {% endif %}
+                                                    <div class="d-flex justify-content-end gap-1 flex-wrap mt-1">
+                                                        <span class="badge {{ statusBadge[ticket.status]|default('text-bg-secondary') }}">
+                                                            {{ statusLabelsByValue[ticket.status]|default(ticket.status) }}
+                                                        </span>
+                                                        {% if ticket.messageCount > 0 %}
+                                                            <span class="badge text-bg-secondary">{{ ticket.messageCount }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-start gap-2">
+                        {% if selectedTicket %}
+                            <div class="tfd-min-w-0">
+                                <div class="text-muted small">
+                                    {{ selectedTicket.ticketNumber }}
+                                    <span class="text-muted">•</span>
+                                    {{ selectedTicket.firma.name }}
+                                    {% if selectedTicket.kunde %}
+                                        <span class="text-muted">•</span>
+                                        {{ selectedTicket.kunde }}
+                                    {% endif %}
+                                </div>
+                                <div class="fw-semibold text-truncate">{{ selectedTicket.subject }}</div>
+                                <div class="small text-muted">
+                                    Erstellt: {{ selectedTicket.createdAt ? selectedTicket.createdAt|date('d.m.Y H:i') : '-' }}
+                                    <span class="text-muted">•</span>
+                                    Aktualisiert: {{ selectedTicket.updatedAt ? selectedTicket.updatedAt|date('d.m.Y H:i') : '-' }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                <span class="badge {{ statusBadge[selectedTicket.status]|default('text-bg-secondary') }}">
+                                    {{ statusLabelsByValue[selectedTicket.status]|default(selectedTicket.status) }}
+                                </span>
+                                <span class="badge {{ priorityBadge[selectedTicket.priority]|default('text-bg-secondary') }}">
+                                    {{ priorityLabelsByValue[selectedTicket.priority]|default(selectedTicket.priority) }}
+                                </span>
+
+                                {% if selectedTicket.status == 'closed' %}
+                                    <form method="post" action="{{ path('admin_support_ticket_status') }}" class="mb-0">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_support_ticket_status') }}">
+                                        <input type="hidden" name="ticketId" value="{{ selectedTicket.id }}">
+                                        <input type="hidden" name="status" value="open">
+                                        <input type="hidden" name="statusFilter" value="{{ statusFilter }}">
+                                        <input type="hidden" name="firma" value="{{ firmaFilterId }}">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Wieder öffnen</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post" action="{{ path('admin_support_ticket_status') }}" class="mb-0">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('admin_support_ticket_status') }}">
+                                        <input type="hidden" name="ticketId" value="{{ selectedTicket.id }}">
+                                        <input type="hidden" name="status" value="closed">
+                                        <input type="hidden" name="statusFilter" value="{{ statusFilter }}">
+                                        <input type="hidden" name="firma" value="{{ firmaFilterId }}">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Schließen</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="text-muted">Bitte links ein Ticket auswählen oder ein neues Ticket erstellen.</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body d-flex flex-column gap-3">
+                        {% if not selectedTicket %}
+                            <div class="text-muted">Keine Ticket-Details ausgewählt.</div>
+                        {% else %}
+                            <div class="tfd-ticket-messages tfd-chat-messages" data-support-ticket-messages>
+                                {% if messages is empty %}
+                                    <div class="text-muted">Noch keine Nachrichten.</div>
+                                {% else %}
+                                    {% for msg in messages %}
+                                        {% set isAdmin = msg.senderType == 'admin' %}
+                                        <div class="tfd-chat-message {{ isAdmin ? 'tfd-chat-message--admin' : 'tfd-chat-message--customer' }}">
+                                            <div class="tfd-chat-bubble">
+                                                <div class="tfd-chat-bubble__meta">
+                                                    <span class="tfd-chat-sender">
+                                                        {% if isAdmin %}Admin{% else %}{{ msg.senderName ?: 'Kunde' }}{% endif %}
+                                                    </span>
+                                                    {% if msg.kunde %}
+                                                        <span class="tfd-chat-kunde">{{ msg.kunde }}</span>
+                                                    {% endif %}
+                                                    {% if msg.createdAt %}
+                                                        <span class="tfd-chat-time">{{ msg.createdAt|date('d.m.Y H:i') }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="tfd-chat-text">{{ msg.message|e|nl2br }}</div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            {% if selectedTicket.attachments is not empty %}
+                                <div class="mt-3 mb-3">
+                                    <h6 class="mb-2">Dateianhänge</h6>
+                                    <div class="row g-2">
+                                        {% for attachment in selectedTicket.attachments %}
+                                            {% set isImage = attachment.filename|lower ends with ('.jpg' or '.jpeg' or '.png' or '.gif' or '.webp') %}
+                                            {% set isVideo = attachment.filename|lower ends with ('.mp4' or '.webm' or '.mov' or '.avi') %}
+                                            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                                                <div class="card h-100" style="cursor: pointer;">
+                                                    {% if isImage or isVideo %}
+                                                        <a href="{{ path('admin_support_ticket_preview', {attachmentId: attachment.id}) }}" 
+                                                           data-glightbox 
+                                                           class="card-img-top overflow-hidden d-flex align-items-center justify-content-center" 
+                                                           style="height: 150px; background: #f0f0f0;">
+                                                            {% if isImage %}
+                                                                <img src="{{ path('admin_support_ticket_preview', {attachmentId: attachment.id}) }}" 
+                                                                     alt="{{ attachment.originalFilename }}" 
+                                                                     class="img-fluid object-fit-cover" 
+                                                                     style="max-height: 100%; max-width: 100%;">
+                                                            {% else %}
+                                                                <div class="text-center">
+                                                                    <i class="fa fa-video fa-2x text-muted"></i>
+                                                                    <small class="d-block mt-2 text-muted">Video</small>
+                                                                </div>
+                                                            {% endif %}
+                                                        </a>
+                                                    {% else %}
+                                                        <div class="card-img-top d-flex align-items-center justify-content-center" style="height: 150px; background: #f0f0f0;">
+                                                            <i class="fa fa-file fa-3x text-muted"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="card-body p-2">
+                                                        <small class="card-text d-block text-truncate" title="{{ attachment.originalFilename }}">{{ attachment.originalFilename }}</small>
+                                                        <small class="text-muted d-block">{{ (attachment.filesize / 1024 / 1024)|round(2) }} MB</small>
+                                                        {% if attachment.description %}
+                                                            <small class="text-muted d-block text-truncate" title="{{ attachment.description }}">{{ attachment.description }}</small>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="card-footer bg-light p-2">
+                                                        <a href="{{ path('admin_support_ticket_download', {attachmentId: attachment.id}) }}" class="btn btn-sm btn-outline-primary w-100" title="Herunterladen">
+                                                            <i class="fa fa-download"></i> Download
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <form method="post" action="{{ path('admin_support_ticket_reply') }}" class="tfd-ticket-compose mt-auto" enctype="multipart/form-data">
+                                <input type="hidden" name="_token" value="{{ csrf_token('admin_support_ticket_reply') }}">
+                                <input type="hidden" name="ticketId" value="{{ selectedTicket.id }}">
+                                <input type="hidden" name="status" value="{{ statusFilter }}">
+                                <input type="hidden" name="firma" value="{{ firmaFilterId }}">
+
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted mb-1">Antwort</label>
+                                        <textarea name="message" class="form-control" rows="2" required placeholder="Antwort schreiben..."></textarea>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted mb-1">Datei hochladen (optional)</label>
+                                        <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.gif,.mp4,.webm,.mov,.avi,.bin,.ecu,.tuning,.pdf,.zip,.rar,.7z,.txt">
+                                        <small class="text-muted">Max. 50MB. Erlaubte Typen: Bilder, Videos, PDF, Zip, etc.</small>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted mb-1">Dateibeschreibung (optional)</label>
+                                        <input type="text" name="attachment_description" class="form-control" placeholder="z.B. Chiptuning-Datei, Screenshots, etc.">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">Antwort senden</button>
+                                    </div>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="supportTicketNewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="post" action="{{ path('admin_support_ticket_new') }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Neues Ticket</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="_token" value="{{ csrf_token('admin_support_ticket_new') }}">
+
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-6">
+                                    <label class="form-label">Firma</label>
+                                    <select name="firmaId" class="form-select" required data-support-ticket-new-firma>
+                                        <option value="" selected disabled>Bitte auswählen...</option>
+                                        {% for firma in firmen %}
+                                            {% set firmaId = firma.id ?? 0 %}
+                                            {% if firmaId %}
+                                                <option value="{{ firmaId }}">{{ firma.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <label class="form-label">Kunde (optional)</label>
+                                    <select name="kundeId" class="form-select" data-support-ticket-new-kunde>
+                                        <option value="0" selected>Kein Kunde</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-lg-8">
+                                    <label class="form-label">Betreff</label>
+                                    <input type="text" name="subject" class="form-control" required maxlength="255" placeholder="Betreff...">
+                                </div>
+                                <div class="col-12 col-lg-4">
+                                    <label class="form-label">Priorität</label>
+                                    <select name="priority" class="form-select">
+                                        {% for label, value in priorityChoices %}
+                                            <option value="{{ value }}" {{ value == 'normal' ? 'selected' : '' }}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Nachricht</label>
+                                    <textarea name="message" class="form-control" rows="4" required placeholder="Ticket-Beschreibung..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-primary">Erstellen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/glightbox.min.js"></script>
+    <script>
+        const lightbox = GLightbox({
+            selector: '[data-glightbox]',
+            videosSupport: true
+        });
+    </script>
+{% endblock %}

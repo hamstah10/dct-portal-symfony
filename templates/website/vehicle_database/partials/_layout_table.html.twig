@@ -1,0 +1,131 @@
+<div class="vdb-layout-table">
+    <header class="vdb-v5-header">
+        <div class="container-fluid px-4 py-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <img
+                        class="vdb-v5-brand-badge"
+                        data-vdb-brand-badge
+                        src="{{ asset('images/tuningfux-gelb.svg') }}"
+                        data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                        alt="Brand Logo"
+                    >
+                    <div>
+                        <div class="vdb-v5-kicker">Chiptuning</div>
+                        <div class="vdb-v5-title"><span id="brandName">-</span> <span id="seriesName">-</span></div>
+                        <div class="vdb-v5-subtitle" id="engineName">-</div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </header>
+
+    <main class="container-fluid px-4 py-5">
+        <section class="vdb-v5-stage-section">
+            <div class="vdb-v5-kicker">Tuning-Stufe auswaehlen</div>
+            <div class="vdb-tabs vdb-v5-tabs" id="stageTabs"></div>
+        </section>
+
+        <section class="vdb-v5-metrics">
+            <article class="vdb-v5-card">
+                <div class="vdb-v5-card-kicker">Leistung</div>
+                <div class="vdb-v5-card-row">
+                    <div>
+                        <div class="vdb-v5-label">Original</div>
+                        <div class="vdb-v5-number" id="origPs">-</div>
+                        <div class="vdb-v5-unit">PS</div>
+                    </div>
+                    <i class="fa fa-arrow-right vdb-v5-arrow" aria-hidden="true"></i>
+                    <div class="text-end">
+                        <div class="vdb-v5-label">Nach Tuning</div>
+                        <div class="vdb-v5-number is-tuned" id="stagePs">-</div>
+                        <div class="vdb-v5-unit">PS</div>
+                    </div>
+                </div>
+                <div class="vdb-v5-card-foot">
+                    <div>
+                        <div class="vdb-v5-label">Steigerung</div>
+                        <div class="vdb-v5-delta" id="deltaPs">+0</div>
+                    </div>
+                    <div class="vdb-v5-percent" id="vdbPsPercent">+0%</div>
+                </div>
+            </article>
+
+            <article class="vdb-v5-card">
+                <div class="vdb-v5-card-kicker">Drehmoment</div>
+                <div class="vdb-v5-card-row">
+                    <div>
+                        <div class="vdb-v5-label">Original</div>
+                        <div class="vdb-v5-number" id="origNm">-</div>
+                        <div class="vdb-v5-unit">NM</div>
+                    </div>
+                    <i class="fa fa-arrow-right vdb-v5-arrow" aria-hidden="true"></i>
+                    <div class="text-end">
+                        <div class="vdb-v5-label">Nach Tuning</div>
+                        <div class="vdb-v5-number is-tuned" id="stageNm">-</div>
+                        <div class="vdb-v5-unit">NM</div>
+                    </div>
+                </div>
+                <div class="vdb-v5-card-foot">
+                    <div>
+                        <div class="vdb-v5-label">Steigerung</div>
+                        <div class="vdb-v5-delta" id="deltaNm">+0</div>
+                    </div>
+                    <div class="vdb-v5-percent" id="vdbNmPercent">+0%</div>
+                </div>
+            </article>
+        </section>
+
+        <section class="vdb-v5-table-card">
+            <div class="vdb-v5-card-kicker">Leistungsvergleich</div>
+            <div class="table-responsive">
+                <table class="vdb-v5-table">
+                    <thead>
+                    <tr>
+                        <th>Stufe</th>
+                        <th class="text-end">Leistung (PS)</th>
+                        <th class="text-end">Steigerung</th>
+                        <th class="text-end">Drehmoment (NM)</th>
+                        <th class="text-end">Steigerung</th>
+                    </tr>
+                    </thead>
+                    <tbody id="stageComparisonRows">
+                    <tr>
+                        <td colspan="5">Bitte Fahrzeug auswaehlen.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="vdb-v5-bottom">
+            <article class="vdb-v5-card">
+                <div class="vdb-v5-card-kicker">Tuning-Optionen</div>
+                <div class="vdb-ecu-manufacturers" id="ecuManufacturers"></div>
+                <ul class="vdb-options-list vdb-v5-options" id="optionsList"></ul>
+            </article>
+
+            <article class="vdb-v5-card">
+                <div class="vdb-v5-card-kicker">Fahrzeug</div>
+                <div class="vdb-v5-meta-row"><span>Modell</span><strong id="vdbStageName">STAGE 1</strong></div>
+                <div class="vdb-v5-meta-row"><span>Kraftstoff</span><strong id="engineFuel">-</strong></div>
+                <div class="vdb-v5-meta-row"><span>Preis</span><strong id="stagePrice">-</strong></div>
+                <div class="vdb-v5-description" id="stageDescription">-</div>
+            </article>
+        </section>
+
+        <div class="visually-hidden" aria-hidden="true">
+            <span id="enginePs">-</span>
+            <span id="engineNm">-</span>
+            <span id="bottomOrig">-</span>
+            <span id="bottomTuned">-</span>
+            <span id="improvementLine">-</span>
+            <span id="vdbPsOrigLabel">-</span>
+            <span id="vdbPsTunedLabel">-</span>
+            <span id="vdbNmOrigLabel">-</span>
+            <span id="vdbNmTunedLabel">-</span>
+            <span id="heroImageWrap"></span>
+        </div>
+    </main>
+</div>

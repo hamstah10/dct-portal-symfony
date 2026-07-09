@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ferrari GLB Background Test</title>
+
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <style>
+        :root {
+            --bg-top: #7a0008;
+            --bg-mid: #2b0005;
+            --bg-bottom: #020202;
+            --hex-line: rgba(255, 255, 255, 0.08);
+            --hex-glow: rgba(255, 40, 40, 0.12);
+            --text: #ffffff;
+            --accent: #d31717;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background:
+                linear-gradient(to top,
+                    var(--bg-bottom) 0%,
+                    #050505 18%,
+                    #120003 35%,
+                    var(--bg-mid) 58%,
+                    #540008 78%,
+                    var(--bg-top) 100%);
+        }
+
+        /* Dunkler Bereich unten + roter Schein oben */
+        .scene::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 50% 28%, rgba(255, 0, 0, 0.24) 0%, rgba(255, 0, 0, 0.10) 22%, rgba(255, 0, 0, 0.02) 42%, transparent 62%),
+                linear-gradient(to top, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.28) 30%, rgba(0, 0, 0, 0.06) 58%, rgba(0, 0, 0, 0.00) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Wabenmuster */
+        .honeycomb {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            opacity: 0.26;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 50% 35%, var(--hex-glow) 0%, transparent 45%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.18)' stroke-width='1'%3E%3Cpath d='M14 1 L42 1 L55 24.25 L42 47.5 L14 47.5 L1 24.25 Z'/%3E%3Cpath d='M14 49.5 L42 49.5 L55 72.75 L42 96 L14 96 L1 72.75 Z'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover, 56px 97px;
+            background-repeat: no-repeat, repeat;
+            mix-blend-mode: screen;
+            animation: honeyMove 18s linear infinite;
+            transform: scale(1.06);
+        }
+
+        /* Zweite Ebene für mehr Tiefe */
+        .honeycomb.soft {
+            z-index: 2;
+            opacity: 0.12;
+            filter: blur(1.2px);
+            animation: honeyMoveReverse 28s linear infinite;
+            transform: scale(1.12);
+        }
+
+        /* Glow hinter dem Fahrzeug */
+        .car-glow {
+            position: absolute;
+            left: 50%;
+            bottom: 12%;
+            transform: translateX(-50%);
+            width: min(70vw, 900px);
+            height: min(45vw, 420px);
+            z-index: 3;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center,
+                    rgba(255, 0, 0, 0.34) 0%,
+                    rgba(255, 0, 0, 0.16) 26%,
+                    rgba(255, 0, 0, 0.06) 48%,
+                    rgba(255, 0, 0, 0.00) 72%);
+            filter: blur(30px);
+            animation: glowPulse 4.5s ease-in-out infinite;
+        }
+
+        /* Zusätzlicher dunkler Boden */
+        .bottom-fade {
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 36%;
+            z-index: 4;
+            pointer-events: none;
+            background: linear-gradient(to top,
+                    rgba(0, 0, 0, 0.96) 0%,
+                    rgba(0, 0, 0, 0.82) 26%,
+                    rgba(0, 0, 0, 0.45) 58%,
+                    rgba(0, 0, 0, 0.00) 100%);
+        }
+
+        .logo {
+            position: absolute;
+            top: 28px;
+            left: 28px;
+            z-index: 10;
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 14px;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+        }
+
+        .logo strong {
+            display: block;
+            margin-top: 6px;
+            font-size: 34px;
+            line-height: 0.95;
+            letter-spacing: 0.03em;
+            color: #fff;
+        }
+
+        .logo span {
+            display: block;
+            margin-top: 6px;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            color: rgba(255, 255, 255, 0.72);
+        }
+
+        .viewer-wrap {
+            position: absolute;
+            inset: 0;
+            z-index: 6;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+            background: transparent;
+        }
+
+        /* Leichter Lichtkegel mittig */
+        .light-sweep {
+            position: absolute;
+            left: 50%;
+            top: -10%;
+            width: 34vw;
+            min-width: 280px;
+            max-width: 540px;
+            height: 120%;
+            transform: translateX(-50%) rotate(8deg);
+            z-index: 5;
+            pointer-events: none;
+            background: linear-gradient(to bottom,
+                    rgba(255, 255, 255, 0.08) 0%,
+                    rgba(255, 255, 255, 0.02) 18%,
+                    rgba(255, 255, 255, 0.00) 48%,
+                    rgba(255, 255, 255, 0.00) 100%);
+            filter: blur(18px);
+            opacity: 0.7;
+            animation: sweepFloat 7s ease-in-out infinite;
+        }
+
+        @keyframes honeyMove {
+            0% {
+                background-position: center center, 0 0;
+            }
+
+            100% {
+                background-position: center center, 0 97px;
+            }
+        }
+
+        @keyframes honeyMoveReverse {
+            0% {
+                background-position: center center, 0 0;
+            }
+
+            100% {
+                background-position: center center, 56px -97px;
+            }
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                opacity: 0.78;
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.04);
+            }
+        }
+
+        @keyframes sweepFloat {
+
+            0%,
+            100% {
+                transform: translateX(-50%) rotate(8deg);
+                opacity: 0.55;
+            }
+
+            50% {
+                transform: translateX(-48%) rotate(10deg);
+                opacity: 0.82;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .logo {
+                top: 18px;
+                left: 18px;
+                font-size: 11px;
+            }
+
+            .logo strong {
+                font-size: 26px;
+            }
+
+            .logo span {
+                font-size: 10px;
+            }
+
+            .car-glow {
+                width: 88vw;
+                height: 34vh;
+                bottom: 14%;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="scene">
+        <div class="honeycomb"></div>
+        <div class="honeycomb soft"></div>
+        <div class="light-sweep"></div>
+        <div class="car-glow"></div>
+        <div class="bottom-fade"></div>
+
+        <div class="logo">
+            Chiptuning Konfigurator
+            <strong>TUNINGFILES</strong>
+            <span>.Download.com</span>
+        </div>
+
+        <div class="viewer-wrap">
+            <model-viewer src="ferrari.glb" alt="Ferrari 3D Modell" camera-controls auto-rotate
+                rotation-per-second="18deg" interaction-prompt="none" shadow-intensity="1" exposure="1"
+                environment-image="neutral" camera-orbit="0deg 78deg 105%" min-camera-orbit="auto 65deg auto"
+                max-camera-orbit="auto 95deg auto" field-of-view="32deg">
+            </model-viewer>
+        </div>
+    </div>
+</body>
+
+</html>

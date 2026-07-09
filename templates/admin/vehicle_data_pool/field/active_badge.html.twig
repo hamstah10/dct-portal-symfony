@@ -1,0 +1,4 @@
+{% include 'admin/field/status_badge.html.twig' with {
+    label: field.value == true ? 'Aktiv' : 'Inaktiv',
+    tone: field.value == true ? 'success' : 'danger',
+} only %}

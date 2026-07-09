@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/build/portal-chiptuningfile/static/css/main.css",
+    "main.js": "/build/portal-chiptuningfile/static/js/main.js",
+    "index.html": "/build/portal-chiptuningfile/index.html",
+    "main.css.map": "/build/portal-chiptuningfile/static/css/main.css.map",
+    "main.js.map": "/build/portal-chiptuningfile/static/js/main.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.css",
+    "static/js/main.js"
+  ]
+}

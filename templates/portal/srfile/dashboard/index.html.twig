@@ -1,0 +1,177 @@
+{% set extra_head %}
+    <style>
+        [data-testid="recent-activity-card"] .tfd-recent-activity__row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        [data-testid="recent-activity-card"] .tfd-recent-activity__meta {
+            display: flex;
+            min-width: 9.5rem;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.15rem;
+            text-align: right;
+        }
+
+        [data-testid="recent-activity-card"] .tfd-recent-activity__meta-order {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+        }
+
+        [data-testid="recent-activity-card"] .tfd-recent-activity__status {
+            display: inline-flex;
+            min-width: 8.75rem;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 767.98px) {
+            [data-testid="recent-activity-card"] .tfd-recent-activity__row {
+                align-items: flex-start;
+            }
+
+            [data-testid="recent-activity-card"] .tfd-recent-activity__meta {
+                min-width: 7.5rem;
+            }
+
+            [data-testid="recent-activity-card"] .tfd-recent-activity__status {
+                min-width: 7.5rem;
+            }
+        }
+    </style>
+{% endset %}
+
+{% set extra_body_end %}
+    <script>
+        (() => {
+            const statusMap = {
+                pending: { label: 'Eingegangen', classes: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
+                processing: { label: 'In Bearbeitung', classes: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' },
+                completed: { label: 'Abgeschlossen', classes: 'bg-green-500/20 text-green-300 border-green-500/30' },
+                cancelled: { label: 'Storniert', classes: 'bg-red-500/20 text-red-300 border-red-500/30' }
+            };
+
+            const baseBadgeClasses = ['tfd-recent-activity__status', 'border'];
+
+            const formatOrderLabel = (rawId) => {
+                const value = String(rawId || '').trim();
+                if (value === '') {
+                    return '';
+                }
+
+                return `Auftrag ${value}`;
+            };
+
+            const enhanceRecentActivity = () => {
+                const card = document.querySelector('[data-testid="recent-activity-card"]');
+                if (!card) {
+                    return;
+                }
+
+                const recentJobs = Array.isArray(window.portalReactBootstrap?.dashboard?.recentJobs)
+                    ? window.portalReactBootstrap.dashboard.recentJobs
+                    : [];
+
+                card.querySelectorAll('button').forEach((button, index) => {
+                    const row = button.firstElementChild;
+                    if (!(row instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    row.classList.add('tfd-recent-activity__row');
+
+                    const rowChildren = Array.from(row.children);
+                    if (rowChildren.length < 2) {
+                        return;
+                    }
+
+                    const leftColumn = rowChildren[0];
+                    const dateNode = rowChildren[rowChildren.length - 1];
+                    if (!(leftColumn instanceof HTMLElement) || !(dateNode instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const orderId = recentJobs[index]?.id ?? '';
+
+                    let meta = row.querySelector('.tfd-recent-activity__meta');
+                    if (!(meta instanceof HTMLElement)) {
+                        meta = document.createElement('div');
+                        meta.className = 'tfd-recent-activity__meta';
+                        row.appendChild(meta);
+                    }
+
+                    let metaDate = meta.querySelector('.tfd-recent-activity__meta-date');
+                    if (!(metaDate instanceof HTMLElement)) {
+                        metaDate = document.createElement('span');
+                        metaDate.className = 'tfd-recent-activity__meta-date text-xs text-muted-foreground';
+                        meta.appendChild(metaDate);
+                    }
+
+                    let metaOrder = meta.querySelector('.tfd-recent-activity__meta-order');
+                    if (!(metaOrder instanceof HTMLElement)) {
+                        metaOrder = document.createElement('span');
+                        metaOrder.className = 'tfd-recent-activity__meta-order';
+                        meta.appendChild(metaOrder);
+                    }
+
+                    metaDate.textContent = dateNode.textContent.trim();
+                    metaOrder.textContent = formatOrderLabel(orderId);
+
+                    if (!dateNode.classList.contains('tfd-recent-activity__meta-date')) {
+                        dateNode.remove();
+                    }
+
+                    const badge = leftColumn.querySelector('.inline-flex.items-center.rounded-md.border, .tfd-recent-activity__status');
+                    if (!(badge instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const badgeText = badge.textContent.trim().toLowerCase();
+                    const statusKey = Object.keys(statusMap).find((key) => {
+                        return badgeText === key || badgeText === statusMap[key].label.toLowerCase();
+                    }) || '';
+
+                    const statusConfig = statusMap[statusKey];
+                    if (statusConfig) {
+                        badge.textContent = statusConfig.label;
+                        badge.className = `${statusConfig.classes} ${baseBadgeClasses.join(' ')}`;
+                    } else {
+                        badge.classList.add(...baseBadgeClasses);
+                    }
+                });
+            };
+
+            const start = () => {
+                enhanceRecentActivity();
+
+                const root = document.getElementById('root');
+                if (!root) {
+                    return;
+                }
+
+                const observer = new MutationObserver(() => {
+                    enhanceRecentActivity();
+                });
+
+                observer.observe(root, { childList: true, subtree: true });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', start, { once: true });
+            } else {
+                start();
+            }
+        })();
+    </script>
+{% endset %}
+
+{% include 'portal/srfile/_react_host.html.twig' with {
+    title: 'Dashboard | Chiptuningfile.de Portal',
+    reactBootstrap: reactBootstrap|default({}),
+    extra_head: extra_head,
+    extra_body_end: extra_body_end
+} %}

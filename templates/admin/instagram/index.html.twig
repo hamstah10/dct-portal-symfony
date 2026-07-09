@@ -1,0 +1,72 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Instagram{% endblock %}
+
+{% block main %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} mb-3">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="content-panel mb-4">
+        <div class="content-panel-body d-flex gap-2">
+            <a href="{{ path('tuningfux_instagram_connect') }}" class="btn btn-primary">
+                <i class="fa-brands fa-instagram"></i>
+                Instagram verbinden
+            </a>
+        </div>
+    </div>
+
+    <div class="content-panel">
+        <div class="content-panel-header">
+            <strong>Verbundene Accounts</strong>
+        </div>
+
+        <div class="content-panel-body">
+            {% if accounts is empty %}
+                <p>Es sind noch keine Instagram-Accounts verbunden.</p>
+            {% else %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Instagram User ID</th>
+                            <th>Username</th>
+                            <th>Typ</th>
+                            <th>Token läuft ab</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td>{{ account.id }}</td>
+                                <td>{{ account.instagramUserId }}</td>
+                                <td>{{ account.username }}</td>
+                                <td>{{ account.accountType ?: '-' }}</td>
+                                <td>{{ account.tokenExpiresAt ? account.tokenExpiresAt|date('d.m.Y H:i') : '-' }}</td>
+                                <td class="d-flex gap-2 flex-wrap">
+                                    <a class="btn btn-sm btn-secondary" href="{{ path('admin_instagram_profile', {id: account.id}) }}">
+                                        Profil
+                                    </a>
+                                    <a class="btn btn-sm btn-secondary" href="{{ path('admin_instagram_media', {id: account.id}) }}">
+                                        Medien
+                                    </a>
+                                    <a class="btn btn-sm btn-secondary" href="{{ path('admin_instagram_publish_form', {id: account.id}) }}">
+                                        Posten
+                                    </a>
+                                    <a class="btn btn-sm btn-warning" href="{{ path('admin_instagram_refresh_token', {id: account.id}) }}">
+                                        Token refresh
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

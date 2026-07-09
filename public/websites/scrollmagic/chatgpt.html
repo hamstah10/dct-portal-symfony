@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScrollMagic Chiptuning Seamless Drive</title>
+    <meta name="description"
+        content="Seamless ScrollMagic Chiptuning Animation mit einem einzigen Fahrzeug-Layer ohne sichtbaren Übergang." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050b14;
+            --bg-2: #0a1628;
+            --panel: rgba(9, 21, 39, 0.68);
+            --line: rgba(107, 170, 255, 0.14);
+            --text: #eef4ff;
+            --muted: #95aacb;
+            --blue: #53a3ff;
+            --blue-2: #82c4ff;
+            --cyan: #7ee8fa;
+            --green: #5cff9d;
+            --glow: rgba(83, 163, 255, 0.3);
+            --hero-h: 100svh;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 10%, rgba(83, 163, 255, 0.16), transparent 28%),
+                radial-gradient(circle at 82% 8%, rgba(126, 232, 250, 0.08), transparent 22%),
+                linear-gradient(180deg, #07101b 0%, #050b14 40%, #040912 100%);
+            overflow-x: hidden;
+        }
+
+        .bg-grid,
+        .bg-noise,
+        .bg-hex {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-grid {
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: linear-gradient(180deg, rgba(255, 255, 255, 0.5), transparent 86%);
+        }
+
+        .bg-noise {
+            opacity: 0.05;
+            background-image: radial-gradient(circle at 25% 25%, white 0.8px, transparent 0.9px);
+            background-size: 18px 18px;
+            mix-blend-mode: soft-light;
+        }
+
+        .bg-hex {
+            opacity: 0.09;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104' viewBox='0 0 120 104'%3E%3Cpath d='M30 2h60l28 50-28 50H30L2 52 30 2z' fill='none' stroke='%2353a3ff' stroke-width='1' stroke-opacity='.6'/%3E%3C/svg%3E");
+            background-size: 120px 104px;
+            mask-image: radial-gradient(circle at 50% 25%, rgba(255, 255, 255, .85), transparent 70%);
+        }
+
+        .road-overlay {
+            position: fixed;
+            inset: auto 0 0 0;
+            height: 32vh;
+            background:
+                linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.12) 10%, rgba(5, 11, 20, 0.9) 100%),
+                radial-gradient(circle at 50% 0%, rgba(83, 163, 255, 0.12), transparent 45%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .road-lines {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .road-lines::before,
+        .road-lines::after {
+            content: "";
+            position: absolute;
+            width: 36vw;
+            min-width: 260px;
+            height: 180%;
+            bottom: -72%;
+            border-top: 1px solid rgba(83, 163, 255, 0.12);
+            border-left: 1px solid rgba(83, 163, 255, 0.12);
+            border-right: 1px solid rgba(83, 163, 255, 0.12);
+            filter: blur(0.2px);
+        }
+
+        .road-lines::before {
+            left: 50%;
+            transform: translateX(-60%) perspective(900px) rotateX(74deg);
+        }
+
+        .road-lines::after {
+            left: 50%;
+            transform: translateX(-40%) perspective(900px) rotateX(74deg);
+        }
+
+        .hero {
+            position: relative;
+            min-height: var(--hero-h);
+            display: grid;
+            grid-template-columns: minmax(320px, 580px) 1fr;
+            align-items: center;
+            gap: 32px;
+            padding: 28px clamp(18px, 4vw, 56px) 40px;
+            z-index: 2;
+        }
+
+        .hero-copy {
+            position: relative;
+            z-index: 4;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 42px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--blue-2);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            backdrop-filter: blur(12px);
+        }
+
+        h1 {
+            margin: 18px 0 14px;
+            font-size: clamp(42px, 7vw, 92px);
+            line-height: 0.92;
+            letter-spacing: -0.06em;
+            max-width: 900px;
+        }
+
+        .gradient {
+            background: linear-gradient(135deg, #fff 0%, var(--blue-2) 45%, var(--blue) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .lead {
+            margin: 0 0 28px;
+            max-width: 640px;
+            color: var(--muted);
+            font-size: clamp(16px, 1.7vw, 19px);
+            line-height: 1.75;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 26px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+            padding: 0 22px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 15px;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--blue), #2677f4);
+            box-shadow: 0 18px 44px rgba(38, 119, 244, .35);
+        }
+
+        .btn-secondary {
+            color: var(--text);
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, .04);
+            backdrop-filter: blur(14px);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            max-width: 760px;
+        }
+
+        .stat {
+            padding: 18px;
+            border-radius: 22px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 12px 34px rgba(0, 0, 0, .22);
+        }
+
+        .stat strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: clamp(24px, 3vw, 34px);
+            letter-spacing: -0.04em;
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .hero-visual {
+            position: relative;
+            min-height: 72svh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .speed-rings,
+        .turbo-glow,
+        .smoke,
+        .car-stage {
+            position: absolute;
+            inset: 0;
+        }
+
+        .speed-rings::before,
+        .speed-rings::after {
+            content: "";
+            position: absolute;
+            inset: 12% 8%;
+            border-radius: 50%;
+            border: 1px solid rgba(83, 163, 255, 0.12);
+            filter: blur(.3px);
+            animation: rotateSlow 24s linear infinite;
+        }
+
+        .speed-rings::after {
+            inset: 22% 18%;
+            border-color: rgba(126, 232, 250, .1);
+            animation-direction: reverse;
+            animation-duration: 18s;
+        }
+
+        .turbo-glow::before,
+        .turbo-glow::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(55px);
+            opacity: .55;
+            animation: pulse 4.4s ease-in-out infinite;
+        }
+
+        .turbo-glow::before {
+            width: 260px;
+            height: 200px;
+            left: 18%;
+            top: 16%;
+            background: rgba(83, 163, 255, .28);
+        }
+
+        .turbo-glow::after {
+            width: 220px;
+            height: 180px;
+            right: 16%;
+            bottom: 18%;
+            background: rgba(126, 232, 250, .16);
+            animation-delay: -2s;
+        }
+
+        .smoke::before,
+        .smoke::after {
+            content: "";
+            position: absolute;
+            width: 40vw;
+            height: 22vw;
+            min-width: 240px;
+            min-height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .1), rgba(83, 163, 255, .03) 45%, transparent 70%);
+            filter: blur(34px);
+            opacity: .22;
+            animation: drift 11s ease-in-out infinite;
+        }
+
+        .smoke::before {
+            left: -8%;
+            bottom: 14%;
+        }
+
+        .smoke::after {
+            right: -6%;
+            top: 18%;
+            animation-delay: -5s;
+        }
+
+        .car-stage {
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            transform: translate3d(0, 0, 0);
+            will-change: transform, opacity, filter;
+        }
+
+        .car-wrap {
+            position: relative;
+            width: min(980px, 92vw);
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center center;
+            filter: drop-shadow(0 30px 60px rgba(0, 0, 0, .45));
+        }
+
+        .car-wrap::before {
+            content: "";
+            position: absolute;
+            width: 60%;
+            height: 20%;
+            left: 20%;
+            bottom: 14%;
+            background: radial-gradient(ellipse at center, rgba(83, 163, 255, .28), rgba(83, 163, 255, .08) 42%, transparent 70%);
+            filter: blur(30px);
+            animation: floorPulse 2.8s ease-in-out infinite;
+        }
+
+        .car-shell {
+            position: relative;
+            width: 100%;
+            max-width: 880px;
+            transform: translateY(0) translateX(0) rotate(0.0001deg);
+            will-change: transform;
+        }
+
+        .car-shell img {
+            display: block;
+            width: 100%;
+            height: auto;
+            user-select: none;
+            -webkit-user-drag: none;
+            object-fit: contain;
+        }
+
+        .car-blur,
+        .car-shine,
+        .car-flare {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .car-blur {
+            background: linear-gradient(90deg, transparent 0%, rgba(83, 163, 255, .06) 25%, rgba(255, 255, 255, .08) 50%, rgba(83, 163, 255, .06) 75%, transparent 100%);
+            mix-blend-mode: screen;
+            opacity: .46;
+            mask-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, .95) 18%, rgba(255, 255, 255, .95) 82%, transparent);
+            animation: shineMove 5.8s linear infinite;
+        }
+
+        .car-shine::before {
+            content: "";
+            position: absolute;
+            left: -12%;
+            top: 10%;
+            width: 42%;
+            height: 70%;
+            background: linear-gradient(105deg, transparent 10%, rgba(255, 255, 255, .32) 40%, transparent 74%);
+            transform: skewX(-18deg);
+            filter: blur(9px);
+            opacity: .36;
+            animation: sweep 6s ease-in-out infinite;
+        }
+
+        .car-flare::before,
+        .car-flare::after {
+            content: "";
+            position: absolute;
+            width: 11%;
+            aspect-ratio: 1;
+            top: 44%;
+            border-radius: 50%;
+            filter: blur(12px);
+            animation: headlight 1.7s ease-in-out infinite;
+        }
+
+        .car-flare::before {
+            left: 10%;
+            background: radial-gradient(circle, rgba(126, 232, 250, .85), rgba(83, 163, 255, .2) 55%, transparent 70%);
+        }
+
+        .car-flare::after {
+            right: 9%;
+            background: radial-gradient(circle, rgba(126, 232, 250, .85), rgba(83, 163, 255, .2) 55%, transparent 70%);
+            animation-delay: -.3s;
+        }
+
+        .floating-ui {
+            position: absolute;
+            z-index: 4;
+            display: grid;
+            gap: 14px;
+            width: min(290px, 42vw);
+        }
+
+        .floating-ui.left {
+            left: clamp(10px, 3vw, 30px);
+            top: 18%;
+        }
+
+        .floating-ui.right {
+            right: clamp(10px, 3vw, 30px);
+            bottom: 16%;
+        }
+
+        .hud {
+            padding: 16px 18px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            background: rgba(9, 21, 39, 0.56);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 14px 38px rgba(0, 0, 0, .24);
+        }
+
+        .hud .label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--blue-2);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+        }
+
+        .hud strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: clamp(20px, 2.4vw, 32px);
+            letter-spacing: -.04em;
+        }
+
+        .hud p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .scroll-note {
+            position: absolute;
+            left: clamp(18px, 4vw, 56px);
+            bottom: 24px;
+            z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: .18em;
+            font-size: 12px;
+        }
+
+        .scroll-note span {
+            width: 54px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, .1), var(--blue));
+            animation: pulseLine 1.8s ease-in-out infinite;
+        }
+
+        .drive-sequence {
+            position: relative;
+            z-index: 2;
+        }
+
+        .pin-wrap {
+            position: relative;
+            min-height: 360vh;
+        }
+
+        .pin-stage {
+            position: sticky;
+            top: 0;
+            height: 100svh;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 20px;
+            padding: clamp(20px, 4vw, 56px);
+            align-items: center;
+            isolation: isolate;
+        }
+
+        .pin-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 55% 45%, rgba(83, 163, 255, .16), transparent 30%),
+                linear-gradient(180deg, rgba(6, 12, 22, .02), rgba(6, 12, 22, .36) 55%, rgba(4, 10, 18, .92));
+            z-index: -1;
+        }
+
+        .copy-stack {
+            position: relative;
+            height: min(76vh, 760px);
+            display: flex;
+            align-items: center;
+            z-index: 4;
+        }
+
+        .copy-item {
+            position: absolute;
+            inset: auto 0 auto 0;
+            max-width: 620px;
+            padding: clamp(22px, 3vw, 34px);
+            border-radius: 30px;
+            border: 1px solid var(--line);
+            background: rgba(9, 21, 39, 0.6);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 16px 54px rgba(0, 0, 0, .24);
+            opacity: 0;
+            transform: translateX(-40px) translateY(18px) scale(.96);
+            transition: opacity .45s ease, transform .45s ease, box-shadow .45s ease;
+            pointer-events: none;
+        }
+
+        .copy-item.right {
+            transform: translateX(40px) translateY(18px) scale(.96);
+            margin-left: auto;
+        }
+
+        .copy-item.active {
+            opacity: 1;
+            transform: translateX(0) translateY(0) scale(1);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, .32), 0 0 0 1px rgba(83, 163, 255, .08);
+        }
+
+        .copy-item .step {
+            display: inline-flex;
+            min-width: 56px;
+            min-height: 56px;
+            padding: 0 16px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            border: 1px solid rgba(83, 163, 255, .16);
+            background: linear-gradient(135deg, rgba(83, 163, 255, .16), rgba(83, 163, 255, .04));
+            color: var(--blue-2);
+            font-weight: 900;
+            letter-spacing: -.02em;
+            margin-bottom: 18px;
+        }
+
+        .copy-item h2 {
+            margin: 0 0 12px;
+            font-size: clamp(30px, 4vw, 54px);
+            line-height: .98;
+            letter-spacing: -.05em;
+        }
+
+        .copy-item p {
+            margin: 0 0 22px;
+            color: var(--muted);
+            font-size: clamp(15px, 1.55vw, 18px);
+            line-height: 1.75;
+            max-width: 46ch;
+        }
+
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .mini-stat {
+            padding: 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, .06);
+            background: rgba(255, 255, 255, .03);
+        }
+
+        .mini-stat strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: clamp(18px, 2vw, 26px);
+            letter-spacing: -.04em;
+        }
+
+        .mini-stat span {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .car-column {
+            position: relative;
+            height: 100%;
+            z-index: 3;
+        }
+
+        .car-column .car-stage {
+            inset: 0;
+        }
+
+        .car-column .floating-ui.left {
+            top: 14%;
+            left: 0;
+        }
+
+        .car-column .floating-ui.right {
+            right: 0;
+            bottom: 14%;
+        }
+
+        .metrics {
+            position: relative;
+            z-index: 2;
+            padding: 120px clamp(20px, 4vw, 56px) 110px;
+            border-top: 1px solid rgba(255, 255, 255, .05);
+        }
+
+        .metrics-head {
+            max-width: 900px;
+            margin: 0 auto 34px;
+            text-align: center;
+        }
+
+        .metrics-head h3 {
+            margin: 0 0 12px;
+            font-size: clamp(32px, 5vw, 64px);
+            letter-spacing: -.06em;
+        }
+
+        .metrics-head p {
+            margin: 0 auto;
+            max-width: 760px;
+            color: var(--muted);
+            line-height: 1.8;
+            font-size: 17px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        .metric {
+            padding: 22px;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            background: rgba(9, 21, 39, 0.56);
+            backdrop-filter: blur(18px);
+            box-shadow: 0 12px 38px rgba(0, 0, 0, .22);
+        }
+
+        .metric .kicker {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--blue-2);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .metric strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: clamp(26px, 3vw, 42px);
+            letter-spacing: -.05em;
+        }
+
+        .metric p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .footer {
+            position: relative;
+            z-index: 2;
+            padding: 80px 20px 110px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .footer strong {
+            display: block;
+            margin-bottom: 12px;
+            color: var(--text);
+            font-size: clamp(30px, 4vw, 48px);
+            letter-spacing: -.05em;
+        }
+
+        @keyframes rotateSlow {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes drift {
+
+            0%,
+            100% {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate3d(18px, -14px, 0) scale(1.06);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: .35;
+                transform: scale(.96);
+            }
+
+            50% {
+                opacity: .7;
+                transform: scale(1.06);
+            }
+        }
+
+        @keyframes shineMove {
+            0% {
+                transform: translateX(-26%);
+            }
+
+            100% {
+                transform: translateX(26%);
+            }
+        }
+
+        @keyframes sweep {
+
+            0%,
+            100% {
+                transform: translateX(-16%) skewX(-18deg);
+                opacity: .16;
+            }
+
+            50% {
+                transform: translateX(132%) skewX(-18deg);
+                opacity: .36;
+            }
+        }
+
+        @keyframes headlight {
+
+            0%,
+            100% {
+                opacity: .5;
+                transform: scale(.96);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.06);
+            }
+        }
+
+        @keyframes floorPulse {
+
+            0%,
+            100% {
+                opacity: .45;
+                transform: scaleX(.95);
+            }
+
+            50% {
+                opacity: .85;
+                transform: scaleX(1.04);
+            }
+        }
+
+        @keyframes pulseLine {
+
+            0%,
+            100% {
+                transform: scaleX(.5);
+                opacity: .45;
+            }
+
+            50% {
+                transform: scaleX(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1180px) {
+
+            .hero,
+            .pin-stage {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-visual {
+                min-height: 56svh;
+            }
+
+            .copy-stack {
+                order: 2;
+                height: 52vh;
+            }
+
+            .car-column {
+                order: 1;
+                min-height: 48vh;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 760px) {
+
+            .hero-stats,
+            .metrics-grid,
+            .mini-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .floating-ui {
+                width: min(88vw, 320px);
+            }
+
+            .floating-ui.left,
+            .car-column .floating-ui.left {
+                left: 8px;
+                top: 10%;
+            }
+
+            .floating-ui.right,
+            .car-column .floating-ui.right {
+                right: 8px;
+                bottom: 12%;
+            }
+
+            .copy-stack {
+                height: 60vh;
+            }
+
+            .copy-item {
+                border-radius: 24px;
+            }
+
+            .scroll-note {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-noise"></div>
+    <div class="bg-hex"></div>
+    <div class="road-overlay">
+        <div class="road-lines"></div>
+    </div>
+
+    <section class="hero" id="top">
+        <div class="hero-copy">
+            <div class="eyebrow">ScrollMagic · GSAP · Seamless Car Drive</div>
+            <h1><span class="gradient">Ein Auto.</span><br>Ein Drive.<br>Kein sichtbarer Übergang.</h1>
+            <p class="lead">
+                Hier fährt oben exakt dasselbe Fahrzeug weiter, das später auch durch die Scroll-Sequenz geht. Keine
+                zweite Version,
+                kein harter Wechsel und kein sichtbarer Übergang. Das Fahrzeug bleibt als durchgehender Layer erhalten
+                und wird nur
+                anders positioniert, skaliert und dynamisch in Szene gesetzt.
+            </p>
+            <div class="hero-actions">
+                <a class="btn btn-primary" href="#sequence">Animation starten</a>
+                <a class="btn btn-secondary" href="#metrics">Performance ansehen</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <strong>Nahtlos</strong>
+                    <span>Das Hero-Auto ist identisch mit dem fahrenden Fahrzeug in der Scroll-Sequenz.</span>
+                </div>
+                <div class="stat">
+                    <strong>Mehr Pace</strong>
+                    <span>Zusätzliche Kamera-Wirkung, Speed-Layer, Headlight-Flare und Motion-Impulse.</span>
+                </div>
+                <div class="stat">
+                    <strong>Tuning-Look</strong>
+                    <span>Hex-Muster, HUD-Panels, Performance-Sprache und aggressive Inszenierung.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="speed-rings"></div>
+            <div class="turbo-glow"></div>
+            <div class="smoke"></div>
+
+            <div class="floating-ui left">
+                <div class="hud">
+                    <span class="label">Launch Control</span>
+                    <strong>Stage 1 Ready</strong>
+                    <p>Direkter Einstieg mit mehr Spannung, Licht und Bewegung ohne Modell-Wechsel.</p>
+                </div>
+            </div>
+
+            <div class="floating-ui right">
+                <div class="hud">
+                    <span class="label">Drive Layer</span>
+                    <strong>Eine Fahrzeug-Instanz</strong>
+                    <p>Dasselbe Element fährt vom Hero in die gesamte Story weiter. Genau dadurch sieht man keinen Cut.
+                    </p>
+                </div>
+            </div>
+
+            <div class="car-stage" id="heroCarStage">
+                <div class="car-wrap" id="sharedCarWrap">
+                    <div class="car-shell" id="sharedCar">
+                        <!-- Setze hier dein freigestelltes Auto ein -->
+                        <img src="assets/car-top.png" alt="Chiptuning Fahrzeug"
+                            onerror="this.src='https://dummyimage.com/1600x900/0e1726/9ec9ff.png&text=CAR+PNG+HIER+EINSETZEN';">
+                        <div class="car-blur"></div>
+                        <div class="car-shine"></div>
+                        <div class="car-flare"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-note"><span></span> Scrollen startet den Drive</div>
+    </section>
+
+    <main class="drive-sequence" id="sequence">
+        <section class="pin-wrap">
+            <div class="pin-stage">
+                <div class="copy-stack">
+                    <article class="copy-item active" data-step="0">
+                        <div class="step">01</div>
+                        <h2>Launch ohne Cut</h2>
+                        <p>
+                            Direkt nach dem Hero bleibt exakt dasselbe Auto sichtbar und wird nur in seine
+                            Drive-Position gezogen.
+                            Dadurch gibt es keinen harten Wechsel von „oben stehendes Auto“ zu „fahrendem Auto“.
+                        </p>
+                        <div class="mini-stats">
+                            <div class="mini-stat"><strong>1 Layer</strong><span>gleiche Fahrzeuginstanz</span></div>
+                            <div class="mini-stat"><strong>0 Cuts</strong><span>kein sichtbarer Sprung</span></div>
+                            <div class="mini-stat"><strong>+Flow</strong><span>saubere Scroll-Transition</span></div>
+                        </div>
+                    </article>
+
+                    <article class="copy-item right" data-step="1">
+                        <div class="step">02</div>
+                        <h2>Mehr Energie im Mittelteil</h2>
+                        <p>
+                            Das Auto bekommt mehr Geschwindigkeit durch stärkere Seitwärtsbewegung, leichtes
+                            Nick-Motion-Verhalten,
+                            zusätzliche Speed-Lights und tieferen Glow unter dem Fahrzeug.
+                        </p>
+                        <div class="mini-stats">
+                            <div class="mini-stat"><strong>Boost</strong><span>mehr Parallax-Gefühl</span></div>
+                            <div class="mini-stat"><strong>HUD</strong><span>datengetriebener Look</span></div>
+                            <div class="mini-stat"><strong>Motion</strong><span>mehr Druck im Scroll</span></div>
+                        </div>
+                    </article>
+
+                    <article class="copy-item" data-step="2">
+                        <div class="step">03</div>
+                        <h2>Prüfstand trifft Straße</h2>
+                        <p>
+                            Die Sequenz kann jetzt gleichzeitig technisch und emotional wirken: links und rechts sliden
+                            Boxen ein,
+                            während das Auto als zentrales Performance-Objekt die komplette Story zusammenhält.
+                        </p>
+                        <div class="mini-stats">
+                            <div class="mini-stat"><strong>PS</strong><span>visuell stärker inszeniert</span></div>
+                            <div class="mini-stat"><strong>NM</strong><span>mehr Tiefe und Fokus</span></div>
+                            <div class="mini-stat"><strong>Stage</strong><span>ideal für CTA-Sektion</span></div>
+                        </div>
+                    </article>
+
+                    <article class="copy-item right" data-step="3">
+                        <div class="step">04</div>
+                        <h2>Finaler Exit-Move</h2>
+                        <p>
+                            Zum Ende zieht das Fahrzeug kontrolliert nach unten aus der Szene. Die Inhalte bleiben
+                            stehen und die
+                            Seite endet mit einem klaren Performance-Finish statt mit einem abrupten Stopp.
+                        </p>
+                        <div class="mini-stats">
+                            <div class="mini-stat"><strong>Finish</strong><span>sauberer Endmove</span></div>
+                            <div class="mini-stat"><strong>CTA</strong><span>perfekt für Konfigurator</span></div>
+                            <div class="mini-stat"><strong>Style</strong><span>durchgehend hochwertig</span></div>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="car-column">
+                    <div class="speed-rings"></div>
+                    <div class="turbo-glow"></div>
+                    <div class="smoke"></div>
+
+                    <div class="floating-ui left">
+                        <div class="hud">
+                            <span class="label">Power Delta</span>
+                            <strong>+58 PS</strong>
+                            <p>Die UI kann auf Wunsch direkt mit echten Fahrzeugdaten oder Konfigurator-Werten verbunden
+                                werden.</p>
+                        </div>
+                    </div>
+
+                    <div class="floating-ui right">
+                        <div class="hud">
+                            <span class="label">Torque Delta</span>
+                            <strong>+100 NM</strong>
+                            <p>Die eingeblendeten Panels bleiben dezent und unterstützen die Story statt das Auto zu
+                                überdecken.</p>
+                        </div>
+                    </div>
+
+                    <div class="car-stage" id="pinCarTarget"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="metrics" id="metrics">
+        <div class="metrics-head">
+            <h3>Was diese Version besser macht</h3>
+            <p>
+                Der wichtigste Unterschied ist die durchgehende Fahrzeug-Instanz. Das Auto wird nicht doppelt aufgebaut,
+                sondern als
+                ein gemeinsames Element zwischen Hero und Scroll-Pin bewegt. Genau damit verschwindet der unschöne
+                Übergang.
+            </p>
+        </div>
+        <div class="metrics-grid">
+            <div class="metric">
+                <span class="kicker">Seamless</span>
+                <strong>Ein Car-Element</strong>
+                <p>Hero und Fahranimation benutzen dieselbe Fahrzeug-Struktur und dieselben Effekte.</p>
+            </div>
+            <div class="metric">
+                <span class="kicker">Motion</span>
+                <strong>Mehr Lebendigkeit</strong>
+                <p>Idle-Float, Headlight-Glow, Shine-Sweep, Speed-Rings und ein tiefer Road-Look geben mehr Bewegung.
+                </p>
+            </div>
+            <div class="metric">
+                <span class="kicker">Story</span>
+                <strong>Bessere Dramaturgie</strong>
+                <p>Die Inhalte erscheinen abwechselnd links und rechts, während das Auto zentral als roter Faden bleibt.
+                </p>
+            </div>
+            <div class="metric">
+                <span class="kicker">Tuning</span>
+                <strong>Mehr Performance-Vibe</strong>
+                <p>Farbwelt, UI, Wabenmuster und Glow wirken direkter nach Prüfstand, Stage und Performance-Portal.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <strong>Wichtig für dein Projekt</strong>
+        Ersetze einfach nur das Bild <code>assets/car-top.png</code> durch dein freigestelltes Fahrzeug. Alles andere
+        ist bereits so gebaut,
+        dass genau dieses Auto oben startet und später sichtbar weiterfährt.
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/ScrollMagic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.8/plugins/animation.gsap.min.js"></script>
+    <script>
+        const controller = new ScrollMagic.Controller();
+
+        const heroCarStage = document.getElementById('heroCarStage');
+        const pinCarTarget = document.getElementById('pinCarTarget');
+        const sharedCarWrap = document.getElementById('sharedCarWrap');
+        const sharedCar = document.getElementById('sharedCar');
+        const pinWrap = document.querySelector('.pin-wrap');
+        const stepCards = [...document.querySelectorAll('.copy-item')];
+
+        let isPinned = false;
+
+        function moveCarTo(target) {
+            if (!target || target.contains(sharedCarWrap)) return;
+            target.appendChild(sharedCarWrap);
+        }
+
+        function setStep(index) {
+            stepCards.forEach((card, i) => card.classList.toggle('active', i === index));
+        }
+
+        function enterPinned() {
+            if (isPinned) return;
+            isPinned = true;
+            moveCarTo(pinCarTarget);
+        }
+
+        function leavePinned(direction) {
+            if (!isPinned) return;
+            isPinned = false;
+            if (direction === 'REVERSE') {
+                moveCarTo(heroCarStage);
+            }
+        }
+
+        new ScrollMagic.Scene({
+            triggerElement: '.pin-wrap',
+            triggerHook: 0,
+            duration: document.querySelector('.pin-wrap').offsetHeight - window.innerHeight
+        })
+            .on('enter', (e) => {
+                if (e.scrollDirection === 'FORWARD') enterPinned();
+            })
+            .on('leave', (e) => {
+                if (e.scrollDirection === 'REVERSE') leavePinned('REVERSE');
+            })
+            .addTo(controller);
+
+        const driveTl = gsap.timeline({ paused: true });
+        driveTl
+            .fromTo(sharedCarWrap, {
+                xPercent: 0,
+                yPercent: 0,
+                scale: 1,
+                rotation: 0,
+                filter: 'drop-shadow(0 30px 60px rgba(0,0,0,.45))'
+            }, {
+                xPercent: -2,
+                yPercent: 2,
+                scale: 1.04,
+                rotation: -1.2,
+                duration: 1,
+                ease: 'none'
+            })
+            .to(sharedCar, {
+                xPercent: 4,
+                yPercent: -2,
+                rotation: .4,
+                duration: 1,
+                ease: 'none'
+            }, 0)
+            .to(sharedCarWrap, {
+                xPercent: 5,
+                yPercent: 9,
+                scale: 1.12,
+                rotation: 1.8,
+                duration: 1,
+                ease: 'none'
+            }, 1)
+            .to(sharedCar, {
+                xPercent: -4,
+                yPercent: 1,
+                rotation: -.5,
+                duration: 1,
+                ease: 'none'
+            }, 1)
+            .to(sharedCarWrap, {
+                xPercent: -1,
+                yPercent: 24,
+                scale: 1.18,
+                rotation: -1.4,
+                duration: 1,
+                ease: 'none'
+            }, 2)
+            .to(sharedCar, {
+                xPercent: 3,
+                yPercent: -1,
+                rotation: .35,
+                duration: 1,
+                ease: 'none'
+            }, 2)
+            .to(sharedCarWrap, {
+                xPercent: 0,
+                yPercent: 52,
+                scale: .92,
+                rotation: -3.2,
+                duration: 1,
+                ease: 'none'
+            }, 3)
+            .to(sharedCar, {
+                xPercent: 0,
+                yPercent: 0,
+                rotation: 0,
+                duration: 1,
+                ease: 'none'
+            }, 3);
+
+        new ScrollMagic.Scene({
+            triggerElement: '.pin-wrap',
+            triggerHook: 0,
+            duration: document.querySelector('.pin-wrap').offsetHeight - window.innerHeight
+        })
+            .on('progress', (e) => {
+                driveTl.progress(e.progress);
+
+                const p = e.progress;
+                let step = 0;
+                if (p >= 0.24 && p < 0.5) step = 1;
+                else if (p >= 0.5 && p < 0.76) step = 2;
+                else if (p >= 0.76) step = 3;
+                setStep(step);
+            })
+            .addTo(controller);
+
+        const heroFloat = gsap.timeline({ repeat: -1, yoyo: true });
+        heroFloat.to(sharedCar, {
+            yPercent: -1.4,
+            rotation: .35,
+            duration: 1.7,
+            ease: 'sine.inOut'
+        }).to(sharedCar, {
+            yPercent: .8,
+            rotation: -.25,
+            duration: 1.7,
+            ease: 'sine.inOut'
+        });
+
+        window.addEventListener('resize', () => {
+            controller.update(true);
+        });
+    </script>
+</body>
+
+</html>

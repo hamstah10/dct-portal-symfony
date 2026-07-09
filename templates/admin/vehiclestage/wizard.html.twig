@@ -1,0 +1,322 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Neue Leistungsstufe erstellen{% endblock %}
+
+{% block main %}
+<div
+    data-controller="stage-wizard"
+    data-stage-wizard-url-types-value="{{ path('admin_vehiclestage_wizard_api_types', {poolId: '__POOL__'}) }}"
+    data-stage-wizard-url-brands-value="{{ path('admin_vehiclestage_wizard_api_brands', {poolId: '__POOL__', typeId: '__TYPE__'}) }}"
+    data-stage-wizard-url-series-value="{{ path('admin_vehiclestage_wizard_api_series', {poolId: '__POOL__', brandId: '__BRAND__'}) }}"
+    data-stage-wizard-url-models-value="{{ path('admin_vehiclestage_wizard_api_models', {poolId: '__POOL__', seriesId: '__SERIES__'}) }}"
+    data-stage-wizard-url-engines-value="{{ path('admin_vehiclestage_wizard_api_engines', {poolId: '__POOL__', modelId: '__MODEL__'}) }}"
+    data-stage-wizard-url-stages-value="{{ path('admin_vehiclestage_wizard_api_stages', {engineId: '__ENGINE__'}) }}"
+    data-stage-wizard-url-save-value="{{ path('admin_vehiclestage_wizard_save') }}"
+>
+    {# Erfolg-Meldung #}
+    <div class="alert alert-success d-none mb-4" data-stage-wizard-target="successMsg"></div>
+
+    {# Schritt-Indikator #}
+    <div class="d-flex align-items-center gap-0 mb-4">
+        {% for i, label in {1: 'Datenbestand', 2: 'Fahrzeug', 3: 'Stage-Details'} %}
+            <div class="d-flex align-items-center {% if not loop.last %}flex-grow-1{% endif %}">
+                <div
+                    class="wizard-step-dot"
+                    data-stage-wizard-target="stepIndicator"
+                >
+                    <span class="step-num">{{ i }}</span>
+                    <span class="step-label">{{ label }}</span>
+                </div>
+                {% if not loop.last %}
+                    <div class="wizard-step-line flex-grow-1"></div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {# Fehler #}
+    <div class="alert alert-danger d-none mb-3" data-stage-wizard-target="errorMsg"></div>
+
+    {# ── Schritt 1: Datenbestand ── #}
+    <div data-stage-wizard-target="step1">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-1">Schritt 1: Datenbestand wählen</h5>
+                <p class="text-muted small mb-4">Wähle den Fahrzeugdatenbestand, in dem die neue Leistungsstufe angelegt werden soll.</p>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Datenbestand</label>
+                    <select
+                        class="form-select form-select-lg"
+                        data-stage-wizard-target="pool"
+                        data-action="change->stage-wizard#poolChanged"
+                    >
+                        <option value="">— Datenbestand wählen —</option>
+                        {% for pool in pools %}
+                            <option value="{{ pool.id }}">{{ pool.name }} ({{ pool.poolKey }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('admin_vehicle_stage_index') }}" class="btn btn-outline-secondary">
+                        Abbrechen
+                    </a>
+                    <button
+                        type="button"
+                        class="btn btn-dark px-4"
+                        data-action="click->stage-wizard#goToStep2"
+                    >
+                        Weiter →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Schritt 2: Fahrzeug auswählen ── #}
+    <div data-stage-wizard-target="step2" class="d-none">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-1">Schritt 2: Fahrzeug wählen</h5>
+                <p class="text-muted small mb-4">Wähle das Fahrzeug, für das die Leistungsstufe erstellt werden soll.</p>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Fahrzeugtyp</label>
+                        <select
+                            class="form-select"
+                            data-stage-wizard-target="type"
+                            data-action="change->stage-wizard#typeChanged"
+                            disabled
+                        >
+                            <option value="">Fahrzeugtyp wählen</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Marke</label>
+                        <select
+                            class="form-select"
+                            data-stage-wizard-target="brand"
+                            data-action="change->stage-wizard#brandChanged"
+                            disabled
+                        >
+                            <option value="">Marke wählen</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Baureihe</label>
+                        <select
+                            class="form-select"
+                            data-stage-wizard-target="series"
+                            data-action="change->stage-wizard#seriesChanged"
+                            disabled
+                        >
+                            <option value="">Baureihe wählen</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Modell</label>
+                        <select
+                            class="form-select"
+                            data-stage-wizard-target="model"
+                            data-action="change->stage-wizard#modelChanged"
+                            disabled
+                        >
+                            <option value="">Modell wählen</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Motor</label>
+                        <select
+                            class="form-select"
+                            data-stage-wizard-target="engine"
+                            data-action="change->stage-wizard#engineChanged"
+                            disabled
+                        >
+                            <option value="">Motor wählen</option>
+                        </select>
+                    </div>
+                </div>
+
+                {# Vorhandene Stages #}
+                <div data-stage-wizard-target="existingStages"></div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-action="click->stage-wizard#backToStep1"
+                    >
+                        ← Zurück
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-dark px-4"
+                        data-action="click->stage-wizard#goToStep3"
+                    >
+                        Weiter →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Schritt 3: Stage-Details ── #}
+    <div data-stage-wizard-target="step3" class="d-none">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-1">Schritt 3: Stage-Details</h5>
+                <p class="text-muted small mb-1">Motor: <strong data-stage-wizard-target="engineLabel"></strong></p>
+                <p class="text-muted small mb-4">Fülle die Details der neuen Leistungsstufe aus. Alle Felder außer Name können später bearbeitet werden.</p>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="z.B. Stage 1, Stage 2 Plus …"
+                            data-stage-wizard-target="name"
+                        >
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Leistung (PS)</label>
+                        <input type="number" class="form-control" placeholder="z.B. 320" data-stage-wizard-target="hp" min="0">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Drehmoment (Nm)</label>
+                        <input type="number" class="form-control" placeholder="z.B. 450" data-stage-wizard-target="nm" min="0">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Original PS</label>
+                        <input type="number" class="form-control" placeholder="z.B. 260" data-stage-wizard-target="originalPs" min="0">
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Original Nm</label>
+                        <input type="number" class="form-control" placeholder="z.B. 380" data-stage-wizard-target="originalNm" min="0">
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-semibold">Preis (€)</label>
+                        <input type="number" class="form-control" placeholder="z.B. 399.00" data-stage-wizard-target="price" step="0.01" min="0">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Beschreibung</label>
+                        <textarea class="form-control" rows="4" placeholder="Kurze Beschreibung der Leistungsstufe …" data-stage-wizard-target="description"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Icon (Media Manager)</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <select
+                                class="form-select"
+                                data-stage-wizard-target="iconMediaAsset"
+                                data-action="change->stage-wizard#iconChanged"
+                            >
+                                <option value="">— Kein Icon —</option>
+                                {% for asset in mediaAssets %}
+                                    <option
+                                        value="{{ asset.id }}"
+                                        data-image="{{ asset.filePath starts with '/' or asset.filePath starts with 'http' ? asset.filePath : '/' ~ asset.filePath }}"
+                                    >{{ asset.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <img
+                                data-stage-wizard-target="iconPreview"
+                                src=""
+                                alt=""
+                                class="d-none"
+                                style="width:48px;height:48px;object-fit:contain;border:1px solid #dee2e6;border-radius:6px;background:#f8f9fa;"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                id="wizardActive"
+                                data-stage-wizard-target="active"
+                                checked
+                            >
+                            <label class="form-check-label fw-semibold" for="wizardActive">Aktiv</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-action="click->stage-wizard#backToStep2"
+                    >
+                        ← Zurück
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-success px-4"
+                        data-stage-wizard-target="submitBtn"
+                        data-action="click->stage-wizard#save"
+                    >
+                        Leistungsstufe erstellen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wizard-step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 80px;
+}
+.wizard-step-dot .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #dee2e6;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    transition: background .2s, color .2s;
+}
+.wizard-step-dot .step-label {
+    font-size: 11px;
+    color: #6c757d;
+    white-space: nowrap;
+    font-weight: 500;
+}
+.wizard-step-dot.active .step-num {
+    background: #212529;
+    color: #fff;
+}
+.wizard-step-dot.active .step-label {
+    color: #212529;
+    font-weight: 700;
+}
+.wizard-step-dot.completed .step-num {
+    background: #198754;
+    color: #fff;
+}
+.wizard-step-dot.completed .step-label {
+    color: #198754;
+}
+.wizard-step-line {
+    height: 2px;
+    background: #dee2e6;
+    margin-bottom: 20px;
+}
+</style>
+{% endblock %}

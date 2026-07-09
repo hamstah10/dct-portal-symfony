@@ -1,0 +1,87 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Getriebe{% endblock %}
+
+{% block main %}
+    {% set activeTab = activeTab|default('type') %}
+
+    <div class="container-fluid px-0 mt-3">
+        <ul class="nav nav-tabs mb-3 tab-style-6" id="admin-vehicle-gearbox-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'type' ? 'active' : '' }}"
+                        id="tab-vehicle-gearbox-type"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-gearbox-type"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-gearbox-type"
+                        aria-selected="{{ activeTab == 'type' ? 'true' : 'false' }}">
+                    {{ ux_icon('material-symbols:car-gear-outline-rounded') }} Getriebe-Typen
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'gearbox' ? 'active' : '' }}"
+                        id="tab-vehicle-gearbox-list"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-gearbox-list"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-gearbox-list"
+                        aria-selected="{{ activeTab == 'gearbox' ? 'true' : 'false' }}">
+                    {{ ux_icon('game-icons:gear-stick') }} Getriebe
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade {{ activeTab == 'type' ? 'show active' : '' }}"
+                 id="panel-vehicle-gearbox-type"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-gearbox-type">
+                {{ render(path('admin_gearbox_type_index', { embed: 1 })) }}
+            </div>
+            <div class="tab-pane fade {{ activeTab == 'gearbox' ? 'show active' : '' }}"
+                 id="panel-vehicle-gearbox-list"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-gearbox-list">
+                {{ render(path('admin_gearbox_index', { embed: 1 })) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const tabs = document.querySelectorAll('#admin-vehicle-gearbox-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const tabs = document.querySelectorAll('#admin-vehicle-gearbox-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

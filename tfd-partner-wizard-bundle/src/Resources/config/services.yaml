@@ -1,0 +1,17 @@
+services:
+  Tfd\PartnerWizardBundle\:
+    resource: '../../*'
+    exclude:
+      - '../../DependencyInjection/'
+      - '../../Entity/'
+      - '../../TfdPartnerWizardBundle.php'
+    bind:
+      $projectDir: '%kernel.project_dir%'
+    autowire: true
+    autoconfigure: true
+
+  Tfd\PartnerWizardBundle\Controller\:
+    resource: '../../Controller/'
+    tags: ['controller.service_arguments']
+    autowire: true
+    autoconfigure: true

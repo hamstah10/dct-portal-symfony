@@ -1,0 +1,310 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Support / Newsletter{% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Brevo Anbindung</h5>
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-4">
+                        <label class="form-label">Brevo Liste</label>
+                        <div class="form-control-plaintext">Liste #10 (fix)</div>
+                    </div>
+                    <div class="col-12 col-lg-3">
+                        <label class="form-label">Aktionen</label>
+                        <div class="d-grid gap-2">
+                            <button id="brevo-sync" class="btn btn-primary" type="button">
+                                Newsletter Kontakte syncen
+                            </button>
+                            <button id="brevo-sync-test" class="btn btn-outline-primary" type="button">
+                                Test-Sync (10 Kontakte)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-3">
+                        <label class="form-label">Limit</label>
+                        <input id="brevo-limit" type="number" min="0" step="1" value="0" class="form-control" />
+                        <div class="form-text">0 = alle. Für Tests z. B. 10.</div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <div class="brevo-stats">
+                            <div class="brevo-stat">
+                                <div class="brevo-stat-label">Kunden gesamt</div>
+                                <div class="brevo-stat-value" id="brevo-stat-total">-</div>
+                            </div>
+                            <div class="brevo-stat">
+                                <div class="brevo-stat-label">Newsletter aktiv</div>
+                                <div class="brevo-stat-value" id="brevo-stat-newsletter">-</div>
+                            </div>
+                            <div class="brevo-stat">
+                                <div class="brevo-stat-label">Mit E-Mail</div>
+                                <div class="brevo-stat-value" id="brevo-stat-email">-</div>
+                            </div>
+                        </div>
+                        <div class="form-text mt-2">
+                            Quelle: Kunden mit Newsletter-Flag. Sync erstellt/aktualisiert Brevo Kontakte.
+                        </div>
+                    </div>
+                </div>
+                <div id="brevo-status" class="alert alert-info mt-4">
+                    Brevo Status wird geladen...
+                </div>
+                <div id="brevo-result" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Synchronisierte Kunden</h5>
+                    <div class="d-flex gap-2">
+                        <button id="brevo-synced-reload" class="btn btn-outline" type="button">
+                            Liste aktualisieren
+                        </button>
+                        <button id="brevo-synced-clear" class="btn btn-outline-danger" type="button">
+                            Sync-Status löschen
+                        </button>
+                    </div>
+                </div>
+                <div id="brevo-synced-status" class="text-muted">Liste wird geladen...</div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Kunde</th>
+                                <th>E-Mail</th>
+                                <th style="width: 180px;">Synced am</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brevo-synced-body">
+                            <tr>
+                                <td colspan="4" class="text-muted">Noch keine Daten.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="mb-0 text-muted">Hier kommt die Newsletter-Verwaltung (Abonnenten, Kampagnen) hin.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const syncBtn = document.getElementById('brevo-sync');
+        const statusBox = document.getElementById('brevo-status');
+        const resultBox = document.getElementById('brevo-result');
+        const limitInput = document.getElementById('brevo-limit');
+        const statTotal = document.getElementById('brevo-stat-total');
+        const statNewsletter = document.getElementById('brevo-stat-newsletter');
+        const statEmail = document.getElementById('brevo-stat-email');
+        const syncTestBtn = document.getElementById('brevo-sync-test');
+        const syncedReloadBtn = document.getElementById('brevo-synced-reload');
+        const syncedClearBtn = document.getElementById('brevo-synced-clear');
+        const syncedStatus = document.getElementById('brevo-synced-status');
+        const syncedBody = document.getElementById('brevo-synced-body');
+
+        const statsUrl = '{{ path('admin_brevo_newsletter_stats') }}';
+        const syncUrl = '{{ path('admin_brevo_newsletter_sync') }}';
+        const syncedUrl = '{{ path('admin_brevo_newsletter_synced') }}';
+        const clearSyncedUrl = '{{ path('admin_brevo_newsletter_clear_synced') }}';
+
+        const setStatus = (type, message) => {
+            statusBox.className = `alert alert-${type}`;
+            statusBox.textContent = message;
+        };
+
+        const renderResult = (payload) => {
+            if (!payload) {
+                resultBox.innerHTML = '';
+                return;
+            }
+            resultBox.innerHTML = `
+                <div class="brevo-result-card">
+                    <div class="brevo-result-header">Sync Ergebnis</div>
+                    <pre>${escapeHtml(JSON.stringify(payload, null, 2))}</pre>
+                </div>
+            `;
+        };
+
+        const escapeHtml = (value) => String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const renderSyncedList = (items) => {
+            if (!Array.isArray(items) || items.length === 0) {
+                syncedBody.innerHTML = '<tr><td colspan="4" class="text-muted">Keine synchronisierten Kunden gefunden.</td></tr>';
+                return;
+            }
+
+            syncedBody.innerHTML = items.map((item) => `
+                <tr>
+                    <td>${escapeHtml(item.id)}</td>
+                    <td>${escapeHtml(item.name || '')}</td>
+                    <td>${escapeHtml(item.email || '')}</td>
+                    <td>${escapeHtml(item.syncedAt || '')}</td>
+                </tr>
+            `).join('');
+        };
+
+        const loadSynced = async () => {
+            syncedStatus.textContent = 'Liste wird geladen...';
+            try {
+                const response = await fetch(syncedUrl);
+                const payload = await response.json();
+                if (!payload.success) {
+                    syncedStatus.textContent = payload.message || 'Fehler beim Laden der Liste.';
+                    return;
+                }
+
+                syncedStatus.textContent = `Gesamt: ${payload.data?.total ?? 0}`;
+                renderSyncedList(payload.data?.items || []);
+            } catch (error) {
+                syncedStatus.textContent = `Fehler: ${error.message}`;
+            }
+        };
+
+        const clearSynced = async () => {
+            syncedStatus.textContent = 'Sync-Status wird gelöscht...';
+            try {
+                const response = await fetch(clearSyncedUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ confirm: true })
+                });
+                const payload = await response.json();
+                if (!payload.success) {
+                    syncedStatus.textContent = payload.message || 'Fehler beim Löschen.';
+                    return;
+                }
+
+                const cleared = payload.data?.cleared ?? 0;
+                syncedStatus.textContent = `Sync-Status gelöscht (${cleared}).`;
+                renderSyncedList([]);
+                loadSynced();
+            } catch (error) {
+                syncedStatus.textContent = `Fehler: ${error.message}`;
+            }
+        };
+
+        const loadStats = async () => {
+            try {
+                const response = await fetch(statsUrl);
+                const payload = await response.json();
+                if (!payload.success) {
+                    return;
+                }
+                const data = payload.data || {};
+                statTotal.textContent = data.total ?? '-';
+                statNewsletter.textContent = data.newsletter ?? '-';
+                statEmail.textContent = data.withEmail ?? '-';
+            } catch (error) {
+                // ignore
+            }
+        };
+
+        setStatus('info', 'Brevo Liste #10 ist fix hinterlegt.');
+
+        const runSync = async (limitOverride = null) => {
+            setStatus('info', 'Sync läuft...');
+            renderResult(null);
+
+            const limitValue = Number(limitInput?.value || 0);
+            const requestPayload = { listId: 10 };
+            const effectiveLimit = Number.isFinite(limitOverride) && limitOverride !== null
+                ? Number(limitOverride)
+                : limitValue;
+            if (effectiveLimit > 0) {
+                requestPayload.limit = effectiveLimit;
+            }
+
+            try {
+                const response = await fetch(syncUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(requestPayload)
+                });
+                const responsePayload = await response.json();
+                if (!responsePayload.success) {
+                    setStatus('danger', responsePayload.message || 'Sync fehlgeschlagen.');
+                    renderResult(responsePayload);
+                    return;
+                }
+
+                setStatus('success', 'Sync abgeschlossen.');
+                renderResult(responsePayload.data || responsePayload);
+                loadStats();
+                loadSynced();
+            } catch (error) {
+                setStatus('danger', `Sync Fehler: ${error.message}`);
+            }
+        };
+
+        syncBtn?.addEventListener('click', () => runSync());
+        syncTestBtn?.addEventListener('click', () => runSync(10));
+        syncedReloadBtn?.addEventListener('click', () => loadSynced());
+        syncedClearBtn?.addEventListener('click', () => clearSynced());
+
+        loadStats();
+        loadSynced();
+    </script>
+
+    <style>
+        .brevo-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+        }
+
+        .brevo-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+        }
+
+        .brevo-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .brevo-result-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .brevo-result-header {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .brevo-result-card pre {
+            margin: 0;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+    </style>
+{% endblock %}

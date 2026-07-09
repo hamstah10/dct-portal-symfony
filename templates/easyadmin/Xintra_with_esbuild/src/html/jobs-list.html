@@ -1,0 +1,509 @@
+<!-- include mainhead.html"-->
+
+</head>
+
+<body>
+
+    <!-- include switcher.html"-->
+    <!-- include loader.html"-->
+
+    <div class="page">
+        <!-- include header.html"-->
+        <!-- include sidebar.html"-->
+
+        <!-- Start::app-content -->
+        <div class="main-content app-content">
+            <div class="container-fluid">
+
+                <!-- Page Header -->
+                <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+                    <div>
+                        <nav>
+                            <ol class="breadcrumb mb-1">
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Apps</a></li>
+                                <li class="breadcrumb-item"><a href="javascript:void(0);">Jobs</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Jobs List</li>
+                            </ol>
+                        </nav>
+                        <h1 class="page-title fw-medium fs-18 mb-0">Jobs List</h1>
+                    </div>
+                    <div class="btn-list">
+                        <button class="btn btn-white btn-wave">
+                            <i class="ri-filter-3-line align-middle me-1 lh-1"></i> Filter
+                        </button>
+                        <button class="btn btn-primary btn-wave me-0">
+                            <i class="ri-share-forward-line me-1"></i> Share
+                        </button>
+                    </div>
+                </div>
+                <!-- Page Header Close -->
+
+                <!-- Start::row-1 -->
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card custom-card overflow-hidden">
+                            <div class="card-header justify-content-between">
+                                <div class="card-title">
+                                    All Jobs List
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="job-post.html" class="btn btn-primary btn-wave btn-sm">
+                                        <i class="ri-add-line me-1 align-middle"></i>Post Job
+                                    </a> 
+                                    <div>
+                                        <input class="form-control form-control-sm" type="text" placeholder="Search Here" aria-label=".form-control-sm example">
+                                    </div>
+                                    <div class="dropdown">
+                                        <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Sort By<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                                        </a>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Posted Date</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Status</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Department</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Job Type</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Newest</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Oldest</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover text-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th scope="row" class="ps-4"><input class="form-check-input check-all" type="checkbox" id="checkboxNoLabeljob1" value="" aria-label="..."></th>
+                                                <th scope="col">Job Title</th>
+                                                <th scope="col">Company</th>
+                                                <th scope="col">Department</th>
+                                                <th scope="col">Applications</th>
+                                                <th scope="col">Posted Date</th>
+                                                <th scope="col">Vacancies</th>
+                                                <th scope="col">Job Type</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Expires on</th>
+                                                <th scope="col">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob22" value="" aria-label="..."></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/2.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> HTML Developer - Fresher</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/8.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">HorizonTech Ventures</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Development
+                                                </td>
+                                                <td>18</td>
+                                                <td><span class="badge bg-primary-transparent"><i class="bi bi-clock me-1"></i>Nov 12 2024</span></td>
+                                                <td>36</td>
+                                                <td>Full Time</td>
+                                                <td><span class="badge rounded-pill bg-success-transparent">Approved</span></td>
+                                                <td>
+                                                    Oct 15 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob33" value="" aria-label="..." checked=""></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/1.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> React Lead Developer</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/10.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">FusionTech Industries</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Design
+                                                </td>  
+                                                <td>31</td>
+                                                <td><span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>Oct 15 2024</span></td>
+                                                <td>50</td>
+                                                <td>Full Time</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-danger-transparent">Rejected</span>
+                                                </td>
+                                                <td>
+                                                    Sep 27 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob44" value="" aria-label="..." checked=""></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/3.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> Vuejs Frontend Developer</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/1.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">Optima Ventures Inc.</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Management
+                                                </td>
+                                                <td>36</td>
+                                                <td><span class="badge bg-primary-transparent"><i class="bi bi-clock me-1"></i>May 15 2024</span></td>
+                                                <td>35</td>
+                                                <td>Part Time</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-warning-transparent">Pending</span>
+                                                </td>
+                                                <td>
+                                                    Dec 19 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob55" value="" aria-label="..."></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/4.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> Wordpress Developer - Remote</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/2.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">Tech Innovators Ltd.</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Marketing
+                                                </td>
+                                                <td>20</td>
+                                                <td><span class="badge bg-primary-transparent"><i class="bi bi-clock me-1"></i>Feb 12 2024</span></td>
+                                                <td>60</td>
+                                                <td>Part Time</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-success-transparent">Approved</span>
+                                                </td>
+                                                <td>
+                                                    Jan 12 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob2" value="" aria-label="..."></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/2.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> HTML Developer - Fresher</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/8.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">HorizonTech Ventures</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Development
+                                                </td>
+                                                <td>18</td>
+                                                <td><span class="badge bg-primary-transparent"><i class="bi bi-clock me-1"></i>Nov 12 2024</span></td>
+                                                <td>36</td>
+                                                <td>Full Time</td>
+                                                <td><span class="badge rounded-pill bg-success-transparent">Approved</span></td>
+                                                <td>
+                                                    Oct 15 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob3" value="" aria-label="..." checked=""></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/1.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> React Lead Developer</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/10.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">FusionTech Industries</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Design
+                                                </td>  
+                                                <td>31</td>
+                                                <td><span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>Oct 15 2024</span></td>
+                                                <td>50</td>
+                                                <td>Full Time</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-danger-transparent">Rejected</span>
+                                                </td>
+                                                <td>
+                                                    Sep 27 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob4" value="" aria-label="..." checked=""></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/3.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> Vuejs Frontend Developer</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/1.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">Optima Ventures Inc.</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Management
+                                                </td>
+                                                <td>36</td>
+                                                <td><span class="badge bg-primary-transparent"><i class="bi bi-clock me-1"></i>May 15 2024</span></td>
+                                                <td>35</td>
+                                                <td>Part Time</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-warning-transparent">Pending</span>
+                                                </td>
+                                                <td>
+                                                    Dec 19 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr class="joblist-list">
+                                                <td class="ps-4 joblist-checkbox"><input class="form-check-input" type="checkbox" id="checkboxNoLabeljob5" value="" aria-label="..."></td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <span class="avatar avatar-md border p-1 bg-light">
+                                                            <img src="../assets/images/media/jobs/4.png" alt="">
+                                                        </span>
+                                                        <div class="ms-2">
+                                                            <p class="fw-medium mb-0 d-flex align-items-center"><a href="job-details.html"> Wordpress Developer - Remote</a></p>
+                                                            <p class="fs-12 text-muted mb-0">Remote/Onsite</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="avatar avatar-sm p-1 me-1 bg-light avatar-rounded">
+                                                            <img src="../assets/images/company-logos/2.png" alt="">
+                                                        </span>
+                                                        <a href="javascript:void(0);" class="fw-medium mb-0">Tech Innovators Ltd.</a>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    Marketing
+                                                </td>
+                                                <td>20</td>
+                                                <td><span class="badge bg-primary-transparent"><i class="bi bi-clock me-1"></i>Feb 12 2024</span></td>
+                                                <td>60</td>
+                                                <td>Part Time</td>
+                                                <td>
+                                                    <span class="badge rounded-pill bg-success-transparent">Approved</span>
+                                                </td>
+                                                <td>
+                                                    Jan 12 2024
+                                                </td>
+                                                <td>
+                                                    <a href="job-details.html" class="btn btn-icon btn-sm btn-primary-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-eye-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-edit-line"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" class="joblist-btn btn btn-icon btn-sm btn-primary2-light btn-wave waves-effect waves-light">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer border-top-0">
+                                <div class="d-flex align-items-center flex-wrap overflow-auto">
+                                    <div class="mb-2 mb-sm-0">
+                                        Showing <b>1</b> to <b>10</b> of <b>10</b> entries <i class="bi bi-arrow-right ms-2 fw-medium"></i>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <ul class="pagination mb-0 overflow-auto">
+                                            <li class="page-item disabled">
+                                                <a class="page-link">Previous</a>
+                                            </li>
+                                            <li class="page-item active" aria-current="page"><a class="page-link" href="javascript:void(0);">1</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="javascript:void(0);">2</a>
+                                            </li>
+                                            <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
+                                            <li class="page-item"><a class="page-link" href="javascript:void(0);">4</a></li>
+                                            <li class="page-item"><a class="page-link" href="javascript:void(0);">5</a></li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="javascript:void(0);">Next</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--End::row-1 -->
+
+            </div>
+        </div>
+        <!-- End::app-content -->
+
+        
+        <!-- include footer.html"-->
+        <!-- include responsive-search-modal.html"-->
+
+    </div>
+
+    <!-- include commonjs.html"-->
+
+    <!-- include custom-switcherjs.html"-->
+
+    <!-- Job list JS -->
+    <script src="../assets/js/job-list.js"></script>
+
+    <!-- Custom JS -->
+    <script src="../assets/js/custom.js"></script>
+
+</body>
+
+</html>

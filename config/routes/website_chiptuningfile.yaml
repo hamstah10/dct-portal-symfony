@@ -1,0 +1,4 @@
+website_chiptuningfile:
+    resource: ../../src/Websites/Chiptuningfile/Controller/
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'website' and request.attributes.get('_brand_portal_key') == 'chiptuningfile'"

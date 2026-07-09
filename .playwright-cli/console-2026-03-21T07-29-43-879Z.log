@@ -1,0 +1,4 @@
+[    1160ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+[    1340ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[   42878ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[   42964ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0

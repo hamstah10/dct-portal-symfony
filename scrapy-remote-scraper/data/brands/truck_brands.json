@@ -1,0 +1,86 @@
+[
+  {
+    "name": "Caterpillar",
+    "slug": "caterpillar",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/caterpillar"
+  },
+  {
+    "name": "Cummins",
+    "slug": "cummins",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/cummins"
+  },
+  {
+    "name": "DAF",
+    "slug": "daf",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/daf"
+  },
+  {
+    "name": "Detroit Diesel",
+    "slug": "detroit-diesel",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/detroit-diesel"
+  },
+  {
+    "name": "Hino",
+    "slug": "hino",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/hino"
+  },
+  {
+    "name": "Iveco",
+    "slug": "iveco",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/iveco"
+  },
+  {
+    "name": "Mack",
+    "slug": "mack",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/mack"
+  },
+  {
+    "name": "Man",
+    "slug": "man",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/man"
+  },
+  {
+    "name": "Mercedes",
+    "slug": "mercedes",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/mercedes"
+  },
+  {
+    "name": "Multicar",
+    "slug": "multicar",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/multicar"
+  },
+  {
+    "name": "Paccar",
+    "slug": "paccar",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/paccar"
+  },
+  {
+    "name": "Renault truck",
+    "slug": "renault-truck",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/renault-truck"
+  },
+  {
+    "name": "Scania",
+    "slug": "scania",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/scania"
+  },
+  {
+    "name": "Volvo Trucks",
+    "slug": "volvo-trucks",
+    "logo": null,
+    "url": "https://truck-chiptuningfiles.com/en/chiptuning-files/trucks-tuningfiles/volvo-trucks"
+  }
+]

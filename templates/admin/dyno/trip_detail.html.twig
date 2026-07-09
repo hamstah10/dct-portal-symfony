@@ -1,0 +1,199 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {{ parent() }}
+
+    {% set trip = entity.instance %}
+    {% set dataPoints = trip.dataPoints ?? [] %}
+
+    <div class="card mt-4 dyno-chart-card">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Fahrt-Diagramme</div>
+            <div class="text-muted small">{{ trip.vehicleName ?? 'Unbekanntes Fahrzeug' }}</div>
+        </div>
+        <div class="card-body">
+            {% if dataPoints is empty %}
+                <div class="text-muted">Keine Datenpunkte vorhanden.</div>
+            {% else %}
+                <div class="dyno-chart-grid">
+                    <div class="dyno-chart-panel">
+                        <div class="dyno-chart-title">Geschwindigkeit & Drehzahl</div>
+                        <div class="dyno-chart-canvas">
+                            <canvas id="dynoTripChartPrimary"></canvas>
+                        </div>
+                    </div>
+                    <div class="dyno-chart-panel">
+                        <div class="dyno-chart-title">Leistung & Drehmoment</div>
+                        <div class="dyno-chart-canvas">
+                            <canvas id="dynoTripChartSecondary"></canvas>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script type="application/json" id="dynoTripData">{{ dataPoints|json_encode|raw }}</script>
+
+    <style>
+        .dyno-chart-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .dyno-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .dyno-chart-panel {
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .dyno-chart-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .dyno-chart-canvas {
+            position: relative;
+            height: 220px;
+        }
+
+        .dyno-chart-canvas canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        (() => {
+            const raw = document.getElementById('dynoTripData');
+            if (!raw) {
+                return;
+            }
+
+            let points = [];
+            try {
+                points = JSON.parse(raw.textContent || '[]');
+            } catch (error) {
+                points = [];
+            }
+
+            if (!Array.isArray(points) || points.length === 0) {
+                return;
+            }
+
+            const labels = points.map((point, index) => {
+                const millis = Number(point.t || point.time || index * 100);
+                return (millis / 1000).toFixed(1);
+            });
+
+            const speed = points.map((point) => Number(point.s || 0));
+            const rpm = points.map((point) => Number(point.r || 0));
+            const nm = points.map((point) => Number(point.nm || 0));
+            const ps = points.map((point) => Number(point.ps || 0));
+
+            const primaryCtx = document.getElementById('dynoTripChartPrimary');
+            if (primaryCtx) {
+                const existing = window.Chart.getChart(primaryCtx);
+                if (existing) {
+                    existing.destroy();
+                }
+
+                new window.Chart(primaryCtx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'km/h',
+                                data: speed,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                                tension: 0.3,
+                                pointRadius: 0,
+                                yAxisID: 'ySpeed',
+                            },
+                            {
+                                label: 'RPM',
+                                data: rpm,
+                                borderColor: '#f97316',
+                                backgroundColor: 'rgba(249, 115, 22, 0.12)',
+                                tension: 0.3,
+                                pointRadius: 0,
+                                yAxisID: 'yRpm',
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            ySpeed: {
+                                position: 'left',
+                                title: { display: true, text: 'km/h' },
+                            },
+                            yRpm: {
+                                position: 'right',
+                                grid: { drawOnChartArea: false },
+                                title: { display: true, text: 'RPM' },
+                            },
+                        },
+                        plugins: {
+                            legend: { position: 'bottom' },
+                        },
+                    },
+                });
+            }
+
+            const secondaryCtx = document.getElementById('dynoTripChartSecondary');
+            if (secondaryCtx) {
+                const existing = window.Chart.getChart(secondaryCtx);
+                if (existing) {
+                    existing.destroy();
+                }
+
+                new window.Chart(secondaryCtx, {
+                    type: 'line',
+                    data: {
+                        labels,
+                        datasets: [
+                            {
+                                label: 'PS',
+                                data: ps,
+                                borderColor: '#16a34a',
+                                backgroundColor: 'rgba(22, 163, 74, 0.12)',
+                                tension: 0.3,
+                                pointRadius: 0,
+                            },
+                            {
+                                label: 'Nm',
+                                data: nm,
+                                borderColor: '#0ea5e9',
+                                backgroundColor: 'rgba(14, 165, 233, 0.12)',
+                                tension: 0.3,
+                                pointRadius: 0,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' },
+                        },
+                    },
+                });
+            }
+        })();
+    </script>
+{% endblock %}

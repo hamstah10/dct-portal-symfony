@@ -1,0 +1,801 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}VIN Decoder{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+    <style>
+        .vin-decoder-hero {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 18px;
+        }
+
+        .vin-decoder-hero-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .vin-decoder-hero-logo img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .vin-decoder-hero-logo .fa {
+            font-size: 28px;
+            color: #0f172a;
+        }
+
+        .vin-decoder-hero-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .vin-decoder-hero-sub {
+            color: #475569;
+            font-size: 13px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .vin-decoder-hero-sub span {
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .vin-history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .vin-history-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: #ffffff;
+        }
+
+        .vin-history-title {
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .vin-history-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 13px;
+        }
+
+        .vin-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .vin-history-item .vin-history-date {
+            color: #475569;
+        }
+
+        .vin-history-item .vin-history-value {
+            font-weight: 600;
+            color: #0f172a;
+            text-align: right;
+        }
+    </style>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <form method="post" class="row row-cols-lg-auto g-3 align-items-center">
+                <div class="col-12 col-md-3">
+                    <label class="form-label fw-semibold" for="vin-input">VIN</label>
+                    <input
+                        type="text"
+                        id="vin-input"
+                        name="vin"
+                        class="form-control"
+                        value="{{ vinInput ?? '' }}"
+                        placeholder="WAUZZZF13PD011897"
+                        autocomplete="off"
+                    >
+                    <div class="form-text">Leerzeichen und Bindestriche werden ignoriert. I/O/Q sind nicht erlaubt.<br><br>Beispiel VIN: WAUZZZF13PD011897</div>
+                </div>
+                <div class="col-12 col-md-2">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('admin_vin_decoder') }}">
+                    <button class="btn btn-primary" type="submit" name="action" value="decode">
+                        <i class="fa fa-search"></i> Decodieren
+                    </button>
+                </div>
+               
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white fw-semibold">Letzte VIN-Abfragen</div>
+        <div class="card-body">
+            {% if recentVehicles is empty %}
+                <div class="text-muted small">Noch keine gespeicherten VIN-Abfragen.</div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>VIN</th>
+                            <th>Marke</th>
+                            <th>Modell</th>
+                            <th>Jahr</th>
+                            <th>Hersteller</th>
+                            <th>Werk-Land</th>
+                            <th>Datum</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in recentVehicles %}
+                            <tr>
+                                <td><code>{{ item.vin }}</code></td>
+                                <td>{{ item.make ?? '-' }}</td>
+                                <td>{{ item.model ?? '-' }}</td>
+                                <td>{{ item.modelYear ?? '-' }}</td>
+                                <td>{{ item.manufacturer ?? '-' }}</td>
+                                <td>{{ item.plantCountry ?? '-' }}</td>
+                                <td>{{ item.createdAt ? item.createdAt|date('d.m.Y H:i') : '-' }}</td>
+                                <td>
+                                    <a class="btn btn-primary" href="{{ path('admin_vin_decoder', {vin: item.vin}) }}">
+                                        {{ ux_icon('ic:baseline-remove-red-eye') }} Anzeigen
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if result %}
+        {% if result.errors is not empty %}
+            <div class="alert alert-danger">
+                <strong>Fehler:</strong>
+                {% for message in result.errors %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if result.warnings is not empty %}
+            <div class="alert alert-warning">
+                <strong>Hinweise:</strong>
+                {% for message in result.warnings %}
+                    <div>{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a class="btn btn-outline-secondary" href="{{ path('admin_vin_decoder_export', {format: 'json', vin: vinInput}) }}">
+                <i class="fa fa-download"></i> Export JSON
+            </a>
+            <a class="btn btn-outline-secondary" href="{{ path('admin_vin_decoder_export', {format: 'csv', vin: vinInput}) }}">
+                <i class="fa fa-download"></i> Export CSV
+            </a>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">{{ ux_icon('pajamas:overview') }} Überblick</div>
+                    <div class="card-body">
+                        <dl class="row mb-0 small">
+                            <dt class="col-5">VIN (normalisiert)</dt>
+                            <dd class="col-7"><code>{{ result.normalized is not empty ? result.normalized : '-' }}</code></dd>
+
+                            <dt class="col-5">Länge</dt>
+                            <dd class="col-7">
+                                {% if result.isLengthValid %}
+                                    <span class="badge text-bg-success">17</span>
+                                {% else %}
+                                    <span class="badge text-bg-danger">{{ result.length }}</span>
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-5">WMI</dt>
+                            <dd class="col-7"><code>{{ result.wmi ?? '-' }}</code></dd>
+
+                            <dt class="col-5">Hersteller</dt>
+                            <dd class="col-7">{{ result.manufacturer ?? 'Unbekannt' }}</dd>
+
+                            <dt class="col-5">Region</dt>
+                            <dd class="col-7">{{ result.region ?? '-' }}</dd>
+
+                            <dt class="col-5">Land</dt>
+                            <dd class="col-7">{{ result.country ?? '-' }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">{{ ux_icon('grommet-icons:validate') }} Validierung</div>
+                    <div class="card-body">
+                        <dl class="row mb-0 small">
+                            <dt class="col-5">Ungültige Zeichen</dt>
+                            <dd class="col-7">
+                                {% if result.invalidPositions is empty %}
+                                    <span class="badge text-bg-success">Keine</span>
+                                {% else %}
+                                    {% for item in result.invalidPositions %}
+                                        <span class="badge text-bg-danger">Pos {{ item.position }}: {{ item.char }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-5">Prüfziffer (Pos 9)</dt>
+                            <dd class="col-7">
+                                <div>Ist: <code>{{ result.checkDigit ?? '-' }}</code></div>
+                                <div>Soll: <code>{{ result.checkDigitComputed ?? '-' }}</code></div>
+                                {% if result.checkDigitValid is same as(true) %}
+                                    <span class="badge text-bg-success">OK</span>
+                                {% elseif result.checkDigitValid is same as(false) %}
+                                    <span class="badge text-bg-danger">Fehler</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">n/a</span>
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-5">Prüfsumme</dt>
+                            <dd class="col-7">
+                                {{ result.checkDigitSum ?? '-' }} / Mod 11 = {{ result.checkDigitRemainder ?? '-' }}
+                            </dd>
+
+                            <dt class="col-5">Pflicht</dt>
+                            <dd class="col-7">
+                                {% if result.checkDigitRequired is same as(true) %}
+                                    Nordamerika (1-5)
+                                {% elseif result.checkDigitRequired is same as(false) %}
+                                    Nicht verpflichtend
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">{{ ux_icon('carbon:model-alt') }} Modeljahr & VIS</div>
+                    <div class="card-body">
+                        <dl class="row mb-0 small">
+                            <dt class="col-6">Modelljahr-Code (Pos 10)</dt>
+                            <dd class="col-6"><code>{{ result.modelYearCode ?? '-' }}</code></dd>
+
+                            <dt class="col-6">Modelljahr (Schätzung)</dt>
+                            <dd class="col-6">{{ result.modelYear ?? '-' }}</dd>
+
+                            <dt class="col-6">Kandidaten</dt>
+                            <dd class="col-6">
+                                {% if result.modelYearCandidates is empty %}
+                                    -
+                                {% else %}
+                                    {{ result.modelYearCandidates|join(', ') }}
+                                {% endif %}
+                            </dd>
+
+                            <dt class="col-6">Werk (Pos 11)</dt>
+                            <dd class="col-6"><code>{{ result.plantCode ?? '-' }}</code></dd>
+
+                            <dt class="col-6">Werk (Name)</dt>
+                            <dd class="col-6">{{ result.plantName ?? '-' }}</dd>
+
+                            <dt class="col-6">Seriennummer</dt>
+                            <dd class="col-6"><code>{{ result.serialNumber ?? '-' }}</code></dd>
+
+                            <dt class="col-6">VIS (Pos 10-17)</dt>
+                            <dd class="col-6"><code>{{ result.vis ?? '-' }}</code></dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% set vinSpecific = result.vinOverride ?? {} %}
+        {% if vinSpecific is not empty %}
+            {% set brandLogo = manufacturerLogo ?? null %}
+            {% if (brandLogo is empty) and (vinSpecific.makeLogo is defined and vinSpecific.makeLogo) %}
+                {% set brandLogo = vinSpecific.makeLogo %}
+            {% endif %}
+            {% set heroTitle = vinSpecific.make ?? result.manufacturer ?? 'Fahrzeug' %}
+            {% set heroModel = vinSpecific.model ?? '' %}
+            {% set heroSeries = vinSpecific.series ?? '' %}
+            {% set heroYear = vinSpecific.modelYear ?? '' %}
+            <div class="vin-decoder-hero mb-3">
+                <div class="vin-decoder-hero-logo rounded-0">
+                    {% if brandLogo %}
+                        <img src="{{ brandLogo }}" alt="{{ heroTitle }}">
+                    {% else %}
+                        <i class="fa fa-car" aria-hidden="true"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="vin-decoder-hero-title">{{ heroTitle }}</div>
+                    <div class="vin-decoder-hero-sub">
+                        {% if heroModel %}<span class="rounded-0">{{ heroModel }}</span>{% endif %}
+                        {% if heroSeries %}<span class="rounded-0">{{ heroSeries }}</span>{% endif %}
+                        {% if heroYear %}<span class="rounded-0">{{ heroYear }}</span>{% endif %}
+                        <span class="rounded-0">VIN: {{ vinInput }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% set basicFields = {
+                'Marke': 'make',
+                'Modell': 'model',
+                'Modelljahr': 'modelYear',
+                'Serie': 'series',
+                'Produkt-Typ': 'productType',
+                'Karosserie': 'body',
+                'Antrieb': 'drive',
+                'Getriebe': 'transmission',
+                'Gänge': 'numberOfGears',
+                'Türen': 'numberOfDoors',
+                'Sitze': 'numberOfSeats'
+            } %}
+            {% set manufacturerFields = {
+                'Hersteller': 'manufacturer',
+                'Hersteller (voll)': 'manufacturerFull',
+                'Hersteller-Adresse': 'manufacturerAddress',
+                'Werk-Stadt': 'plantCity',
+                'Werk-Land': 'plantCountry',
+                'Ø CO2 (g/km)': 'averageCo2'
+            } %}
+            {% set engineFields = {
+                'Motor': 'engine',
+                'Motor (voll)': 'engineFull',
+                'Motor-Modell': 'engineModel',
+                'Motor-Hersteller': 'engineManufacturer',
+                'Zylinder': 'engineCylinders',
+                'Zylinder-Position': 'engineCylindersPosition',
+                'Hubraum (ccm)': 'engineDisplacementCcm',
+                'Leistung (kW)': 'enginePowerKw',
+                'Drehmoment': 'engineTorque',
+                'Max. Drehzahl (rpm)': 'engineMaxSpeedRpm',
+                'Verdichtung': 'engineCompressionRatio',
+                'Bohrung (mm)': 'engineCylinderBoreMm',
+                'Hub (mm)': 'engineStrokeMm',
+                'Turbo': 'engineTurbine',
+                'Ventiltrieb': 'valveTrain',
+                'Ventile/Zyl': 'valvesPerCylinder',
+                'Kraftstoff': 'fuelType',
+                'Kraftstoffsystem': 'fuelSystem',
+                'Tank (l)': 'fuelCapacityL',
+                'CO2 (g/km)': 'co2Emission',
+                'Emissionsnorm': 'emissionStandard'
+            } %}
+            {% set chassisFields = {
+                'Räder': 'numberOfWheels',
+                'Achsen': 'numberOfAxles',
+                'Servolenkung': 'powerSteering',
+                'Lenkungstyp': 'steeringType',
+                'Bremssystem': 'brakeSystem',
+                'Vordere Bremsen': 'frontBrakes',
+                'Hintere Bremsen': 'rearBrakes',
+                'Vorderachse': 'frontSuspension',
+                'Hinterachse': 'rearSuspension',
+                'ABS': 'abs',
+                'Rädergröße': 'wheelSize',
+                'Felgengröße': 'wheelRimsSize'
+            } %}
+            {% set dimensionFields = {
+                'Radstand (mm)': 'wheelbaseMm',
+                'Höhe (mm)': 'heightMm',
+                'Länge (mm)': 'lengthMm',
+                'Breite (mm)': 'widthMm',
+                'Breite inkl. Spiegel (mm)': 'widthIncludingMirrorsMm',
+                'Überhang vorne (mm)': 'frontOverhangMm',
+                'Überhang hinten (mm)': 'rearOverhangMm',
+                'Spur vorne (mm)': 'trackFrontMm',
+                'Spur hinten (mm)': 'trackRearMm',
+                'Max. Geschwindigkeit (km/h)': 'maxSpeedKmh',
+                'Beschleunigung 0-100 (s)': 'acceleration0To100',
+                'Wendekreis (m)': 'turningCircle',
+                'Leergewicht (kg)': 'weightEmptyKg',
+                'Max. Gewicht (kg)': 'maxWeightKg',
+                'Max. Dachlast (kg)': 'maxRoofLoadKg',
+                'Anhänger ohne Bremse (kg)': 'trailerNoBrakesKg',
+                'Anhänger mit Bremse (kg)': 'trailerWithBrakesKg',
+                'Stützlast (kg)': 'towbarDownloadKg',
+                'Kofferraum min (l)': 'trunkMinL',
+                'Kofferraum max (l)': 'trunkMaxL',
+                'Luftwiderstand': 'dragCoefficient',
+                'Produktion ab': 'productionStarted',
+                'Produktion bis': 'productionStopped'
+            } %}
+            {% set consumptionFields = {
+                'Verbrauch Stadt (l/100km)': 'fuelConsumptionUrban',
+                'Verbrauch Land (l/100km)': 'fuelConsumptionExtraUrban',
+                'Verbrauch Kombi (l/100km)': 'fuelConsumptionCombined'
+            } %}
+            {% set vinFields = {
+                'Prüfziffer': 'checkDigit',
+                'Prüfziffer gültig': 'checkDigitValidity',
+                'Seriennummer': 'sequentialNumber'
+            } %}
+            {% set priceHistory = vinSpecific.priceHistory ?? [] %}
+            {% set odometerHistory = vinSpecific.odometerHistory ?? [] %}
+
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white fw-semibold">{{ ux_icon('tabler:barcode') }} VIN-Zusatzdaten</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-6">
+                            <div class="fw-semibold mb-2">{{ ux_icon('ic:baseline-directions-car') }} Fahrzeug</div>
+                            <dl class="row mb-3 small">
+                                {% for label, key in basicFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-5">{{ label }}</dt>
+                                        <dd class="col-7">
+                                            {% set value = vinSpecific[key] %}
+                                            {% if value is same as(true) %}
+                                                Ja
+                                            {% elseif value is same as(false) %}
+                                                Nein
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        </dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+
+                            <div class="fw-semibold mb-2">{{ ux_icon('line-md:engine') }} Motor & Antrieb</div>
+                            <dl class="row mb-3 small">
+                                {% for label, key in engineFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-5">{{ label }}</dt>
+                                        <dd class="col-7">
+                                            {% set value = vinSpecific[key] %}
+                                            {% if value is same as(true) %}
+                                                Ja
+                                            {% elseif value is same as(false) %}
+                                                Nein
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        </dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+
+                            <div class="fw-semibold mb-2">Hersteller</div>
+                            <dl class="row mb-3 small">
+                                {% for label, key in manufacturerFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-5">{{ label }}</dt>
+                                        <dd class="col-7">{{ vinSpecific[key] }}</dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+
+                            <div class="fw-semibold mb-2">Fahrwerk</div>
+                            <dl class="row mb-0 small">
+                                {% for label, key in chassisFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-5">{{ label }}</dt>
+                                        <dd class="col-7">
+                                            {% set value = vinSpecific[key] %}
+                                            {% if value is same as(true) %}
+                                                Ja
+                                            {% elseif value is same as(false) %}
+                                                Nein
+                                            {% else %}
+                                                {{ value }}
+                                            {% endif %}
+                                        </dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <div class="fw-semibold mb-2">Maße & Gewicht</div>
+                            <dl class="row mb-3 small">
+                                {% for label, key in dimensionFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-6">{{ label }}</dt>
+                                        <dd class="col-6">{{ vinSpecific[key] }}</dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+
+                            <div class="fw-semibold mb-2">Verbrauch</div>
+                            <dl class="row mb-3 small">
+                                {% for label, key in consumptionFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-6">{{ label }}</dt>
+                                        <dd class="col-6">{{ vinSpecific[key] }}</dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+
+                            <div class="fw-semibold mb-2">VIN</div>
+                            <dl class="row mb-0 small">
+                                {% for label, key in vinFields %}
+                                    {% if vinSpecific[key] is defined %}
+                                        <dt class="col-6">{{ label }}</dt>
+                                        <dd class="col-6">{{ vinSpecific[key] }}</dd>
+                                    {% endif %}
+                                {% endfor %}
+                            </dl>
+
+                            {% if priceHistory is not empty or odometerHistory is not empty %}
+                                <div class="vin-history-grid mt-3">
+                                    {% if priceHistory is not empty %}
+                                        <div class="vin-history-card">
+                                            <div class="vin-history-title">Preis-Historie</div>
+                                            {% for entry in priceHistory %}
+                                                {% if entry.price is defined %}
+                                                    <div class="vin-history-item">
+                                                        <div class="vin-history-date">{{ entry.date ?? '-' }}</div>
+                                                        <div class="vin-history-value">
+                                                            {{ entry.price }} {{ entry.currency ?? '' }}
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if odometerHistory is not empty %}
+                                        <div class="vin-history-card">
+                                            <div class="vin-history-title">Kilometerstand</div>
+                                            {% for entry in odometerHistory %}
+                                                {% if entry.odometer is defined %}
+                                                    <div class="vin-history-item">
+                                                        <div class="vin-history-date">{{ entry.date ?? '-' }}</div>
+                                                        <div class="vin-history-value">{{ entry.odometer }} km</div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% set vpic = result.vpic ?? null %}
+        {% if vpic is not empty %}
+            {% set vpicValues = vpic.values ?? {} %}
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white fw-semibold d-flex align-items-center justify-content-between">
+                    <span>NHTSA vPIC (USA)</span>
+                    {% if vpic.errorCode %}
+                        {% set badgeClass = vpic.errorCode == '0' ? 'success' : 'warning' %}
+                        <span class="badge text-bg-{{ badgeClass }}">Status {{ vpic.errorCode }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if vpic.errorText %}
+                        <div class="text-muted small mb-2">{{ vpic.errorText }}</div>
+                    {% endif %}
+                    {% if vpicValues is empty %}
+                        <div class="text-muted small">Keine vPIC-Daten verfuegbar.</div>
+                    {% else %}
+                        {% set vpicBasicFields = {
+                            'Marke': 'make',
+                            'Modell': 'model',
+                            'Modelljahr': 'modelYear',
+                            'Fahrzeugtyp': 'vehicleType',
+                            'Karosserie': 'bodyClass',
+                            'Serie': 'series',
+                            'Antrieb': 'driveType',
+                            'Tueren': 'doors',
+                            'Sitzreihen': 'seatRows',
+                            'GVWR': 'gvwr'
+                        } %}
+                        {% set vpicEngineFields = {
+                            'Zylinder': 'engineCylinders',
+                            'Hubraum (L)': 'displacementL',
+                            'Hubraum (ccm)': 'displacementCc',
+                            'Motor-Modell': 'engineModel',
+                            'Kraftstoff': 'fuelTypePrimary',
+                            'Getriebe': 'transmissionStyle',
+                            'Gaenge': 'transmissionSpeeds',
+                            'Turbo': 'turbo',
+                            'Elektrifizierung': 'electrificationLevel',
+                            'Batterietyp': 'batteryType',
+                            'Motor-Info': 'otherEngineInfo'
+                        } %}
+                        {% set vpicPlantFields = {
+                            'Hersteller': 'manufacturer',
+                            'Werk Stadt': 'plantCity',
+                            'Werk Bundesstaat': 'plantState',
+                            'Werk Land': 'plantCountry'
+                        } %}
+
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-4">
+                                <div class="fw-semibold mb-2">Fahrzeug</div>
+                                <dl class="row mb-0 small">
+                                    {% for label, key in vpicBasicFields %}
+                                        {% if vpicValues[key] is defined %}
+                                            <dt class="col-6">{{ label }}</dt>
+                                            <dd class="col-6">
+                                                {% set value = vpicValues[key] %}
+                                                {% if value is same as(true) %}
+                                                    Ja
+                                                {% elseif value is same as(false) %}
+                                                    Nein
+                                                {% else %}
+                                                    {{ value }}
+                                                {% endif %}
+                                            </dd>
+                                        {% endif %}
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                            <div class="col-12 col-lg-4">
+                                <div class="fw-semibold mb-2">Motor & Antrieb</div>
+                                <dl class="row mb-0 small">
+                                    {% for label, key in vpicEngineFields %}
+                                        {% if vpicValues[key] is defined %}
+                                            <dt class="col-6">{{ label }}</dt>
+                                            <dd class="col-6">
+                                                {% set value = vpicValues[key] %}
+                                                {% if value is same as(true) %}
+                                                    Ja
+                                                {% elseif value is same as(false) %}
+                                                    Nein
+                                                {% else %}
+                                                    {{ value }}
+                                                {% endif %}
+                                            </dd>
+                                        {% endif %}
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                            <div class="col-12 col-lg-4">
+                                <div class="fw-semibold mb-2">Hersteller & Werk</div>
+                                <dl class="row mb-0 small">
+                                    {% for label, key in vpicPlantFields %}
+                                        {% if vpicValues[key] is defined %}
+                                            <dt class="col-6">{{ label }}</dt>
+                                            <dd class="col-6">{{ vpicValues[key] }}</dd>
+                                        {% endif %}
+                                    {% endfor %}
+                                </dl>
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="text-muted small mt-2">Quelle: NHTSA vPIC (kostenlos).</div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white fw-semibold">{{ ux_icon('tabler:barcode') }} VIN-Segmente</div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Bereich</th>
+                        <th>Wert</th>
+                        <th>Bedeutung</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>1-3</td>
+                        <td><code>{{ result.wmi ?? '-' }}</code></td>
+                        <td>
+                            WMI (Hersteller/Region)
+                            {% if result.manufacturer %}– {{ result.manufacturer }}{% endif %}
+                            {% if result.region or result.country %}
+                                ({{ result.region ?? 'Region' }}{% if result.country %}, {{ result.country }}{% endif %})
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4-8</td>
+                        <td><code>{{ result.vds ?? '-' }}</code></td>
+                        <td>VDS (Fahrzeugbeschreibung, herstellerspezifisch)</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td><code>{{ result.checkDigit ?? '-' }}</code></td>
+                        <td>Prüfziffer</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td><code>{{ result.modelYearCode ?? '-' }}</code></td>
+                        <td>Modelljahr</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td><code>{{ result.plantCode ?? '-' }}</code></td>
+                        <td>
+                            Werk
+                            {% if result.plantName %}– {{ result.plantName }}{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>12-17</td>
+                        <td><code>{{ result.serialNumber ?? '-' }}</code></td>
+                        <td>Seriennummer</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white fw-semibold">{{ ux_icon('tabler:barcode') }} VDS Decoder</div>
+            <div class="card-body">
+                {% if result.vdsRulesAvailable == 0 %}
+                    <div class="text-muted small">Für dieses WMI sind keine VDS-Regeln hinterlegt.</div>
+                {% elseif result.vdsMatches is empty %}
+                    <div class="text-muted small">Keine VDS-Regel passt auf die aktuelle VDS.</div>
+                {% else %}
+                    <div class="row g-2">
+                        {% for match in result.vdsMatches %}
+                            <div class="col-12 col-md-6">
+                                <div class="border rounded-3 p-3 h-100">
+                                    <div class="fw-semibold">{{ match.label }}</div>
+                                    {% if match.description %}
+                                        <div class="text-muted small">{{ match.description }}</div>
+                                    {% endif %}
+                                    <div class="small text-muted mt-2">
+                                        Regel: <code>{{ match.type }}</code> – <code>{{ match.pattern }}</code>
+                                    </div>
+                                    {% if match.data is not empty %}
+                                        <div class="small mt-2">
+                                            <code>{{ match.data|json_encode(constant('JSON_UNESCAPED_UNICODE')) }}</code>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body small text-muted">
+                Offline-Decoder: Die WMI-Herstellerliste ist eine Teilmenge und kann erweitert werden.
+                Modelljahr-Codes wiederholen sich alle 30 Jahre; die Schätzung orientiert sich am aktuellen Jahr.
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

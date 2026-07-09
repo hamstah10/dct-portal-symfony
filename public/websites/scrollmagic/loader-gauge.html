@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gauge Playground</title>
+    <style>
+      :root {
+        --bg-a: #242424;
+        --bg-b: #171717;
+        --bg-c: #0f0f10;
+        --text: #e9edf2;
+        --muted: #9ea6b3;
+        --accent: #bd1e21;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: Arial, sans-serif;
+        background: radial-gradient(circle at 50% 30%, var(--bg-a) 0%, var(--bg-b) 45%, var(--bg-c) 100%);
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+      }
+
+      .wrap {
+        width: min(96vw, 980px);
+        display: grid;
+        gap: 1.1rem;
+      }
+
+      .gauge-box {
+        display: grid;
+        place-items: center;
+      }
+
+      #speed-gauge {
+        width: min(80vw, 460px);
+        height: min(80vw, 460px);
+      }
+
+      .caption {
+        margin-top: 0.35rem;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+      }
+
+      .controls {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.9rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.9rem;
+      }
+
+      label {
+        display: grid;
+        gap: 0.35rem;
+        font-size: 0.9rem;
+      }
+
+      input[type="range"] {
+        width: 100%;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 0.6rem;
+        align-items: end;
+      }
+
+      button {
+        background: #202833;
+        color: #f2f5f8;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        padding: 0.55rem 0.8rem;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #293545;
+      }
+
+      code {
+        color: #cdd6e2;
+      }
+    </style>
+  </head>
+  <body>
+    <audio id="gauge-sound" preload="auto" playsinline src="sound/audir8_turbo.mp3"></audio>
+
+    <div class="wrap">
+      <div class="gauge-box">
+        <div id="speed-gauge"></div>
+        <p class="caption">Anschnallen, wir starten jetzt</p>
+      </div>
+
+      <div class="controls">
+        <label>
+          Max Speed: <span id="max-speed-val">300</span>
+          <input id="max-speed" type="range" min="180" max="360" value="300" step="10" />
+        </label>
+
+        <label>
+          Dauer (Sek.): <span id="duration-val">2.6</span>
+          <input id="duration" type="range" min="1" max="6" value="2.6" step="0.1" />
+        </label>
+
+        <label>
+          Rote Zone Start (%): <span id="red-zone-val">94</span>
+          <input id="red-zone" type="range" min="80" max="99" value="94" step="1" />
+        </label>
+
+        <div class="buttons">
+          <button id="start">Start</button>
+          <button id="stop">Stop</button>
+        </div>
+      </div>
+
+      <p class="caption">
+        Für Feintuning direkt in JS: Funktion <code>buildOption(...)</code> in
+        <code>loader-gauge.html</code>
+      </p>
+      <p id="sound-debug" class="caption">Debug: warte auf Audio...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <script>
+      const gaugeEl = document.getElementById("speed-gauge");
+      const maxSpeedInput = document.getElementById("max-speed");
+      const durationInput = document.getElementById("duration");
+      const redZoneInput = document.getElementById("red-zone");
+      const maxSpeedVal = document.getElementById("max-speed-val");
+      const durationVal = document.getElementById("duration-val");
+      const redZoneVal = document.getElementById("red-zone-val");
+      const startBtn = document.getElementById("start");
+      const stopBtn = document.getElementById("stop");
+      const gaugeSound = document.getElementById("gauge-sound");
+      const soundDebug = document.getElementById("sound-debug");
+
+      const chart = echarts.init(gaugeEl, null, { renderer: "svg" });
+      let raf = null;
+      let soundFadeRaf = null;
+      let soundStarted = false;
+      let soundOffsetApplied = false;
+      const SOUND_START_AT = 2;
+      let isRunning = false;
+
+      function buildOption(maxSpeed, redZoneStartPercent, value) {
+        const redFrom = Math.max(0.7, redZoneStartPercent / 100);
+
+        return {
+          animation: false,
+          backgroundColor: "transparent",
+          series: [
+            {
+              type: "gauge",
+              min: 0,
+              max: maxSpeed,
+              startAngle: 225,
+              endAngle: -45,
+              splitNumber: 10,
+              radius: "90%",
+              axisLine: {
+                lineStyle: {
+                  width: 18,
+                  color: [
+                    [0.65, "#4c5666"],
+                    [0.85, "#707a89"],
+                    [redFrom, "#8f97a5"],
+                    [1, "#bd1e21"],
+                  ],
+                },
+              },
+              axisTick: {
+                show: true,
+                distance: -24,
+                splitNumber: 5,
+                lineStyle: { color: "rgba(255,255,255,0.35)", width: 1 },
+              },
+              splitLine: {
+                show: true,
+                distance: -26,
+                length: 22,
+                lineStyle: { color: "rgba(255,255,255,0.85)", width: 2.2 },
+              },
+              axisLabel: {
+                color: "#c6cfda",
+                distance: -22,
+                fontSize: 15,
+                fontWeight: 600,
+                formatter: (v) => (v % (maxSpeed / 5) === 0 ? `${Math.round(v)}` : ""),
+              },
+              pointer: {
+                show: true,
+                length: "64%",
+                width: 6,
+                icon: "path://M3 0 L9 0 L6 132 L0 132 Z",
+                itemStyle: {
+                  color: "#f2f4f7",
+                  shadowBlur: 14,
+                  shadowColor: "rgba(0,0,0,0.45)",
+                },
+              },
+              anchor: {
+                show: true,
+                showAbove: true,
+                size: 18,
+                itemStyle: {
+                  color: "#eef1f6",
+                  borderColor: "#2b313b",
+                  borderWidth: 6,
+                },
+              },
+              progress: { show: false },
+              title: { show: false },
+              detail: {
+                valueAnimation: false,
+                offsetCenter: [0, "62%"],
+                color: "#f5f5f5",
+                fontSize: 48,
+                fontWeight: 700,
+                formatter: (v) => `{val|${Math.round(v)}}\n{unit|KM/H}`,
+                rich: {
+                  val: {
+                    fontSize: 48,
+                    fontWeight: 700,
+                    color: "#f5f5f5",
+                    lineHeight: 52,
+                  },
+                  unit: {
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#aeb7c4",
+                    letterSpacing: 1.5,
+                    lineHeight: 16,
+                  },
+                },
+              },
+              data: [{ value }],
+            },
+          ],
+        };
+      }
+
+      function render(value = 0) {
+        const maxSpeed = Number(maxSpeedInput.value);
+        const redZone = Number(redZoneInput.value);
+        chart.setOption(buildOption(maxSpeed, redZone, value), true);
+      }
+
+      function animateGauge() {
+        if (isRunning) return;
+        cancelAnimationFrame(raf);
+        isRunning = true;
+        const maxSpeed = Number(maxSpeedInput.value);
+        const durationMs = Number(durationInput.value) * 1000;
+        const start = performance.now();
+        tryPlayGaugeSound();
+        if (soundDebug) soundDebug.textContent = "Debug: Start gedrückt";
+
+        function frame(now) {
+          const t = Math.min(1, (now - start) / durationMs);
+          const value = t * maxSpeed;
+          render(value);
+          if (t < 1) {
+            raf = requestAnimationFrame(frame);
+          } else {
+            isRunning = false;
+            stopGaugeAndSound({ fadeOut: true, resetGauge: false });
+            if (soundDebug) soundDebug.textContent = "Debug: Gauge fertig";
+          }
+        }
+
+        raf = requestAnimationFrame(frame);
+      }
+
+      function stopGaugeAndSound({ fadeOut = true, resetGauge = true } = {}) {
+        cancelAnimationFrame(raf);
+        isRunning = false;
+        if (!gaugeSound) return;
+
+        if (fadeOut && !gaugeSound.paused) {
+          fadeSoundTo(0, 450, () => {
+            gaugeSound.pause();
+            gaugeSound.currentTime = 0;
+            gaugeSound.volume = 1;
+            soundStarted = false;
+            soundOffsetApplied = false;
+            if (resetGauge) render(0);
+            if (soundDebug) soundDebug.textContent = "Debug: gestoppt";
+          });
+        } else {
+          gaugeSound.pause();
+          gaugeSound.currentTime = 0;
+          gaugeSound.volume = 1;
+          soundStarted = false;
+          soundOffsetApplied = false;
+          if (resetGauge) render(0);
+          if (soundDebug) soundDebug.textContent = "Debug: gestoppt";
+        }
+      }
+
+      function fadeSoundTo(targetVolume, durationMs, onComplete) {
+        if (!gaugeSound) {
+          if (typeof onComplete === "function") onComplete();
+          return;
+        }
+
+        cancelAnimationFrame(soundFadeRaf);
+        const startVolume = gaugeSound.volume;
+        const startTime = performance.now();
+        const delta = targetVolume - startVolume;
+
+        function tick(now) {
+          const t = Math.min(1, (now - startTime) / durationMs);
+          gaugeSound.volume = startVolume + delta * t;
+          if (t < 1) {
+            soundFadeRaf = requestAnimationFrame(tick);
+          } else if (typeof onComplete === "function") {
+            onComplete();
+          }
+        }
+
+        soundFadeRaf = requestAnimationFrame(tick);
+      }
+
+      function tryPlayGaugeSound() {
+        if (!gaugeSound || soundStarted) return;
+        cancelAnimationFrame(soundFadeRaf);
+        gaugeSound.volume = 0;
+        const playPromise = gaugeSound.play();
+        if (playPromise && typeof playPromise.then === "function") {
+          playPromise
+            .then(() => {
+              soundStarted = true;
+              if (soundDebug) soundDebug.textContent = "Debug: sound gestartet";
+              if (!soundOffsetApplied) {
+                try {
+                  gaugeSound.currentTime = SOUND_START_AT;
+                  soundOffsetApplied = true;
+                } catch (_) {}
+              }
+              fadeSoundTo(1, 500);
+            })
+            .catch(() => {
+              if (soundDebug) soundDebug.textContent = "Debug: autoplay blockiert";
+            });
+        }
+      }
+
+      maxSpeedInput.addEventListener("input", () => {
+        maxSpeedVal.textContent = maxSpeedInput.value;
+        render(0);
+      });
+
+      durationInput.addEventListener("input", () => {
+        durationVal.textContent = durationInput.value;
+      });
+
+      redZoneInput.addEventListener("input", () => {
+        redZoneVal.textContent = redZoneInput.value;
+        render(0);
+      });
+
+      startBtn.addEventListener("click", animateGauge);
+      stopBtn.addEventListener("click", () => stopGaugeAndSound({ fadeOut: true, resetGauge: true }));
+
+      if (gaugeSound) {
+        if (soundDebug) soundDebug.textContent = "Debug: lade Audio...";
+        gaugeSound.addEventListener("loadedmetadata", () => {
+          if (soundDebug) soundDebug.textContent = "Debug: sound geladen";
+          if (soundStarted && !soundOffsetApplied) {
+            try {
+              gaugeSound.currentTime = SOUND_START_AT;
+              soundOffsetApplied = true;
+            } catch (_) {}
+          }
+        });
+        gaugeSound.addEventListener("error", () => {
+          if (soundDebug) soundDebug.textContent = "Debug: audio Fehler beim Laden";
+        });
+        gaugeSound.load();
+      }
+
+      ["pointerdown", "touchstart", "wheel", "keydown"].forEach((evt) => {
+        window.addEventListener(
+          evt,
+          () => {
+            tryPlayGaugeSound();
+          },
+          { passive: true, once: true }
+        );
+      });
+
+      window.addEventListener("resize", () => chart.resize());
+
+      render(0);
+      if (soundDebug) soundDebug.textContent = "Debug: bereit (Start/Stop)";
+    </script>
+  </body>
+</html>

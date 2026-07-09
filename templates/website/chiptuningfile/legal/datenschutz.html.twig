@@ -1,0 +1,52 @@
+{% extends 'website/chiptuningfile/legal/_base.html.twig' %}
+
+{% set title = 'Datenschutz' %}
+
+{% block legal_body %}
+    <div class="mb-5">
+        <span class="legal-badge"><i class="bi bi-shield-lock"></i> Datenschutz</span>
+        <h1 class="display-5 fw-semibold mt-4 mb-3">Datenschutzerklaerung</h1>
+        <p class="legal-muted mb-0">Diese Seite stellt eine projektinterne, CRM-gestuetzte Datenschutzseite fuer das Markenportal bereit. Sie ersetzt keine rechtliche Einzelpruefung.</p>
+    </div>
+
+    <div class="d-flex flex-column gap-5">
+        <section>
+            <h2 class="h4 mb-3">1. Verantwortliche Stelle</h2>
+            <p class="mb-1"><strong>{{ firma and firma.name ? firma.name : brandName }}</strong>{% if firma and firma.rechtsform %}, {{ firma.rechtsform }}{% endif %}</p>
+            {% if addressLine1 %}<p class="mb-1">{{ addressLine1 }}</p>{% endif %}
+            {% if addressLine2 %}<p class="mb-1">{{ addressLine2 }}</p>{% endif %}
+            {% if firma and firma.email %}<p class="mb-1">E-Mail: <a href="mailto:{{ firma.email }}">{{ firma.email }}</a></p>{% endif %}
+            {% if firma and firma.telefon %}<p class="mb-0">Telefon: <a href="tel:{{ firma.telefon|replace({' ':'','/':'','(':'',')':'','-':''}) }}">{{ firma.telefon }}</a></p>{% endif %}
+        </section>
+
+        <section>
+            <h2 class="h4 mb-3">2. Verarbeitung auf dieser Website</h2>
+            <p class="legal-muted mb-0">Beim Aufruf der Website koennen technisch notwendige Daten wie IP-Adresse, Zeitstempel, Browserinformationen und angeforderte Inhalte verarbeitet werden, um den Betrieb, die Sicherheit und die Auslieferung der Website zu ermoeglichen.</p>
+        </section>
+
+        <section>
+            <h2 class="h4 mb-3">3. Kontaktaufnahme</h2>
+            <p class="legal-muted mb-0">Wenn Sie uns ueber das Kontaktformular oder per E-Mail kontaktieren, verarbeiten wir die von Ihnen uebermittelten Angaben ausschliesslich zur Bearbeitung Ihrer Anfrage und fuer moegliche Anschlusskommunikation.</p>
+        </section>
+
+        <section>
+            <h2 class="h4 mb-3">4. Zweck und Rechtsgrundlagen</h2>
+            <p class="legal-muted mb-0">Die Verarbeitung erfolgt insbesondere zur Bereitstellung der Website, zur Bearbeitung von Anfragen, zur Kommunikation mit Interessenten und Kunden sowie zur technischen Sicherheit des Systems. Je nach Vorgang kommen vertragliche, vorvertragliche, berechtigte oder gesetzliche Grundlagen in Betracht.</p>
+        </section>
+
+        <section>
+            <h2 class="h4 mb-3">5. Speicherdauer</h2>
+            <p class="legal-muted mb-0">Personenbezogene Daten werden nur so lange gespeichert, wie dies fuer die jeweiligen Zwecke erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen.</p>
+        </section>
+
+        <section>
+            <h2 class="h4 mb-3">6. Ihre Rechte</h2>
+            <p class="legal-muted mb-0">Sie haben im Rahmen der gesetzlichen Vorgaben insbesondere das Recht auf Auskunft, Berichtigung, Loeschung, Einschraenkung der Verarbeitung, Datenuebertragbarkeit sowie Widerspruch gegen bestimmte Verarbeitungen.</p>
+        </section>
+
+        <section>
+            <h2 class="h4 mb-3">7. Wichtiger Hinweis</h2>
+            <p class="legal-muted mb-0">Diese Datenschutzseite wurde technisch in das Portal integriert und nutzt CRM-Daten fuer die Stammdatenbereiche. Fuer einen rechtssicheren Produktiveinsatz sollte der Inhalt durch einen Datenschutzbeauftragten oder Rechtsberater geprueft und bei Bedarf erweitert werden.</p>
+        </section>
+    </div>
+{% endblock %}

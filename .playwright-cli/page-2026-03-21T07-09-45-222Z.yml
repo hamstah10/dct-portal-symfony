@@ -1,0 +1,171 @@
+- generic [active] [ref=e249]:
+  - generic [ref=e250]:
+    - generic [ref=e251]:
+      - banner [ref=e252]:
+        - generic [ref=e253]:
+          - generic [ref=e254]:
+            - link "Hide Sidebar" [ref=e256] [cursor=pointer]:
+              - /url: javascript:void(0);
+            - generic [ref=e260]:
+              - searchbox "Search anything here ..." [ref=e261]
+              - combobox "Search anything here ..." [ref=e264]
+              - button "" [ref=e265] [cursor=pointer]:
+                - generic [ref=e266]: 
+          - list [ref=e267]:
+            - text: 
+            - listitem [ref=e268]:
+              - link "Farbschema umschalten" [ref=e269] [cursor=pointer]:
+                - /url: javascript:void(0);
+                - img [ref=e271]
+            - listitem [ref=e273]:
+              - link "" [ref=e274] [cursor=pointer]:
+                - /url: javascript:void(0);
+                - generic [ref=e278]: 
+              - text:     
+      - complementary [ref=e279]:
+        - link "Chiptuningfile Logo" [ref=e281] [cursor=pointer]:
+          - /url: /
+          - img "Chiptuningfile Logo" [ref=e282]
+        - navigation [ref=e284]:
+          - list [ref=e285]:
+            - listitem [ref=e286]: Main
+            - listitem [ref=e287]:
+              - link " Dashboard" [ref=e288] [cursor=pointer]:
+                - /url: /
+                - generic: 
+                - generic [ref=e289]: Dashboard
+            - listitem [ref=e290]:
+              - link " Profil" [ref=e291] [cursor=pointer]:
+                - /url: /profil
+                - generic: 
+                - generic [ref=e292]: Profil
+            - listitem [ref=e293]:
+              - link " Fahrzeugdatenbank" [ref=e294] [cursor=pointer]:
+                - /url: /fahrzeuge
+                - generic: 
+                - generic [ref=e295]: Fahrzeugdatenbank
+            - listitem [ref=e296]:
+              - link " Uploads" [ref=e297] [cursor=pointer]:
+                - /url: /uploads
+                - generic: 
+                - generic [ref=e298]: Uploads
+            - listitem [ref=e299]:
+              - link " Credits" [ref=e300] [cursor=pointer]:
+                - /url: /credits
+                - generic: 
+                - generic [ref=e301]: Credits
+            - listitem [ref=e302]: Account
+            - listitem [ref=e303]:
+              - link " Logout" [ref=e304] [cursor=pointer]:
+                - /url: /logout
+                - generic: 
+                - generic [ref=e305]: Logout
+      - generic [ref=e307]:
+        - generic [ref=e308]:
+          - generic [ref=e309]:
+            - list [ref=e310]:
+              - listitem [ref=e311]:
+                - link "Portal" [ref=e312] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=e313]:  Fahrzeugdatenbank
+            - heading "Fahrzeugdatenbank" [level=1] [ref=e314]
+            - generic [ref=e315]: Suche nach Marke, Modell, Motor oder Motorcode und finde passende Stage-Daten.
+          - generic [ref=e317]: Live Datenbank
+        - generic [ref=e318]:
+          - generic [ref=e320]:
+            - generic [ref=e321]:
+              - generic [ref=e322]:
+                - heading "Filter" [level=2] [ref=e323]
+                - paragraph [ref=e324]: Grenze die Datenbank nach Suchbegriff oder Marke ein.
+              - generic [ref=e325]: Suche
+            - generic [ref=e326]:
+              - generic [ref=e327]:
+                - generic [ref=e328]: Suche
+                - generic [ref=e329]:
+                  - generic [ref=e331]: 
+                  - searchbox "Suche" [ref=e332]: BMW 320d F30 B47
+              - generic [ref=e333]:
+                - generic [ref=e334]: Marke
+                - generic [ref=e335]:
+                  - generic [ref=e337]: 
+                  - combobox "Marke" [ref=e338]:
+                    - option "Alle Marken" [selected]
+                    - option "Audi"
+                    - option "BMW"
+                    - option "Ferrari"
+                    - option "Mercedes"
+                    - option "Mini"
+                    - option "Porsche"
+                    - option "Volkswagen"
+              - button "Suchen" [ref=e340] [cursor=pointer]
+          - generic [ref=e342]:
+            - generic [ref=e343]:
+              - heading "Ergebnisse" [level=2] [ref=e344]
+              - generic [ref=e345]: 0 Eintraege
+            - generic [ref=e346]: Keine Fahrzeuge passend zu deiner Suche gefunden.
+      - contentinfo [ref=e347]:
+        - generic [ref=e348]: Copyright © 2026 Chiptuningfile. Powered by Xintra.
+    - text:  
+  - region "Symfony Web Debug Toolbar" [ref=e349]:
+    - generic [ref=e352]:
+      - link "200 @ cpt_portal_vehicles" [ref=e354] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=request
+        - generic [ref=e355]:
+          - generic [ref=e356]: "200"
+          - generic [ref=e357]: "@"
+          - generic [ref=e358]: cpt_portal_vehicles
+      - link "161 ms" [ref=e360] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=time
+        - generic [ref=e361]:
+          - generic [ref=e362]: "161"
+          - generic [ref=e363]: ms
+      - link "6.0 MiB" [ref=e365] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=time
+        - generic [ref=e366]:
+          - generic [ref=e367]: "6.0"
+          - generic [ref=e368]: MiB
+      - generic [ref=e370] [cursor=pointer]:
+        - img [ref=e371]
+        - generic [ref=e375]: "9"
+      - link "Logger 7" [ref=e377] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=logger
+        - generic [ref=e378]:
+          - img "Logger" [ref=e379]
+          - generic [ref=e383]: "7"
+      - link "Cache 7 in 0.19 ms" [ref=e385] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=cache
+        - generic [ref=e386]:
+          - img "Cache" [ref=e387]
+          - generic [ref=e392]: "7"
+          - generic [ref=e393]: in 0.19 ms
+      - link "Security dummy.chip08@example.com" [ref=e395] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=security
+        - generic [ref=e396]:
+          - img "Security" [ref=e397]
+          - generic [ref=e401]: dummy.chip08@example.com
+      - link "Twig 22 ms" [ref=e403] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=twig
+        - generic [ref=e404]:
+          - img "Twig" [ref=e405]
+          - generic [ref=e409]: "22"
+          - generic [ref=e410]: ms
+      - link "1 in 1 ms" [ref=e412] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=twig_component
+        - generic [ref=e413]:
+          - img [ref=e414]
+          - generic [ref=e416]: "1"
+          - generic [ref=e417]: in 1 ms
+      - link "6 in 14.66 ms" [ref=e419] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=db
+        - generic [ref=e420]:
+          - img [ref=e421]
+          - generic [ref=e426]: "6"
+          - generic [ref=e427]: in 14.66 ms
+      - link "Symfony 8.0.6" [ref=e429] [cursor=pointer]:
+        - /url: https://chiptuningfile.tuningfux.de/_profiler/d7518b?panel=config
+        - generic [ref=e430]:
+          - img "Symfony" [ref=e432]
+          - generic [ref=e434]: 8.0.6
+      - button [expanded] [ref=e435] [cursor=pointer]:
+        - generic "Close Toolbar" [ref=e436]:
+          - img [ref=e437]

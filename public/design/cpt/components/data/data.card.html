@@ -1,0 +1,82 @@
+<!-- @dsCard group="Components" viewport="700x680" name="Data — cards, stats, table" subtitle="Card · StatTile · Tabs · Table · ProgressBar · FileUpload" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;padding:24px;background:var(--bg);font-family:var(--font-sans);}
+  .lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-subtle);margin:0 0 10px;}
+  .sec{margin-bottom:22px;}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .two{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;align-items:start;}
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script type="text/babel">
+    const NS = window.ChiptuningfileDesignSystem_3beb42;
+    const { Card, StatTile, Tabs, Table, ProgressBar, FileUpload, Badge, Button } = NS;
+    function Demo(){
+      const [tab,setTab]=React.useState('pkw');
+      const cols=[
+        {key:'file',header:'Datei'},
+        {key:'veh',header:'Fahrzeug'},
+        {key:'ps',header:'PS',numeric:true},
+        {key:'status',header:'Status',render:r=><Badge tone={r.tone} dot>{r.status}</Badge>},
+      ];
+      const rows=[
+        {id:1,file:'EDC17_orig.bin',veh:'2.0 TDI',ps:'+38',status:'Geliefert',tone:'success'},
+        {id:2,file:'MED17_read.ori',veh:'1.4 TSI',ps:'+30',status:'In Arbeit',tone:'warning'},
+        {id:3,file:'EDC16_dump.mod',veh:'3.0 TDI',ps:'+62',status:'Fehler',tone:'danger'},
+      ];
+      return (
+        <div>
+          <div className="sec stats">
+            <StatTile label="Leistung" value="285" unit="PS" delta="+38" gain />
+            <StatTile label="Drehmoment" value="450" unit="Nm" delta="+72" />
+            <StatTile label="0–100 km/h" value="6,1" unit="s" delta="-0,7" />
+          </div>
+          <div className="sec two">
+            <div>
+              <p className="lbl">Card · Tabs · Table</p>
+              <Card featured title="Stage 1 — 2.0 TDI CR"
+                    badge={<Badge solid>Stage 1</Badge>}
+                    footer={<><span style={{fontFamily:'var(--font-mono)',fontWeight:600}}>ab 199 €</span><Button size="sm" iconRight={<i data-lucide="arrow-right"></i>}>Wählen</Button></>}>
+                <p style={{margin:0,color:'var(--text-muted)',fontSize:14}}>Serie auf Optimum. Auf dem Prüfstand abgestimmt, EU-konform.</p>
+              </Card>
+            </div>
+            <div>
+              <p className="lbl">&nbsp;</p>
+              <Tabs value={tab} onChange={setTab} tabs={[{id:'pkw',label:'PKW',icon:'car',count:8423},{id:'lkw',label:'LKW',icon:'truck',count:1290}]} />
+              <div style={{height:12}}></div>
+              <Table columns={cols} rows={rows} />
+            </div>
+          </div>
+          <div className="sec two">
+            <div>
+              <p className="lbl">ProgressBar</p>
+              <div style={{display:'flex',flexDirection:'column',gap:14}}>
+                <ProgressBar label="Upload" value={64} />
+                <ProgressBar label="Verarbeitung" indeterminate />
+                <ProgressBar label="Credits genutzt" value={100} tone="success" />
+              </div>
+            </div>
+            <div>
+              <p className="lbl">FileUpload</p>
+              <FileUpload accept=".bin,.ori,.mod" />
+            </div>
+          </div>
+        </div>
+      );
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+    setTimeout(()=>window.lucide&&window.lucide.createIcons(),60);
+  </script>
+</body>
+</html>

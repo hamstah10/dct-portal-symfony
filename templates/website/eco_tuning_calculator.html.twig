@@ -1,0 +1,531 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Eco Tuning Calculator{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/profit_calculator.css') }}">
+    <link rel="stylesheet" href="{{ asset('styles/eco_tuning_calculator.css') }}?v={{ ecoTuningCalculatorCssVersion|default('1') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="pc-page pc-page--eco">
+        <div class="pc-shell">
+            <header class="pc-header">
+                <div>
+                    <div class="pc-logo-wrap">
+                        <img class="pc-logo" src="{{ asset('images/tuningfux-gelb.svg') }}" alt="Tuningfux">
+                    </div>
+                   
+                    <h1>Eco Tuning Calculator</h1>
+                    <p>Berechne deine jährliche Kraftstoff-Ersparnis fuer Diesel und Benzin. Bei Diesel kann optional auch AdBlue in die Rechnung einfliessen.</p>
+                </div>
+                <div class="pc-header-actions">
+                    <div class="pc-header__badge">
+                        <span>Fokus</span>
+                        <strong>Diesel + AdBlue</strong>
+                    </div>
+                </div>
+            </header>
+
+            <div class="pc-layout">
+                <main class="pc-main">
+                    <section class="pc-vehicle-card is-active">
+                        <div class="pc-vehicle-hero">
+                            <div class="pc-vehicle-title">
+                                <span class="pc-vehicle-title-text">
+                                    Kraftstofftyp
+                                    <span class="pc-vehicle-title-sub">Grunddaten fuer die Jahresberechnung</span>
+                                </span>
+                            </div>
+                            <div class="pc-vehicle-price">
+                                <span>Berechnungsbasis</span>
+                                <strong data-output="monthlySavings">0,00 EUR pro Monat</strong>
+                            </div>
+                        </div>
+                        <div class="pc-vehicle-options">
+                            <div class="eco-form-grid eco-form-grid--top">
+                                <label class="eco-field">
+                                    <span class="eco-field-label">Kilometer pro Jahr</span>
+                                    <div class="eco-input-wrap">
+                                        <input type="number" min="0" step="100" value="15000" data-input="annualKm">
+                                        <em>km</em>
+                                    </div>
+                                    <small class="eco-field-hint">z.B. 15.000 km pro Jahr</small>
+                                </label>
+
+                                <fieldset class="eco-fuel-type">
+                                    <legend>Kraftstofftyp</legend>
+                                    <div class="eco-fuel-options">
+                                        <label class="eco-radio">
+                                            <input type="radio" name="fuelType" value="diesel" checked data-input="fuelType">
+                                            <span>Diesel</span>
+                                        </label>
+                                        <label class="eco-radio">
+                                            <input type="radio" name="fuelType" value="benzin" data-input="fuelType">
+                                            <span>Benzin</span>
+                                        </label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pc-vehicle-card">
+                        <div class="pc-vehicle-hero">
+                            <div class="pc-vehicle-title">
+                                <span class="pc-vehicle-title-text">
+                                    Kraftstoffverbrauch &amp; Kosten
+                                    <span class="pc-vehicle-title-sub">Verbrauch vorher und nach dem Eco Tuning</span>
+                                </span>
+                            </div>
+                            <div class="pc-vehicle-price">
+                                <span>Ersparnis nur Kraftstoff</span>
+                                <strong data-output="fuelSavings">0,00 EUR</strong>
+                            </div>
+                        </div>
+                        <div class="pc-vehicle-options">
+                            <div class="eco-form-grid">
+                                <label class="eco-field">
+                                    <span class="eco-field-label">Verbrauch vorher</span>
+                                    <div class="eco-input-wrap">
+                                        <input type="number" min="0" step="0.1" value="11" data-input="fuelBefore">
+                                        <em>l/100km</em>
+                                    </div>
+                                </label>
+
+                                <label class="eco-field">
+                                    <span class="eco-field-label">Verbrauch nach Eco Tuning</span>
+                                    <div class="eco-input-wrap">
+                                        <input type="number" min="0" step="0.1" value="9.8" data-input="fuelAfter">
+                                        <em>l/100km</em>
+                                    </div>
+                                </label>
+
+                                <label class="eco-field">
+                                    <span class="eco-field-label">Kraftstoffpreis</span>
+                                    <div class="eco-input-wrap">
+                                        <strong>EUR</strong>
+                                        <input type="number" min="0" step="0.01" value="1.75" data-input="fuelPrice">
+                                        <em>/l</em>
+                                    </div>
+                                    <div class="eco-price-tools">
+                                        <button type="button" class="eco-price-button" data-action="fetch-fuel-price">Aktuellen Preis laden</button>
+                                        <small class="eco-price-meta" data-output="fuelPriceSource">Nutze deinen Standort, um den guenstigsten offenen Diesel- oder E5-Preis im Umkreis zu laden.</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pc-tier-card eco-toggle-card" data-adblue-card>
+                        <div class="eco-toggle-copy">
+                            <strong>AdBlue (optional)</strong>
+                            <span>AdBlue-Einsparungen zusaetzlich in die Jahresersparnis einrechnen.</span>
+                        </div>
+                        <label class="eco-switch">
+                            <input type="checkbox" data-input="adBlueEnabled">
+                            <span></span>
+                        </label>
+                    </section>
+
+                    <section class="pc-vehicle-card is-hidden" data-adblue-panel>
+                        <div class="pc-vehicle-hero">
+                            <div class="pc-vehicle-title">
+                                <span class="pc-vehicle-title-text">
+                                    AdBlue Verbrauch &amp; Kosten
+                                    <span class="pc-vehicle-title-sub">Optional nur fuer Diesel-Fahrzeuge</span>
+                                </span>
+                            </div>
+                            <div class="pc-vehicle-price">
+                                <span>AdBlue-Hinweis</span>
+                                <strong data-output="adBlueHint">AdBlue ist aktuell nicht aktiv.</strong>
+                            </div>
+                        </div>
+                        <div class="pc-vehicle-options">
+                            <div class="eco-form-grid eco-form-grid--adblue">
+                                <label class="eco-field">
+                                    <span class="eco-field-label">AdBlue Verbrauch vorher</span>
+                                    <div class="eco-input-wrap">
+                                        <input type="number" min="0" step="0.1" value="0.7" data-input="adBlueBefore">
+                                        <em>l/100km</em>
+                                    </div>
+                                </label>
+
+                                <label class="eco-field">
+                                    <span class="eco-field-label">AdBlue Verbrauch nach Eco Tuning</span>
+                                    <div class="eco-input-wrap">
+                                        <input type="number" min="0" step="0.1" value="0.5" data-input="adBlueAfter">
+                                        <em>l/100km</em>
+                                    </div>
+                                </label>
+
+                                <label class="eco-field">
+                                    <span class="eco-field-label">AdBlue Preis</span>
+                                    <div class="eco-input-wrap">
+                                        <strong>EUR</strong>
+                                        <input type="number" min="0" step="0.01" value="0.89" data-input="adBluePrice">
+                                        <em>/l</em>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <section class="pc-summary pc-summary--bar">
+                    <div class="pc-summary-card">
+                        <div class="pc-summary-head">Zusammenfassung</div>
+                        <div class="pc-summary-items">
+                            <div class="pc-summary-item">
+                                <div class="pc-summary-label">
+                                    <span class="pc-summary-title">Gesamtersparnis pro Jahr</span>
+                                    <small>Gesamt aus Kraftstoff und optional AdBlue</small>
+                                </div>
+                                <strong class="pc-summary-price" data-output="annualSavings">0,00 EUR</strong>
+                            </div>
+                            <div class="pc-summary-item">
+                                <div class="pc-summary-label">
+                                    <span class="pc-summary-title">Kraftstoffkosten vorher</span>
+                                    <small data-output="fuelCostBeforeLiters">0,0 l pro Jahr</small>
+                                </div>
+                                <strong class="pc-summary-price" data-output="fuelCostBefore">0,00 EUR</strong>
+                            </div>
+                            <div class="pc-summary-item">
+                                <div class="pc-summary-label">
+                                    <span class="pc-summary-title">Kraftstoffkosten nachher</span>
+                                    <small data-output="fuelCostAfterLiters">0,0 l pro Jahr</small>
+                                </div>
+                                <strong class="pc-summary-price" data-output="fuelCostAfter">0,00 EUR</strong>
+                            </div>
+                            <div class="pc-summary-item is-hidden" data-output-card="adBlueBefore">
+                                <div class="pc-summary-label">
+                                    <span class="pc-summary-title">AdBlue Kosten vorher</span>
+                                    <small data-output="adBlueCostBeforeLiters">0,0 l pro Jahr</small>
+                                </div>
+                                <strong class="pc-summary-price" data-output="adBlueCostBefore">0,00 EUR</strong>
+                            </div>
+                            <div class="pc-summary-item is-hidden" data-output-card="adBlueAfter">
+                                <div class="pc-summary-label">
+                                    <span class="pc-summary-title">AdBlue Kosten nachher</span>
+                                    <small data-output="adBlueCostAfterLiters">0,0 l pro Jahr</small>
+                                </div>
+                                <strong class="pc-summary-price" data-output="adBlueCostAfter">0,00 EUR</strong>
+                            </div>
+                        </div>
+
+                        <div class="pc-summary-actions">
+                            <button type="button" class="pc-btn pc-btn-muted" data-action="fetch-fuel-price">Preis laden</button>
+                            <button type="button" class="pc-btn pc-btn-primary" data-action="calculate">Berechnen</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="pc-tier-bar">
+                    <div class="pc-tier-card pc-tier-card--wide">
+                        <div class="pc-tier-head">Berechnungsdetails</div>
+                        <div class="pc-tier-list">
+                            <div class="pc-tier">
+                                <span class="pc-tier-credits">Kraftstoff-Ersparnis</span>
+                                <span class="pc-tier-price" data-output="fuelSavings">0,00 EUR</span>
+                            </div>
+                            <div class="pc-tier">
+                                <span class="pc-tier-credits">Monatlich</span>
+                                <span class="pc-tier-price" data-output="monthlySavingsTier">0,00 EUR</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="pc-result">
+                <div class="pc-result-card">
+                    <div class="pc-result-head">
+                        <div>
+                            <span class="pc-result-kicker">Berechnungsergebnisse</span>
+                            <h2>Ergebnis</h2>
+                            <p>Jahresersparnis, Monatswert und Detailaufschluesselung fuer Kraftstoff und AdBlue.</p>
+                        </div>
+                    </div>
+
+                    <div class="eco-result-grid">
+                        <div class="eco-result-box eco-result-box--primary">
+                            <span>Gesamtersparnis pro Jahr</span>
+                            <strong data-output="annualSavingsResult">0,00 EUR</strong>
+                            <small data-output="monthlySavings">0,00 EUR pro Monat</small>
+                        </div>
+                        <div class="eco-result-box">
+                            <span>Kraftstoffkosten vorher</span>
+                            <strong data-output="fuelCostBeforeResult">0,00 EUR</strong>
+                            <small data-output="fuelCostBeforeLitersResult">0,0 l pro Jahr</small>
+                        </div>
+                        <div class="eco-result-box">
+                            <span>Kraftstoffkosten nachher</span>
+                            <strong data-output="fuelCostAfterResult">0,00 EUR</strong>
+                            <small data-output="fuelCostAfterLitersResult">0,0 l pro Jahr</small>
+                        </div>
+                    </div>
+
+                    <div class="pc-result-section">
+                        <h3>Detaillierte Aufschluesselung</h3>
+                        <div class="eco-breakdown-grid">
+                            <div class="eco-breakdown-card">
+                                <span>Kraftstoffersparnis</span>
+                                <strong class="eco-positive" data-output="fuelSavingsResult">0,00 EUR</strong>
+                                <small>Reine Ersparnis aus dem reduzierten Verbrauch.</small>
+                            </div>
+                            <div class="eco-breakdown-card">
+                                <span>AdBlue Ersparnis</span>
+                                <strong class="eco-positive" data-output="adBlueSavingsResult">0,00 EUR</strong>
+                                <small data-output="adBlueHintResult">AdBlue ist aktuell nicht aktiv.</small>
+                            </div>
+                            <div class="eco-breakdown-card">
+                                <span>Aktueller Preis-Hinweis</span>
+                                <strong data-output="fuelPriceInline">1,75 EUR/l</strong>
+                                <small data-output="fuelPriceSourceInline">Manueller Preis aktiv.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const form = document.querySelector('.pc-page--eco');
+            if (!form) {
+                return;
+            }
+
+            const queryInput = (key) => form.querySelector(`[data-input="${key}"]`);
+            const queryOutputs = (key) => Array.from(form.querySelectorAll(`[data-output="${key}"]`));
+            const adBluePanel = form.querySelector('[data-adblue-panel]');
+            const adBlueCard = form.querySelector('[data-adblue-card]');
+            const adBlueBeforeCard = form.querySelector('[data-output-card="adBlueBefore"]');
+            const adBlueAfterCard = form.querySelector('[data-output-card="adBlueAfter"]');
+            const calculateButton = form.querySelector('[data-action="calculate"]');
+            const fetchFuelPriceButtons = Array.from(form.querySelectorAll('[data-action="fetch-fuel-price"]'));
+
+            const numberValue = (key) => {
+                const field = queryInput(key);
+                if (!(field instanceof HTMLInputElement)) {
+                    return 0;
+                }
+
+                return Number.parseFloat(field.value || '0') || 0;
+            };
+
+            const checkedValue = (key) => {
+                const field = queryInput(key);
+
+                return field instanceof HTMLInputElement && field.checked;
+            };
+
+            const currentFuelType = () => {
+                const checked = form.querySelector('[data-input="fuelType"]:checked');
+
+                return checked instanceof HTMLInputElement ? checked.value : 'diesel';
+            };
+
+            const formatCurrency = (value) => new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR',
+            }).format(value);
+
+            const formatNumber = (value, digits = 1) => new Intl.NumberFormat('de-DE', {
+                minimumFractionDigits: digits,
+                maximumFractionDigits: digits,
+            }).format(value);
+
+            const setText = (key, value) => {
+                queryOutputs(key).forEach((output) => {
+                    output.textContent = value;
+                });
+            };
+
+            const setFuelPriceLoadingState = (loading, label) => {
+                fetchFuelPriceButtons.forEach((button) => {
+                    if (!(button instanceof HTMLButtonElement)) {
+                        return;
+                    }
+
+                    button.disabled = loading;
+                    button.textContent = loading ? 'Preis wird geladen...' : 'Aktuellen Preis laden';
+                });
+                if (label) {
+                    setText('fuelPriceSource', label);
+                    setText('fuelPriceSourceInline', label);
+                }
+            };
+
+            const updateAdBlueState = () => {
+                const isDiesel = currentFuelType() === 'diesel';
+                const adBlueEnabled = isDiesel && checkedValue('adBlueEnabled');
+
+                adBlueCard.classList.toggle('is-disabled', !isDiesel);
+                adBluePanel.classList.toggle('is-hidden', !adBlueEnabled);
+                adBlueBeforeCard.classList.toggle('is-hidden', !adBlueEnabled);
+                adBlueAfterCard.classList.toggle('is-hidden', !adBlueEnabled);
+
+                const toggle = queryInput('adBlueEnabled');
+                if (toggle instanceof HTMLInputElement) {
+                    toggle.disabled = !isDiesel;
+                    if (!isDiesel) {
+                        toggle.checked = false;
+                    }
+                }
+            };
+
+            const calculate = () => {
+                updateAdBlueState();
+
+                const annualKm = numberValue('annualKm');
+                const fuelBefore = numberValue('fuelBefore');
+                const fuelAfter = numberValue('fuelAfter');
+                const fuelPrice = numberValue('fuelPrice');
+                const useAdBlue = currentFuelType() === 'diesel' && checkedValue('adBlueEnabled');
+
+                const fuelLitersBefore = (annualKm / 100) * fuelBefore;
+                const fuelLitersAfter = (annualKm / 100) * fuelAfter;
+                const fuelCostBefore = fuelLitersBefore * fuelPrice;
+                const fuelCostAfter = fuelLitersAfter * fuelPrice;
+                const fuelSavings = fuelCostBefore - fuelCostAfter;
+
+                let adBlueLitersBefore = 0;
+                let adBlueLitersAfter = 0;
+                let adBlueCostBefore = 0;
+                let adBlueCostAfter = 0;
+                let adBlueSavings = 0;
+
+                if (useAdBlue) {
+                    const adBlueBefore = numberValue('adBlueBefore');
+                    const adBlueAfter = numberValue('adBlueAfter');
+                    const adBluePrice = numberValue('adBluePrice');
+
+                    adBlueLitersBefore = (annualKm / 100) * adBlueBefore;
+                    adBlueLitersAfter = (annualKm / 100) * adBlueAfter;
+                    adBlueCostBefore = adBlueLitersBefore * adBluePrice;
+                    adBlueCostAfter = adBlueLitersAfter * adBluePrice;
+                    adBlueSavings = adBlueCostBefore - adBlueCostAfter;
+                }
+
+                const totalSavings = fuelSavings + adBlueSavings;
+
+                setText('annualSavings', formatCurrency(totalSavings));
+                setText('annualSavingsResult', formatCurrency(totalSavings));
+                setText('monthlySavings', `${formatCurrency(totalSavings / 12)} pro Monat`);
+                setText('monthlySavingsTier', formatCurrency(totalSavings / 12));
+                setText('fuelCostBefore', formatCurrency(fuelCostBefore));
+                setText('fuelCostBeforeResult', formatCurrency(fuelCostBefore));
+                setText('fuelCostAfter', formatCurrency(fuelCostAfter));
+                setText('fuelCostAfterResult', formatCurrency(fuelCostAfter));
+                setText('fuelCostBeforeLiters', `${formatNumber(fuelLitersBefore)} l pro Jahr`);
+                setText('fuelCostBeforeLitersResult', `${formatNumber(fuelLitersBefore)} l pro Jahr`);
+                setText('fuelCostAfterLiters', `${formatNumber(fuelLitersAfter)} l pro Jahr`);
+                setText('fuelCostAfterLitersResult', `${formatNumber(fuelLitersAfter)} l pro Jahr`);
+                setText('fuelSavings', formatCurrency(fuelSavings));
+                setText('fuelSavingsResult', formatCurrency(fuelSavings));
+                setText('adBlueCostBefore', formatCurrency(adBlueCostBefore));
+                setText('adBlueCostAfter', formatCurrency(adBlueCostAfter));
+                setText('adBlueCostBeforeLiters', `${formatNumber(adBlueLitersBefore)} l pro Jahr`);
+                setText('adBlueCostAfterLiters', `${formatNumber(adBlueLitersAfter)} l pro Jahr`);
+                setText('adBlueSavingsResult', formatCurrency(adBlueSavings));
+                setText(
+                    'adBlueHint',
+                    useAdBlue
+                        ? `AdBlue-Ersparnis: ${formatCurrency(adBlueSavings)} pro Jahr`
+                        : 'AdBlue ist aktuell nicht aktiv.'
+                );
+                setText(
+                    'adBlueHintResult',
+                    useAdBlue
+                        ? `AdBlue-Ersparnis: ${formatCurrency(adBlueSavings)} pro Jahr`
+                        : 'AdBlue ist aktuell nicht aktiv.'
+                );
+                setText('fuelPriceInline', `${formatNumber(fuelPrice, 2)} EUR/l`);
+            };
+
+            const fetchFuelPrice = async () => {
+                if (!navigator.geolocation) {
+                    setText('fuelPriceSource', 'Dieser Browser unterstuetzt keine Standortabfrage.');
+                    setText('fuelPriceSourceInline', 'Dieser Browser unterstuetzt keine Standortabfrage.');
+                    return;
+                }
+
+                setFuelPriceLoadingState(true, 'Standort wird ermittelt...');
+
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const fuelType = currentFuelType();
+
+                    setFuelPriceLoadingState(true, 'Aktueller Preis wird geladen...');
+
+                    try {
+                        const params = new URLSearchParams({
+                            lat: String(lat),
+                            lng: String(lng),
+                            fuelType,
+                        });
+                        const response = await fetch(`{{ path('app_eco_tuning_calculator_fuel_price') }}?${params.toString()}`, {
+                            headers: {
+                                'Accept': 'application/json',
+                            },
+                        });
+                        const payload = await response.json();
+
+                        if (!response.ok || payload.ok !== true) {
+                            throw new Error(payload.message || 'Preis konnte nicht geladen werden.');
+                        }
+
+                        const fuelPriceInput = queryInput('fuelPrice');
+                        if (fuelPriceInput instanceof HTMLInputElement) {
+                            fuelPriceInput.value = Number(payload.price).toFixed(3);
+                        }
+
+                        const station = payload.station || {};
+                        const fuelLabel = payload.fuelType === 'e5' ? 'E5' : 'Diesel';
+                        setText(
+                            'fuelPriceSource',
+                            `${fuelLabel}: ${Number(payload.price).toFixed(3).replace('.', ',')} EUR/l bei ${station.name || 'Tankstelle'} in ${station.place || ''} (${station.distance || 0} km). Quelle: ${payload.source}, ${payload.license}.`
+                        );
+                        setText(
+                            'fuelPriceSourceInline',
+                            `${fuelLabel}: ${Number(payload.price).toFixed(3).replace('.', ',')} EUR/l bei ${station.name || 'Tankstelle'} in ${station.place || ''} (${station.distance || 0} km).`
+                        );
+                        setText('fuelPriceInline', `${Number(payload.price).toFixed(3).replace('.', ',')} EUR/l`);
+
+                        calculate();
+                    } catch (error) {
+                        setText('fuelPriceSource', error instanceof Error ? error.message : 'Preis konnte nicht geladen werden.');
+                        setText('fuelPriceSourceInline', error instanceof Error ? error.message : 'Preis konnte nicht geladen werden.');
+                    } finally {
+                        setFuelPriceLoadingState(false);
+                    }
+                }, (error) => {
+                    const message = error.code === 1
+                        ? 'Standortfreigabe wurde abgelehnt.'
+                        : 'Standort konnte nicht ermittelt werden.';
+                    setFuelPriceLoadingState(false, message);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000,
+                });
+            };
+
+            form.querySelectorAll('input').forEach((input) => {
+                input.addEventListener('input', calculate);
+                input.addEventListener('change', calculate);
+            });
+
+            calculateButton?.addEventListener('click', calculate);
+            fetchFuelPriceButtons.forEach((button) => {
+                button.addEventListener('click', fetchFuelPrice);
+            });
+
+            calculate();
+        })();
+    </script>
+{% endblock %}

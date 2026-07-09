@@ -1,0 +1,84 @@
+# yaml-language-server: $schema=../../vendor/symfony/config/definition/schema.json
+parameters:
+    vin_decoder.api_base: '%env(string:VINCARIO_API_BASE)%'
+    vin_decoder.api_key: '%env(string:VINCARIO_API_KEY)%'
+    vin_decoder.api_secret: '%env(string:VINCARIO_API_SECRET)%'
+    vin_decoder.api_timeout: '%env(int:VINCARIO_API_TIMEOUT)%'
+    vin_decoder.vpic_base: '%env(string:VIN_DECODER_VPIC_BASE)%'
+    vin_decoder.vpic_timeout: '%env(int:VIN_DECODER_VPIC_TIMEOUT)%'
+    # Zusatz-WMI (werden zur internen Basisliste hinzugefügt).
+    # vin_decoder.manufacturers:
+    #     TMB: Skoda
+    #     TRU: Audi Hungary
+    vin_decoder.manufacturers:
+        WAU: Audi AG
+
+    # Herstellerspezifische Werk-Codes (Position 11).
+    # vin_decoder.plant_codes:
+    #     WAU:
+    #         A: Ingolstadt
+    #         N: Neckarsulm
+    vin_decoder.plant_codes:
+        WAU:
+            D:
+                name: Neckarsulm
+                address1: Felix Wankel Strasse
+                address2: 74148 Neckarsulm
+                region: Europe
+                country: Germany
+                note: Manufacturer builds more than 500 vehicles per year
+
+    # VDS-Regeln (Positionen 4-8) je Hersteller/WMI.
+    # vin_decoder.vds_rules:
+    #     WAU:
+    #         - pattern: '^ZZZ'
+    #           label: 'EU Füller'
+    #           description: 'EU-Ausführung ohne spezifische VDS-Codierung.'
+    #           type: 'regex'
+    #         - pattern: 'A4'
+    #           label: 'A4 Plattform'
+    #           description: 'Beispiel-Regel mit Prefix'
+    #           type: 'prefix'
+    vin_decoder.vds_rules: {  }
+
+    # VIN-spezifische Overrides (einzelne Fahrzeuge).
+    vin_decoder.vin_overrides:
+        WAUZZZF13PD011897:
+            make: Audi
+            model: Q8
+            modelYear: 2023
+            productType: Car
+            body: Hatchback/Liftback/Notchback
+            drive: 4x4 - Four-wheel drive
+            engine: '2'
+            transmission: Automatic
+            numberOfGears: 8
+            manufacturerFull: AUDI AG, D-85057 INGOLSTADT
+            manufacturerAddress: Felix Wankel Strasse, 74148 Neckarsulm, Germany
+            plantCountry: Slovakia
+            engineManufacturer: AUDI
+            averageCo2: 230.32
+            numberOfWheels: 4
+            numberOfAxles: 2
+            numberOfDoors: 5
+            numberOfSeats: 5
+            powerSteering: Electric Steering
+            rearBrakes: Disc
+            brakeSystem: Electrical
+            steeringType: Electric steering
+            wheelSize: 285/40 R22 110Y
+            wheelbaseMm: 2998
+            heightMm: 1691
+            lengthMm: 4996
+            widthMm: 1995
+            widthIncludingMirrorsMm: 2190
+            trackFrontMm: 1700
+            trackRearMm: 1720
+            maxSpeedKmh: 241
+            weightEmptyKg: 2245
+            maxWeightKg: 2900
+            maxRoofLoadKg: 100
+            trailerNoBrakesKg: 750
+            abs: true
+            checkDigit: '3'
+            sequentialNumber: '011897'

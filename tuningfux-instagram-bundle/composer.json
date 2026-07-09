@@ -1,0 +1,34 @@
+{
+  "name": "tuningfux/instagram-bundle",
+  "description": "Reusable Symfony bundle for Instagram Platform API integration",
+  "type": "symfony-bundle",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.2",
+    "symfony/http-client": "^6.4|^7.0|^8.0",
+    "symfony/framework-bundle": "^6.4|^7.0|^8.0",
+    "symfony/dependency-injection": "^6.4|^7.0|^8.0",
+    "symfony/config": "^6.4|^7.0|^8.0",
+    "symfony/http-kernel": "^6.4|^7.0|^8.0",
+    "symfony/routing": "^6.4|^7.0|^8.0",
+    "symfony/security-csrf": "^6.4|^7.0|^8.0",
+    "doctrine/orm": "^2.17|^3.0",
+    "doctrine/doctrine-bundle": "^2.10|^3.0",
+    "psr/log": "^2.0|^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tuningfux\\InstagramBundle\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tuningfux\\InstagramBundle\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.0-dev"
+    }
+  }
+}

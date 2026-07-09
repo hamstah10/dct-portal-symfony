@@ -1,0 +1,87 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Tools{% endblock %}
+
+{% block main %}
+    {% set activeTab = activeTab|default('manufacturer') %}
+
+    <div class="container-fluid px-0 mt-3">
+        <ul class="nav nav-tabs mb-3 tab-style-6" id="admin-vehicle-tools-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'manufacturer' ? 'active' : '' }}"
+                        id="tab-vehicle-tools-manufacturer"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-tools-manufacturer"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-tools-manufacturer"
+                        aria-selected="{{ activeTab == 'manufacturer' ? 'true' : 'false' }}">
+                    {{ ux_icon('streamline:device-database-encryption-1-remix') }} Tool-Hersteller
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-0 {{ activeTab == 'methode' ? 'active' : '' }}"
+                        id="tab-vehicle-tools-methode"
+                        data-bs-toggle="tab"
+                        data-bs-target="#panel-vehicle-tools-methode"
+                        type="button"
+                        role="tab"
+                        aria-controls="panel-vehicle-tools-methode"
+                        aria-selected="{{ activeTab == 'methode' ? 'true' : 'false' }}">
+                    {{ ux_icon('streamline:database-setting-solid') }} Tool-Methoden
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade {{ activeTab == 'manufacturer' ? 'show active' : '' }}"
+                 id="panel-vehicle-tools-manufacturer"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-tools-manufacturer">
+                {{ render(path('admin_tool_manufacturer_index', { embed: 1 })) }}
+            </div>
+            <div class="tab-pane fade {{ activeTab == 'methode' ? 'show active' : '' }}"
+                 id="panel-vehicle-tools-methode"
+                 role="tabpanel"
+                 aria-labelledby="tab-vehicle-tools-methode">
+                {{ render(path('admin_tool_methode_index', { embed: 1 })) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const tabs = document.querySelectorAll('#admin-vehicle-tools-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const tabs = document.querySelectorAll('#admin-vehicle-tools-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

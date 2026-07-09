@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>No1 Tuningfiles – Professional Chiptuning Files</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/portals/no1tuningfiles/react_website/no1tuningfiles/favicon.png') }}" />
+    <link rel="apple-touch-icon" href="{{ asset('assets/portals/no1tuningfiles/react_website/no1tuningfiles/favicon.png') }}" />
+    {% if spa_css %}
+        <link rel="stylesheet" href="{{ asset('assets/portals/no1tuningfiles/react_website/no1tuningfiles/static/css/' ~ spa_css) }}" />
+    {% endif %}
+</head>
+<body>
+    <div id="root"></div>
+    {% if spa_js %}
+        <script src="{{ asset('assets/portals/no1tuningfiles/react_website/no1tuningfiles/static/js/' ~ spa_js) }}"></script>
+    {% endif %}
+</body>
+</html>

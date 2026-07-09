@@ -1,0 +1,103 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Kommunikation{% endblock %}
+
+{% block main %}
+    {% set hasTickets = ticketsAllowed %}
+    {% set hasEmail = emailAllowed %}
+    {% set activeTab = hasTickets ? 'tickets' : (hasEmail ? 'email' : '') %}
+
+    <div class="container-fluid px-0 mt-3">
+        {% if not hasTickets and not hasEmail %}
+            <div class="alert alert-warning mb-3">
+                Keine Berechtigung fuer Tickets oder E-Mail.
+            </div>
+        {% else %}
+            <ul class="nav nav-tabs mb-3 tab-style-6" id="admin-communication-tabs" role="tablist">
+                {% if hasTickets %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-0 {{ activeTab == 'tickets' ? 'active' : '' }}"
+                                id="tab-communication-tickets"
+                                data-bs-toggle="tab"
+                                data-bs-target="#panel-communication-tickets"
+                                type="button"
+                                role="tab"
+                                aria-controls="panel-communication-tickets"
+                                aria-selected="{{ activeTab == 'tickets' ? 'true' : 'false' }}">
+                            {{ ux_icon('material-symbols:support-agent') }} Tickets
+                        </button>
+                    </li>
+                {% endif %}
+                {% if hasEmail %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-0 {{ activeTab == 'email' ? 'active' : '' }}"
+                                id="tab-communication-email"
+                                data-bs-toggle="tab"
+                                data-bs-target="#panel-communication-email"
+                                type="button"
+                                role="tab"
+                                aria-controls="panel-communication-email"
+                                aria-selected="{{ activeTab == 'email' ? 'true' : 'false' }}">
+                            {{ ux_icon('ic:outline-email') }} E-Mail
+                        </button>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <div class="tab-content">
+                {% if hasTickets %}
+                    <div class="tab-pane fade {{ activeTab == 'tickets' ? 'show active' : '' }}"
+                         id="panel-communication-tickets"
+                         role="tabpanel"
+                         aria-labelledby="tab-communication-tickets">
+                        {{ render(path('admin_support_tickets', { embed: 1 })) }}
+                    </div>
+                {% endif %}
+                {% if hasEmail %}
+                    <div class="tab-pane fade {{ activeTab == 'email' ? 'show active' : '' }}"
+                         id="panel-communication-email"
+                         role="tabpanel"
+                         aria-labelledby="tab-communication-email">
+                        {{ render(path('admin_support_email', { embed: 1 })) }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const tabs = document.querySelectorAll('#admin-communication-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const tabs = document.querySelectorAll('#admin-communication-tabs [data-bs-toggle="tab"]');
+                if (!tabs.length) {
+                    return;
+                }
+
+                tabs.forEach((tab) => {
+                    tab.addEventListener('shown.bs.tab', () => {
+                        window.dispatchEvent(new Event('resize'));
+                    });
+                });
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

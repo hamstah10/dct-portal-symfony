@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=../../vendor/symfony/config/definition/schema.json
+parameters:
+    lexware.api_base: '%env(string:LEXWARE_API_BASE)%'
+    lexware.api_key: '%env(string:LEXWARE_API_KEY)%'
+    lexware.api_timeout: '%env(int:LEXWARE_API_TIMEOUT)%'
+    lexware.api_user_agent: '%env(string:LEXWARE_API_USER_AGENT)%'
+    lexware.api_token_name: '%env(string:LEXWARE_API_TOKEN_NAME)%'

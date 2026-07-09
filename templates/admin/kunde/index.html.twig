@@ -1,0 +1,317 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block head %}
+    {{ parent() }}
+    <style>
+        .tfd-customer-map .leaflet-marker-icon.is-customer-active svg {
+            filter: drop-shadow(0 0 6px rgba(13, 110, 253, 0.65));
+            transform: scale(1.12);
+            transform-origin: 50% 100%;
+        }
+
+        .ea-index-table tr.is-customer-selected {
+            background: rgba(13, 110, 253, 0.08);
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+    <div class="row g-3 mb-3">
+        {% for firma in kundenFirmStats|default([]) %}
+            <div class="col-12 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="small text-muted mb-1"><i class="fa fa-users me-2 text-muted" aria-hidden="true"></i> Kunden {{ firma.label }}</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="h3 mb-0">{{ firma.total|default(0) }}</div>
+                            </div>
+                            {% if firma.logoPath is defined and firma.logoPath %}
+                                {% set logoPath = firma.logoPath %}
+                                {% if '/' not in logoPath %}
+                                    {% set logoPath = 'uploads/firmen/' ~ logoPath %}
+                                {% endif %}
+                                {% set logoUrl = (logoPath starts with 'http') ? logoPath : '/' ~ logoPath|trim('/') %}
+                                <span style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:60px;border-radius:0px;background:#fff;border:1px solid #e5e7eb;overflow:hidden;">
+                                    <img src="{{ logoUrl }}" alt="{{ firma.label }}" style="width:100%;height:100%;object-fit:contain;">
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background:{{ firma.badgeColor }};color:#ffffff;">{{ firma.badgeLabel }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="col-12 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="small text-muted mb-1"><i class="fa fa-users me-2 text-muted" aria-hidden="true"></i> Kunden gesamt</div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            
+                            <div class="h3 mb-0">{{ kundenCountTotal|default(0) }}</div>
+                        </div>
+                        <span class="badge" style="background:#334155;color:#ffffff;">GESAMT</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        {{ component('kunde_search') }}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-8">
+            {{ parent() }}
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold">Kundenkarte</div>
+                <div class="card-body tfd-customer-map" data-customer-map>
+                    {% if customersMap is defined %}
+                        {{ ux_map(customersMap, { style: 'height: 600px; width: 100%; border-radius: 8px;' }) }}
+                    {% else %}
+                        <div class="text-muted">Keine Kartendaten verfuegbar.</div>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white small">
+                    <span class="me-3"><strong>Marker:</strong> {{ customerMapMarkerCount|default(0) }}</span>
+                    {% if customerMapUnresolvedCount|default(0) > 0 %}
+                        <span class="text-muted"><strong>Ohne Treffer:</strong> {{ customerMapUnresolvedCount }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const mapWrapper = document.querySelector('[data-customer-map]');
+                if (!mapWrapper) {
+                    return;
+                }
+
+                const mapElement = mapWrapper.querySelector('[data-controller]');
+                if (!mapElement) {
+                    return;
+                }
+
+                const table = document.querySelector('.ea-index-table');
+                if (!table) {
+                    return;
+                }
+
+                const markerByCustomer = new Map();
+                let activeMarker = null;
+                let activeRow = null;
+                let mapInstance = null;
+
+                const activate = (customerId, row) => {
+                    const marker = markerByCustomer.get(String(customerId));
+                    if (!marker) {
+                        return;
+                    }
+
+                    if (activeMarker && typeof activeMarker.getElement === 'function') {
+                        const el = activeMarker.getElement();
+                        if (el) {
+                            el.classList.remove('is-customer-active');
+                        }
+                    }
+                    if (activeRow) {
+                        activeRow.classList.remove('is-customer-selected');
+                    }
+
+                    activeMarker = marker;
+                    activeRow = row || null;
+
+                    if (typeof marker.getElement === 'function') {
+                        const el = marker.getElement();
+                        if (el) {
+                            el.classList.add('is-customer-active');
+                        }
+                    }
+                    if (activeRow) {
+                        activeRow.classList.add('is-customer-selected');
+                    }
+                    if (typeof marker.openPopup === 'function') {
+                        marker.openPopup();
+                    }
+                    if (mapInstance && typeof marker.getLatLng === 'function') {
+                        mapInstance.panTo(marker.getLatLng(), { animate: true });
+                    }
+                };
+
+                mapElement.addEventListener('ux:map:connect', (event) => {
+                    mapInstance = event.detail?.map || null;
+                });
+
+                mapElement.addEventListener('ux:map:marker:after-create', (event) => {
+                    const definition = event.detail?.definition;
+                    const marker = event.detail?.marker;
+                    const customerId = definition?.extra?.customerId;
+                    const markerColor = definition?.extra?.markerColor;
+                    if (!customerId || !marker) {
+                        return;
+                    }
+
+                    markerByCustomer.set(String(customerId), marker);
+
+                    if (markerColor && typeof marker.getElement === 'function') {
+                        const el = marker.getElement();
+                        if (el) {
+                            el.style.color = markerColor;
+                        }
+                    }
+
+                    if (typeof marker.on === 'function') {
+                        marker.on('click', () => {
+                            const row = table.querySelector(`tr[data-id="${customerId}"]`);
+                            activate(customerId, row);
+                        });
+                    }
+                });
+
+                table.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.closest('a, button, .actions, .form-check')) {
+                        return;
+                    }
+
+                    const row = target.closest('tr[data-id]');
+                    if (!row) {
+                        return;
+                    }
+
+                    const customerId = row.getAttribute('data-id');
+                    if (!customerId) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    activate(customerId, row);
+                });
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const mapWrapper = document.querySelector('[data-customer-map]');
+                if (!mapWrapper) {
+                    return;
+                }
+
+                const mapElement = mapWrapper.querySelector('[data-controller]');
+                if (!mapElement) {
+                    return;
+                }
+
+                const table = document.querySelector('.ea-index-table');
+                if (!table) {
+                    return;
+                }
+
+                const markerByCustomer = new Map();
+                let activeMarker = null;
+                let activeRow = null;
+                let mapInstance = null;
+
+                const activate = (customerId, row) => {
+                    const marker = markerByCustomer.get(String(customerId));
+                    if (!marker) {
+                        return;
+                    }
+
+                    if (activeMarker && typeof activeMarker.getElement === 'function') {
+                        const el = activeMarker.getElement();
+                        if (el) {
+                            el.classList.remove('is-customer-active');
+                        }
+                    }
+                    if (activeRow) {
+                        activeRow.classList.remove('is-customer-selected');
+                    }
+
+                    activeMarker = marker;
+                    activeRow = row || null;
+
+                    if (typeof marker.getElement === 'function') {
+                        const el = marker.getElement();
+                        if (el) {
+                            el.classList.add('is-customer-active');
+                        }
+                    }
+                    if (activeRow) {
+                        activeRow.classList.add('is-customer-selected');
+                    }
+                    if (typeof marker.openPopup === 'function') {
+                        marker.openPopup();
+                    }
+                    if (mapInstance && typeof marker.getLatLng === 'function') {
+                        mapInstance.panTo(marker.getLatLng(), { animate: true });
+                    }
+                };
+
+                mapElement.addEventListener('ux:map:connect', (event) => {
+                    mapInstance = event.detail?.map || null;
+                });
+
+                mapElement.addEventListener('ux:map:marker:after-create', (event) => {
+                    const definition = event.detail?.definition;
+                    const marker = event.detail?.marker;
+                    const customerId = definition?.extra?.customerId;
+                    const markerColor = definition?.extra?.markerColor;
+                    if (!customerId || !marker) {
+                        return;
+                    }
+
+                    markerByCustomer.set(String(customerId), marker);
+
+                    if (markerColor && typeof marker.getElement === 'function') {
+                        const el = marker.getElement();
+                        if (el) {
+                            el.style.color = markerColor;
+                        }
+                    }
+
+                    if (typeof marker.on === 'function') {
+                        marker.on('click', () => {
+                            const row = table.querySelector(`tr[data-id="${customerId}"]`);
+                            activate(customerId, row);
+                        });
+                    }
+                });
+
+                table.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target.closest('a, button, .actions, .form-check')) {
+                        return;
+                    }
+
+                    const row = target.closest('tr[data-id]');
+                    if (!row) {
+                        return;
+                    }
+
+                    const customerId = row.getAttribute('data-id');
+                    if (!customerId) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    activate(customerId, row);
+                });
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

@@ -1,0 +1,630 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}AI Projekt: {{ project.name }}{% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0" data-ai-project-workspace>
+        <div class="row g-3 mb-3">
+            <div class="col-12">
+                {% for type, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ type == 'error' ? 'danger' : type }}">{{ message }}</div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <div class="col-12 d-none" data-ai-project-progress-panel>
+                <div class="card border-0 shadow-sm" style="position: sticky; top: 12px; z-index: 10;">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap justify-content-between gap-2 small mb-2">
+                            <strong data-ai-project-progress-title>Aktion wird vorbereitet</strong>
+                            <span data-ai-project-progress-value>12%</span>
+                        </div>
+                        <div class="progress" style="height: 14px;">
+                            <div
+                                class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                                role="progressbar"
+                                style="width: 12%;"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                aria-valuenow="12"
+                                data-ai-project-progress-bar
+                            ></div>
+                        </div>
+                        <div class="small text-muted mt-2" data-ai-project-progress-text>Bitte warten, die Aktion wird ausgefuehrt.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap justify-content-between gap-3">
+                            <div>
+                                <div class="text-muted small">Projekt-Workspace</div>
+                                <h2 class="h4 mb-2">{{ project.name }}</h2>
+                                {% if project.description %}
+                                    <div class="text-muted">{{ project.description|nl2br }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 align-items-start">
+                                <a href="{{ path('admin_ai_project_index') }}" class="btn btn-outline-secondary">Projektliste</a>
+                                <a href="{{ path('admin_media_manager') }}" class="btn btn-outline-secondary">Media Manager</a>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row g-3 align-items-center">
+                            <div class="col-12 col-xl-6">
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>Wissensbasis-Fortschritt</span>
+                                    <strong>{{ knowledgeStats.percent }}%</strong>
+                                </div>
+                                <div class="progress" style="height: 14px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ knowledgeStats.total > 0 ? (knowledgeStats.indexed / knowledgeStats.total * 100) : 0 }}%"></div>
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ knowledgeStats.total > 0 ? (knowledgeStats.pending / knowledgeStats.total * 100) : 0 }}%"></div>
+                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: {{ knowledgeStats.total > 0 ? (knowledgeStats.unsupported / knowledgeStats.total * 100) : 0 }}%"></div>
+                                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ knowledgeStats.total > 0 ? (knowledgeStats.error / knowledgeStats.total * 100) : 0 }}%"></div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-6">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-dark">Ressourcen: {{ knowledgeStats.total }}</span>
+                                    <span class="badge bg-success">Indexiert: {{ knowledgeStats.indexed }}</span>
+                                    <span class="badge bg-warning text-dark">Ausstehend: {{ knowledgeStats.pending }}</span>
+                                    <span class="badge bg-secondary">Nicht unterstuetzt: {{ knowledgeStats.unsupported }}</span>
+                                    <span class="badge bg-danger">Fehler: {{ knowledgeStats.error }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-xxl-4" id="knowledge">
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header">
+                        <strong>Wissensbasis</strong>
+                        <div class="text-muted small">Dokumente aus dem Media Manager anbinden oder direkt hochladen</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" class="mb-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                            <input type="hidden" name="action" value="attach_media">
+                            <label class="form-label">Bestehende Datei</label>
+                            <select name="mediaAssetId" class="form-select mb-2">
+                                <option value="">Bitte waehlen</option>
+                                {% for asset in attachableMediaAssets %}
+                                    <option value="{{ asset.id }}">{{ asset.name }}{% if asset.mimeType %} ({{ asset.mimeType }}){% endif %}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-outline-secondary w-100">Aus Media Manager uebernehmen</button>
+                        </form>
+
+                        <form method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                            <input type="hidden" name="action" value="upload_resource">
+                            <label class="form-label">Neue Datei hochladen</label>
+                            <input type="file" name="uploadFile" class="form-control mb-2">
+                            <button type="submit" class="btn btn-tuningfux w-100">Upload + Indexierung</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center gap-2">
+                        <strong>Projektdateien</strong>
+                        <span class="badge bg-secondary">{{ resources|length }}</span>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% if resources is empty %}
+                            <div class="p-3 text-muted">Noch keine Dateien zugeordnet.</div>
+                        {% else %}
+                            {% for resource in resources %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div>
+                                            <div class="fw-semibold">{{ resource.title }}</div>
+                                            <div class="small text-muted">
+                                                {{ resource.mediaType }}{% if resource.mimeType %} · {{ resource.mimeType }}{% endif %}
+                                                {% if resource.fileSize %} · {{ (resource.fileSize / 1024)|number_format(1, ',', '.') }} KB{% endif %}
+                                            </div>
+                                            <div class="mt-1">
+                                                {% set statusClass = resource.indexingStatus == 'indexed' ? 'success' : (resource.indexingStatus == 'error' ? 'danger' : (resource.indexingStatus == 'unsupported' ? 'secondary' : 'warning text-dark')) %}
+                                                <span class="badge bg-{{ statusClass }}">{{ resource.indexingStatus }}</span>
+                                            </div>
+                                            {% if resource.errorMessage %}
+                                                <div class="small text-danger mt-2">{{ resource.errorMessage }}</div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        {% if resource.filePath %}
+                                            <a href="{{ resource.filePath }}" target="_blank" class="btn btn-outline-secondary btn-sm">Datei</a>
+                                        {% endif %}
+                                        <form method="post" class="m-0">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                            <input type="hidden" name="action" value="reindex_resource">
+                                            <input type="hidden" name="resourceId" value="{{ resource.id }}">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">Neu indexieren</button>
+                                        </form>
+                                        <form method="post" class="m-0">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                            <input type="hidden" name="action" value="delete_resource">
+                                            <input type="hidden" name="resourceId" value="{{ resource.id }}">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Entfernen</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xxl-4" id="chat">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center gap-2">
+                        <div>
+                            <strong>Projekt-Chat</strong>
+                            <div class="text-muted small">Antworten mit Retrieval aus der Projekt-Wissensbasis</div>
+                        </div>
+                        <form method="post" class="m-0">
+                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                            <input type="hidden" name="action" value="new_chat">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Neuer Chat</button>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-xl-4">
+                                <div class="list-group">
+                                    {% if chatSessions is empty %}
+                                        <div class="text-muted small">Noch keine Chats.</div>
+                                    {% else %}
+                                        {% for session in chatSessions %}
+                                            <div class="list-group-item {{ session.id == activeChatId ? 'active' : '' }}">
+                                                <a href="{{ path('admin_ai_project_workspace', { id: project.id, chat: session.id }) }}#chat" class="text-decoration-none {{ session.id == activeChatId ? 'text-white' : '' }}">
+                                                    <div class="fw-semibold text-truncate">{{ session.title ?: ('Chat #' ~ session.id) }}</div>
+                                                    <div class="small {{ session.id == activeChatId ? 'text-white-50' : 'text-muted' }}">{{ session.preview ?: 'Noch keine Nachrichten' }}</div>
+                                                </a>
+                                                <div class="d-flex gap-2 mt-2">
+                                                    <form method="post" class="m-0">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                                        <input type="hidden" name="action" value="delete_chat">
+                                                        <input type="hidden" name="chatId" value="{{ session.id }}">
+                                                        <button type="submit" class="btn btn-sm {{ session.id == activeChatId ? 'btn-light' : 'btn-outline-danger' }}">Loeschen</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-8">
+                                <div class="border rounded p-3 mb-3" style="min-height: 340px; max-height: 480px; overflow: auto;">
+                                    {% if messages is empty %}
+                                        <div class="text-muted">Noch keine Nachrichten in diesem Projektchat.</div>
+                                    {% else %}
+                                        {% for message in messages %}
+                                            <div class="d-flex mb-3 {{ message.role == 'user' ? 'justify-content-end' : 'justify-content-start' }}">
+                                                <div class="rounded px-3 py-2 {{ message.role == 'user' ? 'bg-dark text-white' : 'bg-light' }}" style="max-width: 90%;">
+                                                    {{ message.content|e|nl2br }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="d-flex gap-2 mb-3">
+                                    {% if activeChatId %}
+                                        <form method="post" class="m-0">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                            <input type="hidden" name="action" value="clear_chat">
+                                            <input type="hidden" name="chatId" value="{{ activeChatId }}">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">Verlauf loeschen</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+
+                                <form method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                    <input type="hidden" name="action" value="send_chat">
+                                    <input type="hidden" name="chatId" value="{{ activeChatId }}">
+                                    <div class="input-group">
+                                        <input type="text" name="message" class="form-control" placeholder="Frage zum Projekt oder zu den Projektdateien">
+                                        <button type="submit" class="btn btn-tuningfux">Senden</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xxl-4">
+                <div class="card border-0 shadow-sm mb-3" id="agent">
+                    <div class="card-header">
+                        <strong>Projekt-Agent</strong>
+                        <div class="text-muted small">Einmalige Agent-Laeufe mit Projektkontext</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                            <input type="hidden" name="action" value="run_agent">
+                            <div class="mb-3">
+                                <label class="form-label">System-Prompt</label>
+                                <textarea name="systemPrompt" class="form-control" rows="3">{{ project.systemPrompt }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Aufgabe</label>
+                                <textarea name="prompt" class="form-control" rows="4" placeholder="Was soll der Agent im Kontext dieses Projekts tun?"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-tuningfux w-100">Agent starten</button>
+                        </form>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% if agentRuns is empty %}
+                            <div class="p-3 text-muted">Noch keine Agent-Laeufe.</div>
+                        {% else %}
+                            {% for run in agentRuns|slice(0, 6) %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <div class="fw-semibold text-truncate">{{ run.prompt }}</div>
+                                        <small class="text-muted text-nowrap">{{ run.updatedAt|date('d.m.Y H:i') }}</small>
+                                    </div>
+                                    {% if run.error %}
+                                        <div class="small text-danger mt-2">{{ run.error }}</div>
+                                    {% else %}
+                                        <div class="small text-muted mt-2">{{ run.response ? run.response|slice(0, 220) ~ (run.response|length > 220 ? '...' : '') : 'Keine Antwort gespeichert.' }}</div>
+                                    {% endif %}
+                                    <form method="post" class="mt-2">
+                                        <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                        <input type="hidden" name="action" value="delete_agent_run">
+                                        <input type="hidden" name="agentRunId" value="{{ run.id }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Loeschen</button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm" id="images">
+                    <div class="card-header">
+                        <strong>Projektbilder</strong>
+                        <div class="text-muted small">Bilderzeugung passend zum Projekt</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                            <input type="hidden" name="action" value="generate_image">
+                            <div class="mb-3">
+                                <label class="form-label">Bild-Prompt</label>
+                                <textarea name="imagePrompt" class="form-control" rows="4" placeholder="Beschreibe das gewuenschte Bild"></textarea>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Format</label>
+                                    <select name="aspect" class="form-select">
+                                        <option value="square">Quadrat</option>
+                                        <option value="16:9">16:9</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Anzahl</label>
+                                    <input type="number" name="count" class="form-control" min="1" max="4" value="1">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Qualitaet</label>
+                                    <select name="quality" class="form-select">
+                                        <option value="hd">HD</option>
+                                        <option value="standard">Standard</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Stil</label>
+                                    <select name="style" class="form-select">
+                                        <option value="vivid">Vivid</option>
+                                        <option value="natural">Natural</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="hidden" name="format" value="url">
+                            <button type="submit" class="btn btn-tuningfux w-100">Projektbild generieren</button>
+                        </form>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        {% if imageRuns is empty %}
+                            <div class="p-3 text-muted">Noch keine Projektbilder.</div>
+                        {% else %}
+                            {% for run in imageRuns|slice(0, 8) %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between gap-2">
+                                        <div class="fw-semibold text-truncate">{{ run.preview }}</div>
+                                        <small class="text-muted text-nowrap">{{ run.updatedAt|date('d.m.Y H:i') }}</small>
+                                    </div>
+                                    {% if run.imagePaths is not empty %}
+                                        <div class="row g-2 mt-2">
+                                            {% for path in run.imagePaths %}
+                                                <div class="col-6">
+                                                    <a href="{{ path }}" target="_blank">
+                                                        <img src="{{ path }}" alt="Projektbild" class="img-fluid rounded border">
+                                                    </a>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if run.error %}
+                                        <div class="small text-danger mt-2">{{ run.error }}</div>
+                                    {% endif %}
+                                    <form method="post" class="mt-2">
+                                        <input type="hidden" name="_token" value="{{ csrf_token(workspaceCsrfTokenId) }}">
+                                        <input type="hidden" name="action" value="delete_image">
+                                        <input type="hidden" name="imageRunId" value="{{ run.id }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Loeschen</button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const workspace = document.querySelector('[data-ai-project-workspace]');
+                if (!(workspace instanceof HTMLElement) || workspace.dataset.aiProjectProgressBound === '1') {
+                    return;
+                }
+
+                const progressPanel = workspace.querySelector('[data-ai-project-progress-panel]');
+                const progressBar = workspace.querySelector('[data-ai-project-progress-bar]');
+                const progressTitle = workspace.querySelector('[data-ai-project-progress-title]');
+                const progressValue = workspace.querySelector('[data-ai-project-progress-value]');
+                const progressText = workspace.querySelector('[data-ai-project-progress-text]');
+
+                if (!(progressPanel instanceof HTMLElement) || !(progressBar instanceof HTMLElement) || !(progressTitle instanceof HTMLElement) || !(progressValue instanceof HTMLElement) || !(progressText instanceof HTMLElement)) {
+                    return;
+                }
+
+                workspace.dataset.aiProjectProgressBound = '1';
+
+                const actionLabels = {
+                    attach_media: 'Datei wird aus dem Media Manager uebernommen',
+                    upload_resource: 'Datei wird hochgeladen und indexiert',
+                    reindex_resource: 'Ressource wird neu indexiert',
+                    delete_resource: 'Ressource wird aus dem Projekt entfernt',
+                    new_chat: 'Neuer Projekt-Chat wird erstellt',
+                    delete_chat: 'Projekt-Chat wird geloescht',
+                    clear_chat: 'Chat-Verlauf wird geloescht',
+                    send_chat: 'Nachricht wird verarbeitet',
+                    run_agent: 'Agent-Lauf wird gestartet',
+                    delete_agent_run: 'Agent-Lauf wird geloescht',
+                    generate_image: 'Projektbild wird generiert',
+                    delete_image: 'Projektbild wird geloescht',
+                };
+
+                let progressTimer = null;
+                let progressPercent = 12;
+
+                const setProgress = (value) => {
+                    progressPercent = Math.max(12, Math.min(95, value));
+                    progressBar.style.width = `${progressPercent}%`;
+                    progressBar.setAttribute('aria-valuenow', String(progressPercent));
+                    progressValue.textContent = `${progressPercent}%`;
+                };
+
+                const startProgress = (label) => {
+                    progressTitle.textContent = label;
+                    progressText.textContent = 'Bitte warten. Je nach Aktion kann die Verarbeitung einige Sekunden dauern.';
+                    progressPanel.classList.remove('d-none');
+                    workspace.setAttribute('aria-busy', 'true');
+                    setProgress(12);
+
+                    if (progressTimer) {
+                        window.clearInterval(progressTimer);
+                    }
+
+                    progressTimer = window.setInterval(() => {
+                        const increment = progressPercent < 40 ? 9 : (progressPercent < 70 ? 4 : 2);
+                        setProgress(progressPercent + increment);
+                    }, 650);
+
+                    progressPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                };
+
+                const submitButtons = Array.from(workspace.querySelectorAll('button[type="submit"], input[type="submit"]'));
+                const forms = Array.from(workspace.querySelectorAll('form[method="post"]'));
+
+                const applyLoadingState = (button, isActiveSubmitter) => {
+                    if (button instanceof HTMLButtonElement) {
+                        if (!button.dataset.aiProjectOriginalHtml) {
+                            button.dataset.aiProjectOriginalHtml = button.innerHTML;
+                        }
+
+                        button.disabled = true;
+                        if (isActiveSubmitter) {
+                            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Bitte warten';
+                        }
+
+                        return;
+                    }
+
+                    if (button instanceof HTMLInputElement) {
+                        if (!button.dataset.aiProjectOriginalValue) {
+                            button.dataset.aiProjectOriginalValue = button.value;
+                        }
+
+                        button.disabled = true;
+                        if (isActiveSubmitter) {
+                            button.value = 'Bitte warten';
+                        }
+                    }
+                };
+
+                forms.forEach((form) => {
+                    if (!(form instanceof HTMLFormElement)) {
+                        return;
+                    }
+
+                    form.addEventListener('submit', (event) => {
+                        if (form.dataset.aiProjectSubmitting === '1') {
+                            event.preventDefault();
+
+                            return;
+                        }
+
+                        form.dataset.aiProjectSubmitting = '1';
+
+                        const actionField = form.querySelector('input[name="action"]');
+                        const action = actionField instanceof HTMLInputElement ? actionField.value.trim() : '';
+                        const label = actionLabels[action] || 'Aktion wird ausgefuehrt';
+                        const submitter = 'submitter' in event && event.submitter instanceof HTMLElement
+                            ? event.submitter
+                            : form.querySelector('button[type="submit"], input[type="submit"]');
+
+                        submitButtons.forEach((button) => {
+                            applyLoadingState(button, button === submitter);
+                        });
+
+                        startProgress(label);
+                    });
+                });
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const workspace = document.querySelector('[data-ai-project-workspace]');
+                if (!(workspace instanceof HTMLElement) || workspace.dataset.aiProjectProgressBound === '1') {
+                    return;
+                }
+
+                const progressPanel = workspace.querySelector('[data-ai-project-progress-panel]');
+                const progressBar = workspace.querySelector('[data-ai-project-progress-bar]');
+                const progressTitle = workspace.querySelector('[data-ai-project-progress-title]');
+                const progressValue = workspace.querySelector('[data-ai-project-progress-value]');
+                const progressText = workspace.querySelector('[data-ai-project-progress-text]');
+
+                if (!(progressPanel instanceof HTMLElement) || !(progressBar instanceof HTMLElement) || !(progressTitle instanceof HTMLElement) || !(progressValue instanceof HTMLElement) || !(progressText instanceof HTMLElement)) {
+                    return;
+                }
+
+                workspace.dataset.aiProjectProgressBound = '1';
+
+                const actionLabels = {
+                    attach_media: 'Datei wird aus dem Media Manager uebernommen',
+                    upload_resource: 'Datei wird hochgeladen und indexiert',
+                    reindex_resource: 'Ressource wird neu indexiert',
+                    delete_resource: 'Ressource wird aus dem Projekt entfernt',
+                    new_chat: 'Neuer Projekt-Chat wird erstellt',
+                    delete_chat: 'Projekt-Chat wird geloescht',
+                    clear_chat: 'Chat-Verlauf wird geloescht',
+                    send_chat: 'Nachricht wird verarbeitet',
+                    run_agent: 'Agent-Lauf wird gestartet',
+                    delete_agent_run: 'Agent-Lauf wird geloescht',
+                    generate_image: 'Projektbild wird generiert',
+                    delete_image: 'Projektbild wird geloescht',
+                };
+
+                let progressTimer = null;
+                let progressPercent = 12;
+
+                const setProgress = (value) => {
+                    progressPercent = Math.max(12, Math.min(95, value));
+                    progressBar.style.width = `${progressPercent}%`;
+                    progressBar.setAttribute('aria-valuenow', String(progressPercent));
+                    progressValue.textContent = `${progressPercent}%`;
+                };
+
+                const startProgress = (label) => {
+                    progressTitle.textContent = label;
+                    progressText.textContent = 'Bitte warten. Je nach Aktion kann die Verarbeitung einige Sekunden dauern.';
+                    progressPanel.classList.remove('d-none');
+                    workspace.setAttribute('aria-busy', 'true');
+                    setProgress(12);
+
+                    if (progressTimer) {
+                        window.clearInterval(progressTimer);
+                    }
+
+                    progressTimer = window.setInterval(() => {
+                        const increment = progressPercent < 40 ? 9 : (progressPercent < 70 ? 4 : 2);
+                        setProgress(progressPercent + increment);
+                    }, 650);
+
+                    progressPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                };
+
+                const submitButtons = Array.from(workspace.querySelectorAll('button[type="submit"], input[type="submit"]'));
+                const forms = Array.from(workspace.querySelectorAll('form[method="post"]'));
+
+                const applyLoadingState = (button, isActiveSubmitter) => {
+                    if (button instanceof HTMLButtonElement) {
+                        if (!button.dataset.aiProjectOriginalHtml) {
+                            button.dataset.aiProjectOriginalHtml = button.innerHTML;
+                        }
+
+                        button.disabled = true;
+                        if (isActiveSubmitter) {
+                            button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Bitte warten';
+                        }
+
+                        return;
+                    }
+
+                    if (button instanceof HTMLInputElement) {
+                        if (!button.dataset.aiProjectOriginalValue) {
+                            button.dataset.aiProjectOriginalValue = button.value;
+                        }
+
+                        button.disabled = true;
+                        if (isActiveSubmitter) {
+                            button.value = 'Bitte warten';
+                        }
+                    }
+                };
+
+                forms.forEach((form) => {
+                    if (!(form instanceof HTMLFormElement)) {
+                        return;
+                    }
+
+                    form.addEventListener('submit', (event) => {
+                        if (form.dataset.aiProjectSubmitting === '1') {
+                            event.preventDefault();
+
+                            return;
+                        }
+
+                        form.dataset.aiProjectSubmitting = '1';
+
+                        const actionField = form.querySelector('input[name="action"]');
+                        const action = actionField instanceof HTMLInputElement ? actionField.value.trim() : '';
+                        const label = actionLabels[action] || 'Aktion wird ausgefuehrt';
+                        const submitter = 'submitter' in event && event.submitter instanceof HTMLElement
+                            ? event.submitter
+                            : form.querySelector('button[type="submit"], input[type="submit"]');
+
+                        submitButtons.forEach((button) => {
+                            applyLoadingState(button, button === submitter);
+                        });
+
+                        startProgress(label);
+                    });
+                });
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}

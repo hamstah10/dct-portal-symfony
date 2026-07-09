@@ -1,0 +1,52 @@
+<div {{ attributes.defaults({ class: 'cpt-header-search position-relative w-100' }) }}>
+    <form method="get" action="{{ computed.searchActionUrl }}" class="cpt-header-search__form position-relative">
+        <input
+            type="search"
+            class="header-search-bar form-control cpt-header-search__input"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search anything here ..."
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+            data-model="query"
+            data-controller="symfony--ux-autocomplete--autocomplete"
+            data-portal-header-search="1"
+            data-symfony--ux-autocomplete--autocomplete-url-value="{{ path('cpt_portal_header_search_autocomplete') }}"
+            data-symfony--ux-autocomplete--autocomplete-min-characters-value="2"
+            data-symfony--ux-autocomplete--autocomplete-preload-value="focus"
+        >
+        <button type="submit" class="header-search-icon border-0 bg-transparent cpt-header-search__icon" aria-label="Suche absenden">
+            <i class="ri-search-line"></i>
+        </button>
+    </form>
+
+    {% if query|length >= 2 %}
+        <div class="main-header-dropdown dropdown-menu show overflow-hidden w-100 mt-2 p-0 cpt-header-search__dropdown" style="display:block; inset:auto auto auto 0; z-index:1055;">
+            <div class="list-group list-group-flush" data-loading="addClass(opacity-50)">
+                {% set currentGroup = null %}
+                {% for item in computed.results %}
+                    {% if currentGroup != item.group %}
+                        <div class="dropdown-header text-uppercase small fw-semibold text-muted py-2 px-3 cpt-header-search__group">{{ item.group }}</div>
+                        {% set currentGroup = item.group %}
+                    {% endif %}
+                    <a href="{{ item.url }}" class="dropdown-item py-3 cpt-header-search__item">
+                        <div class="d-flex align-items-start justify-content-between gap-3">
+                            <div class="min-w-0">
+                                <div class="fw-medium text-truncate">{{ item.text }}</div>
+                                {% if item.subtext %}
+                                    <div class="fs-12 text-muted text-wrap">{{ item.subtext }}</div>
+                                {% endif %}
+                            </div>
+                            {% if item.meta %}
+                                <span class="badge bg-primary-transparent text-primary">{{ item.meta }}</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% else %}
+                    <div class="dropdown-item py-3 text-muted">Keine Treffer gefunden.</div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>

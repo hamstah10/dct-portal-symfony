@@ -1,0 +1,21 @@
+{% extends 'bundles/EasyAdminBundle/crud/index.html.twig' %}
+
+{% block main %}
+    <div class="alert alert-info d-flex align-items-center justify-content-between gap-3 mb-3" role="alert">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fa fa-info-circle fs-5"></i>
+            <div>
+                <strong>Kunden-Login:</strong>
+                Kunden können ihre Widgets selbst verwalten unter
+                <a href="{{ url('customer_widget_index') }}" target="_blank" rel="noopener" class="alert-link">
+                    {{ url('customer_widget_index') }}
+                </a>
+            </div>
+        </div>
+        <a href="{{ url('customer_widget_index') }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary text-nowrap">
+            Widget-Login öffnen
+        </a>
+    </div>
+
+    {{ parent() }}
+{% endblock %}

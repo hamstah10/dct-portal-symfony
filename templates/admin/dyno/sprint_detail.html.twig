@@ -1,0 +1,290 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {{ parent() }}
+
+    {% set sprint = entity.instance %}
+    {% set chartPayload = {
+        time_seconds: sprint.timeSeconds ?? 0,
+        distance_m: (tripDistanceMeters|default(null)) is not null ? (tripDistanceMeters|default(0)) : (sprint.distanceMeters ?? 0),
+        max_ps: sprint.maxPs ?? 0,
+        max_nm: sprint.maxNm ?? 0,
+        max_rpm: sprint.maxRpm ?? 0
+    } %}
+
+    <div class="card mt-4 dyno-chart-card">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <div class="fw-semibold">Sprint-Diagramme</div>
+            <div class="text-muted small">{{ sprint.vehicleName ?? 'Unbekanntes Fahrzeug' }} · {{ sprint.sprintType }}</div>
+        </div>
+        <div class="card-body">
+            <div class="dyno-chart-grid">
+                <div class="dyno-chart-panel">
+                    <div class="dyno-chart-title">Sprint Zeit (s)</div>
+                    <div class="dyno-gauge-canvas">
+                        <canvas id="dynoGaugeTime"></canvas>
+                    </div>
+                </div>
+                <div class="dyno-chart-panel">
+                    <div class="dyno-chart-title">Max-Werte</div>
+                    <div class="dyno-gauge-mini-grid">
+                        <div class="dyno-gauge-mini">
+                            <div class="dyno-gauge-label">PS</div>
+                            <canvas id="dynoGaugePs"></canvas>
+                        </div>
+                        <div class="dyno-gauge-mini">
+                            <div class="dyno-gauge-label">Nm</div>
+                            <canvas id="dynoGaugeNm"></canvas>
+                        </div>
+                        <div class="dyno-gauge-mini">
+                            <div class="dyno-gauge-label">RPM</div>
+                            <canvas id="dynoGaugeRpm"></canvas>
+                        </div>
+                        <div class="dyno-gauge-mini">
+                            <div class="dyno-gauge-label">Weg</div>
+                            <canvas id="dynoGaugeDistance"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="dynoSprintData">{{ chartPayload|json_encode|raw }}</script>
+
+    <style>
+        .dyno-chart-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+        }
+
+        .dyno-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .dyno-chart-panel {
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .dyno-chart-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .dyno-gauge-canvas {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+
+        .dyno-gauge-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .dyno-gauge-mini {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dyno-gauge-label {
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+    </style>
+
+    <script src="{{ asset('vendor/canvas-gauges/gauge.min.js') }}"></script>
+    <script>
+        (() => {
+            const raw = document.getElementById('dynoSprintData');
+            if (!raw) {
+                return;
+            }
+
+            let payload = {};
+            try {
+                payload = JSON.parse(raw.textContent || '{}');
+            } catch (error) {
+                payload = {};
+            }
+
+            if (typeof window.RadialGauge !== 'function') {
+                return;
+            }
+
+            const timeSeconds = Number(payload.time_seconds || 0);
+            const distanceMeters = Number(payload.distance_m || 0);
+            const maxPs = Number(payload.max_ps || 0);
+            const maxNm = Number(payload.max_nm || 0);
+            const maxRpm = Number(payload.max_rpm || 0);
+
+            const computeMax = (value, step, fallback) => {
+                if (!Number.isFinite(value) || value <= 0) {
+                    return fallback;
+                }
+                return Math.max(fallback, Math.ceil((value * 1.2) / step) * step);
+            };
+
+            const buildTicks = (maxValue, step) => {
+                const ticks = [];
+                for (let value = 0; value <= maxValue + 0.0001; value += step) {
+                    ticks.push(Number.isInteger(step) ? Math.round(value) : Number(value.toFixed(1)));
+                }
+                if (ticks.length > 0) {
+                    const last = ticks[ticks.length - 1];
+                    if (typeof last === 'number' && last < maxValue) {
+                        ticks.push(Number.isInteger(step) ? Math.round(maxValue) : Number(maxValue.toFixed(1)));
+                    }
+                }
+                return ticks;
+            };
+
+            const createGauge = (canvas, options) => {
+                if (!canvas) {
+                    return;
+                }
+
+                return new window.RadialGauge({
+                    renderTo: canvas,
+                    width: options.size,
+                    height: options.size,
+                    minValue: 0,
+                    maxValue: options.maxValue,
+                    value: 0,
+                    units: options.units,
+                    title: options.title,
+                    majorTicks: options.ticks,
+                    minorTicks: 2,
+                    strokeTicks: true,
+                    highlights: options.highlights,
+                    colorPlate: '#f8fafc',
+                    colorMajorTicks: '#64748b',
+                    colorMinorTicks: '#94a3b8',
+                    colorTitle: '#0f172a',
+                    colorUnits: '#475569',
+                    colorNumbers: '#0f172a',
+                    colorNeedle: options.needleColor,
+                    colorNeedleEnd: options.needleColor,
+                    colorValueText: '#0f172a',
+                    valueBox: true,
+                    animation: true,
+                    animationRule: 'linear',
+                    animationDuration: 600,
+                    borders: false,
+                    borderShadowWidth: 0,
+                    needleType: 'arrow',
+                    needleWidth: 3,
+                }).draw();
+            };
+
+            const animateGauge = (gauge, value) => {
+                if (!gauge) {
+                    return;
+                }
+
+                const target = Number.isFinite(value) ? value : 0;
+                requestAnimationFrame(() => {
+                    gauge.value = target;
+                });
+            };
+
+            const timeMax = computeMax(timeSeconds, 5, 20);
+            const distanceMax = computeMax(distanceMeters, 50, 100);
+            const psMax = computeMax(maxPs, 50, 300);
+            const nmMax = computeMax(maxNm, 100, 500);
+            const rpmMax = computeMax(maxRpm, 500, 7000);
+
+            const timeGauge = createGauge(document.getElementById('dynoGaugeTime'), {
+                size: 220,
+                value: timeSeconds,
+                maxValue: timeMax,
+                units: 's',
+                title: '',
+                ticks: buildTicks(timeMax, 5),
+                highlights: [
+                    { from: 0, to: timeMax * 0.6, color: 'rgba(16, 185, 129, 0.25)' },
+                    { from: timeMax * 0.6, to: timeMax * 0.85, color: 'rgba(245, 158, 11, 0.25)' },
+                    { from: timeMax * 0.85, to: timeMax, color: 'rgba(239, 68, 68, 0.25)' },
+                ],
+                needleColor: '#ef4444',
+            });
+
+            const psGauge = createGauge(document.getElementById('dynoGaugePs'), {
+                size: 140,
+                value: maxPs,
+                maxValue: psMax,
+                units: 'PS',
+                title: '',
+                ticks: buildTicks(psMax, 50),
+                highlights: [
+                    { from: 0, to: psMax * 0.7, color: 'rgba(59, 130, 246, 0.2)' },
+                    { from: psMax * 0.7, to: psMax, color: 'rgba(37, 99, 235, 0.3)' },
+                ],
+                needleColor: '#2563eb',
+            });
+
+            const nmGauge = createGauge(document.getElementById('dynoGaugeNm'), {
+                size: 140,
+                value: maxNm,
+                maxValue: nmMax,
+                units: 'Nm',
+                title: '',
+                ticks: buildTicks(nmMax, 100),
+                highlights: [
+                    { from: 0, to: nmMax * 0.7, color: 'rgba(14, 165, 233, 0.2)' },
+                    { from: nmMax * 0.7, to: nmMax, color: 'rgba(2, 132, 199, 0.3)' },
+                ],
+                needleColor: '#0ea5e9',
+            });
+
+            const rpmGauge = createGauge(document.getElementById('dynoGaugeRpm'), {
+                size: 140,
+                value: maxRpm,
+                maxValue: rpmMax,
+                units: 'RPM',
+                title: '',
+                ticks: buildTicks(rpmMax, 1000),
+                highlights: [
+                    { from: 0, to: rpmMax * 0.7, color: 'rgba(249, 115, 22, 0.2)' },
+                    { from: rpmMax * 0.7, to: rpmMax, color: 'rgba(234, 88, 12, 0.3)' },
+                ],
+                needleColor: '#f97316',
+            });
+
+            const distanceGauge = createGauge(document.getElementById('dynoGaugeDistance'), {
+                size: 140,
+                value: distanceMeters,
+                maxValue: distanceMax,
+                units: 'm',
+                title: '',
+                ticks: buildTicks(distanceMax, 50),
+                highlights: [
+                    { from: 0, to: distanceMax * 0.7, color: 'rgba(20, 184, 166, 0.2)' },
+                    { from: distanceMax * 0.7, to: distanceMax, color: 'rgba(13, 148, 136, 0.3)' },
+                ],
+                needleColor: '#14b8a6',
+            });
+
+            animateGauge(timeGauge, timeSeconds);
+            animateGauge(psGauge, maxPs);
+            animateGauge(nmGauge, maxNm);
+            animateGauge(rpmGauge, maxRpm);
+            animateGauge(distanceGauge, distanceMeters);
+        })();
+    </script>
+{% endblock %}

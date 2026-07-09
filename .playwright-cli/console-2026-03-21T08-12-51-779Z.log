@@ -1,0 +1,29 @@
+Total messages: 71 (Errors: 13, Warnings: 0)
+Returning 13 messages for level "error"
+
+[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fglobal:0
+[ERROR] Failed to load resource: the server responded with a status of 404 () @ https://chiptuningfile.tuningfux.de/mercure/hub?topic=tfd%2Fportal%2Fapp:0
+ReferenceError: clearNavDropdown is not defined
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/main.js:88:9
+ReferenceError: checkHoriMenu is not defined
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/main.js:92:9
+TypeError: Cannot read properties of null (reading 'appendChild')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/custom.js:128:27
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/custom.js:429:3
+ReferenceError: horizontalClickFn is not defined
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/defaultmenu.min.js?v=1774080653:389:7
+TypeError: Cannot read properties of null (reading 'removeEventListener')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/defaultmenu.min.js?v=1774080759:323:17
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/defaultmenu.min.js?v=1774080759:409:3
+TypeError: Cannot read properties of null (reading 'offsetTop')
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/sticky.js:7:23
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/sticky.js:20:3
+TypeError: Cannot read properties of null (reading 'nodeName')
+    at i.t (https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/libs/simplebar/simplebar.min.js:10:9346)
+    at new i (https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/libs/simplebar/simplebar.min.js:10:22563)
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/simplebar.js:5:5
+    at https://chiptuningfile.tuningfux.de/assets/portals/chiptuningfile/template-source/themeforest-hkqqsqdk-xintra-bootstrap-admin-html-template-dashboard/Xintra_with_esbuild/dist/assets/js/simplebar.js:7:3

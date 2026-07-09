@@ -1,0 +1,207 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Journal{% endblock %}
+{% block page_subtitle %}Release-Feed der wichtigsten Portal-Updates{% endblock %}
+
+{% set portal_labels = {
+    chiptuningfile: 'ChiptuningFile',
+    no1tuningfiles: 'No1TuningFiles',
+    superadmin: 'Superadmin',
+    easyadmin: 'EasyAdmin',
+    socialfux: 'Socialfux',
+    widget: 'Website-Widget',
+    marketingfux: 'MarketingFUX',
+} %}
+
+{% set portal_descriptions = {
+    chiptuningfile: 'Tuningfiles Portal Endkunde',
+    no1tuningfiles: 'Tuningfiles Portal Endkunde',
+    marketingfux: 'Portal für Socialmedia',
+    superadmin: 'Dashboard',
+    socialfux: 'Anzeigengenerator',
+} %}
+
+{% macro type_icon(type, size) %}
+    {% set size = size|default(14) %}
+    {% if type == 'feature' %}
+        <svg viewBox="0 0 24 24" fill="currentColor" width="{{ size }}" height="{{ size }}"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+    {% elseif type == 'fix' %}
+        <svg viewBox="0 0 24 24" fill="currentColor" width="{{ size }}" height="{{ size }}"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm1 14.5h-2v-2h2v2zm0-4h-2V7h2v5.5z"/></svg>
+    {% elseif type == 'change' %}
+        <svg viewBox="0 0 24 24" fill="currentColor" width="{{ size }}" height="{{ size }}"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+    {% else %}
+        <svg viewBox="0 0 24 24" fill="currentColor" width="{{ size }}" height="{{ size }}"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+    {% endif %}
+{% endmacro %}
+
+{% block main %}
+<div class="tfd-journal-page tfd-journal-page--with-legend">
+  <div class="tfd-journal-page__main">
+    {% set types = [] %}
+    {% set portals = [] %}
+    {% for entry in changelog %}
+        {% if entry.type not in types %}
+            {% set types = types|merge([entry.type]) %}
+        {% endif %}
+        {% for portal in entry.portals|default([]) %}
+            {% if portal not in portals %}
+                {% set portals = portals|merge([portal]) %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    <div class="tfd-journal-page__filters" data-journal-filters="type">
+        <button type="button" class="tfd-journal-page__filter tfd-journal-page__filter--active" data-journal-filter="all">Alle</button>
+        {% for type in types %}
+        <button type="button" class="tfd-journal-page__filter tfd-journal-page__filter--{{ type }}" data-journal-filter="{{ type }}">
+            <span class="tfd-journal-page__filter-icon">{{ _self.type_icon(type, 12) }}</span>
+            {%- if type == 'feature' %}Neues Feature
+            {%- elseif type == 'fix' %}Fix
+            {%- elseif type == 'change' %}Verbesserung
+            {%- elseif type == 'remove' %}Entfernt
+            {%- else %}{{ type }}{%- endif -%}
+        </button>
+        {% endfor %}
+    </div>
+    <div class="tfd-journal-page__filters" data-journal-filters="portal">
+        <button type="button" class="tfd-journal-page__filter tfd-journal-page__filter--active" data-journal-filter="all">Alle Portale</button>
+        {% for portal in portals %}
+        <button type="button" class="tfd-journal-page__filter tfd-journal-page__portal-filter tfd-journal-page__portal-filter--{{ portal }}" data-journal-filter="{{ portal }}">
+            {{ portal_labels[portal]|default(portal) }}
+        </button>
+        {% endfor %}
+    </div>
+    <div class="tfd-journal-page__timeline" data-journal-timeline>
+        {% set dates = [] %}
+        {% for entry in changelog %}
+            {% if entry.date not in dates %}
+                {% set dates = dates|merge([entry.date]) %}
+            {% endif %}
+        {% endfor %}
+        {% for date in dates %}
+        {% set dayEntries = changelog|filter(e => e.date == date) %}
+        <div class="tfd-journal-page__day" data-journal-day>
+
+            {# Left: date spine #}
+            <div class="tfd-journal-page__spine">
+                <div class="tfd-journal-page__date-badge">
+                    <span class="tfd-journal-page__date-day">{{ date|date('d') }}</span>
+                    <span class="tfd-journal-page__date-month">{{ date|date('M') }}</span>
+                </div>
+                {% if not loop.last %}<div class="tfd-journal-page__line"></div>{% endif %}
+            </div>
+
+            {# Right: entries of this day #}
+            <div class="tfd-journal-page__day-entries">
+                {% for entry in dayEntries %}
+                <div class="tfd-journal-page__item" data-journal-type="{{ entry.type }}" data-journal-portals="{{ entry.portals|default([])|join(',') }}">
+                    <div class="tfd-journal-page__card">
+                        <div class="tfd-journal-page__card-header">
+                            <div class="tfd-journal-page__icon tfd-journal-page__icon--{{ entry.type }}" title="{% if entry.type == 'feature' %}Neues Feature{% elseif entry.type == 'fix' %}Fix{% elseif entry.type == 'change' %}Verbesserung{% elseif entry.type == 'remove' %}Entfernt{% else %}{{ entry.type }}{% endif %}">
+                                {{ _self.type_icon(entry.type, 14) }}
+                            </div>
+                            {% for portal in entry.portals|default([]) %}
+                            <span class="tfd-journal-page__portal-badge tfd-journal-page__portal-badge--{{ portal }}">{{ portal_labels[portal]|default(portal) }}</span>
+                            {% endfor %}
+                            {% if entry.version is defined %}
+                            <span class="tfd-journal-page__version">{{ entry.version }}</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="tfd-journal-page__title">{{ entry.title }}</h3>
+                        {% if entry.description is defined %}
+                        <p class="tfd-journal-page__description">{{ entry.description }}</p>
+                        {% endif %}
+                        {% if entry.items is defined and entry.items|length > 0 %}
+                        <ul class="tfd-journal-page__items">
+                            {% for item in entry.items %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+        {% else %}
+        <p class="text-muted">Keine Einträge vorhanden.</p>
+        {% endfor %}
+    </div>
+    <p class="text-muted tfd-journal-page__empty" data-journal-empty hidden>Keine Einträge für diesen Filter.</p>
+  </div>
+
+  {# Right: portal legend #}
+  <aside class="tfd-journal-page__legend">
+    <div class="tfd-journal-page__legend-sticky">
+        <h4 class="tfd-journal-page__legend-title">Portale</h4>
+        <ul class="tfd-journal-page__legend-list">
+            {% for portal in portals %}
+            <li class="tfd-journal-page__legend-item">
+                <span class="tfd-journal-page__legend-dot tfd-journal-page__portal-badge--{{ portal }}"></span>
+                <div class="tfd-journal-page__legend-text">
+                    <span class="tfd-journal-page__legend-name">{{ portal_labels[portal]|default(portal) }}</span>
+                    <span class="tfd-journal-page__legend-desc">{{ portal_descriptions[portal]|default('Beschreibung folgt.') }}</span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+  </aside>
+</div>
+<script>
+(function () {
+    var filterBars = document.querySelectorAll('[data-journal-filters]');
+    var timeline = document.querySelector('[data-journal-timeline]');
+    var emptyMessage = document.querySelector('[data-journal-empty]');
+    if (!filterBars.length || !timeline) {
+        return;
+    }
+
+    var items = timeline.querySelectorAll('[data-journal-type]');
+    var days = timeline.querySelectorAll('[data-journal-day]');
+    var activeFilters = { type: 'all', portal: 'all' };
+
+    function applyFilters() {
+        var visibleCount = 0;
+        items.forEach(function (item) {
+            var typeMatches = activeFilters.type === 'all' || item.getAttribute('data-journal-type') === activeFilters.type;
+            var itemPortals = (item.getAttribute('data-journal-portals') || '').split(',').filter(Boolean);
+            var portalMatches = activeFilters.portal === 'all' || itemPortals.indexOf(activeFilters.portal) !== -1;
+            var matches = typeMatches && portalMatches;
+            item.hidden = !matches;
+            if (matches) {
+                visibleCount += 1;
+            }
+        });
+
+        days.forEach(function (day) {
+            var hasVisibleItem = day.querySelector('[data-journal-type]:not([hidden])') !== null;
+            day.hidden = !hasVisibleItem;
+        });
+
+        if (emptyMessage) {
+            emptyMessage.hidden = visibleCount !== 0;
+        }
+    }
+
+    filterBars.forEach(function (filterBar) {
+        var group = filterBar.getAttribute('data-journal-filters');
+
+        filterBar.addEventListener('click', function (event) {
+            var button = event.target.closest('[data-journal-filter]');
+            if (!button) {
+                return;
+            }
+
+            activeFilters[group] = button.getAttribute('data-journal-filter');
+
+            filterBar.querySelectorAll('[data-journal-filter]').forEach(function (btn) {
+                btn.classList.toggle('tfd-journal-page__filter--active', btn === button);
+            });
+
+            applyFilters();
+        });
+    });
+})();
+</script>
+{% endblock %}

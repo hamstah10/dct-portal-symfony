@@ -1,0 +1,102 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% block detail_fields %}
+    {% set asset = entity.instance %}
+    {% set filePath = asset.filePath ?? null %}
+    {% set fileUrl = filePath ? ('/' ~ filePath|trim('/')) : null %}
+    {% set mediaType = asset.mediaType ?? '' %}
+    {% set badges = [
+        { label: asset.active ? 'Aktiv' : 'Inaktiv', tone: asset.active ? 'success' : 'muted' },
+        { label: mediaType ? mediaType|upper : 'DATEI', tone: 'info' }
+    ] %}
+    {% set meta = [
+        { label: 'Datei', value: filePath ?: '—' },
+        { label: 'Ordner', value: asset.folder ?: '—' },
+        { label: 'MIME', value: asset.mimeType ?: '—' },
+        { label: 'Groesse', value: asset.fileSize ?: '—' }
+    ] %}
+
+    <div class="tfd-detail-shell">
+        {% include 'admin/components/detail_hero.html.twig' with {
+            eyebrow: 'Mediendatei',
+            title: asset.name ?: ('Asset #' ~ asset.id),
+            subtitle: asset.description ?: null,
+            badges: badges,
+            meta: meta,
+            actions: fileUrl ? ['<a href="' ~ fileUrl ~ '" class="btn btn-primary" target="_blank" rel="noopener">Datei oeffnen</a>'] : []
+        } only %}
+
+        <div class="row">
+            <div class="col-12 col-md-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header fw-semibold d-flex align-items-center justify-content-between">
+                        <span>Vorschau</span>
+                        {% if fileUrl %}
+                            <a href="{{ fileUrl }}" class="btn btn-primary" target="_blank" rel="noopener">Datei oeffnen</a>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if not fileUrl %}
+                            <div class="text-muted">Keine Datei hinterlegt.</div>
+                        {% elseif mediaType in ['image', 'icon'] %}
+                            <a href="{{ fileUrl }}"
+                               data-lightbox-url="{{ fileUrl }}"
+                               data-lightbox-type="image"
+                               data-lightbox-caption="{{ asset.name ?? 'Bild Vorschau' }}"
+                               class="d-inline-block text-decoration-none">
+                                <img src="{{ fileUrl }}"
+                                     alt="{{ asset.name ?? '' }}"
+                                     style="max-width:100%;max-height:420px;object-fit:contain;border:1px solid rgba(255,255,255,0.12);border-radius:12px;background:#fff;">
+                            </a>
+                        {% elseif mediaType == 'video' %}
+                            <video controls style="width:100%;max-height:420px;border-radius:12px;background:#0f172a;">
+                                <source src="{{ fileUrl }}">
+                                Dein Browser unterstuetzt das Video-Tag nicht.
+                            </video>
+                        {% elseif mediaType == 'model' %}
+                            <div class="d-flex flex-column gap-2">
+                                <div class="text-muted">3D Modell (GLB/GLTF)</div>
+                                <a href="{{ fileUrl }}"
+                                   data-lightbox-url="{{ fileUrl }}"
+                                   data-lightbox-type="glb"
+                                   data-lightbox-caption="{{ asset.name ?? 'GLB Vorschau' }}"
+                                   class="btn btn-primary align-self-start">
+                                    GLB Vorschau oeffnen
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="d-flex align-items-center gap-2">
+                                {% include 'admin/field/status_badge.html.twig' with {
+                                    label: mediaType ? mediaType|upper : 'DATEI',
+                                    tone: 'muted'
+                                } only %}
+                                <span class="text-muted">Keine direkte Vorschau verfuegbar.</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if cropForm is defined and cropForm %}
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header fw-semibold">Bild zuschneiden</div>
+                        <div class="card-body">
+                            {{ form_start(cropForm) }}
+                            {{ form_row(cropForm.crop) }}
+                            <div class="d-flex flex-wrap align-items-center gap-3 mt-3">
+                                {{ form_widget(cropForm.apply) }}
+                                <span class="text-muted small">Ziehe den Rahmen, um den Zuschnitt festzulegen.</span>
+                            </div>
+                            {{ form_end(cropForm) }}
+                        </div>
+                    </div>
+                {% elseif cropperDisabledReason is defined and cropperDisabledReason %}
+                    <div class="alert alert-light border mb-4">
+                        <strong>Cropper:</strong> {{ cropperDisabledReason }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {{ parent() }}
+{% endblock %}

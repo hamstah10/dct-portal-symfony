@@ -1,0 +1,279 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}AI Firecrawl (Toolbox){% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0 tfd-ai-firecrawl">
+        {% set isActiveRunPending = activeRunStatus in ['queued', 'running'] %}
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12 col-xl-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <strong>{{ ux_icon('mingcute:run-fill') }} Verlauf</strong>
+                    </div>
+                    <div class="list-group list-group-flush tfd-ai-firecrawl-list">
+                        {% if runs is empty %}
+                            <div class="p-3 text-muted">Noch keine Runs.</div>
+                        {% else %}
+                            {% for run in runs %}
+                                <a href="{{ path('admin_ai_firecrawl', { run: run.id }) }}"
+                                   class="list-group-item list-group-item-action {{ run.id == activeRunId ? 'active' : '' }}">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <span class="badge bg-secondary text-uppercase">{{ run.action }}</span>
+                                        <small class="text-muted text-nowrap">{{ run.updatedAt|date('d.m.Y H:i') }}</small>
+                                    </div>
+                                    <div class="mt-1 small">
+                                        {% if run.status == 'success' %}
+                                            <span class="badge text-bg-success">Erfolgreich</span>
+                                        {% elseif run.status == 'failed' %}
+                                            <span class="badge text-bg-danger">Fehlgeschlagen</span>
+                                        {% elseif run.status == 'running' %}
+                                            <span class="badge text-bg-warning">Laufend</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">Wartend</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="fw-semibold text-truncate">{{ run.url }}</div>
+                                    <div class="small text-muted text-truncate">
+                                        {{ run.preview ?: 'Ohne Inhalt' }}
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header">
+                        <strong>Firecrawl Scrape</strong>
+                        <div class="text-muted small">Agent + Toolbox + Firecrawl</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            <input type="hidden" name="_token" value="{{ csrf_token('admin_ai_firecrawl') }}">
+                            <div class="mb-3">
+                                <label class="form-label">Aktion</label>
+                                <div class="btn-group" role="group" aria-label="Firecrawl Aktion">
+                                    <input type="radio" class="btn-check" name="action" id="firecrawlActionScrape" value="scrape" {{ action == 'scrape' ? 'checked' : '' }}>
+                                    <label class="btn btn-secondary" for="firecrawlActionScrape">{{ ux_icon('simple-icons:scrapy') }} Scrape</label>
+
+                                    <input type="radio" class="btn-check" name="action" id="firecrawlActionCrawl" value="crawl" {{ action == 'crawl' ? 'checked' : '' }}>
+                                    <label class="btn btn-secondary" for="firecrawlActionCrawl">{{ ux_icon('streamline-ultimate:coding-apps-website-detect-virus-monitor-search-bold') }} Crawl</label>
+
+                                    <input type="radio" class="btn-check" name="action" id="firecrawlActionMap" value="map" {{ action == 'map' ? 'checked' : '' }}>
+                                    <label class="btn btn-secondary" for="firecrawlActionMap">{{ ux_icon('icon-park-solid:map-two') }} Map</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">URL</label>
+                                <input type="url" name="url" class="form-control" placeholder="https://…" value="{{ url }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Crawl Optionen <span class="text-muted small">(nur für Crawl)</span></label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="number" name="crawlDepth" class="form-control" placeholder="Tiefe" min="0" value="{{ crawlDepth }}">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" name="crawlLimit" class="form-control" placeholder="Limit" min="0" value="{{ crawlLimit }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Anweisung</label>
+                                <textarea name="instruction" class="form-control" rows="4">{{ instruction }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Model</label>
+                                <input type="text" name="model" class="form-control" value="{{ model }}">
+                            </div>
+                            <button type="submit" class="btn btn-tuningfux">Scrape &amp; Antworten</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center gap-2">
+                        <div>
+                            <strong>Antwort</strong>
+                            {% if activeRunStatus %}
+                                <div class="small mt-1">
+                                    {% if activeRunStatus == 'success' %}
+                                        <span class="badge text-bg-success">Erfolgreich</span>
+                                    {% elseif activeRunStatus == 'failed' %}
+                                        <span class="badge text-bg-danger">Fehlgeschlagen</span>
+                                    {% elseif activeRunStatus == 'running' %}
+                                        <span class="badge text-bg-warning">Laufend</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">Wartend</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if activeRunId > 0 %}
+                            <form method="post" class="m-0">
+                                <input type="hidden" name="_token" value="{{ csrf_token('admin_ai_firecrawl') }}">
+                                <input type="hidden" name="delete_run" value="1">
+                                <input type="hidden" name="runId" value="{{ activeRunId }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Run loeschen</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if activeRunId > 0 %}
+                            <div class="mb-3"
+                                 data-firecrawl-progress
+                                 {% if isActiveRunPending and activeRunStatusUrl %}
+                                     data-status-url="{{ activeRunStatusUrl }}"
+                                 {% endif %}>
+                                <div class="d-flex justify-content-between align-items-center gap-2 mb-2 small">
+                                    <div><strong>Fortschritt</strong></div>
+                                    <div data-firecrawl-progress-steps>{{ activeRunProgressCurrent }} / {{ activeRunProgressMax }}</div>
+                                </div>
+                                <div class="progress" role="progressbar" aria-label="Firecrawl Fortschritt" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ activeRunProgressPercent }}" style="height: 18px;">
+                                    {% set progressClass = activeRunStatus == 'success' ? 'bg-success' : (activeRunStatus == 'failed' ? 'bg-danger' : (activeRunStatus in ['queued', 'running'] ? 'progress-bar-striped progress-bar-animated' : 'bg-secondary')) %}
+                                    <div class="progress-bar {{ progressClass }}" data-firecrawl-progress-bar style="width: {{ activeRunProgressPercent }}%;">{{ activeRunProgressPercent }}%</div>
+                                </div>
+                                <div class="mt-2 small text-muted" data-firecrawl-progress-label>{{ activeRunProgressLabel ?: 'Noch kein Status vorhanden.' }}</div>
+                                <div class="mt-2 small text-danger {% if not error %}d-none{% endif %}" data-firecrawl-progress-error>{{ error ?: '' }}</div>
+                            </div>
+                        {% endif %}
+
+                        {% if response %}
+                            <div class="tfd-ai-agent-response mb-3">{{ response|e|nl2br }}</div>
+                        {% else %}
+                            <div class="text-muted">
+                                {% if isActiveRunPending %}
+                                    Run laeuft im Hintergrund. Die Seite aktualisiert sich nach Abschluss automatisch.
+                                {% else %}
+                                    {{ activeRunId > 0 ? 'Noch keine Antwort.' : 'Kein Run ausgewaehlt. Waehle links einen Verlauf oder starte einen neuen Run.' }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if metadata %}
+                            <hr>
+                            <div class="small text-muted mb-2">Metadata</div>
+                            <pre class="tfd-ai-agent-metadata">{{ metadata|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                        {% endif %}
+
+                        {% if mapLinks is not empty %}
+                            <hr>
+                            <div class="small text-muted mb-2">Gefundene URLs</div>
+                            <ul class="list-unstyled mb-0">
+                                {% for link in mapLinks %}
+                                    <li class="mb-1">
+                                        <a href="{{ link }}" target="_blank" rel="noopener">{{ link }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if isActiveRunPending and activeRunStatusUrl %}
+        <script>
+            (function () {
+                const root = document.querySelector('[data-firecrawl-progress]');
+                if (!root) {
+                    return;
+                }
+
+                const statusUrl = root.dataset.statusUrl || '';
+                const progressBar = root.querySelector('[data-firecrawl-progress-bar]');
+                const progressSteps = root.querySelector('[data-firecrawl-progress-steps]');
+                const progressLabel = root.querySelector('[data-firecrawl-progress-label]');
+                const errorBox = root.querySelector('[data-firecrawl-progress-error]');
+
+                if (!statusUrl || !progressBar || !progressSteps || !progressLabel) {
+                    return;
+                }
+
+                let pollTimer = null;
+                let reloading = false;
+
+                const applyPayload = (payload) => {
+                    const status = String(payload.status || 'queued');
+                    const percent = Math.max(0, Math.min(100, Number(payload.progressPercent || 0)));
+                    const current = Math.max(0, Number(payload.progressCurrent || 0));
+                    const max = Math.max(1, Number(payload.progressMax || 1));
+                    const label = String(payload.progressLabel || '');
+                    const error = String(payload.error || '');
+
+                    progressBar.style.width = percent + '%';
+                    progressBar.textContent = percent + '%';
+                    progressBar.setAttribute('aria-valuenow', String(percent));
+                    progressSteps.textContent = current + ' / ' + max;
+                    progressLabel.textContent = label || 'Status wird aktualisiert...';
+                    progressBar.classList.remove('bg-success', 'bg-danger', 'bg-secondary', 'progress-bar-striped', 'progress-bar-animated');
+
+                    if (status === 'success') {
+                        progressBar.classList.add('bg-success');
+                    } else if (status === 'failed') {
+                        progressBar.classList.add('bg-danger');
+                    } else if (status === 'running' || status === 'queued') {
+                        progressBar.classList.add('progress-bar-striped', 'progress-bar-animated');
+                    } else {
+                        progressBar.classList.add('bg-secondary');
+                    }
+
+                    if (errorBox) {
+                        if (error) {
+                            errorBox.classList.remove('d-none');
+                            errorBox.textContent = error;
+                        } else {
+                            errorBox.classList.add('d-none');
+                            errorBox.textContent = '';
+                        }
+                    }
+
+                    if ((status === 'success' || status === 'failed') && !reloading) {
+                        reloading = true;
+                        if (pollTimer) {
+                            window.clearInterval(pollTimer);
+                            pollTimer = null;
+                        }
+                        window.setTimeout(() => window.location.reload(), 900);
+                    }
+                };
+
+                const refresh = async () => {
+                    try {
+                        const response = await fetch(statusUrl, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            cache: 'no-store'
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Statusabfrage fehlgeschlagen');
+                        }
+
+                        const payload = await response.json();
+                        applyPayload(payload);
+                    } catch (_error) {
+                        if (errorBox) {
+                            errorBox.classList.remove('d-none');
+                            errorBox.textContent = 'Fortschritt konnte nicht aktualisiert werden.';
+                        }
+                    }
+                };
+
+                refresh();
+                pollTimer = window.setInterval(refresh, 1200);
+            })();
+        </script>
+    {% endif %}
+{% endblock %}

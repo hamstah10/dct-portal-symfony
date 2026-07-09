@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiptuning Anbieter – Motorsport Raster Layout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --red: #d90416;
+            --yellow: #ffd400;
+            --white: #ffffff;
+            --light: #f0f0f0;
+            --gray: #8d9199;
+            --dark: #1f2228;
+            --black: #111317;
+            --line: rgba(255, 255, 255, .08);
+            --line-dark: rgba(17, 19, 23, .12);
+        }
+
+        * {
+            box-sizing: border-box;
+            border-radius: 0 !important;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--light);
+            color: #181a1f;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(255, 255, 255, .04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .navbar {
+            background: var(--black);
+            border-bottom: 4px solid var(--red);
+            padding: 14px 0;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-link {
+            color: #d7d7d7 !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: .92rem;
+        }
+
+        .nav-link:hover {
+            color: var(--yellow) !important;
+        }
+
+        .btn-main,
+        .btn-yellow,
+        .btn-darkline {
+            padding: 14px 22px;
+            border: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .btn-main {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn-main:hover {
+            background: #af0311;
+            color: #fff;
+        }
+
+        .btn-yellow {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        .btn-yellow:hover {
+            background: #e6bf00;
+            color: #111;
+        }
+
+        .btn-darkline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, .24);
+        }
+
+        .btn-darkline:hover {
+            background: #fff;
+            color: #111;
+        }
+
+        .hero {
+            background:
+                linear-gradient(135deg, rgba(217, 4, 22, .18), transparent 32%),
+                linear-gradient(180deg, #171a1f 0%, #0f1115 100%);
+            color: #fff;
+            padding: 120px 0 90px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero:after {
+            content: "";
+            position: absolute;
+            right: -120px;
+            top: 0;
+            width: 420px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 25%, rgba(255, 212, 0, .14) 25%, rgba(255, 212, 0, .14) 30%, transparent 30%, transparent 55%, rgba(217, 4, 22, .12) 55%, rgba(217, 4, 22, .12) 60%, transparent 60%);
+            transform: skewX(-18deg);
+        }
+
+        .hero .eyebrow {
+            display: inline-block;
+            background: var(--yellow);
+            color: #111;
+            padding: 10px 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            line-height: .95;
+            font-weight: 900;
+            text-transform: uppercase;
+            max-width: 780px;
+            margin-bottom: 22px;
+        }
+
+        .hero p {
+            max-width: 700px;
+            color: #ced2d8;
+            font-size: 18px;
+            line-height: 1.8;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.08fr .92fr;
+            gap: 28px;
+            align-items: stretch;
+            margin-top: 42px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-box,
+        .panel-dark,
+        .panel-light,
+        .tile,
+        .pricing-card,
+        .db-card,
+        .result-item {
+            border: 2px solid transparent;
+        }
+
+        .hero-box {
+            background: rgba(255, 255, 255, .03);
+            border-color: var(--line);
+            padding: 34px;
+            min-height: 460px;
+            position: relative;
+        }
+
+        .hero-box h3 {
+            font-size: 24px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .hero-box p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #bec4cb;
+            max-width: 460px;
+        }
+
+        .badge-tag {
+            display: inline-block;
+            background: var(--red);
+            padding: 8px 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .82rem;
+        }
+
+        .side-stack {
+            display: grid;
+            gap: 18px;
+        }
+
+        .side-card {
+            background: #fff;
+            color: #111;
+            border-left: 8px solid var(--red);
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .08);
+        }
+
+        .side-card h4 {
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .side-card p {
+            margin: 0;
+            color: #5f6670;
+            line-height: 1.75;
+        }
+
+        .dyno-scene {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            top: 120px;
+            background:
+                linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+            background-size: 36px 36px;
+            border: 2px solid rgba(255, 255, 255, .08);
+        }
+
+        .dyno-platform {
+            position: absolute;
+            left: 6%;
+            right: 6%;
+            bottom: 30px;
+            height: 8px;
+            background: #666;
+        }
+
+        .roller {
+            position: absolute;
+            bottom: 42px;
+            width: 130px;
+            height: 20px;
+            background: #4e535b;
+            border: 2px solid #777;
+        }
+
+        .roller.left {
+            left: 18%;
+        }
+
+        .roller.right {
+            right: 18%;
+        }
+
+        .car {
+            position: absolute;
+            left: 50%;
+            bottom: 58px;
+            transform: translateX(-50%);
+            width: 72%;
+            max-width: 520px;
+            height: 120px;
+            background: linear-gradient(135deg, #3e434c, #1f232a 65%, #2b3139);
+            border: 2px solid rgba(255, 255, 255, .10);
+        }
+
+        .car:before {
+            content: "";
+            position: absolute;
+            left: 110px;
+            top: 18px;
+            width: 170px;
+            height: 36px;
+            background: #748194;
+        }
+
+        .car:after {
+            content: "";
+            position: absolute;
+            right: 22px;
+            top: 44px;
+            width: 78px;
+            height: 12px;
+            background: linear-gradient(90deg, transparent, var(--red));
+        }
+
+        .wheel {
+            position: absolute;
+            bottom: -26px;
+            width: 64px;
+            height: 64px;
+            background: #0e0f12;
+            border: 10px solid #2c3138;
+        }
+
+        .wheel.left {
+            left: 62px;
+        }
+
+        .wheel.right {
+            right: 62px;
+        }
+
+        .scan {
+            position: absolute;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+            box-shadow: 0 0 18px rgba(255, 212, 0, .45);
+        }
+
+        .scan.s1 {
+            top: 70px;
+            left: 8%;
+            width: 48%;
+        }
+
+        .scan.s2 {
+            top: 118px;
+            right: 8%;
+            width: 40%;
+        }
+
+        .scan.s3 {
+            top: 168px;
+            left: 16%;
+            width: 34%;
+        }
+
+        .metric-boxes {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            display: grid;
+            gap: 10px;
+            width: 150px;
+        }
+
+        .metric {
+            background: rgba(0, 0, 0, .32);
+            border: 2px solid rgba(255, 255, 255, .08);
+            padding: 10px;
+            color: #fff;
+        }
+
+        .metric small {
+            display: block;
+            color: #b4bac2;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .metric strong {
+            font-size: 22px;
+        }
+
+        .section {
+            padding: 92px 0;
+        }
+
+        .section-dark {
+            background: var(--dark);
+            color: #fff;
+        }
+
+        .section-title {
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            letter-spacing: .5px;
+        }
+
+        .section-sub {
+            max-width: 820px;
+            line-height: 1.8;
+            color: #616874;
+        }
+
+        .section-dark .section-sub {
+            color: #b9bfc7;
+        }
+
+        .tile-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-top: 34px;
+        }
+
+        .tile {
+            background: #fff;
+            padding: 28px;
+            border-top: 8px solid var(--red);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
+        }
+
+        .tile .kicker {
+            display: inline-block;
+            background: #111;
+            color: #fff;
+            padding: 6px 10px;
+            font-size: .8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .tile h4 {
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .tile p {
+            margin: 0;
+            color: #5f6670;
+            line-height: 1.75;
+        }
+
+        .section-dark .tile {
+            background: #272b32;
+            border-top-color: var(--yellow);
+            box-shadow: none;
+            border: 2px solid var(--line);
+        }
+
+        .section-dark .tile .kicker {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        .section-dark .tile p {
+            color: #c0c5cc;
+        }
+
+        .panel-light {
+            background: #fff;
+            border: 2px solid var(--line-dark);
+            padding: 34px;
+        }
+
+        .panel-dark {
+            background: #1b1e24;
+            border: 2px solid var(--line);
+            padding: 34px;
+            color: #fff;
+        }
+
+        .config-grid,
+        .generator-grid,
+        .db-grid,
+        .pricing-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .config-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .generator-grid {
+            grid-template-columns: 320px 1fr;
+            align-items: start;
+        }
+
+        .db-grid {
+            grid-template-columns: 320px 1fr;
+            align-items: start;
+        }
+
+        .pricing-grid {
+            grid-template-columns: repeat(3, 1fr);
+            margin-top: 34px;
+        }
+
+        label {
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: .9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid #d8dde5;
+            padding: 12px 14px;
+            background: #fff;
+            min-height: 52px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: none;
+            border-color: var(--red);
+        }
+
+        .result-box {
+            background: #f8f8f8;
+            border: 2px solid #dadde2;
+            padding: 22px;
+            margin-top: 24px;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .result-item {
+            background: #fff;
+            border: 2px solid #e1e4e8;
+            padding: 16px;
+        }
+
+        .result-item .label {
+            font-size: .82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #747b84;
+            margin-bottom: 4px;
+        }
+
+        .result-item .value {
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        canvas {
+            background: #fff;
+            border: 2px solid #d8dde5;
+            padding: 10px;
+        }
+
+        .generator-note,
+        .db-note {
+            color: #676f79;
+            line-height: 1.7;
+            font-size: .95rem;
+            margin-top: 12px;
+        }
+
+        .search-shell {
+            background: #111317;
+            border: 2px solid var(--line);
+            padding: 22px;
+            color: #fff;
+        }
+
+        .search-shell .form-control,
+        .search-shell .form-select {
+            background: #1d2026;
+            border-color: #373c44;
+            color: #fff;
+        }
+
+        .search-shell .form-control::placeholder {
+            color: #9aa2ad;
+        }
+
+        .search-shell .form-control:focus,
+        .search-shell .form-select:focus {
+            border-color: var(--yellow);
+        }
+
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        .db-table th,
+        .db-table td {
+            border: 2px solid #e0e4e8;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .db-table th {
+            background: #222831;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: .84rem;
+            letter-spacing: .4px;
+        }
+
+        .db-table tr:nth-child(even) td {
+            background: #f8f9fb;
+        }
+
+        .status-chip {
+            display: inline-block;
+            padding: 6px 10px;
+            font-weight: 800;
+            font-size: .78rem;
+            text-transform: uppercase;
+        }
+
+        .status-chip.ready {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        .status-chip.popular {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .status-chip.new {
+            background: #1f2228;
+            color: #fff;
+        }
+
+        .pricing-card {
+            background: #fff;
+            border-top: 10px solid var(--red);
+            padding: 30px;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, .07);
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-top-color: var(--yellow);
+            transform: translateY(-8px);
+        }
+
+        .pricing-card .tag {
+            display: inline-block;
+            background: #111;
+            color: #fff;
+            padding: 8px 10px;
+            font-size: .78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .pricing-card.featured .tag {
+            background: var(--yellow);
+            color: #111;
+        }
+
+        .pricing-card h4 {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .pricing-card p {
+            color: #626973;
+            line-height: 1.75;
+        }
+
+        .price {
+            font-size: 44px;
+            font-weight: 900;
+            line-height: 1;
+            margin: 18px 0 8px;
+        }
+
+        .price small {
+            font-size: 16px;
+            font-weight: 700;
+            color: #6b7077;
+        }
+
+        .list-feat {
+            list-style: none;
+            padding: 0;
+            margin: 18px 0 0;
+        }
+
+        .list-feat li {
+            padding: 10px 0;
+            border-bottom: 2px solid #eceef1;
+            font-weight: 700;
+            color: #31353b;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 34px;
+        }
+
+        .step {
+            background: #fff;
+            border-left: 10px solid var(--yellow);
+            padding: 24px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, .06);
+        }
+
+        .step-num {
+            display: inline-block;
+            background: #111;
+            color: #fff;
+            padding: 8px 12px;
+            font-weight: 900;
+            margin-bottom: 14px;
+        }
+
+        .step h5 {
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            margin: 0;
+            color: #626973;
+            line-height: 1.75;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, var(--red), #9c0714);
+            color: #fff;
+            padding: 70px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta:before {
+            content: "";
+            position: absolute;
+            right: -80px;
+            top: 0;
+            width: 260px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 30%, rgba(255, 212, 0, .24) 30%, rgba(255, 212, 0, .24) 46%, transparent 46%);
+            transform: skewX(-18deg);
+        }
+
+        .cta h2 {
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            max-width: 840px;
+            line-height: 1.85;
+            color: #f3d9dc;
+        }
+
+        .footer {
+            background: #111317;
+            color: #b8bec6;
+            padding: 28px 0;
+            border-top: 4px solid var(--yellow);
+        }
+
+        @media (max-width:1199.98px) {
+
+            .hero-grid,
+            .generator-grid,
+            .db-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tile-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .config-grid,
+            .result-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width:767.98px) {
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .tile-grid,
+            .config-grid,
+            .result-grid,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-box,
+            .panel-light,
+            .panel-dark,
+            .pricing-card,
+            .tile,
+            .step {
+                padding: 22px;
+            }
+
+            .dyno-scene {
+                top: 150px;
+            }
+
+            .metric-boxes {
+                display: none;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Motorsport Chiptuning Layout</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="#vorteile">Vorteile</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#konfigurator">Konfigurator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#datenbank">Fahrzeugdatenbank</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#preise">Pakete</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#kontakt">Anfrage</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero grid-bg">
+        <div class="container">
+            <div class="eyebrow">Raster Layout · Motorsport Style · Dyno Visual · Händler Pakete</div>
+            <h1>Website für Chiptuning Anbieter im Motorsport-Stil</h1>
+            <p>
+                Diese Demo ist auf ein hartes Rennsport-Layout mit Raster, Prüfstand-Visual, Händler-Paketen und
+                Fahrzeugdatenbank ausgelegt.
+                Die Optik geht bewusst in Richtung Bosch Motorsport, APR, Revo oder Dynojet: technisch, kantig,
+                funktional und performance-orientiert.
+            </p>
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                <a href="#konfigurator" class="btn btn-main">Konfigurator starten</a>
+                <a href="#preise" class="btn btn-yellow">Pakete ansehen</a>
+                <a href="#datenbank" class="btn btn-darkline">Fahrzeugsuche</a>
+            </div>
+
+            <div class="hero-grid">
+                <div class="hero-box">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <h3>Dyno / Prüfstand Visual</h3>
+                            <p>Die Hero-Fläche zeigt direkt Technik, Messung und Performance-Kompetenz. Genau das, was
+                                ein Chiptuning Anbieter für seine Kunden sichtbar machen will.</p>
+                        </div>
+                        <div class="badge-tag">Dyno Ready</div>
+                    </div>
+
+                    <div class="dyno-scene">
+                        <div class="scan s1"></div>
+                        <div class="scan s2"></div>
+                        <div class="scan s3"></div>
+                        <div class="metric-boxes">
+                            <div class="metric"><small>Power</small><strong>+58 PS</strong></div>
+                            <div class="metric"><small>Torque</small><strong>+90 Nm</strong></div>
+                            <div class="metric"><small>Mode</small><strong>Stage 1</strong></div>
+                        </div>
+                        <div class="car">
+                            <div class="wheel left"></div>
+                            <div class="wheel right"></div>
+                        </div>
+                        <div class="roller left"></div>
+                        <div class="roller right"></div>
+                        <div class="dyno-platform"></div>
+                    </div>
+                </div>
+
+                <div class="side-stack">
+                    <div class="side-card">
+                        <h4>Grid / Raster Layout</h4>
+                        <p>Die komplette Seite nutzt harte Linien, Raster und starke Farbflächen. Das erzeugt eine
+                            deutlich technischere und motorsport-orientierte Wirkung.</p>
+                    </div>
+                    <div class="side-card">
+                        <h4>Für Händler und Anbieter</h4>
+                        <p>Ideal für Kunden, die bei euch Files kaufen und mit einer starken Website selbst Chiptuning
+                            anbieten, vermarkten und regional verkaufen wollen.</p>
+                    </div>
+                    <div class="side-card">
+                        <h4>Verkauf + Technik kombiniert</h4>
+                        <p>Konfigurator, Leistungsdiagramm, Fahrzeugdatenbank und Preis-Pakete arbeiten zusammen und
+                            machen die Seite zu einer echten Verkaufsfläche.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="vorteile">
+        <div class="container">
+            <h2 class="section-title">Warum dieses Layout anders wirkt</h2>
+            <p class="section-sub">Diese Version ist nicht freundlich oder soft aufgebaut, sondern direkt, technisch und
+                performance-lastig. Genau deshalb eignet sie sich für Rennsport, Prüfstand, Tuning und
+                B2B-Händlerkommunikation.</p>
+            <div class="tile-grid">
+                <div class="tile">
+                    <div class="kicker">Style</div>
+                    <h4>Motorsport Optik</h4>
+                    <p>Starke Kontraste, Raster, Diagonalen und ein klarer Racing-Charakter statt weich gezeichneter
+                        Agentur-Optik.</p>
+                </div>
+                <div class="tile">
+                    <div class="kicker">Sales</div>
+                    <h4>Starke Conversion</h4>
+                    <p>Hero, Konfigurator, Diagramm und Pakete greifen direkt ineinander und führen den Besucher
+                        schneller zur Anfrage.</p>
+                </div>
+                <div class="tile">
+                    <div class="kicker">B2B</div>
+                    <h4>Händler-tauglich</h4>
+                    <p>Die Seite eignet sich perfekt für eure File-Kunden, die sich professionell als Chiptuning
+                        Anbieter positionieren wollen.</p>
+                </div>
+                <div class="tile">
+                    <div class="kicker">Tech</div>
+                    <h4>Prüfstand Fokus</h4>
+                    <p>Durch das Dyno-Visual und Leistungsdarstellung entsteht sofort eine technisch glaubwürdige
+                        Performance-Sprache.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="konfigurator">
+        <div class="container">
+            <h2 class="section-title">Chiptuning Konfigurator</h2>
+            <p class="section-sub">Fahrzeug wählen, Leistungsdaten sehen und direkt ein Gefühl für das Tuning-Potenzial
+                bekommen. In dieser Version bleibt der Konfigurator ein zentrales Verkaufsmodul.</p>
+            <div class="panel-dark mt-4">
+                <div class="config-grid">
+                    <div>
+                        <label for="vehicle">Fahrzeug</label>
+                        <select id="vehicle" class="form-select">
+                            <option value="golf_gti">VW Golf GTI 2.0 TSI</option>
+                            <option value="a6_3tdi">Audi A6 3.0 TDI</option>
+                            <option value="bmw_330d">BMW 330d</option>
+                            <option value="rs3">Audi RS3 2.5 TFSI</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="stage">Tuning-Stufe</label>
+                        <select id="stage" class="form-select">
+                            <option value="stage1">Stage 1</option>
+                            <option value="stage1plus">Stage 1+</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fuel">Kraftstoff</label>
+                        <select id="fuel" class="form-select">
+                            <option value="standard">Standard</option>
+                            <option value="premium">102 Oktan</option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-end">
+                        <button id="calcBtn" class="btn btn-main w-100">Leistung anzeigen</button>
+                    </div>
+                </div>
+
+                <div class="result-box">
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="label">Serie Leistung</div>
+                            <div class="value" id="stockPs">245 PS</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Serie Drehmoment</div>
+                            <div class="value" id="stockNm">370 Nm</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Stage Leistung</div>
+                            <div class="value" id="tunedPs">300 PS</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Stage Drehmoment</div>
+                            <div class="value" id="tunedNm">460 Nm</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Mehrleistung</div>
+                            <div class="value" id="gainPs">+55 PS</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Mehr Drehmoment</div>
+                            <div class="value" id="gainNm">+90 Nm</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Empfehlung</div>
+                            <div class="value" id="recommend">Prüfstand</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="label">Hinweis</div>
+                            <div class="value" id="note">TCU sinnvoll</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="diagramm">
+        <div class="container">
+            <h2 class="section-title">Leistungsdiagramm Generator</h2>
+            <p class="section-sub">Original- und Stage-Werte eingeben und sofort eine Motorsport-taugliche Grafik für
+                Beratung, Website oder Verkaufsgespräch erzeugen.</p>
+            <div class="panel-light mt-4">
+                <div class="generator-grid">
+                    <div>
+                        <label for="genStockPs">Original PS</label>
+                        <input id="genStockPs" type="number" class="form-control" value="150" min="1">
+                        <label class="mt-3" for="genStockNm">Original Nm</label>
+                        <input id="genStockNm" type="number" class="form-control" value="320" min="1">
+                        <label class="mt-3" for="genTunePs">Stage PS</label>
+                        <input id="genTunePs" type="number" class="form-control" value="190" min="1">
+                        <label class="mt-3" for="genTuneNm">Stage Nm</label>
+                        <input id="genTuneNm" type="number" class="form-control" value="400" min="1">
+                        <button id="updateChartBtn" class="btn btn-main mt-3 w-100">Diagramm generieren</button>
+                        <div class="generator-note">Später erweiterbar mit Branding, Export, PDF, Screenshot oder
+                            automatischer Übergabe aus dem Konfigurator.</div>
+                    </div>
+                    <div>
+                        <canvas id="powerChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-dark" id="datenbank">
+        <div class="container">
+            <h2 class="section-title">Auto-Suche + Fahrzeugdatenbank</h2>
+            <p class="section-sub">Dieser Bereich simuliert eine Fahrzeugdatenbank für Endkunden oder Händler. Sie kann
+                später an echte Daten angebunden werden und eignet sich ideal für eine Such- und Filterlogik auf eurer
+                Website.</p>
+            <div class="db-grid mt-4">
+                <div class="search-shell">
+                    <label for="searchInput">Suche</label>
+                    <input id="searchInput" class="form-control" placeholder="z. B. Golf, BMW, RS3, 3.0 TDI">
+                    <label class="mt-3" for="brandFilter">Marke</label>
+                    <select id="brandFilter" class="form-select">
+                        <option value="all">Alle Marken</option>
+                        <option value="VW">VW</option>
+                        <option value="Audi">Audi</option>
+                        <option value="BMW">BMW</option>
+                        <option value="Mercedes">Mercedes</option>
+                    </select>
+                    <label class="mt-3" for="fuelFilter">Kraftstoff</label>
+                    <select id="fuelFilter" class="form-select">
+                        <option value="all">Alle</option>
+                        <option value="Benzin">Benzin</option>
+                        <option value="Diesel">Diesel</option>
+                    </select>
+                    <button id="filterBtn" class="btn btn-yellow mt-3 w-100">Fahrzeuge filtern</button>
+                    <div class="db-note">Später kann hier eine echte Fahrzeugsuche mit API, Herstellerlisten, Motorcodes
+                        und Leistungswerten eingebunden werden.</div>
+                </div>
+                <div class="panel-light">
+                    <div class="table-responsive">
+                        <table class="db-table" id="vehicleTable">
+                            <thead>
+                                <tr>
+                                    <th>Marke</th>
+                                    <th>Modell</th>
+                                    <th>Motor</th>
+                                    <th>Serie</th>
+                                    <th>Stage 1</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="preise">
+        <div class="container">
+            <h2 class="section-title">Preis-Pakete für Händler</h2>
+            <p class="section-sub">Diese Pakete können als Vorlage für eure File-Service Kunden dienen. So lässt sich
+                direkt zeigen, welche Website-Stufe oder Vertriebsstufe zu welchem Anbieter passt.</p>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="tag">Start</div>
+                    <h4>Landingpage Basic</h4>
+                    <p>Für kleinere Anbieter, die schnell online gehen und lokal Chiptuning bewerben wollen.</p>
+                    <div class="price">499 € <small>einmalig</small></div>
+                    <ul class="list-feat">
+                        <li>1 Landingpage</li>
+                        <li>Motorsport Layout</li>
+                        <li>Leistungsabschnitte</li>
+                        <li>Kontakt-CTA</li>
+                        <li>Mobil optimiert</li>
+                    </ul>
+                </div>
+                <div class="pricing-card featured">
+                    <div class="tag">Empfohlen</div>
+                    <h4>Konfigurator Pro</h4>
+                    <p>Für Anbieter, die ihre Kunden mit Fahrzeugauswahl, Leistungswerten und technischer Präsentation
+                        überzeugen wollen.</p>
+                    <div class="price">990 € <small>einmalig</small></div>
+                    <ul class="list-feat">
+                        <li>Alles aus Basic</li>
+                        <li>Chiptuning Konfigurator</li>
+                        <li>Diagramm Generator</li>
+                        <li>Dyno / Prüfstand Bereich</li>
+                        <li>Händler-taugliche Struktur</li>
+                    </ul>
+                </div>
+                <div class="pricing-card">
+                    <div class="tag">Max</div>
+                    <h4>Dealer System</h4>
+                    <p>Für ambitionierte Partner, die eine stärkere Website mit Datenbank, Suchlogik und weiterem Ausbau
+                        möchten.</p>
+                    <div class="price">1.790 € <small>ab</small></div>
+                    <ul class="list-feat">
+                        <li>Alles aus Pro</li>
+                        <li>Fahrzeugdatenbank Demo</li>
+                        <li>Suche + Filter</li>
+                        <li>weitere Unterseiten</li>
+                        <li>Ausbau auf Wunsch</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="ablauf">
+        <div class="container">
+            <h2 class="section-title">Wie aus der Demo ein echtes Händler-System wird</h2>
+            <p class="section-sub">Die Seite ist schon als starkes Konzept gedacht, kann aber leicht zur echten
+                Verkaufsplattform für Chiptuning Anbieter ausgebaut werden.</p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">01</div>
+                    <h5>Layout auswählen</h5>
+                    <p>Motorsport-Richtung, Raster, Farben und Content werden passend zum jeweiligen Anbieter
+                        festgelegt.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">02</div>
+                    <h5>Marke anpassen</h5>
+                    <p>Logo, Texte, Regionen, Leistungen und gewünschte Zielgruppe werden in die Struktur übernommen.
+                    </p>
+                </div>
+                <div class="step">
+                    <div class="step-num">03</div>
+                    <h5>Konfigurator integrieren</h5>
+                    <p>Die Leistungsdarstellung wird auf echte Fahrzeug- und Tuningdaten abgestimmt.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">04</div>
+                    <h5>Datenbank erweitern</h5>
+                    <p>Die Auto-Suche kann später mit echter Fahrzeuglogik, API oder Filterdaten erweitert werden.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">05</div>
+                    <h5>Pakete verkaufen</h5>
+                    <p>Händler oder Endkunden sehen sofort, welche Stufe, Leistung oder Website-Lösung für sie
+                        interessant ist.</p>
+                </div>
+                <div class="step">
+                    <div class="step-num">06</div>
+                    <h5>System ausbauen</h5>
+                    <p>Weitere Landingpages, Preisrechner, Händlerzugänge oder Portalanbindungen können modular folgen.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta" id="kontakt">
+        <div class="container">
+            <h2>Motorsport Website für eure Chiptuning Kunden</h2>
+            <p>
+                Diese Version bringt genau die Elemente zusammen, die ihr genannt habt: Grid / Raster Layout,
+                Rennsport-Style,
+                Dyno-Visual, Händler-Pakete und eine Fahrzeugdatenbank mit Suche. Damit habt ihr eine Demo, die deutlich
+                näher an APR, Revo, Bosch Motorsport oder Dynojet ist.
+            </p>
+            <div class="d-flex flex-wrap gap-3 mt-4">
+                <a href="#" class="btn btn-yellow">Website anfragen</a>
+                <a href="#" class="btn btn-darkline">Als Händlerdemo nutzen</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container d-flex flex-column flex-lg-row justify-content-between gap-2">
+            <div>© Motorsport Raster Layout Demo</div>
+            <div>Dyno Visual · Händler Pakete · Fahrzeugdatenbank · Konfigurator</div>
+        </div>
+    </footer>
+
+    <script>
+const vehicleData = {
+  golf_gti: {stockPs:245,stockNm:370,stage1:{ps:300,nm:460,recommend:'Prüfstand',note:'TCU sinnvoll'},stage1plus:{ps:315,nm:480,recommend:'102 Oktan',note:'TCU empfohlen'}},
+  a6_3tdi: {stockPs:286,stockNm:620,stage1:{ps:340,nm:700,recommend:'Prüfstand',note:'Sehr harmonisch'},stage1plus:{ps:355,nm:730,recommend:'Getriebe beachten',note:'TCU stark empfohlen'}},
+  bmw_330d: {stockPs:265,stockNm:580,stage1:{ps:320,nm:660,recommend:'Prüfstand',note:'Sehr guter Alltag'},stage1plus:{ps:335,nm:690,recommend:'Saubere Kontrolle',note:'TCU optional'}},
+  rs3: {stockPs:400,stockNm:500,stage1:{ps:470,nm:620,recommend:'Prüfstand Pflicht',note:'Premium sinnvoll'},stage1plus:{ps:500,nm:650,recommend:'102 Oktan',note:'TCU empfohlen'}}
+};
+
+const dbVehicles = [
+  {brand:'VW', model:'Golf GTI', engine:'2.0 TSI', fuel:'Benzin', stock:'245 PS / 370 Nm', stage:'300 PS / 460 Nm', status:'popular'},
+  {brand:'Audi', model:'RS3', engine:'2.5 TFSI', fuel:'Benzin', stock:'400 PS / 500 Nm', stage:'470 PS / 620 Nm', status:'ready'},
+  {brand:'BMW', model:'330d', engine:'3.0 Diesel', fuel:'Diesel', stock:'265 PS / 580 Nm', stage:'320 PS / 660 Nm', status:'ready'},
+  {brand:'Audi', model:'A6', engine:'3.0 TDI', fuel:'Diesel', stock:'286 PS / 620 Nm', stage:'340 PS / 700 Nm', status:'popular'},
+  {brand:'Mercedes', model:'C220d', engine:'2.0 Diesel', fuel:'Diesel', stock:'200 PS / 440 Nm', stage:'240 PS / 520 Nm', status:'new'},
+  {brand:'VW', model:'Passat', engine:'2.0 TDI', fuel:'Diesel', stock:'150 PS / 340 Nm', stage:'190 PS / 420 Nm', status:'ready'}
+];
+
+const rpmLabels = [1500,2000,2500,3000,3500,4000,4500,5000,5500,6000,6500];
+function buildPowerCurve(targetPs, tuned=false){
+  const factors = tuned ? [0.34,0.5,0.68,0.8,0.9,0.96,1,1.02,1,0.97,0.92] : [0.28,0.42,0.58,0.72,0.83,0.9,0.96,1,0.99,0.95,0.88];
+  return factors.map(v => Math.round(targetPs * v));
+}
+function buildTorqueCurve(targetNm, tuned=false){
+  const factors = tuned ? [0.82,0.96,1,1,0.99,0.96,0.92,0.87,0.8,0.71,0.62] : [0.78,0.92,1,0.99,0.97,0.93,0.88,0.82,0.74,0.64,0.55];
+  return factors.map(v => Math.round(targetNm * v));
+}
+
+const vehicleSelect = document.getElementById('vehicle');
+const stageSelect = document.getElementById('stage');
+const fuelSelect = document.getElementById('fuel');
+const calcBtn = document.getElementById('calcBtn');
+const stockPsEl = document.getElementById('stockPs');
+const stockNmEl = document.getElementById('stockNm');
+const tunedPsEl = document.getElementById('tunedPs');
+const tunedNmEl = document.getElementById('tunedNm');
+const gainPsEl = document.getElementById('gainPs');
+const gainNmEl = document.getElementById('gainNm');
+const recommendEl = document.getElementById('recommend');
+const noteEl = document.getElementById('note');
+
+const genStockPs = document.getElementById('genStockPs');
+const genStockNm = document.getElementById('genStockNm');
+const genTunePs = document.getElementById('genTunePs');
+const genTuneNm = document.getElementById('genTuneNm');
+const updateChartBtn = document.getElementById('updateChartBtn');
+
+const ctx = document.getElementById('powerChart').getContext('2d');
+const powerChart = new Chart(ctx, {
+  type:'line',
+  data:{
+    labels:rpmLabels,
+    datasets:[
+      {label:'Leistung Serie (PS)',data:[],borderColor:'rgba(120,126,136,1)',backgroundColor:'rgba(120,126,136,.10)',borderWidth:2,pointRadius:2,tension:.35},
+      {label:'Leistung Stage (PS)',data:[],borderColor:'rgba(217,4,22,1)',backgroundColor:'rgba(217,4,22,.10)',borderWidth:3,pointRadius:2,tension:.35},
+      {label:'Drehmoment Serie (Nm)',data:[],borderColor:'rgba(80,88,98,1)',backgroundColor:'rgba(80,88,98,.08)',borderDash:[6,5],borderWidth:2,pointRadius:1,tension:.35},
+      {label:'Drehmoment Stage (Nm)',data:[],borderColor:'rgba(255,212,0,1)',backgroundColor:'rgba(255,212,0,.12)',borderDash:[6,5],borderWidth:2,pointRadius:1,tension:.35}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:true,
+    plugins:{legend:{labels:{color:'#2f3740'}},tooltip:{mode:'index',intersect:false}},
+    interaction:{mode:'nearest',axis:'x',intersect:false},
+    scales:{
+      x:{ticks:{color:'#6b7179'},grid:{color:'rgba(17,19,23,.08)'},title:{display:true,text:'Drehzahl (rpm)',color:'#2c3239'}},
+      y:{ticks:{color:'#6b7179'},grid:{color:'rgba(17,19,23,.08)'},title:{display:true,text:'Leistung / Drehmoment',color:'#2c3239'}}
+    }
+  }
+});
+
+function refreshConfigurator(){
+  const vehicleKey = vehicleSelect.value;
+  const stageKey = stageSelect.value;
+  const fuel = fuelSelect.value;
+  const vehicle = vehicleData[vehicleKey];
+  const tuned = {...vehicle[stageKey]};
+  if(fuel === 'premium'){
+    tuned.ps += Math.round(tuned.ps * 0.015);
+    tuned.nm += Math.round(tuned.nm * 0.015);
+  }
+  const gainPs = tuned.ps - vehicle.stockPs;
+  const gainNm = tuned.nm - vehicle.stockNm;
+
+  stockPsEl.textContent = vehicle.stockPs + ' PS';
+  stockNmEl.textContent = vehicle.stockNm + ' Nm';
+  tunedPsEl.textContent = tuned.ps + ' PS';
+  tunedNmEl.textContent = tuned.nm + ' Nm';
+  gainPsEl.textContent = '+' + gainPs + ' PS';
+  gainNmEl.textContent = '+' + gainNm + ' Nm';
+  recommendEl.textContent = tuned.recommend;
+  noteEl.textContent = tuned.note;
+
+  genStockPs.value = vehicle.stockPs;
+  genStockNm.value = vehicle.stockNm;
+  genTunePs.value = tuned.ps;
+  genTuneNm.value = tuned.nm;
+  refreshChart();
+}
+
+function refreshChart(){
+  const stockPs = Math.max(1, parseInt(genStockPs.value || 1,10));
+  const stockNm = Math.max(1, parseInt(genStockNm.value || 1,10));
+  const tunePs = Math.max(1, parseInt(genTunePs.value || 1,10));
+  const tuneNm = Math.max(1, parseInt(genTuneNm.value || 1,10));
+  powerChart.data.datasets[0].data = buildPowerCurve(stockPs,false);
+  powerChart.data.datasets[1].data = buildPowerCurve(tunePs,true);
+  powerChart.data.datasets[2].data = buildTorqueCurve(stockNm,false);
+  powerChart.data.datasets[3].data = buildTorqueCurve(tuneNm,true);
+  powerChart.update();
+}
+
+function renderDatabase(items){
+  const tbody = document.querySelector('#vehicleTable tbody');
+  tbody.innerHTML = items.map(item => `
+    <tr>
+      <td>${item.brand}</td>
+      <td>${item.model}</td>
+      <td>${item.engine}</td>
+      <td>${item.stock}</td>
+      <td>${item.stage}</td>
+      <td><span class="status-chip ${item.status}">${item.status}</span></td>
+    </tr>
+  `).join('');
+}
+
+function filterDatabase(){
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const brand = document.getElementById('brandFilter').value;
+  const fuel = document.getElementById('fuelFilter').value;
+  const filtered = dbVehicles.filter(v => {
+    const matchesSearch = !search || `${v.brand} ${v.model} ${v.engine}`.toLowerCase().includes(search);
+    const matchesBrand = brand === 'all' || v.brand === brand;
+    const matchesFuel = fuel === 'all' || v.fuel === fuel;
+    return matchesSearch && matchesBrand && matchesFuel;
+  });
+  renderDatabase(filtered);
+}
+
+calcBtn.addEventListener('click', refreshConfigurator);
+vehicleSelect.addEventListener('change', refreshConfigurator);
+stageSelect.addEventListener('change', refreshConfigurator);
+fuelSelect.addEventListener('change', refreshConfigurator);
+updateChartBtn.addEventListener('click', refreshChart);
+document.getElementById('filterBtn').addEventListener('click', filterDatabase);
+document.getElementById('searchInput').addEventListener('input', filterDatabase);
+document.getElementById('brandFilter').addEventListener('change', filterDatabase);
+document.getElementById('fuelFilter').addEventListener('change', filterDatabase);
+
+refreshConfigurator();
+renderDatabase(dbVehicles);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,29 @@
+- generic [ref=e3]:
+  - img "Tuningfux Logo" [ref=e6]
+  - generic [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39]: Typ
+      - combobox [ref=e40]
+      - combobox "Bitte wählen" [ref=e43] [cursor=pointer]:
+        - textbox "Bitte wählen" [ref=e44]
+    - generic [ref=e45]:
+      - generic [ref=e46]: Marke
+      - combobox [disabled] [ref=e47]
+      - combobox "Marke wählen" [disabled] [ref=e50]:
+        - textbox "Marke wählen" [disabled] [ref=e51]
+    - generic [ref=e52]:
+      - generic [ref=e53]: Baureihe
+      - combobox [disabled] [ref=e54]
+      - combobox "Baureihe wählen" [disabled] [ref=e57]:
+        - textbox "Baureihe wählen" [disabled] [ref=e58]
+    - generic [ref=e59]:
+      - generic [ref=e60]: Modell
+      - combobox [disabled] [ref=e61]
+      - combobox "Modell wählen" [disabled] [ref=e64]:
+        - textbox "Modell wählen" [disabled] [ref=e65]
+    - generic [ref=e66]:
+      - generic [ref=e67]: Motor
+      - combobox [disabled] [ref=e68]
+      - combobox "Motor wählen" [disabled] [ref=e71]:
+        - textbox "Motor wählen" [disabled] [ref=e72]
+    - button "Reset Auswahl" [ref=e74] [cursor=pointer]

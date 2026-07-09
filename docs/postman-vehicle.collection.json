@@ -1,0 +1,136 @@
+{
+  "info": {
+    "name": "TFD Fahrzeugdatenbank API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman Collection fuer die geschuetzte Fahrzeugdatenbank-API"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://verwaltung.tuningfux.de" },
+    { "key": "apiToken", "value": "" },
+    { "key": "tokenId", "value": "" },
+    { "key": "contextKey", "value": "" },
+    { "key": "poolKey", "value": "" },
+    { "key": "typeId", "value": "1" },
+    { "key": "brandId", "value": "1" },
+    { "key": "seriesId", "value": "1" },
+    { "key": "modelId", "value": "1" },
+    { "key": "engineId", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{apiToken}}", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Index",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank"
+      }
+    },
+    {
+      "name": "Types",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank/types"
+      }
+    },
+    {
+      "name": "Brands",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank/brands/{{typeId}}"
+      }
+    },
+    {
+      "name": "Series",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank/series/{{brandId}}"
+      }
+    },
+    {
+      "name": "Models",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank/models/{{seriesId}}"
+      }
+    },
+    {
+      "name": "Engines",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank/engines/{{modelId}}"
+      }
+    },
+    {
+      "name": "Engine Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/fahrzeugdatenbank/engine-details/{{engineId}}?stageId=&templateVariant=",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "fahrzeugdatenbank", "engine-details", "{{engineId}}"],
+          "query": [
+            { "key": "stageId", "value": "" },
+            { "key": "templateVariant", "value": "" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Track",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "X-Token-Id", "value": "{{tokenId}}" },
+          { "key": "X-Vehicle-Data-Context", "value": "{{contextKey}}", "disabled": true },
+          { "key": "X-Vehicle-Data-Pool", "value": "{{poolKey}}", "disabled": true },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"event\": \"client_event\",\n  \"engineId\": {{engineId}},\n  \"meta\": {\n    \"source\": \"postman\"\n  }\n}"
+        },
+        "url": "{{baseUrl}}/api/fahrzeugdatenbank/track"
+      }
+    }
+  ]
+}

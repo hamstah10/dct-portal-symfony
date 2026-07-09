@@ -1,0 +1,139 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Fahrzeugdatenbank Uebersicht{% endblock %}
+
+{% block main %}
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a href="{{ path('admin_vehicle_type_index') }}" class="btn btn-primary"><i class="fa fa-layer-group"></i> Fahrzeugtypen</a>
+        <a href="{{ path('admin_vehicle_brand_index') }}" class="btn btn-primary"><i class="fa fa-flag"></i> Marken</a>
+        <a href="{{ path('admin_vehicle_series_index') }}" class="btn btn-primary"><i class="fa fa-sitemap"></i> Baureihen</a>
+        <a href="{{ path('admin_vehicle_model_index') }}" class="btn btn-primary"><i class="fa fa-list"></i> Modelle</a>
+        <a href="{{ path('admin_vehicle_engine_index') }}" class="btn btn-primary"><i class="fa fa-cog"></i> Motoren</a>
+        <a href="{{ path('admin_vehicle_stage_index') }}" class="btn btn-primary"><i class="fa fa-tachometer-alt"></i> Stages</a>
+        <a href="{{ path('admin_vehicle_gearbox') }}" class="btn btn-primary"><i class="fa fa-gears"></i> Getriebe</a>
+        <a href="{{ path('admin_vehicle_ecu') }}" class="btn btn-primary"><i class="fa fa-microchip"></i> ECU</a>
+        <a href="{{ path('app_vehicle_database') }}" class="btn btn-secondary" target="_blank" rel="noopener">Frontend oeffnen</a>
+    </div>
+
+    <div class="mb-3">
+        {{ component('vehicle_search') }}
+    </div>
+
+    <div class="row g-3 mb-3">
+        {% for card in summaryCards %}
+            <div class="col-12 col-sm-6 col-lg-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="text-muted small d-flex align-items-center gap-2">
+                                {% if card.icon is defined and card.icon %}
+                                    <span class="badge bg-body-secondary text-secondary border border-secondary-subtle p-1" style="min-width:1.75rem;min-height:1.75rem;display:inline-flex;align-items:center;justify-content:center;">
+                                        <i class="{{ card.icon }}" aria-hidden="true"></i>
+                                    </span>
+                                {% endif %}
+                                <span class="fw-bold">{{ card.label }}</span>
+                            </div>
+                            {% if card.active is not null %}
+                                <div class="small text-end lh-sm">
+                                    <div class="text-success">Aktiv: <span class="fw-semibold">{{ card.active }}</span></div>
+                                    <div class="text-muted">Inaktiv: <span class="fw-semibold">{{ card.total - card.active }}</span></div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="display-6 fw-bold mt-3">{{ card.total }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="col-12 col-sm-6 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Motoren ohne Stage</div>
+                    <div class="display-6 fw-bold">{{ enginesWithoutStages }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-2">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Motoren ohne ECU-Relation</div>
+                    <div class="display-6 fw-bold">{{ enginesWithoutEcuRelations }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3 d-none">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Motoren ohne Stage</div>
+                    <div class="display-6 fw-bold">{{ enginesWithoutStages }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Motoren ohne ECU-Relation</div>
+                    <div class="display-6 fw-bold">{{ enginesWithoutEcuRelations }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Stages ohne ECU-Auswahl</div>
+                    <div class="display-6 fw-bold">{{ stagesWithoutEcuSelection }}</div>
+                    <div class="small text-muted">Main-Optionen: {{ mainEcuOptionsCount }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold">Motoren Schnellansicht (Top 20)</div>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Motor</th>
+                    <th>Modell</th>
+                    <th class="text-end">PS</th>
+                    <th class="text-end">NM</th>
+                    <th class="text-end">Stages</th>
+                    <th class="text-end">ECUs</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if enginesOverview is empty %}
+                    <tr>
+                        <td colspan="7" class="text-muted">Keine Motoren vorhanden.</td>
+                    </tr>
+                {% else %}
+                    {% for engine in enginesOverview %}
+                        <tr>
+                            <td>{{ engine.name }}</td>
+                            <td>{{ engine.vehicleModel ? engine.vehicleModel.name : '-' }}</td>
+                            <td class="text-end">{{ engine.horsepower ?? '-' }}</td>
+                            <td class="text-end">{{ engine.torque ?? '-' }}</td>
+                            <td class="text-end">{{ engine.stages|length }}</td>
+                            <td class="text-end">{{ engine.ecuRelations|length }}</td>
+                            <td>
+                                {% if engine.active %}
+                                    <span class="badge text-bg-success">Aktiv</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Inaktiv</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

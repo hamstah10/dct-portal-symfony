@@ -1,0 +1,7 @@
+# yaml-language-server: $schema=../../vendor/symfony/config/definition/schema.json
+parameters:
+    brevo.api_base: '%env(string:BREVO_API_BASE)%'
+    brevo.api_key: '%env(string:BREVO_API_KEY)%'
+    brevo.api_timeout: '%env(int:BREVO_API_TIMEOUT)%'
+    brevo.api_user_agent: '%env(string:BREVO_API_USER_AGENT)%'
+    brevo.api_token_name: '%env(string:BREVO_API_TOKEN_NAME)%'

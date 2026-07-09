@@ -1,0 +1,139 @@
+<div class="container-fluid px-0">
+    {% set periodKey = period|default('month') %}
+    {% set filterRoute = embedded ? 'admin_statistics' : 'admin_revenue_statistics' %}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="h5 mb-0">Umsatz ({{ periodLabel|default('Monat') }})</div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Zeitraum">
+            <a class="btn {{ periodKey == 'day' ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ path(filterRoute, { period: 'day' }) }}">Tag</a>
+            <a class="btn {{ periodKey == 'month' ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ path(filterRoute, { period: 'month' }) }}">Monat</a>
+            <a class="btn {{ periodKey == 'year' ? 'btn-primary' : 'btn-outline-primary' }}" href="{{ path(filterRoute, { period: 'year' }) }}">Jahr</a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Gesamtumsatz (Netto)</div>
+                    <div class="h4 mb-0">{{ revenueTotal|number_format(2, ',', '.') }} €</div>
+                    <div class="small text-muted">Brutto: {{ revenueTotalGross|number_format(2, ',', '.') }} €</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Umsatz Abos (Netto)</div>
+                    <div class="h4 mb-0">{{ revenueAboTotal|number_format(2, ',', '.') }} €</div>
+                    <div class="small text-muted">Brutto: {{ revenueAboGrossTotal|number_format(2, ',', '.') }} €</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Umsatz Credits (Netto)</div>
+                    <div class="h4 mb-0">{{ revenueCreditTotal|number_format(2, ',', '.') }} €</div>
+                    <div class="small text-muted">Brutto: {{ revenueCreditGrossTotal|number_format(2, ',', '.') }} €</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Umsatz eCommerce (Netto)</div>
+                    <div class="h4 mb-0">{{ revenueEcommerceTotal|number_format(2, ',', '.') }} €</div>
+                    <div class="small text-muted">Brutto: {{ revenueEcommerceGrossTotal|number_format(2, ',', '.') }} €</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Credits Transaktionen</div>
+                    <div class="h4 mb-0">{{ creditCount|number_format(0, ',', '.') }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Abos aktiv</div>
+                    <div class="h4 mb-0">{{ aboCount|number_format(0, ',', '.') }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Bestellungen</div>
+                    <div class="h4 mb-0">{{ ecommerceCount|number_format(0, ',', '.') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm chart-card">
+        <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+            <span>Umsatz pro Monat (alle Posten)</span>
+            <span class="small text-muted">{{ periodLabel|default('Monat') }}</span>
+        </div>
+        <div class="card-body">
+            <ul class="nav nav-pills nav-pills-sm mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="revenue-net-tab" data-bs-toggle="pill" data-bs-target="#revenue-net" type="button" role="tab" aria-controls="revenue-net" aria-selected="true">
+                        Netto
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="revenue-gross-tab" data-bs-toggle="pill" data-bs-target="#revenue-gross" type="button" role="tab" aria-controls="revenue-gross" aria-selected="false">
+                        Brutto ({{ revenueVatRate|number_format(0, ',', '.') }}%)
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="revenue-net" role="tabpanel" aria-labelledby="revenue-net-tab">
+                    <div style="height: 320px;">
+                        {{ render_chart(revenueChartNet) }}
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="revenue-gross" role="tabpanel" aria-labelledby="revenue-gross-tab">
+                    <div style="height: 320px;">
+                        {{ render_chart(revenueChartGross) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-3">
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Credits</div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(creditChart) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">Abos</div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(aboChart) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold">eCommerce</div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(ecommerceChart) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

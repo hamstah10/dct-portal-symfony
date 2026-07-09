@@ -1,0 +1,35 @@
+<!-- @dsCard group="Slides" viewport="1280x720" name="Stat slide" subtitle="Power figures showcase" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0;}
+  .slide{width:1280px;height:720px;box-sizing:border-box;padding:72px 88px;background:var(--bg);font-family:var(--font-sans);display:flex;flex-direction:column;}
+  .ey{font-family:var(--font-mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-text);}
+  h2{font-size:60px;margin:14px 0 8px;color:var(--text);}
+  .lede{font-size:20px;color:var(--text-muted);max-width:56ch;margin:0 0 46px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;flex:1;}
+  .tile{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:34px 32px;display:flex;flex-direction:column;justify-content:space-between;}
+  .tile.feat{border-top:3px solid var(--accent);}
+  .k{font-family:var(--font-mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+  .v{font-family:var(--font-mono);font-weight:600;font-size:82px;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+  .v.gain{color:var(--accent);}
+  .v .u{font-size:30px;color:var(--text-muted);}
+  .d{display:inline-flex;align-items:center;gap:.3em;font-family:var(--font-mono);font-size:16px;color:var(--success);margin-top:10px;}
+</style>
+</head>
+<body>
+  <div class="slide" data-theme="light">
+    <div class="ey">Audi A4 2.0 TDI · EA288 Evo</div>
+    <h2>Stage 1 — gemessen</h2>
+    <p class="lede">Serienzustand auf Optimum. Werte auf dem Leistungsprüfstand validiert.</p>
+    <div class="grid">
+      <div class="tile feat"><span class="k">Leistung</span><div><div class="v gain">228<span class="u"> PS</span></div><div class="d">▲ +38 PS</div></div></div>
+      <div class="tile"><span class="k">Drehmoment</span><div><div class="v">470<span class="u"> Nm</span></div><div class="d">▲ +70 Nm</div></div></div>
+      <div class="tile"><span class="k">0–100 km/h</span><div><div class="v">6,4<span class="u"> s</span></div><div class="d">▲ −0,8 s</div></div></div>
+    </div>
+  </div>
+</body>
+</html>

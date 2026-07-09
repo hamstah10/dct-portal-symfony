@@ -1,0 +1,41 @@
+<div {{ attributes }} class="d-flex justify-content-center">
+    {% set appAssets = this.assets|default([])|reverse %}
+    {% if appAssets is empty %}
+        <span class="text-muted">Keine APP Bilder vorhanden.</span>
+    {% else %}
+        <div id="appMediaCarousel" class="carousel slide mx-auto carousel-fade" data-bs-ride="carousel" data-bs-interval="4500">
+            <div class="carousel-indicators">
+                {% for asset in appAssets %}
+                    <button type="button"
+                            data-bs-target="#appMediaCarousel"
+                            data-bs-slide-to="{{ loop.index0 }}"
+                            class="{{ loop.first ? 'active' : '' }}"
+                            aria-current="{{ loop.first ? 'true' : 'false' }}"
+                            aria-label="Slide {{ loop.index }}"></button>
+                {% endfor %}
+            </div>
+            <div class="carousel-inner">
+                {% for asset in appAssets %}
+                    {% set url = media_url(asset) %}
+                    <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                        {% if url %}
+                            <img src="{{ url }}" alt="{{ asset.name }}" class="d-block img-fluid" style="height: 500px; border-radius: 8px;">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 260px; border-radius: 8px;">
+                                <span class="text-muted small">Kein Bild</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#appMediaCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Zurueck</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#appMediaCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Weiter</span>
+            </button>
+        </div>
+    {% endif %}
+</div>

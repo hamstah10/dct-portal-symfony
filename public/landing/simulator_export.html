@@ -1,0 +1,947 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiptuning Leistungskurve mit Theme Switcher</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #FCFEF9;
+            --panel: #EAF5D2;
+            --text: #283B51;
+            --original: #81A76A;
+            --stage: #82CC00;
+            --stage-fill: #ADD96A;
+            --grid: #C8CED1;
+            --accent-soft: rgba(40, 59, 81, 0.08);
+            --canvas-bg: rgba(255, 255, 255, 0.45);
+            --tooltip-bg: #ffffff;
+            --tooltip-text: #283B51;
+            --marker-text: #283B51;
+            --btn-primary: #283B51;
+            --btn-secondary: #82CC00;
+            --btn-export: #81A76A;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 32px 18px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, sans-serif;
+            transition: background 0.25s ease, color 0.25s ease;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 34px;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            margin: 0 0 28px;
+            opacity: 0.85;
+            max-width: 900px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 20px;
+        }
+
+        .panel,
+        .stat,
+        .chart-panel {
+            background: var(--panel);
+            border-radius: 18px;
+            border: 1px solid var(--accent-soft);
+            transition: background 0.25s ease, border-color 0.25s ease;
+        }
+
+        .panel {
+            padding: 20px;
+        }
+
+        .panel h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .field select,
+        .field input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(40, 59, 81, 0.15);
+            background: #fff;
+            color: var(--text);
+            font-size: 15px;
+            transition: border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .stat {
+            padding: 18px;
+        }
+
+        .stat .label {
+            font-size: 13px;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .stat .value {
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat .note {
+            margin-top: 6px;
+            font-size: 12px;
+            opacity: 0.75;
+        }
+
+        .chart-panel {
+            padding: 18px;
+        }
+
+        .chart-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .legend-mini {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+
+        .legend-mini span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .dot.original {
+            background: var(--original);
+        }
+
+        .dot.stage {
+            background: var(--stage);
+        }
+
+        .dot.ps {
+            background: var(--text);
+        }
+
+        .dot.ps-stage {
+            background: var(--stage-fill);
+        }
+
+        .canvas-wrap {
+            height: 620px;
+            background: var(--canvas-bg);
+            border-radius: 14px;
+            padding: 10px;
+            transition: background 0.25s ease;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.2s ease, background 0.25s ease;
+            color: #fff;
+        }
+
+        button:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--btn-primary);
+        }
+
+        .btn-secondary {
+            background: var(--btn-secondary);
+        }
+
+        .btn-export {
+            background: var(--btn-export);
+        }
+
+        .hint {
+            margin-top: 14px;
+            font-size: 13px;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1080px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 680px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-wrap {
+                height: 460px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Chiptuning Leistungskurve</h1>
+        <p class="subtitle">
+            Fahrzeug wählen, Theme umschalten, Serie gegen Stage 1 vergleichen und das Diagramm direkt als PNG
+            exportieren.
+        </p>
+
+        <div class="layout">
+            <aside class="panel">
+                <h2>Einstellungen</h2>
+
+                <div class="field">
+                    <label for="themeSwitcher">Farbpalette</label>
+                    <select id="themeSwitcher">
+                        <option value="green">Theme Green</option>
+                        <option value="blue">Theme Blue</option>
+                        <option value="red">Theme Red</option>
+                        <option value="dark">Dark Tuning</option>
+                        <option value="motorsport">Motorsport</option>
+                        <option value="oem">OEM Style</option>
+                        <option value="eco">Eco</option>
+                        <option value="limeblue">Lime Blue</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="vehicleSelect">Fahrzeug</label>
+                    <select id="vehicleSelect"></select>
+                </div>
+
+                <div class="field">
+                    <label for="engineType">Kurventyp</label>
+                    <select id="engineType">
+                        <option value="diesel">Turbo Diesel</option>
+                        <option value="petrol">Turbo Benziner</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="origPs">Serie PS</label>
+                    <input id="origPs" type="number">
+                </div>
+
+                <div class="field">
+                    <label for="origNm">Serie Nm</label>
+                    <input id="origNm" type="number">
+                </div>
+
+                <div class="field">
+                    <label for="stagePs">Stage 1 PS</label>
+                    <input id="stagePs" type="number">
+                </div>
+
+                <div class="field">
+                    <label for="stageNm">Stage 1 Nm</label>
+                    <input id="stageNm" type="number">
+                </div>
+
+                <div class="actions">
+                    <button id="updateBtn" class="btn-primary">Aktualisieren</button>
+                    <button id="resetBtn" class="btn-secondary">Fahrzeug neu laden</button>
+                    <button id="downloadChartBtn" class="btn-export">Diagramm als PNG herunterladen</button>
+                </div>
+
+                <div class="hint">
+                    Die Leistungs- und Drehmomentkurven werden aus Maximalwerten als plausible Diagrammkurven erzeugt.
+                    Theme-Wechsel, Peak-Marker und PNG-Export werden automatisch berücksichtigt.
+                </div>
+            </aside>
+
+            <main>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="label">Mehrleistung</div>
+                        <div class="value" id="deltaPs">+0 PS</div>
+                        <div class="note">Stage 1 minus Serie</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="label">Mehrdrehmoment</div>
+                        <div class="value" id="deltaNm">+0 Nm</div>
+                        <div class="note">zusätzlicher Durchzug</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="label">Peak Leistung</div>
+                        <div class="value" id="peakPsValue">0 PS</div>
+                        <div class="note" id="peakPsNote">bei 0 U/min</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="label">Peak Drehmoment</div>
+                        <div class="value" id="peakNmValue">0 Nm</div>
+                        <div class="note" id="peakNmNote">bei 0 U/min</div>
+                    </div>
+                </div>
+
+                <div class="chart-panel">
+                    <div class="chart-top">
+                        <strong>Leistungsdiagramm</strong>
+                        <div class="legend-mini">
+                            <span><i class="dot original"></i> Nm Serie</span>
+                            <span><i class="dot stage"></i> Nm Stage 1</span>
+                            <span><i class="dot ps"></i> PS Serie</span>
+                            <span><i class="dot ps-stage"></i> PS Stage 1</span>
+                        </div>
+                    </div>
+
+                    <div class="canvas-wrap">
+                        <canvas id="powerChart"></canvas>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+    const themes = {
+      green: {
+        bg: "#FCFEF9",
+        panel: "#EAF5D2",
+        text: "#283B51",
+        original: "#81A76A",
+        stage: "#82CC00",
+        stageFill: "#ADD96A",
+        grid: "#C8CED1",
+        canvasBg: "rgba(255,255,255,0.45)",
+        tooltipBg: "#ffffff",
+        tooltipText: "#283B51",
+        markerText: "#283B51",
+        btnPrimary: "#283B51",
+        btnSecondary: "#82CC00",
+        btnExport: "#81A76A"
+      },
+      blue: {
+        bg: "#F6F8F8",
+        panel: "#D7DDE2",
+        text: "#1E3D6B",
+        original: "#9D8A85",
+        stage: "#2C5E9E",
+        stageFill: "#5995DD",
+        grid: "#D0DAE4",
+        canvasBg: "rgba(255,255,255,0.5)",
+        tooltipBg: "#ffffff",
+        tooltipText: "#1E3D6B",
+        markerText: "#1E3D6B",
+        btnPrimary: "#1E3D6B",
+        btnSecondary: "#2C5E9E",
+        btnExport: "#5995DD"
+      },
+      red: {
+        bg: "#EBECED",
+        panel: "#FFFFFF",
+        text: "#242222",
+        original: "#A5A5A5",
+        stage: "#F11C24",
+        stageFill: "#CE1D24",
+        grid: "#A5A5A5",
+        canvasBg: "rgba(255,255,255,0.6)",
+        tooltipBg: "#FFFFFF",
+        tooltipText: "#242222",
+        markerText: "#242222",
+        btnPrimary: "#242222",
+        btnSecondary: "#F11C24",
+        btnExport: "#9C1E23"
+      },
+      dark: {
+        bg: "#0F1113",
+        panel: "#1B1E22",
+        text: "#E6E8EA",
+        original: "#6C757D",
+        stage: "#FF3B30",
+        stageFill: "#B91C1C",
+        grid: "#2E3338",
+        canvasBg: "rgba(27,30,34,0.9)",
+        tooltipBg: "#1B1E22",
+        tooltipText: "#E6E8EA",
+        markerText: "#E6E8EA",
+        btnPrimary: "#FF3B30",
+        btnSecondary: "#B91C1C",
+        btnExport: "#6C757D"
+      },
+      motorsport: {
+        bg: "#111111",
+        panel: "#1C1C1C",
+        text: "#FFFFFF",
+        original: "#7A7A7A",
+        stage: "#FFD000",
+        stageFill: "#FFAA00",
+        grid: "#333333",
+        canvasBg: "rgba(28,28,28,0.9)",
+        tooltipBg: "#1C1C1C",
+        tooltipText: "#FFFFFF",
+        markerText: "#FFFFFF",
+        btnPrimary: "#FFD000",
+        btnSecondary: "#FFAA00",
+        btnExport: "#7A7A7A"
+      },
+      oem: {
+        bg: "#F4F6F8",
+        panel: "#FFFFFF",
+        text: "#1C2A39",
+        original: "#8C9AA6",
+        stage: "#007AFF",
+        stageFill: "#5AC8FA",
+        grid: "#D6DCE2",
+        canvasBg: "rgba(255,255,255,0.95)",
+        tooltipBg: "#FFFFFF",
+        tooltipText: "#1C2A39",
+        markerText: "#1C2A39",
+        btnPrimary: "#1C2A39",
+        btnSecondary: "#007AFF",
+        btnExport: "#5AC8FA"
+      },
+      eco: {
+        bg: "#F3F7F1",
+        panel: "#E4EFE0",
+        text: "#1F3A24",
+        original: "#7C8F7A",
+        stage: "#3FA34D",
+        stageFill: "#8ED081",
+        grid: "#C9D8C6",
+        canvasBg: "rgba(255,255,255,0.7)",
+        tooltipBg: "#FFFFFF",
+        tooltipText: "#1F3A24",
+        markerText: "#1F3A24",
+        btnPrimary: "#1F3A24",
+        btnSecondary: "#3FA34D",
+        btnExport: "#8ED081"
+      },
+      limeblue: {
+        bg: "#EBECED",
+        panel: "#FFFFFF",
+        text: "#002145",
+        original: "#7B9E23",
+        stage: "#004D92",
+        stageFill: "#A8CB10",
+        grid: "#D6DADF",
+        canvasBg: "rgba(255,255,255,0.75)",
+        tooltipBg: "#FFFFFF",
+        tooltipText: "#002145",
+        markerText: "#002145",
+        btnPrimary: "#002145",
+        btnSecondary: "#004D92",
+        btnExport: "#CBEC01",
+        accent: "#CBEC01"
+      }
+    };
+
+    let currentTheme = themes.green;
+
+    const vehicles = [
+      {
+        id: "golf7-gtd",
+        name: "VW Golf 7 GTD 2.0 TDI",
+        type: "diesel",
+        original: { ps: 184, nm: 380 },
+        stage1: { ps: 225, nm: 450 }
+      },
+      {
+        id: "a45-amg",
+        name: "Mercedes A45 AMG",
+        type: "petrol",
+        original: { ps: 381, nm: 475 },
+        stage1: { ps: 430, nm: 560 }
+      },
+      {
+        id: "320d-g20",
+        name: "BMW 320d G20",
+        type: "diesel",
+        original: { ps: 190, nm: 400 },
+        stage1: { ps: 225, nm: 470 }
+      },
+      {
+        id: "golf8-gti",
+        name: "VW Golf 8 GTI",
+        type: "petrol",
+        original: { ps: 245, nm: 370 },
+        stage1: { ps: 300, nm: 450 }
+      }
+    ];
+
+    const rpmStart = 1200;
+    const rpmEnd = 7000;
+    const rpmStep = 100;
+
+    function hexToRgba(hex, alpha) {
+      const value = hex.replace("#", "");
+      const bigint = parseInt(value, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function setCssVars(theme) {
+      document.documentElement.style.setProperty("--bg", theme.bg);
+      document.documentElement.style.setProperty("--panel", theme.panel);
+      document.documentElement.style.setProperty("--text", theme.text);
+      document.documentElement.style.setProperty("--original", theme.original);
+      document.documentElement.style.setProperty("--stage", theme.stage);
+      document.documentElement.style.setProperty("--stage-fill", theme.stageFill);
+      document.documentElement.style.setProperty("--grid", theme.grid);
+      document.documentElement.style.setProperty("--accent-soft", hexToRgba(theme.text, 0.08));
+      document.documentElement.style.setProperty("--canvas-bg", theme.canvasBg);
+      document.documentElement.style.setProperty("--tooltip-bg", theme.tooltipBg);
+      document.documentElement.style.setProperty("--tooltip-text", theme.tooltipText);
+      document.documentElement.style.setProperty("--marker-text", theme.markerText);
+      document.documentElement.style.setProperty("--btn-primary", theme.btnPrimary);
+      document.documentElement.style.setProperty("--btn-secondary", theme.btnSecondary);
+      document.documentElement.style.setProperty("--btn-export", theme.btnExport);
+    }
+
+    function rpmToPs(nm, rpm) {
+      return +(nm * rpm / 7023).toFixed(1);
+    }
+
+    function createRpmArray(start, end, step) {
+      const arr = [];
+      for (let i = start; i <= end; i += step) arr.push(i);
+      return arr;
+    }
+
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function smoothstep(edge0, edge1, x) {
+      const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+      return t * t * (3 - 2 * t);
+    }
+
+    function generateTorqueCurve(maxNm, rpmArray, type, variant = "stock") {
+      const min = rpmArray[0];
+      const max = rpmArray[rpmArray.length - 1];
+      const span = max - min;
+
+      let riseStart, riseEnd, plateauEnd, endFactor, lowFactor;
+
+      if (type === "diesel") {
+        riseStart = min + span * 0.03;
+        riseEnd = min + span * 0.23;
+        plateauEnd = min + span * 0.56;
+        lowFactor = variant === "stage" ? 0.66 : 0.58;
+        endFactor = variant === "stage" ? 0.42 : 0.36;
+      } else {
+        riseStart = min + span * 0.08;
+        riseEnd = min + span * 0.34;
+        plateauEnd = min + span * 0.68;
+        lowFactor = variant === "stage" ? 0.58 : 0.50;
+        endFactor = variant === "stage" ? 0.50 : 0.45;
+      }
+
+      return rpmArray.map((rpm) => {
+        let value;
+
+        if (rpm <= riseEnd) {
+          const t = smoothstep(riseStart, riseEnd, rpm);
+          value = maxNm * (lowFactor + (1 - lowFactor) * t);
+        } else if (rpm <= plateauEnd) {
+          const t = smoothstep(riseEnd, plateauEnd, rpm);
+          const drop = type === "diesel" ? 0.07 : 0.04;
+          value = maxNm * (1 - drop * t);
+        } else {
+          const t = smoothstep(plateauEnd, max, rpm);
+          value = maxNm * ((type === "diesel" ? 0.93 : 0.96) - ((type === "diesel" ? 0.93 : 0.96) - endFactor) * t);
+        }
+
+        return +value.toFixed(1);
+      });
+    }
+
+    function fitCurveToTargetPs(torqueCurve, rpmArray, targetPs, type) {
+      const currentPs = torqueCurve.map((nm, i) => rpmToPs(nm, rpmArray[i]));
+      const peak = Math.max(...currentPs);
+      const factor = targetPs / peak;
+
+      return torqueCurve.map((nm, i) => {
+        const rpm = rpmArray[i];
+        const bias = type === "diesel"
+          ? 0.80 + 0.22 * smoothstep(rpmArray[0], rpmArray[rpmArray.length - 1], rpm)
+          : 0.84 + 0.16 * smoothstep(rpmArray[0], rpmArray[rpmArray.length - 1], rpm);
+
+        return +(nm * (1 + ((factor - 1) * bias))).toFixed(1);
+      });
+    }
+
+    function findPeak(data, labels) {
+      const value = Math.max(...data);
+      const index = data.indexOf(value);
+      return { value, index, rpm: labels[index] };
+    }
+
+    const peakMarkerPlugin = {
+      id: "peakMarkerPlugin",
+      afterDatasetsDraw(chart, args, options) {
+        if (!options || !options.enabled) return;
+
+        const { ctx } = chart;
+
+        options.markers.forEach(marker => {
+          const meta = chart.getDatasetMeta(marker.datasetIndex);
+          if (!meta || !meta.data || !meta.data[marker.index]) return;
+
+          const point = meta.data[marker.index];
+          const x = point.x;
+          const y = point.y;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(x, y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = marker.color;
+          ctx.fill();
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+
+          ctx.fillStyle = currentTheme.markerText;
+          ctx.font = "bold 12px Arial";
+          ctx.fillText(marker.label, x + 10, y - 10);
+          ctx.restore();
+        });
+      }
+    };
+
+    Chart.register(peakMarkerPlugin);
+
+    const vehicleSelect = document.getElementById("vehicleSelect");
+    const themeSwitcher = document.getElementById("themeSwitcher");
+    const engineType = document.getElementById("engineType");
+    const origPs = document.getElementById("origPs");
+    const origNm = document.getElementById("origNm");
+    const stagePs = document.getElementById("stagePs");
+    const stageNm = document.getElementById("stageNm");
+
+    vehicles.forEach(vehicle => {
+      const option = document.createElement("option");
+      option.value = vehicle.id;
+      option.textContent = vehicle.name;
+      vehicleSelect.appendChild(option);
+    });
+
+    function loadVehicle(vehicleId) {
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      if (!vehicle) return;
+
+      engineType.value = vehicle.type;
+      origPs.value = vehicle.original.ps;
+      origNm.value = vehicle.original.nm;
+      stagePs.value = vehicle.stage1.ps;
+      stageNm.value = vehicle.stage1.nm;
+
+      buildChart();
+    }
+
+    function applyTheme(name) {
+      currentTheme = themes[name] || themes.green;
+      setCssVars(currentTheme);
+      buildChart();
+    }
+
+    const rpmArray = createRpmArray(rpmStart, rpmEnd, rpmStep);
+    const ctx = document.getElementById("powerChart").getContext("2d");
+    let chart;
+
+    function buildChart() {
+      const type = engineType.value;
+      const stockPs = +origPs.value;
+      const stockNm = +origNm.value;
+      const tunedPs = +stagePs.value;
+      const tunedNm = +stageNm.value;
+
+      let stockTorque = generateTorqueCurve(stockNm, rpmArray, type, "stock");
+      let tunedTorque = generateTorqueCurve(tunedNm, rpmArray, type, "stage");
+
+      stockTorque = fitCurveToTargetPs(stockTorque, rpmArray, stockPs, type);
+      tunedTorque = fitCurveToTargetPs(tunedTorque, rpmArray, tunedPs, type);
+
+      const stockPower = stockTorque.map((nm, i) => rpmToPs(nm, rpmArray[i]));
+      const tunedPower = tunedTorque.map((nm, i) => rpmToPs(nm, rpmArray[i]));
+
+      const peakNm = findPeak(tunedTorque, rpmArray);
+      const peakPs = findPeak(tunedPower, rpmArray);
+
+      document.getElementById("deltaPs").textContent = `+${tunedPs - stockPs} PS`;
+      document.getElementById("deltaNm").textContent = `+${tunedNm - stockNm} Nm`;
+      document.getElementById("peakPsValue").textContent = `${peakPs.value} PS`;
+      document.getElementById("peakPsNote").textContent = `bei ${peakPs.rpm} U/min`;
+      document.getElementById("peakNmValue").textContent = `${peakNm.value} Nm`;
+      document.getElementById("peakNmNote").textContent = `bei ${peakNm.rpm} U/min`;
+
+      if (chart) chart.destroy();
+
+      const stageGradient = ctx.createLinearGradient(0, 0, 0, 520);
+      stageGradient.addColorStop(0, hexToRgba(currentTheme.stageFill, 0.55));
+      stageGradient.addColorStop(1, hexToRgba(currentTheme.stageFill, 0.10));
+
+      chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: rpmArray,
+          datasets: [
+            {
+              label: "Drehmoment Serie",
+              data: stockTorque,
+              borderColor: currentTheme.original,
+              backgroundColor: "transparent",
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              yAxisID: "yNm"
+            },
+            {
+              label: "Drehmoment Stage 1",
+              data: tunedTorque,
+              borderColor: currentTheme.stage,
+              backgroundColor: stageGradient,
+              borderWidth: 4,
+              tension: 0.34,
+              pointRadius: 0,
+              pointHoverRadius: 6,
+              fill: true,
+              yAxisID: "yNm"
+            },
+            {
+              label: "Leistung Serie",
+              data: stockPower,
+              borderColor: currentTheme.text,
+              borderDash: [7, 5],
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              fill: false,
+              yAxisID: "yPs"
+            },
+            {
+              label: "Leistung Stage 1",
+              data: tunedPower,
+              borderColor: currentTheme.stageFill,
+              borderDash: [7, 5],
+              borderWidth: 3,
+              tension: 0.34,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              fill: false,
+              yAxisID: "yPs"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1100,
+            easing: "easeOutQuart"
+          },
+          interaction: {
+            mode: "index",
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: currentTheme.tooltipBg,
+              titleColor: currentTheme.tooltipText,
+              bodyColor: currentTheme.tooltipText,
+              borderColor: currentTheme.grid,
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                title(items) {
+                  return `${items[0].label} U/min`;
+                }
+              }
+            },
+            peakMarkerPlugin: {
+              enabled: true,
+              markers: [
+                {
+                  datasetIndex: 1,
+                  index: peakNm.index,
+                  color: currentTheme.stage,
+                  label: `${peakNm.value} Nm`
+                },
+                {
+                  datasetIndex: 3,
+                  index: peakPs.index,
+                  color: currentTheme.text,
+                  label: `${peakPs.value} PS`
+                }
+              ]
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Drehzahl (U/min)",
+                color: currentTheme.text,
+                font: {
+                  weight: "bold"
+                }
+              },
+              ticks: {
+                color: currentTheme.text,
+                maxTicksLimit: 12
+              },
+              grid: {
+                color: currentTheme.grid
+              }
+            },
+            yNm: {
+              type: "linear",
+              position: "left",
+              title: {
+                display: true,
+                text: "Drehmoment (Nm)",
+                color: currentTheme.text,
+                font: {
+                  weight: "bold"
+                }
+              },
+              ticks: {
+                color: currentTheme.text
+              },
+              grid: {
+                color: currentTheme.grid
+              }
+            },
+            yPs: {
+              type: "linear",
+              position: "right",
+              title: {
+                display: true,
+                text: "Leistung (PS)",
+                color: currentTheme.text,
+                font: {
+                  weight: "bold"
+                }
+              },
+              ticks: {
+                color: currentTheme.text
+              },
+              grid: {
+                drawOnChartArea: false
+              }
+            }
+          }
+        }
+      });
+    }
+
+    document.getElementById("downloadChartBtn").addEventListener("click", () => {
+      if (!chart) return;
+
+      const vehicleName = document.getElementById("vehicleSelect").selectedOptions[0]?.textContent || "leistungskurve";
+      const stockPs = document.getElementById("origPs").value || "0";
+      const tunedPs = document.getElementById("stagePs").value || "0";
+
+      const safeName = vehicleName
+        .toLowerCase()
+        .replace(/[^a-z0-9äöüß]+/gi, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      const link = document.createElement("a");
+      link.href = chart.toBase64Image("image/png", 1);
+      link.download = `${safeName}-${stockPs}-${tunedPs}-ps-stage-1.png`;
+      link.click();
+    });
+
+    themeSwitcher.addEventListener("change", (e) => applyTheme(e.target.value));
+    vehicleSelect.addEventListener("change", (e) => loadVehicle(e.target.value));
+    document.getElementById("updateBtn").addEventListener("click", buildChart);
+    document.getElementById("resetBtn").addEventListener("click", () => loadVehicle(vehicleSelect.value));
+
+    [engineType, origPs, origNm, stagePs, stageNm].forEach(el => {
+      el.addEventListener("change", buildChart);
+    });
+
+    setCssVars(currentTheme);
+    themeSwitcher.value = "green";
+    vehicleSelect.value = vehicles[0].id;
+    loadVehicle(vehicles[0].id);
+    </script>
+</body>
+
+</html>

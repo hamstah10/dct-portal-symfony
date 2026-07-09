@@ -1,0 +1,2047 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TFD CRM API",
+    "version": "1.0.0",
+    "description": "OpenAPI-Beschreibung fuer die aktuellen API-Endpunkte (Auth, Customers, Orders, Fahrzeugdatenbank)."
+  },
+  "servers": [
+    {
+      "url": "https://verwaltung.tuningfux.de",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost",
+      "description": "Local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Customers"
+    },
+    {
+      "name": "Orders"
+    },
+    {
+      "name": "Vehicle Database"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Kunden-Login",
+        "operationId": "authLogin",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login erfolgreich",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Token erneuern",
+        "operationId": "authRefresh",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Neue Token ausgestellt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Aktuellen Kunden ermitteln",
+        "operationId": "authMe",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kunde aus Access-Token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthMeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Session beenden",
+        "operationId": "authLogout",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Logout erfolgreich"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/customers": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Kundenliste",
+        "description": "Erfordert einen gueltigen System-Token im Bearer-Header (ENV API_TOKEN oder Datenbank API Token).",
+        "operationId": "customersList",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste aller Kunden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomersListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Kunde anlegen",
+        "operationId": "customersCreate",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Kunde angelegt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/api/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Kunde laden",
+        "operationId": "customersGet",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CustomerIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Kunde gefunden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Kunde vollstaendig aktualisieren",
+        "operationId": "customersPut",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CustomerIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kunde aktualisiert",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Kunde teilweise aktualisieren",
+        "operationId": "customersPatch",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CustomerIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Kunde aktualisiert",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Kunde loeschen",
+        "operationId": "customersDelete",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/CustomerIdPath"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Kunde geloescht oder nicht vorhanden"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "post": {
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Auftrag erstellen",
+        "description": "Akzeptiert Bearer-Systemtoken oder Customer-Access-Token.",
+        "operationId": "ordersCreate",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Auftrag angelegt",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderCreatedResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/UnprocessableEntity"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "API-Uebersicht",
+        "operationId": "vehicleApiIndex",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Info und Endpointliste",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleApiIndexResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/types": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Fahrzeugtypen",
+        "operationId": "vehicleTypes",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste aktiver Typen",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleTypesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/brands/{typeId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Marken je Typ",
+        "operationId": "vehicleBrands",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TypeIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste aktiver Marken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleBrandsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/series/{brandId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Baureihen je Marke",
+        "operationId": "vehicleSeries",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/BrandIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste aktiver Baureihen",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleSeriesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/models/{seriesId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Modelle je Baureihe",
+        "operationId": "vehicleModels",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SeriesIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste aktiver Modelle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleModelsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/engines/{modelId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Aktive Motoren je Modell",
+        "operationId": "vehicleEngines",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ModelIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste aktiver Motoren",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleEnginesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/engine-details/{engineId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Details fuer Motor inkl. Stages und ECUs",
+        "operationId": "vehicleEngineDetails",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/EngineIdPath"
+          },
+          {
+            "name": "stageId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "templateVariant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Motor-Detaildaten",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleEngineDetailsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/fahrzeugdatenbank/track": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/TokenIdHeader"
+        }
+      ],
+      "post": {
+        "tags": [
+          "Vehicle Database"
+        ],
+        "summary": "Tracking-Event erfassen",
+        "operationId": "vehicleTrack",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VehicleTrackRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tracking gespeichert",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "parameters": {
+      "CustomerIdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "TypeIdPath": {
+        "name": "typeId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "BrandIdPath": {
+        "name": "brandId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "SeriesIdPath": {
+        "name": "seriesId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "ModelIdPath": {
+        "name": "modelId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "EngineIdPath": {
+        "name": "engineId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "TokenIdHeader": {
+        "name": "X-Token-Id",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 64
+        },
+        "description": "Eindeutige Token-ID aus Verwaltung -> API Tokens."
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Ungueltige Anfrage",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Nicht autorisiert",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Zugriff verboten",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Nicht gefunden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "UnprocessableEntity": {
+        "description": "Validierungsfehler",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "AuthLoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "AuthRefreshRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "TokenPair": {
+        "type": "object",
+        "properties": {
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "accessTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "refreshTokenExpiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "tokenType",
+          "accessToken",
+          "accessTokenExpiresAt",
+          "refreshToken",
+          "refreshTokenExpiresAt"
+        ]
+      },
+      "AuthCustomer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "companyName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "email"
+          },
+          "username": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "gesperrt": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "companyName",
+          "email",
+          "username",
+          "gesperrt"
+        ]
+      },
+      "LoginResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TokenPair"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "customer": {
+                "$ref": "#/components/schemas/AuthCustomer"
+              }
+            },
+            "required": [
+              "customer"
+            ]
+          }
+        ]
+      },
+      "AuthMeResponse": {
+        "type": "object",
+        "properties": {
+          "customer": {
+            "$ref": "#/components/schemas/AuthCustomer"
+          }
+        },
+        "required": [
+          "customer"
+        ]
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "kundennummer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "firmenname": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "vorname": {
+            "type": "string"
+          },
+          "nachname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firmaId": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "telefon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ustId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "steuernummer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "strasse": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hausnummer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "plz": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stadt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "land": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "bild": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "zahlungsbedingungen": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "registrierungsdatum": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "newsletter": {
+            "type": "boolean"
+          },
+          "gesperrt": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "passwordChangedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "vorname",
+          "nachname",
+          "email",
+          "newsletter",
+          "gesperrt",
+          "createdAt",
+          "passwordChangedAt"
+        ]
+      },
+      "CustomerWrite": {
+        "type": "object",
+        "properties": {
+          "kundennummer": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "firmenname": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "vorname": {
+            "type": "string"
+          },
+          "nachname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firmaId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "telefon": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "ustId": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "steuernummer": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "strasse": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "hausnummer": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "plz": {
+            "type": "string",
+            "maxLength": 20
+          },
+          "stadt": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "land": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "bild": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "zahlungsbedingungen": {
+            "type": "string"
+          },
+          "registrierungsdatum": {
+            "type": "string",
+            "format": "date"
+          },
+          "newsletter": {
+            "type": "boolean"
+          },
+          "gesperrt": {
+            "type": "boolean"
+          },
+          "plainPassword": {
+            "type": "string"
+          },
+          "plainPasswort": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "vorname",
+          "nachname",
+          "email",
+          "firmaId"
+        ]
+      },
+      "CustomersListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Customer"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "OrderCreateRequest": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileData": {
+            "type": "string",
+            "description": "Base64-Inhalt oder Data-URI."
+          },
+          "fileSize": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "vehicleType": {
+            "type": "string"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "built": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "vehicleDisplay": {
+            "type": "string"
+          },
+          "tuningTool": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "slaveOrMaster": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deviceName": {
+            "type": "string"
+          },
+          "vehicleData": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "fahrzeugDaten": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "customerId",
+          "customerEmail",
+          "fileName",
+          "fileData",
+          "fileSize",
+          "vehicleType",
+          "manufacturer",
+          "model",
+          "built",
+          "engine",
+          "vehicleDisplay",
+          "tuningTool",
+          "method",
+          "slaveOrMaster",
+          "stage",
+          "createdAt",
+          "deviceName"
+        ]
+      },
+      "OrderCreatedResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "customerEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "integer"
+          },
+          "vehicleType": {
+            "type": "string"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "built": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "vehicleDisplay": {
+            "type": "string"
+          },
+          "tuningTool": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "slaveOrMaster": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "customerId",
+          "customerEmail",
+          "fileName",
+          "fileSize",
+          "vehicleType",
+          "manufacturer",
+          "model",
+          "built",
+          "engine",
+          "vehicleDisplay",
+          "tuningTool",
+          "method",
+          "slaveOrMaster",
+          "stage",
+          "deviceName",
+          "createdAt"
+        ]
+      },
+      "VehicleApiIndexResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "message",
+          "endpoints"
+        ]
+      },
+      "VehicleTypeItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "image",
+          "icon"
+        ]
+      },
+      "VehicleBrandItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "showInTopMenu": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "image",
+          "icon",
+          "showInTopMenu"
+        ]
+      },
+      "VehicleSimpleItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "VehicleEngineListItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "horsepower": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "horsepower"
+        ]
+      },
+      "VehicleTypesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleTypeItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleBrandsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleBrandItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleSeriesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleSimpleItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleModelsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleSimpleItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleEnginesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleEngineListItem"
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleEngineCore": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "horsepower": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "torque": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "fuel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "displacement": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "glbModel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "mediaDisplayMode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "horsepower",
+          "torque",
+          "fuel",
+          "displacement",
+          "image",
+          "glbModel",
+          "mediaDisplayMode"
+        ]
+      },
+      "VehicleStage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "hp": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "nm": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "ecu": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videos": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "price",
+          "hp",
+          "nm",
+          "ecu",
+          "icon",
+          "images",
+          "videos"
+        ]
+      },
+      "VehicleEcuOption": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "icon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "price": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isMainOption": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "icon",
+          "price",
+          "isMainOption"
+        ]
+      },
+      "VehicleEcu": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "controlUnitKind": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleEcuOption"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "controlUnitKind",
+          "options"
+        ]
+      },
+      "VehicleFrontendSettings": {
+        "type": "object",
+        "properties": {
+          "layoutSwitcherEnabled": {
+            "type": "boolean"
+          },
+          "templateVariant": {
+            "type": "string"
+          },
+          "layoutSettings": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "glbAutorotate": {
+                  "type": "boolean"
+                },
+                "showPrices": {
+                  "type": "boolean"
+                },
+                "showLogo": {
+                  "type": "boolean"
+                },
+                "showOnlyStage1": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "glbAutorotate",
+                "showPrices",
+                "showLogo",
+                "showOnlyStage1"
+              ]
+            }
+          }
+        },
+        "required": [
+          "layoutSwitcherEnabled",
+          "templateVariant",
+          "layoutSettings"
+        ]
+      },
+      "VehicleEngineDetailsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "engine": {
+                "$ref": "#/components/schemas/VehicleEngineCore"
+              },
+              "brand": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "image": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "image"
+                ]
+              },
+              "series": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "stages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VehicleStage"
+                }
+              },
+              "ecus": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VehicleEcu"
+                }
+              },
+              "settings": {
+                "$ref": "#/components/schemas/VehicleFrontendSettings"
+              }
+            },
+            "required": [
+              "engine",
+              "brand",
+              "series",
+              "stages",
+              "ecus",
+              "settings"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "VehicleTrackRequest": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "string",
+            "description": "Eventname, z. B. select_brand."
+          },
+          "typeId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "vehicleTypeId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "brandId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "seriesId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "modelId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "engineId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "stageId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "templateVariant": {
+            "type": "string"
+          },
+          "meta": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

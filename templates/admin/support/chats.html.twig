@@ -1,0 +1,161 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Support / Chats{% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0" data-support-chat="1">
+        <div class="row g-3">
+            <div class="col-12 col-xl-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                        <span>Firmen</span>
+                        <a href="{{ path('admin_support_chats') }}" class="btn btn-secondary btn-sm">Aktualisieren</a>
+                    </div>
+                    <div class="card-body">
+                        <input type="search"
+                               class="form-control form-control-sm mb-2"
+                               placeholder="Firma suchen..."
+                               autocomplete="off"
+                               data-support-chat-firm-filter>
+
+                        <div class="list-group tfd-chat-firm-list" data-support-chat-firm-list>
+                            {% if firmaItems is empty %}
+                                <div class="text-muted">Keine Firmen vorhanden.</div>
+                            {% else %}
+                                {% for item in firmaItems %}
+                                    <a href="{{ path('admin_support_chats', { firma: item.id }) }}"
+                                       class="list-group-item list-group-item-action tfd-chat-firma {{ item.id == selectedFirmaId ? 'is-active' : '' }}"
+                                       data-support-chat-firm-item
+                                       data-support-chat-firm-name="{{ item.name|lower }}">
+                                        <div class="d-flex justify-content-between align-items-start gap-2">
+                                            <div class="tfd-min-w-0 flex-grow-1">
+                                                <div class="fw-semibold text-truncate">{{ item.name }}</div>
+                                                {% if item.lastPreview %}
+                                                    <div class="small text-muted text-truncate">{{ item.lastPreview }}</div>
+                                                {% else %}
+                                                    <div class="small text-muted">Noch keine Nachrichten</div>
+                                                {% endif %}
+                                                {% if item.lastKundeLabel %}
+                                                    <div class="small text-muted text-truncate">{{ item.lastKundeLabel }}</div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="text-end flex-shrink-0">
+                                                {% if item.lastAt %}
+                                                    <div class="small text-muted">{{ item.lastAt|date('d.m H:i') }}</div>
+                                                {% endif %}
+                                                {% if item.messageCount > 0 %}
+                                                    <span class="badge text-bg-secondary">{{ item.messageCount }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center gap-2">
+                        <div class="tfd-min-w-0">
+                            <div class="text-muted small">Konversation</div>
+                            <div class="text-truncate">
+                                {% if selectedFirma %}
+                                    {{ selectedFirma.name }}
+                                {% else %}
+                                    <span class="text-muted">Bitte eine Firma auswählen</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if selectedFirma %}
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                <form method="get" action="{{ path('admin_support_chats') }}" class="mb-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="firma" value="{{ selectedFirmaId }}">
+                                    <select name="kunde"
+                                            class="form-select form-select-sm"
+                                            style="min-width: 220px"
+                                            onchange="this.form.submit()">
+                                        <option value="0" {{ selectedKundeId == 0 ? 'selected' : '' }}>Alle Kunden</option>
+                                        {% for kunde in kundenOptions %}
+                                            <option value="{{ kunde.id }}" {{ kunde.id == selectedKundeId ? 'selected' : '' }}>
+                                                {{ kunde.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+
+                                {% set refreshParams = {'firma': selectedFirmaId} %}
+                                {% if selectedKundeId > 0 %}
+                                    {% set refreshParams = refreshParams|merge({'kunde': selectedKundeId}) %}
+                                {% endif %}
+                                <a href="{{ path('admin_support_chats', refreshParams) }}" class="btn btn-secondary btn-sm">Aktualisieren</a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body d-flex flex-column gap-3">
+                        {% if not selectedFirma %}
+                            <div class="text-muted">Bitte eine Firma auswählen.</div>
+                        {% else %}
+                            <div class="tfd-chat-messages" data-support-chat-messages>
+                                {% if messages is empty %}
+                                    <div class="text-muted">Noch keine Nachrichten.</div>
+                                {% else %}
+                                    {% for msg in messages %}
+                                        {% set isAdmin = msg.senderType == constant('App\\\\Entity\\\\CustomerChatMessage::SENDER_ADMIN') %}
+                                        <div class="tfd-chat-message {{ isAdmin ? 'tfd-chat-message--admin' : 'tfd-chat-message--customer' }}">
+                                            <div class="tfd-chat-bubble">
+                                                <div class="tfd-chat-bubble__meta">
+                                                    <span class="tfd-chat-sender">
+                                                        {% if isAdmin %}Admin{% else %}{{ msg.senderName ?: 'Kunde' }}{% endif %}
+                                                    </span>
+                                                    {% if msg.kunde %}
+                                                        <span class="tfd-chat-kunde">{{ msg.kunde }}</span>
+                                                    {% endif %}
+                                                    {% if msg.createdAt %}
+                                                        <span class="tfd-chat-time">{{ msg.createdAt|date('d.m.Y H:i') }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="tfd-chat-text">{{ msg.message|e|nl2br }}</div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+
+                            <form method="post" action="{{ path('admin_chat_send') }}" class="tfd-chat-compose mt-auto">
+                                <input type="hidden" name="_token" value="{{ csrf_token('admin_chat_send') }}">
+                                <input type="hidden" name="firmaId" value="{{ selectedFirmaId }}">
+
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-12 col-lg-3">
+                                        <label class="form-label small text-muted mb-1">Kunde</label>
+                                        <select name="kundeId" class="form-select form-select-sm">
+                                            <option value="0" {{ selectedKundeId == 0 ? 'selected' : '' }}>Kein Kunde</option>
+                                            {% for kunde in kundenOptions %}
+                                                <option value="{{ kunde.id }}" {{ kunde.id == selectedKundeId ? 'selected' : '' }}>
+                                                    {{ kunde.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-lg-7">
+                                        <label class="form-label small text-muted mb-1">Nachricht</label>
+                                        <textarea name="message" class="form-control" rows="2" required placeholder="Nachricht schreiben..."></textarea>
+                                    </div>
+                                    <div class="col-12 col-lg-2 d-grid">
+                                        <button type="submit" class="btn btn-primary">Senden</button>
+                                    </div>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

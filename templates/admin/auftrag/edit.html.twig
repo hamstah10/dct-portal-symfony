@@ -1,0 +1,450 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{% extends '@EasyAdmin/crud/edit.html.twig' %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('styles/dropzone.min.css') }}">
+    <style>
+        .auftrag-edit-card {
+            background: linear-gradient(180deg, rgba(24, 37, 74, 0.96), rgba(16, 25, 49, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            box-shadow: 0 24px 60px rgba(5, 12, 31, 0.35);
+        }
+
+        .auftrag-edit-card .card-header {
+            background: rgba(255, 255, 255, 0.03) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: #edf3ff;
+        }
+
+        .auftrag-edit-card .card-body {
+            color: #edf3ff;
+        }
+
+        .auftrag-edit-section-label {
+            margin-bottom: 8px;
+            color: #9fb1d9;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .auftrag-dropzone {
+            border: 1px dashed rgba(187, 207, 78, 0.34);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(12, 18, 37, 0.92), rgba(17, 25, 49, 0.92));
+            padding: 22px 20px;
+            min-height: 156px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .auftrag-dropzone:hover {
+            border-color: rgba(187, 207, 78, 0.56);
+            background: linear-gradient(180deg, rgba(14, 22, 44, 0.96), rgba(19, 29, 58, 0.96));
+        }
+
+        .auftrag-dropzone .dz-message {
+            color: #edf3ff;
+            font-weight: 700;
+            margin: 0;
+            background: transparent;
+        }
+
+        .auftrag-dropzone .dz-message strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 16px;
+        }
+
+        .auftrag-dropzone .dz-message small {
+            color: #9fb1d9;
+            font-size: 13px;
+        }
+
+        .auftrag-dropzone.dz-started {
+            align-items: stretch;
+            justify-content: flex-start;
+            text-align: left;
+        }
+        .auftrag-dropzone.dz-started .dz-message {
+            margin-bottom: 12px;
+        }
+        .auftrag-dropzone .dz-preview .dz-progress {
+            height: 6px;
+            border-radius: 6px;
+        }
+        .auftrag-dropzone .dz-preview .dz-progress .dz-upload {
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+        }
+        .auftrag-dropzone .dz-preview .dz-error-message,
+        .auftrag-dropzone .dz-preview .dz-success-mark,
+        .auftrag-dropzone .dz-preview .dz-error-mark {
+            display: none !important;
+        }
+        .auftrag-dropzone .dz-preview .dz-details {
+            background: transparent;
+            color: #edf3ff;
+        }
+
+        .auftrag-dropzone .dz-preview {
+            margin: 12px 0 0;
+        }
+
+        .auftrag-dropzone .dz-preview .dz-filename span,
+        .auftrag-dropzone .dz-preview .dz-size span {
+            background: rgba(255, 255, 255, 0.06) !important;
+            color: #edf3ff;
+        }
+
+        .auftrag-edit-note {
+            color: #9fb1d9;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .auftrag-edit-form-panel {
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            background: rgba(12, 18, 37, 0.5);
+        }
+    </style>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script src="{{ asset('scripts/dropzone.min.js') }}"></script>
+    <script>
+        (function () {
+            function initAuftragDropzone() {
+                const dropzoneEl = document.getElementById('auftrag-finished-dropzone');
+                if (!dropzoneEl || dropzoneEl.dataset.dropzoneInitialized === '1') {
+                    return;
+                }
+
+                dropzoneEl.dataset.dropzoneInitialized = '1';
+
+                if (typeof Dropzone === 'undefined') {
+                    return;
+                }
+
+                Dropzone.autoDiscover = false;
+
+                const uploadToken = dropzoneEl.dataset.uploadToken;
+                const statusEl = document.getElementById('auftrag-dropzone-status');
+                const setStatus = (text, tone) => {
+                    if (!statusEl) {
+                        return;
+                    }
+                    statusEl.textContent = text;
+                    statusEl.classList.remove('text-success', 'text-danger', 'text-muted');
+                    if (tone === 'success') {
+                        statusEl.classList.add('text-success');
+                    } else if (tone === 'danger') {
+                        statusEl.classList.add('text-danger');
+                    } else {
+                        statusEl.classList.add('text-muted');
+                    }
+                };
+
+                const dz = new Dropzone(dropzoneEl, {
+                    url: dropzoneEl.getAttribute('action') || dropzoneEl.action,
+                    method: 'post',
+                    paramName: 'file',
+                    parallelUploads: 5,
+                    uploadMultiple: false,
+                    addRemoveLinks: true,
+                    autoProcessQueue: true,
+                    autoQueue: true,
+                    clickable: true,
+                    withCredentials: true,
+                    headers: {
+                        'X-CSRF-TOKEN': uploadToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    params: {
+                        _token: uploadToken
+                    }
+                });
+                dropzoneEl.classList.add('dropzone');
+
+                dz.on('sending', () => {
+                    setStatus('Upload laeuft...', 'muted');
+                });
+
+                dz.on('success', () => {
+                    setStatus('Datei gespeichert.', 'success');
+                });
+
+                dz.on('error', (file, message, xhr) => {
+                    let text = 'Upload fehlgeschlagen.';
+                    if (xhr && typeof xhr.status === 'number') {
+                        text = `Upload fehlgeschlagen (HTTP ${xhr.status}).`;
+                    }
+                    if (typeof message === 'string' && message.trim() !== '') {
+                        text = message;
+                    } else if (message && typeof message === 'object' && message.error) {
+                        text = message.error;
+                    }
+                    setStatus(text, 'danger');
+                });
+
+                dz.on('queuecomplete', () => {
+                    window.location.reload();
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAuftragDropzone);
+            } else {
+                initAuftragDropzone();
+            }
+
+            document.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-finished-delete]');
+                if (!button) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (!confirm('Datei wirklich loeschen?')) {
+                    return;
+                }
+
+                const deleteUrl = button.dataset.deleteUrl;
+                const deleteToken = button.dataset.deleteToken;
+                if (!deleteUrl || !deleteToken) {
+                    return;
+                }
+
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': deleteToken
+                    },
+                    body: JSON.stringify({ _token: deleteToken })
+                })
+                    .then((response) => response.json().then((data) => ({ ok: response.ok, data })))
+                    .then(({ ok, data }) => {
+                        if (!ok || !data || data.error) {
+                            const message = data && data.error ? data.error : 'Loeschen fehlgeschlagen.';
+                            alert(message);
+                            return;
+                        }
+
+                        const row = button.closest('[data-finished-file-row]');
+                        if (row) {
+                            row.remove();
+                        }
+                    })
+                    .catch(() => {
+                        alert('Loeschen fehlgeschlagen.');
+                    });
+            });
+        })();
+    </script>
+{% endblock %}
+
+{% block edit_form %}
+    {% set order = entity.instance %}
+    {% set statusMap = {
+        (constant('App\\Entity\\Auftrag::STATUS_RECEIVED')): 'Eingegangen',
+        (constant('App\\Entity\\Auftrag::STATUS_IN_PROGRESS')): 'In Bearbeitung',
+        (constant('App\\Entity\\Auftrag::STATUS_COMPLETED')): 'Abgeschlossen',
+        (constant('App\\Entity\\Auftrag::STATUS_REJECTED')): 'Abgelehnt'
+    } %}
+    {% set statusBadgeMap = {
+        (constant('App\\Entity\\Auftrag::STATUS_RECEIVED')): 'text-bg-secondary',
+        (constant('App\\Entity\\Auftrag::STATUS_IN_PROGRESS')): 'text-bg-warning',
+        (constant('App\\Entity\\Auftrag::STATUS_COMPLETED')): 'text-bg-success',
+        (constant('App\\Entity\\Auftrag::STATUS_REJECTED')): 'text-bg-danger'
+    } %}
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm border-0 auftrag-edit-card">
+                <div class="card-header fw-semibold">Upload & Status</div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="auftrag-edit-section-label">Dateien hochladen</div>
+                        <form
+                            id="auftrag-finished-dropzone"
+                            class="auftrag-dropzone mt-2"
+                            action="{{ path('admin_auftrag_finished_upload', {id: order.id}) }}"
+                            data-upload-token="{{ csrf_token('auftrag_finished_upload_' ~ order.id) }}"
+                        >
+                            <div class="dz-message">
+                                <strong>Dateien hierher ziehen oder klicken</strong>
+                                <small>Mehrfachupload fuer fertige Dateien. Nach Upload wird die Ansicht neu geladen.</small>
+                            </div>
+                        </form>
+                        <small class="auftrag-edit-note d-block mt-2">Mehrfachupload moeglich.</small>
+                        <div id="auftrag-dropzone-status" class="small text-muted mt-2"></div>
+                    </div>
+
+                    <div class="auftrag-edit-form-panel">
+                        <div class="auftrag-edit-section-label">Status ändern</div>
+                        {{ form_start(edit_form, {attr: {class: 'mt-2'}}) }}
+                        {{ form_row(edit_form.status) }}
+                        {{ form_rest(edit_form) }}
+                        <button type="submit" class="btn btn-primary mt-3">Speichern</button>
+                        {{ form_end(edit_form, { render_rest: false }) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-8">
+            <div class="card shadow-sm border-0 auftrag-edit-card">
+                <div class="card-header fw-semibold">Auftrag Ansicht</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Auftragsnummer</div>
+                            <div class="fw-semibold">{{ order.orderNumber }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Status</div>
+                            <span class="badge {{ statusBadgeMap[order.status]|default('text-bg-secondary') }}">
+                                {{ statusMap[order.status]|default(order.status) }}
+                            </span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Firma</div>
+                            <div class="fw-semibold">
+                                {{ order.kunde.firma.name|default(order.kunde.firmenname|default('-')) }}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Kunde</div>
+                            <div class="fw-semibold">{{ order.kunde.vorname|default('') }} {{ order.kunde.nachname|default('') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">E-Mail</div>
+                            <div class="fw-semibold">{{ order.customerEmail|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Erstellt am</div>
+                            <div class="fw-semibold">{{ order.createdAt ? order.createdAt|date('d.m.Y H:i') : '-' }}</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="small text-muted">Fahrzeug</div>
+                            <div class="fw-semibold">{{ order.vehicleDisplay|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Hersteller</div>
+                            <div class="fw-semibold">{{ order.manufacturer|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Modell</div>
+                            <div class="fw-semibold">{{ order.model|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Motor</div>
+                            <div class="fw-semibold">{{ order.engine|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Stage</div>
+                            <div class="fw-semibold">{{ order.stageLabel|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Tuning Setup</div>
+                            <div class="fw-semibold">{{ order.tuningSetupSummary|default('-') }}</div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="small text-muted">Device</div>
+                            <div class="fw-semibold">{{ order.deviceName|default('-') }}</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="small text-muted">Original-Datei</div>
+                            <div class="fw-semibold d-flex flex-wrap align-items-center gap-2">
+                                <span>{{ order.fileName|default('-') }}</span>
+                                {% if order.fileData %}
+                                    <a
+                                        href="{{ path('admin_auftrag_original_download', {id: order.id}) }}"
+                                        class="text-decoration-none"
+                                        target="_blank"
+                                        rel="noopener"
+                                    >
+                                        <i class="fa fa-download me-1"></i>Download
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% set finishedFiles = order.finishedFiles ?? [] %}
+                        {% if finishedFiles is empty and order.finishedFilePath %}
+                            {% set finishedFiles = [{
+                                path: order.finishedFilePath,
+                                name: order.finishedFileName,
+                                size: order.finishedFileSize,
+                                uploadedAt: order.finishedFileUploadedAt ? order.finishedFileUploadedAt|date('d.m.Y H:i') : null
+                            }] %}
+                        {% endif %}
+
+                        <div class="col-12">
+                            <div class="small text-muted">Fertig-Dateien</div>
+                            {% if finishedFiles is empty %}
+                                <div class="text-muted">Keine Dateien vorhanden.</div>
+                            {% else %}
+                                <ul class="list-unstyled mb-0">
+                                    {% for file in finishedFiles %}
+                                        {% set filePath = file.path|default('') %}
+                                        {% set fileUrl = filePath ? '/' ~ filePath|trim('/') : '' %}
+                                        <li class="mb-2 d-flex align-items-start justify-content-between gap-3" data-finished-file-row>
+                                            <div>
+                                                {% if fileUrl %}
+                                                    <a href="{{ fileUrl }}" target="_blank" rel="noopener" class="text-decoration-none">
+                                                        <i class="fa fa-download me-1"></i>
+                                                        {{ file.name|default(filePath|default('Datei')) }}
+                                                    </a>
+                                                {% else %}
+                                                    {{ file.name|default('Datei') }}
+                                                {% endif %}
+                                                {% if file.size %}
+                                                    <small class="text-muted ms-2">({{ (file.size / 1048576)|number_format(2, ',', '.') }} MB)</small>
+                                                {% endif %}
+                                                {% if file.uploadedAt %}
+                                                    <small class="text-muted ms-2">{{ file.uploadedAt }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-finished-delete
+                                                data-delete-url="{{ path('admin_auftrag_finished_delete', {id: order.id, index: loop.index0}) }}"
+                                                data-delete-token="{{ csrf_token('auftrag_finished_delete_' ~ order.id ~ '_' ~ loop.index0) }}"
+                                            >
+                                                Loeschen
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <div class="small text-muted">Fahrzeug-Daten (JSON)</div>
+                            <pre class="bg-light border rounded p-2 mb-0" style="white-space:pre-wrap;max-height:220px;overflow:auto;">{{ order.vehicleDataJson }}</pre>
+                        </div>
+                        <div class="col-12">
+                            <details>
+                                <summary class="small text-muted">Datei (Base64)</summary>
+                                <pre class="bg-light border rounded p-2 mt-2" style="white-space:pre-wrap;max-height:220px;overflow:auto;">{{ order.fileData|default('') }}</pre>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

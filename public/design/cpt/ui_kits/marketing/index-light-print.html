@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chiptuningfile — Marketing (Print)</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="marketing.css">
+<style>
+  /* ---- Print optimization ---- */
+  @media print {
+    @page { size: portrait; margin: 1cm; }
+    html, body { background: #fff; }
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    /* freeze any animations at end state */
+    *, *::before, *::after {
+      animation-delay: -99s !important; animation-duration: .001s !important;
+      animation-iteration-count: 1 !important; animation-fill-mode: both !important;
+      animation-play-state: running !important; transition-duration: 0s !important;
+    }
+    /* sticky header → static so it doesn't repeat/overlap */
+    .mk-header { position: static !important; backdrop-filter: none !important; }
+    .mk-root { min-height: 0 !important; }
+    /* keep visual blocks intact across page breaks */
+    .mk-hero, .mk-stats, .mk-stages, .mk-trust, .mk-cta, .mk-footer { break-inside: avoid; }
+    .mk-stage-grid > *, .mk-stats > *, .mk-trust-item, .mk-cta__box, .mk-finder { break-inside: avoid; }
+    .mk-trust { break-before: page; }
+    /* hero media needs an explicit height when 100% has no flex context */
+    .mk-hero .mk-media { min-height: 320px; }
+    a { text-decoration: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    const { MarketingSite } = window.ChiptuningfileDesignSystem_3beb42;
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(MarketingSite, { initialTheme: 'light' }));
+    function finalize(){ if (window.lucide) window.lucide.createIcons(); }
+    finalize();
+    const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+    fontsReady.then(() => {
+      // let React mount + icons swap, then print
+      setTimeout(() => {
+        finalize();
+        setTimeout(() => window.print(), 600);
+      }, 500);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Display-Schrift — Alternativen zu Orbitron</title>
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Michroma&family=Rajdhani:wght@500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:var(--bg);}
+  .page{max-width:1180px;margin:0 auto;padding:56px var(--gutter) 80px;font-family:var(--font-sans);}
+  .head{margin-bottom:40px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px;}
+  .head .ey{font-family:var(--font-mono);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-text);}
+  .head h1{font-family:var(--font-display);text-transform:uppercase;font-weight:800;letter-spacing:-.01em;font-size:44px;color:var(--text);margin:12px 0 8px;}
+  .head p{color:var(--text-muted);font-size:16px;max-width:60ch;margin:0;}
+  .toggle{flex:none;display:inline-flex;border:1px solid var(--border-strong);border-radius:999px;padding:4px;background:var(--surface-2);font-family:var(--font-mono);}
+  .toggle button{border:0;background:transparent;cursor:pointer;color:var(--text-muted);font-family:inherit;
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:.55em 1.1em;border-radius:999px;}
+  .toggle button.on{background:var(--accent);color:#fff;}
+
+  .opt{display:grid;grid-template-columns:200px 1fr;gap:32px;align-items:center;
+    border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);
+    padding:36px 40px;margin-bottom:20px;}
+  .opt.current{border-top:3px solid var(--accent);}
+  .meta .name{font-family:var(--font-mono);font-size:20px;font-weight:600;color:var(--text);}
+  .meta .tag{display:inline-block;margin-top:10px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--text-muted);border:1px solid var(--border-strong);border-radius:999px;padding:.3em .7em;}
+  .meta .tag.now{color:var(--accent-text);border-color:var(--accent-soft-border);background:var(--accent-soft);}
+  .meta .desc{margin-top:14px;color:var(--text-muted);font-size:13.5px;line-height:1.5;}
+
+  .spec .ey2{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-text);margin-bottom:8px;}
+  .spec .h{text-transform:uppercase;line-height:.96;color:var(--text);margin:0;font-size:60px;letter-spacing:-.01em;}
+  .spec .h .accent{color:var(--accent);}
+  .spec .num{margin-top:14px;display:flex;align-items:baseline;gap:24px;}
+  .spec .num b{font-size:52px;color:var(--text);line-height:1;}
+  .spec .num b .u{font-size:22px;color:var(--text-muted);}
+  .spec .num .gain{color:var(--accent);}
+
+  /* per-option font assignment */
+  .f-orbitron .h,.f-orbitron .num b{font-family:'Orbitron',sans-serif;font-weight:800;}
+  .f-michroma .h,.f-michroma .num b{font-family:'Michroma',sans-serif;font-weight:400;letter-spacing:0;}
+  .f-rajdhani .h,.f-rajdhani .num b{font-family:'Rajdhani',sans-serif;font-weight:700;}
+  .f-chakra .h,.f-chakra .num b{font-family:'Chakra Petch',sans-serif;font-weight:700;}
+  /* michroma is wide — ease the hero size so it doesn't overflow */
+  .f-michroma .h{font-size:40px;}
+  .f-michroma .num b{font-size:44px;}
+
+  .foot{margin-top:36px;padding:20px 24px;border:1px dashed var(--border-strong);border-radius:var(--radius-md);
+    font-size:14px;color:var(--text-muted);font-family:var(--font-mono);}
+  .foot b{color:var(--text);}
+  @media (max-width:720px){.opt{grid-template-columns:1fr;gap:18px;}.spec .h{font-size:42px;}}
+</style>
+</head>
+<body data-theme="dark">
+  <div class="page">
+    <div class="head">
+      <div>
+      <div class="ey">Typografie · Display-Schrift</div>
+      <h1>Alternativen zu Orbitron</h1>
+      <p>Gleiche Headline und Kennzahl in vier Display-Schriften, im Markenkontext. Sag mir, welche du möchtest — ich tausche sie dann zentral über <span style="font-family:var(--font-mono);color:var(--text)">--font-display</span> für das gesamte System aus.</p>
+    </div>
+    <div class="toggle" role="group" aria-label="Theme">
+      <button id="t-dark" class="on" onclick="setTheme('dark')">Dunkel</button>
+      <button id="t-light" onclick="setTheme('light')">Hell</button>
+    </div>
+    </div>
+
+    <div class="opt current f-orbitron">
+      <div class="meta">
+        <div class="name">Orbitron</div>
+        <div class="tag now">Aktuell</div>
+        <div class="desc">Geometrisch, futuristisch, sehr breit. Starker Tech-Look, kann bei langen Headlines knapp werden.</div>
+      </div>
+      <div class="spec">
+        <div class="ey2">Stage 1 · ECU Remap</div>
+        <p class="h">Mehr Leistung. <span class="accent">Aus deiner Datei.</span></p>
+        <div class="num"><b class="gain">228<span class="u"> PS</span></b><b>470<span class="u"> Nm</span></b></div>
+      </div>
+    </div>
+
+    <div class="opt f-michroma">
+      <div class="meta">
+        <div class="name">Michroma</div>
+        <div class="tag">Option A · breit-geometrisch</div>
+        <div class="desc">Naher Verwandter von Orbitron, aber ruhiger und cleaner. Edel, technisch, weniger „Gaming".</div>
+      </div>
+      <div class="spec">
+        <div class="ey2">Stage 1 · ECU Remap</div>
+        <p class="h">Mehr Leistung. <span class="accent">Aus deiner Datei.</span></p>
+        <div class="num"><b class="gain">228<span class="u"> PS</span></b><b>470<span class="u"> Nm</span></b></div>
+      </div>
+    </div>
+
+    <div class="opt f-rajdhani">
+      <div class="meta">
+        <div class="name">Rajdhani</div>
+        <div class="tag">Option B · schmal-sportlich</div>
+        <div class="desc">Schmallaufend, motorsportlich, technisch. Sehr platzsparend — ideal für große, lange Headlines.</div>
+      </div>
+      <div class="spec">
+        <div class="ey2">Stage 1 · ECU Remap</div>
+        <p class="h">Mehr Leistung. <span class="accent">Aus deiner Datei.</span></p>
+        <div class="num"><b class="gain">228<span class="u"> PS</span></b><b>470<span class="u"> Nm</span></b></div>
+      </div>
+    </div>
+
+    <div class="opt f-chakra">
+      <div class="meta">
+        <div class="name">Chakra Petch</div>
+        <div class="tag">Option C · kantig-mechanisch</div>
+        <div class="desc">Abgeschrägte Ecken, Display-/Messgerät-Charakter. Mechanisch und industriell, gut lesbar.</div>
+      </div>
+      <div class="spec">
+        <div class="ey2">Stage 1 · ECU Remap</div>
+        <p class="h">Mehr Leistung. <span class="accent">Aus deiner Datei.</span></p>
+        <div class="num"><b class="gain">228<span class="u"> PS</span></b><b>470<span class="u"> Nm</span></b></div>
+      </div>
+    </div>
+
+    <div class="foot">Welche soll ich übernehmen? → <b>Michroma</b>, <b>Rajdhani</b>, <b>Chakra Petch</b> oder bei <b>Orbitron</b> bleiben. Oben kannst du zwischen <b>Hell</b> und <b>Dunkel</b> wechseln.</div>
+  </div>
+  <script>
+    function setTheme(t){
+      document.body.setAttribute('data-theme', t);
+      document.getElementById('t-dark').classList.toggle('on', t==='dark');
+      document.getElementById('t-light').classList.toggle('on', t==='light');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,968 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}{{ boardTitle }}{% endblock %}
+
+{% block main %}
+    <div class="container-fluid px-0">
+        <div class="border-0 mb-4 tfd-project-board-shell">
+            <div class="">
+                <div class="tfd-project-board-topbar mb-4">
+                    <div>
+                        <div class="small text-uppercase fw-semibold text-muted mb-1">Apps / Projekte</div>
+                      
+                        <p class="text-muted mb-0">{{ boardIntro }}</p>
+                    </div>
+                    <div class="tfd-project-board-actions">
+                        <button type="button" class="btn btn-outline-secondary rounded-0 btn-sm" disabled>Filter</button>
+                        <button type="button" class="btn btn-dark rounded-0 btn-sm" disabled>Workspace</button>
+                    </div>
+                </div>
+
+                <div class="tfd-project-board-toolbar mb-4">
+                    <div class="tfd-project-board-toolbar__search">
+                        <label class="form-label fw-semibold mb-0" for="project-card-title">Workspace :</label>
+                        <input class="form-control rounded-0" type="search" placeholder="Search tasks, cards, ideas ...">
+                    </div>
+                    <div class="tfd-project-board-toolbar__meta">
+                        {% for label, status in statusChoices %}
+                            <span class="tfd-project-toolbar-pill">
+                                <span>{{ label }}</span>
+                                <strong>{{ columns[status].cards|length }}</strong>
+                            </span>
+                        {% endfor %}
+                        <button type="button"
+                                class="btn btn-tuningfux rounded-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#project-card-create-modal">
+                            + Neue Karte
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tfd-project-board" data-project-board data-move-token="{{ csrf_token(moveTokenId) }}">
+                    {% for status, column in columns %}
+                        {% set headerPalette = [
+                            'tfd-project-column--tone-1',
+                            'tfd-project-column--tone-2',
+                            'tfd-project-column--tone-3',
+                            'tfd-project-column--tone-4'
+                        ] %}
+                        <section class="tfd-project-column {{ headerPalette[loop.index0 % headerPalette|length] }}" data-project-column data-status="{{ status }}">
+                            <header class="tfd-project-column__header">
+                                <div class="tfd-project-column__headline">
+                                    <h3 class="h6 mb-0">{{ column.label|upper }}</h3>
+                                    <span class="tfd-project-column__counter">{{ column.cards|length }}</span>
+                                </div>
+                            </header>
+
+                            <div class="tfd-project-column__cards">
+                                {% for card in column.cards %}
+                                    <article class="card border-0 shadow-sm tfd-project-card"
+                                             draggable="true"
+                                             data-project-card
+                                             data-card-id="{{ card.id }}"
+                                             data-move-url="{{ path(moveRouteName, { id: card.id }) }}">
+                                        <div class="card-body">
+                                            <div class="tfd-project-card__eyebrow">
+                                                <span>#{{ boardKey|upper }}-{{ '%02d'|format(card.id) }}</span>
+                                                <button type="button" class="tfd-project-card__menu" disabled>:</button>
+                                            </div>
+
+                                            <h4 class="h6 mb-2">{{ card.title }}</h4>
+                                            {% if card.description %}
+                                                <p class="small text-muted mb-3">{{ card.description|nl2br }}</p>
+                                            {% endif %}
+
+                                            <div class="tfd-project-card__tags">
+                                                {% if card.taskCode %}
+                                                    <span class="tfd-project-card__tag">#{{ card.taskCode }}</span>
+                                                {% endif %}
+                                                {% for tag in card.tags %}
+                                                    <span class="tfd-project-card__tag">{{ tag }}</span>
+                                                {% endfor %}
+                                                <span class="tfd-project-card__tag">Status</span>
+                                                <span class="tfd-project-card__tag tfd-project-card__tag--soft">{{ column.label }}</span>
+                                            </div>
+
+                                            {% if card.images is not empty %}
+                                                <div class="tfd-project-card__images">
+                                                    {% for image in card.images|slice(0, 3) %}
+                                                        <img src="{{ asset(image) }}" alt="{{ card.title }}">
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="tfd-project-card__footer">
+                                                <div class="small text-muted d-flex flex-column gap-1">
+                                                    <span>{{ card.updatedAt ? card.updatedAt|date('d.m.Y H:i') : '-' }}</span>
+                                                    {% if card.assignedTo %}
+                                                        <span>Zustaendig: {{ card.assignedTo }}</span>
+                                                    {% endif %}
+                                                    {% if card.targetDate %}
+                                                        <span>Ziel: {{ card.targetDate|date('d.m.Y H:i') }}</span>
+                                                    {% endif %}
+                                                </div>
+                                                <details>
+                                                    <summary class="small fw-semibold text-uppercase">Bearbeiten</summary>
+                                                    <form method="post" action="{{ path(boardRouteName) }}" class="mt-3" enctype="multipart/form-data">
+                                                        <input type="hidden" name="_action" value="update">
+                                                        <input type="hidden" name="card_id" value="{{ card.id }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('project_board_' ~ boardKey ~ '_update_' ~ card.id) }}">
+
+                                                        <div class="mb-2">
+                                                            <label class="form-label small fw-semibold">Titel</label>
+                                                            <input name="title" class="form-control form-control-sm rounded-0" maxlength="255" value="{{ card.title }}" required>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="form-label small fw-semibold">Beschreibung</label>
+                                                            <textarea name="description" class="form-control form-control-sm rounded-0" rows="3">{{ card.description }}</textarea>
+                                                        </div>
+                                                        <div class="row g-2 mb-2">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-semibold">Task ID</label>
+                                                                <input name="taskCode" class="form-control form-control-sm rounded-0" value="{{ card.taskCode }}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-semibold">Assigned To</label>
+                                                                <input name="assignedTo" class="form-control form-control-sm rounded-0" value="{{ card.assignedTo }}">
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label small fw-semibold">Status</label>
+                                                            <select name="status" class="form-select form-select-sm rounded-0">
+                                                                {% for editLabel, editStatus in statusChoices %}
+                                                                    <option value="{{ editStatus }}" {{ card.status == editStatus ? 'selected' : '' }}>{{ editLabel }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="row g-2 mb-3">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-semibold">Target Date</label>
+                                                                <input type="datetime-local"
+                                                                       name="targetDate"
+                                                                       class="form-control form-control-sm rounded-0"
+                                                                       value="{{ card.targetDate ? card.targetDate|date('Y-m-d\\TH:i') : '' }}">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label small fw-semibold">Tags</label>
+                                                                <input name="tags"
+                                                                       class="form-control form-control-sm rounded-0"
+                                                                       value="{{ card.tags|join(', ') }}"
+                                                                       placeholder="Design, Review, Frontend">
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label small fw-semibold">Bilder</label>
+                                                            <input type="file" name="images[]" class="form-control form-control-sm rounded-0" multiple accept="image/*">
+                                                        </div>
+                                                        <button type="submit" class="btn btn-sm btn-dark rounded-0">Speichern</button>
+                                                    </form>
+                                                    <form method="post" action="{{ path(boardRouteName) }}" class="mt-2" onsubmit="return confirm('Karte wirklich loeschen?');">
+                                                        <input type="hidden" name="_action" value="delete">
+                                                        <input type="hidden" name="card_id" value="{{ card.id }}">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('project_board_' ~ boardKey ~ '_delete_' ~ card.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-0">Loeschen</button>
+                                                    </form>
+                                                </details>
+                                            </div>
+                                        </div>
+                                    </article>
+                                {% else %}
+                                    <div class="tfd-project-column__empty">
+                                        Noch keine Karten in dieser Spalte.
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="project-card-create-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-0 border-0 shadow-lg">
+                <div class="modal-header border-bottom-0 px-4 pt-4 pb-2">
+                    <div>
+                        <h3 class="h4 mb-0">Add Task</h3>
+                    </div>
+                    <button type="button" class="btn-close rounded-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <form method="post" action="{{ path(boardRouteName) }}" enctype="multipart/form-data" class="row g-3 tfd-project-modal-form">
+                        <input type="hidden" name="_action" value="create">
+                        <input type="hidden" name="_token" value="{{ csrf_token(createTokenId) }}">
+
+                        <div class="col-md-6 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Task Name</label>
+                            <input name="title" class="form-control rounded-0" placeholder="Task Name" maxlength="255" required>
+                        </div>
+                        <div class="col-md-6 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Task ID</label>
+                            <input name="taskCode" class="form-control rounded-0" placeholder="Task ID">
+                        </div>
+                        <div class="col-12 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Task Description</label>
+                            <textarea name="description" class="form-control rounded-0" rows="4" placeholder="Write Description"></textarea>
+                        </div>
+                        <div class="col-12 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Task Images</label>
+                            <label class="tfd-project-upload-dropzone" data-project-upload-dropzone>
+                                <input type="file" name="images[]" multiple accept="image/*" data-project-upload-input>
+                                <span data-project-upload-text>Drag & Drop your files or <strong>Browse</strong></span>
+                            </label>
+                        </div>
+                        <div class="col-12 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Assigned To</label>
+                            <input name="assignedTo" class="form-control rounded-0" placeholder="Assigned person or team">
+                        </div>
+                        <div class="col-md-6 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Target Date</label>
+                            <input type="datetime-local" name="targetDate" class="form-control rounded-0">
+                        </div>
+                        <div class="col-md-6 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Tags</label>
+                            <input name="tags" class="form-control rounded-0" placeholder="Design, Backend, Review">
+                        </div>
+                        <div class="col-md-6 tfd-project-modal-field">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" class="form-select rounded-0">
+                                {% for label, status in statusChoices %}
+                                    <option value="{{ status }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 tfd-project-modal-field tfd-project-modal-field--spacer"></div>
+                        <div class="col-12 d-flex justify-content-end gap-2 pt-2 border-top mt-2 pt-3">
+                            <button type="button" class="btn btn-light rounded-0 px-4" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary rounded-0 px-4">Add Task</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {% guard function csp_nonce %}
+        <script nonce="{{ csp_nonce('script') }}">
+            (() => {
+                const board = document.querySelector('[data-project-board]');
+                if (!(board instanceof HTMLElement)) {
+                    return;
+                }
+
+                const moveToken = String(board.dataset.moveToken || '');
+                let activeCard = null;
+
+                const getBoardState = () => Array.from(document.querySelectorAll('[data-project-column]')).map((column) => ({
+                    status: String(column.getAttribute('data-status') || ''),
+                    cardIds: Array.from(column.querySelectorAll('[data-project-card]')).map((card) => Number.parseInt(String(card.getAttribute('data-card-id') || '0'), 10)).filter((id) => Number.isFinite(id) && id > 0),
+                }));
+
+                const updateColumnCounts = () => {
+                    document.querySelectorAll('[data-project-column]').forEach((column) => {
+                        if (!(column instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const count = column.querySelectorAll('[data-project-card]').length;
+                        const counter = column.querySelector('.tfd-project-column__header .small');
+                        if (counter instanceof HTMLElement) {
+                            counter.textContent = `${count} Karten`;
+                        }
+                    });
+                };
+
+                const getDragAfterElement = (container, clientY) => {
+                    const candidates = Array.from(container.querySelectorAll('[data-project-card]:not(.is-dragging)'));
+
+                    return candidates.reduce((closest, child) => {
+                        const box = child.getBoundingClientRect();
+                        const offset = clientY - box.top - (box.height / 2);
+
+                        if (offset < 0 && offset > closest.offset) {
+                            return { offset, element: child };
+                        }
+
+                        return closest;
+                    }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+                };
+
+                document.querySelectorAll('[data-project-card]').forEach((card) => {
+                    if (!(card instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    card.addEventListener('dragstart', () => {
+                        activeCard = card;
+                        card.classList.add('is-dragging');
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('is-dragging');
+                        activeCard = null;
+                    });
+                });
+
+                document.querySelectorAll('[data-project-column]').forEach((column) => {
+                    if (!(column instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const cardContainer = column.querySelector('.tfd-project-column__cards');
+                    if (!(cardContainer instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    column.addEventListener('dragover', (event) => {
+                        event.preventDefault();
+                        column.classList.add('is-drag-over');
+
+                        if (!(activeCard instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const afterElement = getDragAfterElement(cardContainer, event.clientY);
+                        if (afterElement instanceof HTMLElement) {
+                            cardContainer.insertBefore(activeCard, afterElement);
+                        } else {
+                            cardContainer.appendChild(activeCard);
+                        }
+                    });
+
+                    column.addEventListener('dragleave', () => {
+                        column.classList.remove('is-drag-over');
+                    });
+
+                    column.addEventListener('drop', async (event) => {
+                        event.preventDefault();
+                        column.classList.remove('is-drag-over');
+
+                        if (!(activeCard instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const moveUrl = String(activeCard.dataset.moveUrl || '');
+                        const status = String(column.dataset.status || '');
+                        if ('' === moveUrl || '' === status) {
+                            return;
+                        }
+
+                        const previousState = JSON.stringify(getBoardState());
+                        updateColumnCounts();
+
+                        try {
+                            const body = new URLSearchParams();
+                            body.set('_token', moveToken);
+                            body.set('boardState', JSON.stringify(getBoardState()));
+
+                            const response = await window.fetch(moveUrl, {
+                                method: 'POST',
+                                credentials: 'same-origin',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                                    'Accept': 'application/json',
+                                },
+                                body: body.toString(),
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Move failed');
+                            }
+                        } catch (_error) {
+                            const restoredState = JSON.parse(previousState);
+                            restoredState.forEach((stateColumn) => {
+                                const targetColumn = document.querySelector(`[data-project-column][data-status="${stateColumn.status}"] .tfd-project-column__cards`);
+                                if (!(targetColumn instanceof HTMLElement)) {
+                                    return;
+                                }
+
+                                stateColumn.cardIds.forEach((cardId) => {
+                                    const card = document.querySelector(`[data-project-card][data-card-id="${cardId}"]`);
+                                    if (card instanceof HTMLElement) {
+                                        targetColumn.appendChild(card);
+                                    }
+                                });
+                            });
+                            updateColumnCounts();
+                        }
+                    });
+                });
+
+                const uploadDropzone = document.querySelector('[data-project-upload-dropzone]');
+                const uploadInput = document.querySelector('[data-project-upload-input]');
+                const uploadText = document.querySelector('[data-project-upload-text]');
+
+                if (uploadDropzone instanceof HTMLElement && uploadInput instanceof HTMLInputElement) {
+                    const renderSelectedFiles = () => {
+                        const files = Array.from(uploadInput.files || []);
+                        if (uploadText instanceof HTMLElement) {
+                            uploadText.textContent = files.length > 0
+                                ? files.map((file) => file.name).join(', ')
+                                : 'Drag & Drop your files or Browse';
+                        }
+                    };
+
+                    uploadInput.addEventListener('change', renderSelectedFiles);
+
+                    ['dragenter', 'dragover'].forEach((eventName) => {
+                        uploadDropzone.addEventListener(eventName, (event) => {
+                            event.preventDefault();
+                            uploadDropzone.classList.add('is-dragover');
+                        });
+                    });
+
+                    ['dragleave', 'drop'].forEach((eventName) => {
+                        uploadDropzone.addEventListener(eventName, (event) => {
+                            event.preventDefault();
+                            uploadDropzone.classList.remove('is-dragover');
+                        });
+                    });
+
+                    uploadDropzone.addEventListener('drop', (event) => {
+                        const droppedFiles = event.dataTransfer && event.dataTransfer.files;
+                        if (droppedFiles && droppedFiles.length > 0) {
+                            uploadInput.files = droppedFiles;
+                            renderSelectedFiles();
+                        }
+                    });
+                }
+            })();
+        </script>
+    {% else %}
+        <script>
+            (() => {
+                const board = document.querySelector('[data-project-board]');
+                if (!(board instanceof HTMLElement)) {
+                    return;
+                }
+
+                const moveToken = String(board.dataset.moveToken || '');
+                let activeCard = null;
+
+                const getBoardState = () => Array.from(document.querySelectorAll('[data-project-column]')).map((column) => ({
+                    status: String(column.getAttribute('data-status') || ''),
+                    cardIds: Array.from(column.querySelectorAll('[data-project-card]')).map((card) => Number.parseInt(String(card.getAttribute('data-card-id') || '0'), 10)).filter((id) => Number.isFinite(id) && id > 0),
+                }));
+
+                const updateColumnCounts = () => {
+                    document.querySelectorAll('[data-project-column]').forEach((column) => {
+                        if (!(column instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const count = column.querySelectorAll('[data-project-card]').length;
+                        const counter = column.querySelector('.tfd-project-column__header .small');
+                        if (counter instanceof HTMLElement) {
+                            counter.textContent = `${count} Karten`;
+                        }
+                    });
+                };
+
+                const getDragAfterElement = (container, clientY) => {
+                    const candidates = Array.from(container.querySelectorAll('[data-project-card]:not(.is-dragging)'));
+
+                    return candidates.reduce((closest, child) => {
+                        const box = child.getBoundingClientRect();
+                        const offset = clientY - box.top - (box.height / 2);
+
+                        if (offset < 0 && offset > closest.offset) {
+                            return { offset, element: child };
+                        }
+
+                        return closest;
+                    }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+                };
+
+                document.querySelectorAll('[data-project-card]').forEach((card) => {
+                    if (!(card instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    card.addEventListener('dragstart', () => {
+                        activeCard = card;
+                        card.classList.add('is-dragging');
+                    });
+
+                    card.addEventListener('dragend', () => {
+                        card.classList.remove('is-dragging');
+                        activeCard = null;
+                    });
+                });
+
+                document.querySelectorAll('[data-project-column]').forEach((column) => {
+                    if (!(column instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const cardContainer = column.querySelector('.tfd-project-column__cards');
+                    if (!(cardContainer instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    column.addEventListener('dragover', (event) => {
+                        event.preventDefault();
+                        column.classList.add('is-drag-over');
+
+                        if (!(activeCard instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const afterElement = getDragAfterElement(cardContainer, event.clientY);
+                        if (afterElement instanceof HTMLElement) {
+                            cardContainer.insertBefore(activeCard, afterElement);
+                        } else {
+                            cardContainer.appendChild(activeCard);
+                        }
+                    });
+
+                    column.addEventListener('dragleave', () => {
+                        column.classList.remove('is-drag-over');
+                    });
+
+                    column.addEventListener('drop', async (event) => {
+                        event.preventDefault();
+                        column.classList.remove('is-drag-over');
+
+                        if (!(activeCard instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        const moveUrl = String(activeCard.dataset.moveUrl || '');
+                        const status = String(column.dataset.status || '');
+                        if ('' === moveUrl || '' === status) {
+                            return;
+                        }
+
+                        const previousState = JSON.stringify(getBoardState());
+                        updateColumnCounts();
+
+                        try {
+                            const body = new URLSearchParams();
+                            body.set('_token', moveToken);
+                            body.set('boardState', JSON.stringify(getBoardState()));
+
+                            const response = await window.fetch(moveUrl, {
+                                method: 'POST',
+                                credentials: 'same-origin',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                                    'Accept': 'application/json',
+                                },
+                                body: body.toString(),
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Move failed');
+                            }
+                        } catch (_error) {
+                            const restoredState = JSON.parse(previousState);
+                            restoredState.forEach((stateColumn) => {
+                                const targetColumn = document.querySelector(`[data-project-column][data-status="${stateColumn.status}"] .tfd-project-column__cards`);
+                                if (!(targetColumn instanceof HTMLElement)) {
+                                    return;
+                                }
+
+                                stateColumn.cardIds.forEach((cardId) => {
+                                    const card = document.querySelector(`[data-project-card][data-card-id="${cardId}"]`);
+                                    if (card instanceof HTMLElement) {
+                                        targetColumn.appendChild(card);
+                                    }
+                                });
+                            });
+                            updateColumnCounts();
+                        }
+                    });
+                });
+
+                const uploadDropzone = document.querySelector('[data-project-upload-dropzone]');
+                const uploadInput = document.querySelector('[data-project-upload-input]');
+                const uploadText = document.querySelector('[data-project-upload-text]');
+
+                if (uploadDropzone instanceof HTMLElement && uploadInput instanceof HTMLInputElement) {
+                    const renderSelectedFiles = () => {
+                        const files = Array.from(uploadInput.files || []);
+                        if (uploadText instanceof HTMLElement) {
+                            uploadText.textContent = files.length > 0
+                                ? files.map((file) => file.name).join(', ')
+                                : 'Drag & Drop your files or Browse';
+                        }
+                    };
+
+                    uploadInput.addEventListener('change', renderSelectedFiles);
+
+                    ['dragenter', 'dragover'].forEach((eventName) => {
+                        uploadDropzone.addEventListener(eventName, (event) => {
+                            event.preventDefault();
+                            uploadDropzone.classList.add('is-dragover');
+                        });
+                    });
+
+                    ['dragleave', 'drop'].forEach((eventName) => {
+                        uploadDropzone.addEventListener(eventName, (event) => {
+                            event.preventDefault();
+                            uploadDropzone.classList.remove('is-dragover');
+                        });
+                    });
+
+                    uploadDropzone.addEventListener('drop', (event) => {
+                        const droppedFiles = event.dataTransfer && event.dataTransfer.files;
+                        if (droppedFiles && droppedFiles.length > 0) {
+                            uploadInput.files = droppedFiles;
+                            renderSelectedFiles();
+                        }
+                    });
+                }
+            })();
+        </script>
+    {% endguard %}
+{% endblock %}
+
+{% block head_stylesheets %}
+    {{ parent() }}
+
+    <style>
+        .tfd-project-board-shell {
+            background: linear-gradient(180deg, #111931 0%, #16203d 100%);
+        }
+
+        .tfd-project-board-topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .tfd-project-board-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .tfd-project-board-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1rem 1.1rem;
+            background: #16203d;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .tfd-project-board-toolbar__search {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            flex: 1 1 26rem;
+        }
+
+        .tfd-project-board-toolbar__search .form-control {
+            max-width: 24rem;
+        }
+
+        .tfd-project-board-toolbar__meta {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .tfd-project-toolbar-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            background: #1b2748;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.82rem;
+            color: #eaf0ff;
+        }
+
+        .tfd-project-toolbar-pill strong {
+            display: inline-flex;
+            min-width: 1.5rem;
+            justify-content: center;
+            padding: 0.12rem 0.3rem;
+            background: #0f172a;
+            color: #fff;
+            font-size: 0.72rem;
+        }
+
+        .tfd-project-create-card {
+            background: #16203d;
+        }
+
+        .tfd-project-board {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .tfd-project-column {
+            min-height: 24rem;
+            
+            
+        }
+
+        .tfd-project-column.is-drag-over {
+            border-color: #1d4ed8;
+            box-shadow: inset 0 0 0 2px rgba(29, 78, 216, 0.2);
+        }
+
+        .tfd-project-column__header {
+            padding: 0.8rem 1rem;
+            color: #fff;
+        }
+
+        .tfd-project-column--tone-1 .tfd-project-column__header {
+            background: linear-gradient(90deg, #2359a8, #4b8ee8);
+        }
+
+        .tfd-project-column--tone-2 .tfd-project-column__header {
+            background: linear-gradient(90deg, #9b3f9d, #d95dd7);
+        }
+
+        .tfd-project-column--tone-3 .tfd-project-column__header {
+            background: linear-gradient(90deg, #d14b7d, #ff7d67);
+        }
+
+        .tfd-project-column--tone-4 .tfd-project-column__header {
+            background: linear-gradient(90deg, #6647d6, #9f67f2);
+        }
+
+        .tfd-project-column__headline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .tfd-project-column__headline h3 {
+            color: #ffffff !important;
+        }
+
+        .tfd-project-column__counter {
+            display: inline-flex;
+            min-width: 1.5rem;
+            justify-content: center;
+            padding: 0.12rem 0.38rem;
+            background: rgba(15, 23, 42, 0.22);
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .tfd-project-column__cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding-top: 1rem;
+        }
+
+        .tfd-project-column__empty {
+            padding: 1rem;
+            border: 1px dashed rgba(255, 255, 255, 0.16);
+            color: #aeb8d4;
+            background: #16203d;
+            text-align: center;
+        }
+
+        .tfd-project-card {
+            cursor: grab;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #16203d;
+            color: #eaf0ff;
+        }
+
+        .tfd-project-card.is-dragging {
+            opacity: 0.65;
+            transform: rotate(1deg);
+        }
+
+        .tfd-project-card__eyebrow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            color: #aeb8d4;
+        }
+
+        .tfd-project-card__menu {
+            border: 0;
+            background: #243152;
+            width: 2rem;
+            height: 2rem;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .tfd-project-card__tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .tfd-project-card__tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.22rem 0.5rem;
+            background: #243152;
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .tfd-project-card__tag--soft {
+            background: rgba(189, 30, 33, 0.16);
+            color: #ffb4b6;
+        }
+
+        .tfd-project-card__images {
+            display: flex;
+            gap: 0.45rem;
+            margin-bottom: 1rem;
+        }
+
+        .tfd-project-card__images img {
+            width: 3rem;
+            height: 3rem;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .tfd-project-card__footer {
+            padding-top: 0.9rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.12);
+        }
+
+        .tfd-project-upload-dropzone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 7rem;
+            padding: 1.25rem;
+            border: 2px dashed rgba(255, 255, 255, 0.12);
+            background: #1b2748;
+            color: #eaf0ff;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .tfd-project-upload-dropzone.is-dragover {
+            border-color: #dc2626;
+            background: #2a1620;
+        }
+
+        .tfd-project-board-shell .text-muted,
+        .tfd-project-board-shell .small,
+        .tfd-project-board-shell .small.text-uppercase {
+            color: #aeb8d4 !important;
+        }
+
+        .tfd-project-board-shell h3,
+        .tfd-project-board-shell h4,
+        .tfd-project-board-shell p,
+        .tfd-project-board-shell label,
+        .tfd-project-board-shell summary {
+            color: #ffffff !important;
+        }
+
+        .tfd-project-board-shell .form-control,
+        .tfd-project-board-shell .form-select,
+        .tfd-project-board-shell textarea {
+            background: #16203d !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+        }
+
+        .tfd-project-board-shell .form-control::placeholder,
+        .tfd-project-board-shell textarea::placeholder {
+            color: #aeb8d4 !important;
+        }
+
+        .tfd-project-board-shell .modal-content,
+        .tfd-project-board-shell .modal-header,
+        .tfd-project-board-shell .modal-body {
+            background: #16203d !important;
+            color: #ffffff !important;
+        }
+
+        .tfd-project-board-shell .btn-close {
+            filter: invert(1);
+        }
+
+        .tfd-project-upload-dropzone input {
+            display: none;
+        }
+
+        .tfd-project-modal-form .form-label {
+            margin-bottom: 0.55rem;
+            font-size: 0.95rem;
+        }
+
+        .tfd-project-modal-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tfd-project-modal-field .form-control,
+        .tfd-project-modal-field .form-select {
+            min-height: 3.25rem;
+        }
+
+        .tfd-project-modal-field textarea.form-control {
+            min-height: 7rem;
+        }
+
+        .tfd-project-modal-field--spacer {
+            min-height: 1px;
+        }
+
+        .tfd-project-card summary {
+            cursor: pointer;
+            list-style: none;
+        }
+
+        .tfd-project-card summary::-webkit-details-marker {
+            display: none;
+        }
+
+        @media (max-width: 1399px) {
+            .tfd-project-board {
+                grid-template-columns: repeat(2, minmax(260px, 1fr));
+            }
+        }
+
+        @media (max-width: 991px) {
+            .tfd-project-board-topbar,
+            .tfd-project-board-toolbar,
+            .tfd-project-board-toolbar__search {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .tfd-project-board-toolbar__search .form-control {
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .tfd-project-board {
+                grid-template-columns: 1fr;
+            }
+
+            .tfd-project-modal-field--spacer {
+                display: none;
+            }
+        }
+    </style>
+{% endblock %}

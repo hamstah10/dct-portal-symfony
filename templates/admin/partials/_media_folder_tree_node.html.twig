@@ -1,0 +1,47 @@
+{% set folder = node.folder %}
+{% set folderId = folder.id %}
+{% set hasChildren = node.children is not empty %}
+{% set isSelected = selectedFolderId == folderId %}
+{% set fileCount = folderCounts[folderId]|default(0) %}
+{% set isOpen = node.containsSelected %}
+{% set depth = depth|default(0) %}
+
+<li class="tfd-media-tree__item {{ isSelected ? 'is-selected' : '' }} {{ hasChildren ? 'has-children' : '' }}"
+    data-folder-id="{{ folderId }}"
+    data-contains-selected="{{ isOpen ? '1' : '0' }}"
+>
+    <div class="tfd-media-tree__row" style="padding-left: {{ 6 + (depth * 18) }}px;">
+        {% if hasChildren %}
+            <button
+                type="button"
+                class="tfd-media-tree__toggle"
+                data-tree-toggle
+                aria-expanded="{{ isOpen ? 'true' : 'false' }}"
+                title="Ordner auf-/zuklappen"
+            >
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </button>
+        {% else %}
+            <span class="tfd-media-tree__spacer"></span>
+        {% endif %}
+
+        <a href="{{ path('admin_media_manager', { scope: 'all', folder: folderId }) }}" class="tfd-media-tree__link text-decoration-none">
+            <i class="fa {{ isOpen or isSelected ? 'fa-folder-open' : 'fa-folder' }} tfd-media-tree__folder-icon" data-folder-icon></i>
+            <span class="tfd-media-tree__label">{{ folder.name }}</span>
+        </a>
+        <span class="badge text-bg-light tfd-media-tree__count">{{ fileCount }}</span>
+    </div>
+
+    {% if hasChildren %}
+        <ul class="tfd-media-tree__children {{ isOpen ? '' : 'is-collapsed' }}" data-tree-children>
+            {% for childNode in node.children %}
+                {% include 'admin/partials/_media_folder_tree_node.html.twig' with {
+                    node: childNode,
+                    selectedFolderId: selectedFolderId,
+                    folderCounts: folderCounts,
+                    depth: depth + 1
+                } only %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

@@ -1,0 +1,178 @@
+<div class="vdb-layout-download">
+    <header class="vdb-v4-navbar">
+        <div class="container px-4 py-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="vdb-v4-brand-icon">
+                        <img
+                            data-vdb-brand-badge
+                            src="{{ asset('images/tuningfux-gelb.svg') }}"
+                            data-default-src="{{ asset('images/tuningfux-gelb.svg') }}"
+                            alt="Brand Logo"
+                            width="48"
+                            height="48"
+                        >
+                    </div>
+
+                    <div class="lh-sm">
+                        <div class="vdb-v4-top-kicker">Chiptuning</div>
+                        <div class="vdb-v4-top-name">TUNINGFILES-DOWNLOAD.COM</div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center gap-4">
+                    <div class="vdb-v4-nav-item">
+                        <span class="vdb-v4-nav-icon" aria-hidden="true">⛽</span>
+                        <span id="engineFuel">-</span>
+                    </div>
+                    <a class="vdb-v4-nav-item vdb-v4-nav-link" href="#" role="button">
+                        <span class="vdb-v4-nav-icon" aria-hidden="true">⚙</span>
+                        <span>ECU Tuning</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="vdb-v4-hero">
+        <div class="container px-4 py-5">
+            <div class="row align-items-center g-4">
+                <div class="col-12 col-lg-6">
+                    <div class="vdb-v4-hero-kicker">Fahrzeug</div>
+                    <div class="vdb-v4-hero-brand" id="brandName">-</div>
+                    <div class="vdb-v4-hero-series" id="seriesName">-</div>
+                    <div class="vdb-v4-hero-model" id="engineName">-</div>
+                    <div class="vdb-v4-hero-line" aria-hidden="true"></div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="vdb-v4-hero-media" id="heroImageWrap">
+                        <div class="vdb-empty-image">Kein Bild</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vdb-v4-stage">
+        <div class="container px-4 py-4">
+            <div class="vdb-v4-section-kicker">Leistungsstufe wählen</div>
+            <div id="stageTabs" class="row g-3 row-cols-1 row-cols-md-3"></div>
+        </div>
+    </section>
+
+    <section class="vdb-v4-metrics">
+        <div class="container px-4 pb-4">
+            <div class="row g-3">
+                <div class="col-12 col-lg-6">
+                    <div class="vdb-v4-metric-card h-100">
+                        <div class="vdb-v4-metric-head">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="vdb-v4-metric-icon" aria-hidden="true">↗</div>
+                                <div>
+                                    <div class="vdb-v4-metric-kicker"> Leistung</div>
+                                    <div class="vdb-v4-metric-title">Power Output</div>
+                                </div>
+                            </div>
+                            <div class="vdb-v4-improvement">
+                                <div class="vdb-v4-improvement-label">Steigerung</div>
+                                <div class="vdb-v4-improvement-value" id="vdbPsPercent">+0%</div>
+                            </div>
+                        </div>
+
+                        <div class="vdb-v4-metric-body">
+                            <div class="row align-items-end g-3 text-center">
+                                <div class="col">
+                                    <div class="vdb-v4-metric-sub">Original</div>
+                                    <div class="vdb-v4-metric-number" id="origPs">-</div>
+                                    <div class="vdb-v4-metric-unit">PS</div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="vdb-v4-metric-delta" id="deltaPs">+0</div>
+                                </div>
+                                <div class="col">
+                                    <div class="vdb-v4-metric-sub">Nach Tuning</div>
+                                    <div class="vdb-v4-metric-number is-red" id="stagePs">-</div>
+                                    <div class="vdb-v4-metric-unit">PS</div>
+                                </div>
+                            </div>
+
+                            <div class="vdb-bar vdb-v4-bar" aria-hidden="true"><span id="psBar"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="vdb-v4-metric-card h-100">
+                        <div class="vdb-v4-metric-head">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="vdb-v4-metric-icon" aria-hidden="true">⚡</div>
+                                <div>
+                                    <div class="vdb-v4-metric-kicker">Drehmoment</div>
+                                    <div class="vdb-v4-metric-title">Torque Output</div>
+                                </div>
+                            </div>
+                            <div class="vdb-v4-improvement">
+                                <div class="vdb-v4-improvement-label">Steigerung</div>
+                                <div class="vdb-v4-improvement-value" id="vdbNmPercent">+0%</div>
+                            </div>
+                        </div>
+
+                        <div class="vdb-v4-metric-body">
+                            <div class="row align-items-end g-3 text-center">
+                                <div class="col">
+                                    <div class="vdb-v4-metric-sub">Original</div>
+                                    <div class="vdb-v4-metric-number" id="origNm">-</div>
+                                    <div class="vdb-v4-metric-unit">NM</div>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="vdb-v4-metric-delta" id="deltaNm">+0</div>
+                                </div>
+                                <div class="col">
+                                    <div class="vdb-v4-metric-sub">Nach Tuning</div>
+                                    <div class="vdb-v4-metric-number is-red" id="stageNm">-</div>
+                                    <div class="vdb-v4-metric-unit">NM</div>
+                                </div>
+                            </div>
+
+                            <div class="vdb-bar vdb-v4-bar" aria-hidden="true"><span id="nmBar"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vdb-v4-options">
+        <div class="container px-4 py-4">
+            <div class="row align-items-end g-3">
+                <div class="col-12 col-lg-8">
+                    <div class="vdb-v4-section-kicker">Inkludierte Tuning-Optionen</div>
+                    <div class="vdb-v4-stage-meta">
+                        <div id="stagePrice" class="vdb-v4-stage-price"></div>
+                        <div id="stageDescription" class="vdb-v4-stage-desc">-</div>
+                    </div>
+                    <div class="vdb-ecu-manufacturers" id="ecuManufacturers"></div>
+                </div>
+                <div class="col-12 col-lg-4 d-grid">
+                    <a href="#" class="btn btn-danger btn-lg vdb-v4-cta">Jetzt Kontakt aufnehmen</a>
+                </div>
+            </div>
+
+            <ul class="vdb-options-list vdb-v4-options-list" id="optionsList"></ul>
+        </div>
+    </section>
+
+    <div class="visually-hidden" aria-hidden="true">
+        <span id="enginePs">-</span>
+        <span id="engineNm">-</span>
+        <span id="bottomOrig">-</span>
+        <span id="bottomTuned">-</span>
+        <span id="improvementLine">-</span>
+        <span id="vdbStageName">-</span>
+        <span id="vdbPsOrigLabel">-</span>
+        <span id="vdbPsTunedLabel">-</span>
+        <span id="vdbNmOrigLabel">-</span>
+        <span id="vdbNmTunedLabel">-</span>
+    </div>
+</div>

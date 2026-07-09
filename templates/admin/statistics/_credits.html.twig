@@ -1,0 +1,72 @@
+<div class="container-fluid px-0">
+    <div class="row g-3 mb-3">
+        {% for key, item in totals %}
+            <div class="col-12 col-md-6 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">{{ item.label }}</div>
+                        <div class="h4 mb-0">{{ item.gross|number_format(2, ',', '.') }} €</div>
+                        <div class="small text-muted">Netto: {{ item.net|number_format(2, ',', '.') }} €</div>
+                        {% if item.paypalGross is defined and item.paypalGross > 0 %}
+                            <div class="small text-muted">PayPal: {{ item.paypalGross|number_format(2, ',', '.') }} €</div>
+                            <div class="small text-muted">PayPal nach Gebühr: {{ item.paypalNet|number_format(2, ',', '.') }} €</div>
+                            {% if item.paypalFee is defined %}
+                                <div class="small text-muted">PayPal Gebühr: {{ item.paypalFee|number_format(2, ',', '.') }} €</div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                    <span>Einnahme pro Tag</span>
+                    <span class="small text-muted">letzte 30 Tage</span>
+                </div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(dailyChart) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                    <span>Zahlarten</span>
+                    <span class="small text-muted">letzte 12 Monate</span>
+                </div>
+                <div class="card-body" style="height: 280px;">
+                    {{ render_chart(methodChart) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                    <span>Einnahme pro Woche</span>
+                    <span class="small text-muted">letzte 12 Wochen</span>
+                </div>
+                <div class="card-body" style="height: 320px;">
+                    {{ render_chart(weeklyChart) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-6">
+            <div class="card border-0 shadow-sm h-100 chart-card">
+                <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+                    <span>Einnahme pro Monat</span>
+                    <span class="small text-muted">letzte 12 Monate</span>
+                </div>
+                <div class="card-body" style="height: 320px;">
+                    {{ render_chart(monthlyChart) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
