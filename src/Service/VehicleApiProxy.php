@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\ApiToken;
 use App\Entity\Portal;
 use App\Entity\VehicleDataPool;
 use App\Portals\Common\Security\PortalCustomerUserInterface;
 use App\Repository\ApiTokenRepository;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -20,8 +22,6 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 final class VehicleApiProxy
 {
     private const MAX_RETRIES = 2;
-    /** @var array<string,string>|null */
-    private ?array $remoteManifest = null;
     /** @var list<int> */
     private const RETRYABLE_STATUS_CODES = [429, 502, 503, 504];
     /** @var list<string> */
@@ -33,17 +33,18 @@ final class VehicleApiProxy
         private readonly string $apiBaseUrl,
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir = '',
     ) {
     }
 
-    public function proxy(string $path, array $query = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null): JsonResponse
+    public function proxy(string $path, array $query = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null, ?ApiToken $apiToken = null): JsonResponse
     {
-        return $this->callRequest('GET', $path, ['query' => $query], $user, $portal);
+        return $this->callRequest('GET', $path, ['query' => $query], $user, $portal, $apiToken);
     }
 
-    public function proxyPost(string $path, array $payload = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null): JsonResponse
+    public function proxyPost(string $path, array $payload = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null, ?ApiToken $apiToken = null): JsonResponse
     {
-        return $this->callRequest('POST', $path, ['json' => $payload], $user, $portal);
+        return $this->callRequest('POST', $path, ['json' => $payload], $user, $portal, $apiToken);
     }
 
     public function proxyAsset(string $path): HttpResponse
@@ -51,6 +52,20 @@ final class VehicleApiProxy
         $normalizedPath = $this->normalizeAssetPath($path);
         if (null === $normalizedPath) {
             return new HttpResponse('Asset-Pfad ungueltig.', HttpResponse::HTTP_BAD_REQUEST);
+        }
+
+        // Serve UX icon SVGs directly from the local filesystem (they are not served via HTTP)
+        if (preg_match('#^/assets/icons/([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)\.svg$#', $normalizedPath, $m)) {
+            $localFile = $this->projectDir . '/assets/icons/' . $m[1] . '/' . $m[2] . '.svg';
+            if (is_file($localFile)) {
+                $svgContent = (string) file_get_contents($localFile);
+                // Replace currentColor with white so the SVG renders correctly in <img> tags
+                $svgContent = str_replace(['fill="currentColor"', 'stroke="currentColor"'], ['fill="white"', 'stroke="white"'], $svgContent);
+                return new HttpResponse($svgContent, HttpResponse::HTTP_OK, [
+                    'Content-Type' => 'image/svg+xml',
+                    'Cache-Control' => 'public, max-age=86400',
+                ]);
+            }
         }
 
         $candidatePaths = $this->buildAssetCandidates($normalizedPath);
@@ -107,19 +122,14 @@ final class VehicleApiProxy
      */
     private function buildAssetCandidates(string $normalizedPath): array
     {
-        // 1. Try local hashed asset (e.g. locally published assets)
+        $candidates = [$normalizedPath];
+
         $resolved = $this->resolveHashedPublicAssetPath($normalizedPath);
         if (is_string($resolved) && $resolved !== $normalizedPath) {
-            return [$resolved, $normalizedPath];
+            $candidates[] = $resolved;
         }
 
-        // 2. Try remote manifest (assets from superadmin/API server with hash suffix)
-        $remoteResolved = $this->resolveViaRemoteManifest($normalizedPath);
-        if (is_string($remoteResolved) && $remoteResolved !== $normalizedPath) {
-            return [$remoteResolved, $normalizedPath];
-        }
-
-        return [$normalizedPath];
+        return array_values(array_unique($candidates));
     }
 
     private function resolveHashedPublicAssetPath(string $normalizedPath): ?string
@@ -168,43 +178,22 @@ final class VehicleApiProxy
         return '/assets/' . ($directory !== '' ? $directory . '/' : '') . $filename;
     }
 
-    private function resolveViaRemoteManifest(string $normalizedPath): ?string
-    {
-        if ($this->remoteManifest === null) {
-            try {
-                $response = $this->httpClient->request('GET', rtrim($this->apiBaseUrl, '/') . '/assets/manifest.json', [
-                    'timeout' => 5.0,
-                ]);
-                if ($response->getStatusCode() === 200) {
-                    $data = json_decode($response->getContent(false), true);
-                    $this->remoteManifest = is_array($data) ? $data : [];
-                } else {
-                    $this->remoteManifest = [];
-                }
-            } catch (\Throwable) {
-                $this->remoteManifest = [];
-            }
-        }
-
-        // manifest keys are like "icons/brands-tuning/moto/aprilia.png"
-        // normalizedPath is like "/assets/icons/brands-tuning/moto/aprilia.png"
-        $key = ltrim(preg_replace('#^/assets/#', '', $normalizedPath) ?? '', '/');
-        $hashedPath = $this->remoteManifest[$key] ?? null;
-
-        return is_string($hashedPath) && $hashedPath !== '' ? $hashedPath : null;
-    }
-
     /**
      * @param array<string, mixed> $options
      */
-    private function callRequest(string $method, string $path, array $options, ?PortalCustomerUserInterface $user, ?Portal $portal): JsonResponse
+    private function callRequest(string $method, string $path, array $options, ?PortalCustomerUserInterface $user, ?Portal $portal, ?ApiToken $apiToken = null): JsonResponse
     {
         $portalPool = $portal?->getVehicleDataPool();
 
-        try {
-            [$token, $tokenId] = $this->resolveVehicleApiCredentials($user, $portalPool?->isActive() ? $portalPool : null);
-        } catch (AccessDeniedHttpException $exception) {
-            return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
+        if ($apiToken instanceof ApiToken) {
+            $token = (string) $apiToken->getApiToken();
+            $tokenId = (string) $apiToken->getTokenIdentifier();
+        } else {
+            try {
+                [$token, $tokenId] = $this->resolveVehicleApiCredentials($user, $portalPool?->isActive() ? $portalPool : null);
+            } catch (AccessDeniedHttpException $exception) {
+                return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
+            }
         }
 
         $poolKey = $portalPool?->isActive() ? $portalPool->getPoolKey() : null;
@@ -313,7 +302,7 @@ final class VehicleApiProxy
                 continue;
             }
 
-            if (is_string($key) && is_string($value) && ($this->isImageKey($key) || $this->looksLikeImagePath($value))) {
+            if (is_string($key) && is_string($value) && !$this->looksLikeUxIconId($value) && ($this->isImageKey($key) || $this->looksLikeImagePath($value))) {
                 $payload[$key] = $this->normalizeLocalPublicPath($value, $baseUrl);
             }
         }
@@ -324,6 +313,11 @@ final class VehicleApiProxy
     private function isImageKey(string $key): bool
     {
         return in_array($key, self::IMAGE_KEYS, true);
+    }
+
+    private function looksLikeUxIconId(string $value): bool
+    {
+        return (bool) preg_match('/^[a-z0-9][a-z0-9_-]*:[a-z0-9][a-z0-9_.-]*$/i', trim($value));
     }
 
     /**
@@ -403,10 +397,6 @@ final class VehicleApiProxy
         $trimmed = trim($value);
         if ('' === $trimmed) {
             return null;
-        }
-
-        if (str_starts_with($trimmed, 'data:')) {
-            return $trimmed;
         }
 
         if (preg_match('#^https?://#i', $trimmed) === 1) {

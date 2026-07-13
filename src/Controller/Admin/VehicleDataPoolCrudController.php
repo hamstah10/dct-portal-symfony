@@ -6,6 +6,7 @@ use App\Entity\VehicleDataPool;
 use App\Service\VehicleDataPoolPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -13,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -61,18 +63,23 @@ final class VehicleDataPoolCrudController extends AbstractCrudController
     {
         return [
             IdField::new('id')->hideOnForm()->hideOnIndex(),
-            BooleanField::new('active')
-                ->renderAsSwitch(Crud::PAGE_INDEX !== $pageName)
-                ->setTemplatePath(Crud::PAGE_INDEX === $pageName
-                    ? 'admin/vehicle_data_pool/field/active_badge.html.twig'
-                    : '@EasyAdmin/crud/field/boolean.html.twig'),
             TextField::new('name'),
             TextField::new('poolKey', 'Key'),
             TextareaField::new('description')->setRequired(false),
             AssociationField::new('vehicleTypes', 'Fahrzeugtypen'),
+            BooleanField::new('active'),
+
+            FormField::addFieldset('Sichtbare Inhalte')
+                ->setHelp('Steuert, welche Inhalte in der API-Antwort dieses Datenbestands enthalten sind.'),
+            BooleanField::new('showPrices', 'Preise anzeigen'),
+            BooleanField::new('showHints', 'Hinweise anzeigen'),
+            BooleanField::new('showGearbox', 'Getriebe anzeigen'),
+            BooleanField::new('showDyno', 'Dyno-Chart anzeigen'),
+            BooleanField::new('showEcoStage', 'Eco-Stage anzeigen'),
         ];
     }
 
+    #[AdminRoute(path: '/{entityId}/purge', name: 'vehicle_data_pool_purge', options: ['methods' => ['GET']])]
     public function purge(AdminContext $context): Response
     {
         $pool = $context->getEntity()->getInstance();

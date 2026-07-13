@@ -295,7 +295,7 @@ final class VehicleDatabaseController extends AbstractController
         $requestedVariant = trim((string) $request->query->get('templateVariant', ''));
         $templateVariant = '' !== $requestedVariant ? $requestedVariant : $settings->getTemplateVariant();
         $layoutSettings = $settings->getLayoutSettings($templateVariant);
-        $showPrices = (bool) ($layoutSettings['showPrices'] ?? false);
+        $showPrices = (bool) ($layoutSettings['showPrices'] ?? false) && $pool->isShowPrices();
 
         $stages = array_values(array_filter(
             $engine->getStages()->toArray(),
@@ -345,12 +345,14 @@ final class VehicleDatabaseController extends AbstractController
                 'name' => $series?->getName(),
             ],
             'stages' => array_map(
-                fn (VehicleStage $stage): array => $this->mapStagePayload($stage, $showPrices),
+                fn (VehicleStage $stage): array => $this->mapStagePayload($stage, $showPrices, $pool->isShowDyno()),
                 $stages
             ),
             'ecus' => $this->mapEcuPayloads($allEcus, $showPrices),
-            'gearboxes' => $this->mapGearboxPayloads($gearboxes),
+            'gearboxes' => $pool->isShowGearbox() ? $this->mapGearboxPayloads($gearboxes) : [],
             'settings' => $this->buildFrontendSettingsPayload($settings),
+            'showPrices' => $showPrices,
+            'showEcoStage' => $pool->isShowEcoStage(),
             'pool' => [
                 'id' => $pool->getId(),
                 'key' => $pool->getPoolKey(),
@@ -406,10 +408,11 @@ final class VehicleDatabaseController extends AbstractController
      *     ecu: ?int,
      *     icon: ?string,
      *     images: array<int, string>,
-     *     videos: ?string
+     *     videos: ?string,
+     *     dynoChart: array<string, mixed>|null
      * }
      */
-    private function mapStagePayload(VehicleStage $stage, bool $showPrices): array
+    private function mapStagePayload(VehicleStage $stage, bool $showPrices, bool $showDyno = true): array
     {
         return [
             'id' => $stage->getId(),
@@ -422,6 +425,7 @@ final class VehicleDatabaseController extends AbstractController
             'icon' => $stage->getResolvedIconPath(),
             'images' => self::toPathList($stage->getImages()),
             'videos' => $stage->getVideos(),
+            'dynoChart' => $showDyno ? $stage->getDynoChart() : null,
         ];
     }
 
@@ -440,7 +444,27 @@ final class VehicleDatabaseController extends AbstractController
             'manufacturer' => $this->resolveEcuManufacturerName($ecu),
             'manufacturerLogo' => $this->normalizePublicPath($this->resolveEcuManufacturerLogo($ecu)),
             'options' => $this->mapEcuOptionPayloads($ecu, $showPrices),
+            'toolEntries' => $this->mapEcuToolEntries($ecu),
         ], $ecus));
+    }
+
+    /**
+     * @return array<int, array{id: int|null, toolManufacturer: string|null, toolManufacturerLogo: string|null, methods: array<int, string>}>
+     */
+    private function mapEcuToolEntries(Ecu $ecu): array
+    {
+        $entries = $ecu->getToolEntries()->toArray();
+        usort($entries, static fn (\App\Entity\EcuToolEntry $a, \App\Entity\EcuToolEntry $b): int => ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0));
+
+        return array_values(array_map(fn (\App\Entity\EcuToolEntry $entry): array => [
+            'id' => $entry->getId(),
+            'toolManufacturer' => $entry->getToolManufacturer()?->getName(),
+            'toolManufacturerLogo' => $this->normalizePublicPath($entry->getToolManufacturer()?->getLogo()),
+            'methods' => array_values(array_map(
+                static fn (\App\Entity\ToolMethode $m): string => $m->getName(),
+                $entry->getToolMethods()->toArray()
+            )),
+        ], $entries));
     }
 
     /**
@@ -483,7 +507,27 @@ final class VehicleDatabaseController extends AbstractController
             'type' => $gearbox->getGearboxType()?->getTitle(),
             'manufacturer' => $gearbox->getManufacturer()?->getName(),
             'manufacturerLogo' => $this->normalizePublicPath($gearbox->getManufacturer()?->getLogo()),
+            'toolEntries' => $this->mapGearboxToolEntries($gearbox),
         ], $gearboxes));
+    }
+
+    /**
+     * @return array<int, array{id: int|null, toolManufacturer: string|null, toolManufacturerLogo: string|null, methods: array<int, string>}>
+     */
+    private function mapGearboxToolEntries(Gearbox $gearbox): array
+    {
+        $entries = $gearbox->getToolEntries()->toArray();
+        usort($entries, static fn (\App\Entity\GearboxToolEntry $a, \App\Entity\GearboxToolEntry $b): int => ($a->getPosition() ?? 0) <=> ($b->getPosition() ?? 0));
+
+        return array_values(array_map(fn (\App\Entity\GearboxToolEntry $entry): array => [
+            'id' => $entry->getId(),
+            'toolManufacturer' => $entry->getToolManufacturer()?->getName(),
+            'toolManufacturerLogo' => $this->normalizePublicPath($entry->getToolManufacturer()?->getLogo()),
+            'methods' => array_values(array_map(
+                static fn (\App\Entity\ToolMethode $m): string => $m->getName(),
+                $entry->getToolMethods()->toArray()
+            )),
+        ], $entries));
     }
 
     /**

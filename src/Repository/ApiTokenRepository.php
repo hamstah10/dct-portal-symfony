@@ -66,6 +66,38 @@ class ApiTokenRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Deterministic lookup scoped to a single VehicleDataContext (by contextKey), unlike
+     * findLatestActiveGlobalForPool() which fuzzily matches ANY token whose context allows
+     * a given pool. Use this whenever a caller (e.g. a specific portal) must always resolve
+     * to the same, explicitly bound context/token regardless of other tokens sharing the pool.
+     */
+    public function findLatestActiveForContextKey(string $contextKey, ?\DateTimeImmutable $reference = null): ?ApiToken
+    {
+        $normalizedKey = trim($contextKey);
+        if ('' === $normalizedKey) {
+            return null;
+        }
+
+        $reference ??= new \DateTimeImmutable();
+
+        return $this->createQueryBuilder('t')
+            ->innerJoin('t.vehicleDataContext', 'c')
+            ->andWhere('c.contextKey = :contextKey')
+            ->andWhere('t.active = :active')
+            ->andWhere('c.active = :contextActive')
+            ->andWhere('t.gueltigBis IS NULL OR t.gueltigBis >= :reference')
+            ->setParameter('contextKey', $normalizedKey)
+            ->setParameter('active', true)
+            ->setParameter('contextActive', true)
+            ->setParameter('reference', $reference)
+            ->orderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findActiveByApplicationName(string $applicationName, ?\DateTimeImmutable $reference = null): ?ApiToken
     {
         $normalizedName = trim($applicationName);

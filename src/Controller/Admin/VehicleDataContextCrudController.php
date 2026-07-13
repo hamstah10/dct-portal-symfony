@@ -9,6 +9,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -41,6 +42,17 @@ final class VehicleDataContextCrudController extends AbstractCrudController
                 ->setRequired(false),
             AssociationField::new('allowedDataPools', 'Erlaubte Datenbestände'),
             BooleanField::new('active'),
+
+            FormField::addFieldset('Sichtbare Inhalte')
+                ->setHelp('Steuert, welche Inhalte in der API-Antwort dieses Datenkontexts enthalten sind.'),
+            BooleanField::new('showPrices', 'Preise anzeigen'),
+            BooleanField::new('showHints', 'Hinweise anzeigen'),
+            BooleanField::new('showGearbox', 'Getriebe anzeigen'),
+            BooleanField::new('showDyno', 'Dyno-Chart anzeigen'),
+            BooleanField::new('showEcoStage', 'Eco-Stage anzeigen'),
+            BooleanField::new('showOptionCategories', 'Tuning-Option Kategorie anzeigen'),
+            BooleanField::new('allowVehicleEditing', 'Fahrzeugdaten bearbeiten')
+                ->setHelp('Schaltet die Edit-Funktionen in der Fahrzeugdatenbank frei.'),
         ];
     }
 }
