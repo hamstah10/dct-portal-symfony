@@ -1,0 +1,198 @@
+{
+  "info": {
+    "name": "WinOLS AutoMod Job API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman Collection fuer die WinOLS/AutoMod Job API unter /api/v1/job. WinOLS ruft offene Auftraege ab und liefert Ergebnisdateien oder Fehlerstatus zurueck."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://portal.dct-files.de"
+    },
+    {
+      "key": "apiToken",
+      "value": ""
+    },
+    {
+      "key": "ulid",
+      "value": ""
+    },
+    {
+      "key": "winolsId",
+      "value": "WINOLS-TEST-001"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Naechsten Auftrag abrufen",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/job",
+        "description": "Liefert den aeltesten offenen AutoMod-Auftrag. Wenn kein Auftrag offen ist, kommt order=null zurueck."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "pm.test('status=true', function () {",
+              "  pm.expect(json.status).to.eql(true);",
+              "});",
+              "",
+              "if (json.order && json.order.ulid) {",
+              "  pm.collectionVariables.set('ulid', json.order.ulid);",
+              "  console.log('ULID gespeichert:', json.order.ulid);",
+              "  console.log('Quelldatei:', json.order.file);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Ergebnis erfolgreich zurueckliefern",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "ulid",
+              "value": "{{ulid}}",
+              "type": "text"
+            },
+            {
+              "key": "auto_mod_status",
+              "value": "3",
+              "type": "text"
+            },
+            {
+              "key": "winols_id",
+              "value": "{{winolsId}}",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": "{{baseUrl}}/api/v1/job",
+        "description": "Sendet die fertig bearbeitete Datei zurueck. In Postman bei form-data das Feld file manuell mit der Ergebnisdatei belegen."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "pm.test('status=true', function () {",
+              "  pm.expect(json.status).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Fehlerstatus zurueckliefern",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "ulid",
+              "value": "{{ulid}}",
+              "type": "text"
+            },
+            {
+              "key": "auto_mod_status",
+              "value": "9",
+              "type": "text"
+            },
+            {
+              "key": "winols_id",
+              "value": "{{winolsId}}",
+              "type": "text"
+            }
+          ]
+        },
+        "url": "{{baseUrl}}/api/v1/job",
+        "description": "Markiert den Auftrag als fehlgeschlagen. Eine Datei wird bei auto_mod_status=9 nicht erwartet."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const json = pm.response.json();",
+              "pm.test('status=true', function () {",
+              "  pm.expect(json.status).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Debug: ohne Token",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/job",
+        "description": "Negativtest: Muss 401 Unauthorized liefern."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 401', function () {",
+              "  pm.response.to.have.status(401);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
