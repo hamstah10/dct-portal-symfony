@@ -127,6 +127,10 @@ final class BrandMasterCrudController extends AbstractCrudController
                 ->renderAsHtml()
                 ->formatValue(fn (?string $value): string => $this->renderSingleImagePreview($value)),
             TextareaField::new('description')->hideOnIndex(),
+            TextareaField::new('synonyms', 'Synonyme')
+                ->hideOnIndex()
+                ->setRequired(false)
+                ->setHelp('Alternative Suchbegriffe, kommagetrennt oder zeilenweise – z.B. "vw, volkswagon". Die Marke wird dann auch über diese Begriffe gefunden.'),
         ];
     }
 

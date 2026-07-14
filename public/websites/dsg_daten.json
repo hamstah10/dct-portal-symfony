@@ -1,0 +1,2398 @@
+{
+  "gearboxes": [
+    {
+      "name": "DQ200",
+      "categories": [
+        {
+          "name": "Verbesserte Fahrbarkeit",
+          "description": "Einzigartige, auf den Motor abgestimmte Schaltstrategien für ultra-sanftes Hoch- und Runterschalten",
+          "options": [
+            {
+              "name": "D-Optimierung",
+              "nameEn": "Optimized D Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "S-Optimierung",
+              "nameEn": "Optimized S Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "M-Optimierung",
+              "nameEn": "Optimized M Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungssteuerung",
+              "nameEn": "Improved Clutch Control",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierung von Vibrationen und Rucken",
+              "nameEn": "Vibration bump reduction",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optionen zur Lebensdauerverlängerung",
+          "description": "Nachhaltige Software-Lösungen für eine verlängerte Getriebelebensdauer",
+          "options": [
+            {
+              "name": "De- oder Reaktivierung des 1. Gangs (optional)",
+              "nameEn": "1st Gear de- or reactivation (optional)",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungskühlung",
+              "nameEn": "Improved clutch cooling",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Thermomanagement",
+              "nameEn": "Improved thermomanagment",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Performance-Optionen",
+          "description": "Diverse notwendige Software-Anpassungen für maximale Performance bei Beschleunigung sowie beim Hoch- und Runterschalten – bei weiterhin sanfter Fahrbarkeit. Perfekt abgestimmte Schaltstrategien für jede Motor-Getriebe-Kombination.",
+          "options": [
+            {
+              "name": "Getriebedrehmoment max. [Nm]",
+              "nameEn": "Maximum gearbox torque [Nm]",
+              "stages": {
+                "fahrbarkeit": "Serie",
+                "stage1": "280 Nm",
+                "stage2": "350 Nm",
+                "stage2plus": "350 Nm",
+                "stage3": "400 Nm",
+                "stage4": "*500 Nm"
+              }
+            },
+            {
+              "name": "Erhöhter maximaler Kupplungsdruck",
+              "nameEn": "Increased maximum clutch pressure",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": "-",
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Notwendige Drehmomentbegrenzer angehoben",
+              "nameEn": "Necessary torque limiters raised",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": true,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Schnellere Hoch- und Runterschaltzeiten (D+S+M-Modus)",
+              "nameEn": "Improved up- and downshifting speed (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Ansprechverhalten der Schaltwippen",
+              "nameEn": "Improved shifting paddles response",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Anfahrverhalten (D+S+M-Modus)",
+              "nameEn": "Improved take off (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Drehmomentreduzierung beim Schalten (D+S+M-Modus)",
+              "nameEn": "Improved torque reduction during shifting (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Hochschalten OFF (*)",
+              "nameEn": "Automatic upshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Runterschalten OFF (*)",
+              "nameEn": "Automatic downshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Kick-down-Deaktivierung (optional)",
+              "nameEn": "Kick-down deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Hochschaltdrehzahlen bis 8000 U/min",
+              "nameEn": "Customized upshift RPM setpoints up to 8000 rpm",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Runterschaltpunkte",
+              "nameEn": "Customized downshift RPM setpoints",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Race-Modus ohne Drehmomentreduzierung (optional)",
+              "nameEn": "Race mode without torque reduction (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Race-Kupplungskennlinien-Kalibrierung",
+              "nameEn": "Special race clutch characteristics calibration",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Anti-Rupfen-Anfahrfunktion",
+              "nameEn": "Special anti judder take-off functionality",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Launch Control",
+          "description": "Aktivierung und/oder Erweiterung der Launch Control inkl. benutzerdefinierbarer Launch-Einstellungen",
+          "options": [
+            {
+              "name": "Launch-Control-Aktivierung (eingeschränkt verfügbar!)",
+              "nameEn": "Launch control activation (Limited availability!)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte LC-Reaktionszeit für schnellere Starts",
+              "nameEn": "Improved LC response time for quicker launches",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": false
+              }
+            },
+            {
+              "name": "Mehrstufige LC-Drehzahlbegrenzung",
+              "nameEn": "Multi-step LC RPM limits",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": false
+              }
+            },
+            {
+              "name": "Unterschiedliche LC-Modi für D/S/M",
+              "nameEn": "Different LC modes for D/S/M mode",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": false
+              }
+            },
+            {
+              "name": "LC-Aktivierung bei eingeschaltetem ESP",
+              "nameEn": "LC with ESP ON activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": false
+              }
+            },
+            {
+              "name": "Boost-on-Launch-Modus (inkl. „Rally-Sound“)",
+              "nameEn": "Boost on Launch mode (included \"rally sound\")",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": false
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zusätzliche Optionen",
+          "description": "Weitere optionale Funktionen, verfügbar für bestimmte Modelle",
+          "options": [
+            {
+              "name": "Aktivierung der Ganganzeige (MFA)",
+              "nameEn": "Gear Display Indicator (MFA) activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierte Motorbremse",
+              "nameEn": "Reduced engine braking",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Deaktivierung des Segelmodus (Coasting)",
+              "nameEn": "Coasting disabling",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DQ250",
+      "categories": [
+        {
+          "name": "Verbesserte Fahrbarkeit",
+          "description": "Einzigartige, auf den Motor abgestimmte Schaltstrategien für ultra-sanftes Hoch- und Runterschalten",
+          "options": [
+            {
+              "name": "D-Optimierung",
+              "nameEn": "Optimized D Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "S-Optimierung",
+              "nameEn": "Optimized S Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "M-Optimierung",
+              "nameEn": "Optimized M Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Tempomat-Optimierung",
+              "nameEn": "Optimized Cruise Control Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optionen zur Lebensdauerverlängerung",
+          "description": "Nachhaltige Software-Lösungen für eine verlängerte Getriebelebensdauer",
+          "options": [
+            {
+              "name": "De- oder Reaktivierung des 1. Gangs (optional)",
+              "nameEn": "1st Gear de- or reactivation (optional)",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungskühlung",
+              "nameEn": "Improved clutch cooling",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Thermomanagement",
+              "nameEn": "Improved thermomanagment",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Performance-Optionen",
+          "description": "Diverse notwendige Software-Anpassungen für maximale Performance bei Beschleunigung sowie beim Hoch- und Runterschalten – bei weiterhin sanfter Fahrbarkeit. Perfekt abgestimmte Schaltstrategien für jede Motor-Getriebe-Kombination.",
+          "options": [
+            {
+              "name": "Getriebedrehmoment max. [Nm]",
+              "nameEn": "Maximum gearbox torque [Nm]",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": "410 Nm",
+                "stage2": "500 Nm",
+                "stage2plus": "500 Nm",
+                "stage3": "600 Nm",
+                "stage4": "750 Nm"
+              }
+            },
+            {
+              "name": "Erhöhter maximaler Kupplungsdruck [bar]",
+              "nameEn": "Increased maximum clutch pressure [bar]",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": "-",
+                "stage2": "15-16",
+                "stage2plus": "15-16",
+                "stage3": "18-19",
+                "stage4": "18-19"
+              }
+            },
+            {
+              "name": "Notwendige Drehmomentbegrenzer angehoben",
+              "nameEn": "Necessary torque limiters raised",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": true,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Schnellere Hoch- und Runterschaltzeiten (D+S+M-Modus)",
+              "nameEn": "Improved up- and downshifting speed (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Ansprechverhalten der Schaltwippen",
+              "nameEn": "Improved shifting paddles response",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Anfahrverhalten (D+S+M-Modus)",
+              "nameEn": "Improved take off (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Drehmomentreduzierung beim Schalten (D+S+M-Modus)",
+              "nameEn": "Improved torque reduction during shifting (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Hochschaltdrehzahlen bis 8000 U/min",
+              "nameEn": "Customized upshift RPM setpoints up to 8000 rpm",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Runterschaltpunkte",
+              "nameEn": "Customized downshift RPM setpoints",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Hochschalten OFF (*)",
+              "nameEn": "Automatic upshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Runterschalten OFF (*)",
+              "nameEn": "Automatic downshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Kick-down-Deaktivierung (optional)",
+              "nameEn": "Kick-down deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Race-Modus ohne Drehmomentreduzierung (optional)",
+              "nameEn": "Race mode without torque reduction (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Race-Kupplungskennlinien-Kalibrierung",
+              "nameEn": "Special race clutch characteristics calibration",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Anti-Rupfen-Anfahrfunktion",
+              "nameEn": "Special anti judder take-off functionality",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Launch Control",
+          "description": "Aktivierung und/oder Erweiterung der Launch Control inkl. benutzerdefinierbarer Launch-Einstellungen",
+          "options": [
+            {
+              "name": "Verbesserte LC-Reaktionszeit für schnellere Starts",
+              "nameEn": "Improved LC response time for quicker launches",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Mehrstufige LC-Drehzahlbegrenzung",
+              "nameEn": "Multi-step LC RPM limits",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Unterschiedliche LC-Modi für D/S/M",
+              "nameEn": "Different LC modes for D/S/M mode",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "LC-Aktivierung bei eingeschaltetem ESP",
+              "nameEn": "LC with ESP ON activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Boost-on-Launch-Modus (inkl. „Rally-Sound“)",
+              "nameEn": "Boost on Launch mode (included \"rally sound\")",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zusätzliche Optionen",
+          "description": "Weitere optionale Funktionen, verfügbar für bestimmte Modelle",
+          "options": [
+            {
+              "name": "Aktivierung der Ganganzeige (MFA)",
+              "nameEn": "Gear Display Indicator (MFA) activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierte Motorbremse",
+              "nameEn": "Reduced engine braking",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Deaktivierung des Segelmodus (Coasting)",
+              "nameEn": "Coasting disabling",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DQ380 / 381",
+      "categories": [
+        {
+          "name": "Verbesserte Fahrbarkeit",
+          "description": "Einzigartige, auf den Motor abgestimmte Schaltstrategien für ultra-sanftes Hoch- und Runterschalten",
+          "options": [
+            {
+              "name": "D-Optimierung",
+              "nameEn": "Optimized D Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "S-Optimierung",
+              "nameEn": "Optimized S Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "M-Optimierung",
+              "nameEn": "Optimized M Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Tempomat-Optimierung",
+              "nameEn": "Optimized Cruise Control Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optionen zur Lebensdauerverlängerung",
+          "description": "Nachhaltige Software-Lösungen für eine verlängerte Getriebelebensdauer",
+          "options": [
+            {
+              "name": "De- oder Reaktivierung des 1. Gangs (optional)",
+              "nameEn": "1st Gear de- or reactivation (optional)",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungskühlung",
+              "nameEn": "Improved clutch cooling",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Thermomanagement",
+              "nameEn": "Improved thermomanagment",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Performance-Optionen",
+          "description": "Diverse notwendige Software-Anpassungen für maximale Performance bei Beschleunigung sowie beim Hoch- und Runterschalten – bei weiterhin sanfter Fahrbarkeit. Perfekt abgestimmte Schaltstrategien für jede Motor-Getriebe-Kombination.",
+          "options": [
+            {
+              "name": "Getriebedrehmoment max. [Nm]",
+              "nameEn": "Maximum gearbox torque [Nm]",
+              "stages": {
+                "fahrbarkeit": "Serie",
+                "stage1": "500 Nm",
+                "stage2": "600 Nm",
+                "stage2plus": "600 Nm",
+                "stage3": "700 Nm",
+                "stage4": "850 Nm"
+              }
+            },
+            {
+              "name": "Erhöhter maximaler Kupplungsdruck [bar]",
+              "nameEn": "Increased maximum clutch pressure [bar]",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": "-",
+                "stage2": "15-16",
+                "stage2plus": "15-16",
+                "stage3": "18-19",
+                "stage4": "18-19"
+              }
+            },
+            {
+              "name": "Notwendige Drehmomentbegrenzer angehoben",
+              "nameEn": "Necessary torque limiters raised",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": true,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Schnellere Hoch- und Runterschaltzeiten (D+S+M-Modus)",
+              "nameEn": "Improved up- and downshifting speed (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Ansprechverhalten der Schaltwippen",
+              "nameEn": "Improved shifting paddles response",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Anfahrverhalten (D+S+M-Modus)",
+              "nameEn": "Improved take off (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Drehmomentreduzierung beim Schalten (D+S+M-Modus)",
+              "nameEn": "Improved torque reduction during shifting (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Hochschaltdrehzahlen bis 8000 U/min",
+              "nameEn": "Customized upshift RPM setpoints up to 8000 rpm",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Runterschaltpunkte",
+              "nameEn": "Customized downshift RPM setpoints",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Hochschalten OFF (*)",
+              "nameEn": "Automatic upshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Runterschalten OFF (*)",
+              "nameEn": "Automatic downshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Kick-down-Deaktivierung (optional)",
+              "nameEn": "Kick-down deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Race-Modus ohne Drehmomentreduzierung (optional)",
+              "nameEn": "Race mode without torque reduction (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Race-Kupplungskennlinien-Kalibrierung",
+              "nameEn": "Special race clutch characteristics calibration",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Anti-Rupfen-Anfahrfunktion",
+              "nameEn": "Special anti judder take-off functionality",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Launch Control",
+          "description": "Aktivierung und/oder Erweiterung der Launch Control inkl. benutzerdefinierbarer Launch-Einstellungen",
+          "options": [
+            {
+              "name": "Verbesserte LC-Reaktionszeit für schnellere Starts",
+              "nameEn": "Improved LC response time for quicker launches",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Mehrstufige LC-Drehzahlbegrenzung",
+              "nameEn": "Multi-step LC RPM limits",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Unterschiedliche LC-Modi für D/S/M",
+              "nameEn": "Different LC modes for D/S/M mode",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "LC-Aktivierung bei eingeschaltetem ESP",
+              "nameEn": "LC with ESP ON activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Boost-on-Launch-Modus (inkl. „Rally-Sound“)",
+              "nameEn": "Boost on Launch mode (included \"rally sound\")",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zusätzliche Optionen",
+          "description": "Weitere optionale Funktionen, verfügbar für bestimmte Modelle",
+          "options": [
+            {
+              "name": "Aktivierung der Ganganzeige (MFA)",
+              "nameEn": "Gear Display Indicator (MFA) activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierte Motorbremse",
+              "nameEn": "Reduced engine braking",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Deaktivierung des Segelmodus (Coasting)",
+              "nameEn": "Coasting disabling",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DQ500",
+      "categories": [
+        {
+          "name": "Verbesserte Fahrbarkeit",
+          "description": "Einzigartige, auf den Motor abgestimmte Schaltstrategien für ultra-sanftes Hoch- und Runterschalten",
+          "options": [
+            {
+              "name": "D-Optimierung",
+              "nameEn": "Optimized D Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "S-Optimierung",
+              "nameEn": "Optimized S Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "M-Optimierung",
+              "nameEn": "Optimized M Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Tempomat-Optimierung",
+              "nameEn": "Optimized Cruise Control Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optionen zur Lebensdauerverlängerung",
+          "description": "Nachhaltige Software-Lösungen für eine verlängerte Getriebelebensdauer",
+          "options": [
+            {
+              "name": "De- oder Reaktivierung des 1. Gangs (optional)",
+              "nameEn": "1st Gear de- or reactivation (optional)",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungskühlung",
+              "nameEn": "Improved clutch cooling",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Thermomanagement",
+              "nameEn": "Improved thermomanagment",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Performance-Optionen",
+          "description": "Diverse notwendige Software-Anpassungen für maximale Performance bei Beschleunigung sowie beim Hoch- und Runterschalten – bei weiterhin sanfter Fahrbarkeit. Perfekt abgestimmte Schaltstrategien für jede Motor-Getriebe-Kombination.",
+          "options": [
+            {
+              "name": "Getriebedrehmoment max. [Nm]",
+              "nameEn": "Maximum gearbox torque [Nm]",
+              "stages": {
+                "fahrbarkeit": "Serie",
+                "stage1": "600 Nm",
+                "stage2": "700 Nm",
+                "stage2plus": "700 Nm",
+                "stage3": "800 Nm",
+                "stage4": "1000 Nm"
+              }
+            },
+            {
+              "name": "Erhöhter maximaler Kupplungsdruck [bar]",
+              "nameEn": "Increased maximum clutch pressure [bar]",
+              "stages": {
+                "fahrbarkeit": "-",
+                "stage1": "-",
+                "stage2": "14-15",
+                "stage2plus": "14-15",
+                "stage3": "18-19",
+                "stage4": "18-19"
+              }
+            },
+            {
+              "name": "Notwendige Drehmomentbegrenzer angehoben",
+              "nameEn": "Necessary torque limiters raised",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Schnellere Hoch- und Runterschaltzeiten (D+S+M-Modus)",
+              "nameEn": "Improved up- and downshifting speed (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Ansprechverhalten der Schaltwippen",
+              "nameEn": "Improved shifting paddles response",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Anfahrverhalten (D+S+M-Modus)",
+              "nameEn": "Improved take off (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Drehmomentreduzierung beim Schalten (D+S+M-Modus)",
+              "nameEn": "Improved torque reduction during shifting (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Hochschaltdrehzahlen bis 8000 U/min",
+              "nameEn": "Customized upshift RPM setpoints up to 8000 rpm",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Runterschaltpunkte",
+              "nameEn": "Customized downshift RPM setpoints",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Hochschalten OFF (*)",
+              "nameEn": "Automatic upshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Runterschalten OFF (*)",
+              "nameEn": "Automatic downshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Kick-down-Deaktivierung (optional)",
+              "nameEn": "Kick-down deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Race-Modus ohne Drehmomentreduzierung (optional)",
+              "nameEn": "Race mode without torque reduction (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Race-Kupplungskennlinien-Kalibrierung",
+              "nameEn": "Special race clutch characteristics calibration",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Anti-Rupfen-Anfahrfunktion",
+              "nameEn": "Special anti judder take-off functionality",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Launch Control",
+          "description": "Aktivierung und/oder Erweiterung der Launch Control inkl. benutzerdefinierbarer Launch-Einstellungen",
+          "options": [
+            {
+              "name": "Verbesserte LC-Reaktionszeit für schnellere Starts",
+              "nameEn": "Improved LC response time for quicker launches",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Mehrstufige LC-Drehzahlbegrenzung",
+              "nameEn": "Multi-step LC RPM limits",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Unterschiedliche LC-Modi für D/S/M",
+              "nameEn": "Different LC modes for D/S/M mode",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "LC-Aktivierung bei eingeschaltetem ESP",
+              "nameEn": "LC with ESP ON activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Boost-on-Launch-Modus (inkl. „Rally-Sound“)",
+              "nameEn": "Boost on Launch mode (included \"rally sound\")",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zusätzliche Optionen",
+          "description": "Weitere optionale Funktionen, verfügbar für bestimmte Modelle",
+          "options": [
+            {
+              "name": "Aktivierung der Ganganzeige (MFA)",
+              "nameEn": "Gear Display Indicator (MFA) activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierte Motorbremse",
+              "nameEn": "Reduced engine braking",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Deaktivierung des Segelmodus (Coasting)",
+              "nameEn": "Coasting disabling",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DL382",
+      "categories": [
+        {
+          "name": "Verbesserte Fahrbarkeit",
+          "description": "Einzigartige, auf den Motor abgestimmte Schaltstrategien für ultra-sanftes Hoch- und Runterschalten",
+          "options": [
+            {
+              "name": "D-Optimierung",
+              "nameEn": "Optimized D Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "S-Optimierung",
+              "nameEn": "Optimized S Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "M-Optimierung",
+              "nameEn": "Optimized M Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Tempomat-Optimierung",
+              "nameEn": "Optimized Cruise Control Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optionen zur Lebensdauerverlängerung",
+          "description": "Nachhaltige Software-Lösungen für eine verlängerte Getriebelebensdauer",
+          "options": [
+            {
+              "name": "De- oder Reaktivierung des 1. Gangs (optional)",
+              "nameEn": "1st Gear de- or reactivation (optional)",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungskühlung",
+              "nameEn": "Improved clutch cooling",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Thermomanagement",
+              "nameEn": "Improved thermomanagment",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Performance-Optionen",
+          "description": "Diverse notwendige Software-Anpassungen für maximale Performance bei Beschleunigung sowie beim Hoch- und Runterschalten – bei weiterhin sanfter Fahrbarkeit. Perfekt abgestimmte Schaltstrategien für jede Motor-Getriebe-Kombination.",
+          "options": [
+            {
+              "name": "Getriebedrehmoment max. [Nm]",
+              "nameEn": "Maximum gearbox torque [Nm]",
+              "stages": {
+                "fahrbarkeit": "Serie",
+                "stage1": "450",
+                "stage2": "500",
+                "stage2plus": "500",
+                "stage3": "600",
+                "stage4": "750"
+              }
+            },
+            {
+              "name": "Erhöhter maximaler Kupplungsdruck [bar]",
+              "nameEn": "Increased maximum clutch pressure [bar]",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": "-",
+                "stage2": "21-22",
+                "stage2plus": "21-22",
+                "stage3": "22+",
+                "stage4": "22+"
+              }
+            },
+            {
+              "name": "Notwendige Drehmomentbegrenzer angehoben",
+              "nameEn": "Necessary torque limiters raised",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": true,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Schnellere Hoch- und Runterschaltzeiten (D+S+M-Modus)",
+              "nameEn": "Improved up- and downshifting speed (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Ansprechverhalten der Schaltwippen",
+              "nameEn": "Improved shifting paddles response",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Anfahrverhalten (D+S+M-Modus)",
+              "nameEn": "Improved take off (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Drehmomentreduzierung beim Schalten (D+S+M-Modus)",
+              "nameEn": "Improved torque reduction during shifting (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Hochschaltdrehzahlen bis 8000 U/min",
+              "nameEn": "Customized upshift RPM setpoints up to 8000 rpm",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Runterschaltpunkte",
+              "nameEn": "Customized downshift RPM setpoints",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Hochschalten OFF (*)",
+              "nameEn": "Automatic upshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Runterschalten OFF (*)",
+              "nameEn": "Automatic downshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Kick-down-Deaktivierung (optional)",
+              "nameEn": "Kick-down deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Race-Modus ohne Drehmomentreduzierung (optional)",
+              "nameEn": "Race mode without torque reduction (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Race-Kupplungskennlinien-Kalibrierung",
+              "nameEn": "Special race clutch characteristics calibration",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Anti-Rupfen-Anfahrfunktion",
+              "nameEn": "Special anti judder take-off functionality",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Launch Control",
+          "description": "Aktivierung und/oder Erweiterung der Launch Control inkl. benutzerdefinierbarer Launch-Einstellungen",
+          "options": [
+            {
+              "name": "Verbesserte LC-Reaktionszeit für schnellere Starts",
+              "nameEn": "Improved LC response time for quicker launches",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Mehrstufige LC-Drehzahlbegrenzung",
+              "nameEn": "Multi-step LC RPM limits",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Unterschiedliche LC-Modi für D/S/M",
+              "nameEn": "Different LC modes for D/S/M mode",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "LC-Aktivierung bei eingeschaltetem ESP",
+              "nameEn": "LC with ESP ON activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Boost-on-Launch-Modus (inkl. „Rally-Sound“)",
+              "nameEn": "Boost on Launch mode (included \"rally sound\")",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zusätzliche Optionen",
+          "description": "Weitere optionale Funktionen, verfügbar für bestimmte Modelle",
+          "options": [
+            {
+              "name": "Aktivierung der Ganganzeige (MFA)",
+              "nameEn": "Gear Display Indicator (MFA) activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierte Motorbremse",
+              "nameEn": "Reduced engine braking",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Deaktivierung des Segelmodus (Coasting)",
+              "nameEn": "Coasting disabling",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DL501",
+      "categories": [
+        {
+          "name": "Verbesserte Fahrbarkeit",
+          "description": "Einzigartige, auf den Motor abgestimmte Schaltstrategien für ultra-sanftes Hoch- und Runterschalten",
+          "options": [
+            {
+              "name": "D-Optimierung",
+              "nameEn": "Optimized D Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "S-Optimierung",
+              "nameEn": "Optimized S Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "M-Optimierung",
+              "nameEn": "Optimized M Shift Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Tempomat-Optimierung",
+              "nameEn": "Optimized Cruise Control Program",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Optionen zur Lebensdauerverlängerung",
+          "description": "Nachhaltige Software-Lösungen für eine verlängerte Getriebelebensdauer",
+          "options": [
+            {
+              "name": "De- oder Reaktivierung des 1. Gangs (optional)",
+              "nameEn": "1st Gear de- or reactivation (optional)",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbesserte Kupplungskühlung",
+              "nameEn": "Improved clutch cooling",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Thermomanagement",
+              "nameEn": "Improved thermomanagment",
+              "stages": {
+                "fahrbarkeit": true,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Performance-Optionen",
+          "description": "Diverse notwendige Software-Anpassungen für maximale Performance bei Beschleunigung sowie beim Hoch- und Runterschalten – bei weiterhin sanfter Fahrbarkeit. Perfekt abgestimmte Schaltstrategien für jede Motor-Getriebe-Kombination.",
+          "options": [
+            {
+              "name": "Getriebedrehmoment max. [Nm]",
+              "nameEn": "Maximum gearbox torque [Nm]",
+              "stages": {
+                "fahrbarkeit": "Serie",
+                "stage1": "600 Nm",
+                "stage2": "700 Nm",
+                "stage2plus": "700 Nm",
+                "stage3": "800 Nm",
+                "stage4": "1000 Nm"
+              }
+            },
+            {
+              "name": "Erhöhter maximaler Kupplungsdruck [bar]",
+              "nameEn": "Increased maximum clutch pressure [bar]",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": "-",
+                "stage2": "14-15",
+                "stage2plus": "14-15",
+                "stage3": "18-19",
+                "stage4": "18-19"
+              }
+            },
+            {
+              "name": "Notwendige Drehmomentbegrenzer angehoben",
+              "nameEn": "Necessary torque limiters raised",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": true,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Schnellere Hoch- und Runterschaltzeiten (D+S+M-Modus)",
+              "nameEn": "Improved up- and downshifting speed (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Ansprechverhalten der Schaltwippen",
+              "nameEn": "Improved shifting paddles response",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Verbessertes Anfahrverhalten (D+S+M-Modus)",
+              "nameEn": "Improved take off (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Drehmomentreduzierung beim Schalten (D+S+M-Modus)",
+              "nameEn": "Improved torque reduction during shifting (D+S+M mode)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Hochschaltdrehzahlen bis 8000 U/min",
+              "nameEn": "Customized upshift RPM setpoints up to 8000 rpm",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Optimierte Runterschaltpunkte",
+              "nameEn": "Customized downshift RPM setpoints",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Hochschalten OFF (*)",
+              "nameEn": "Automatic upshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Auto-Runterschalten OFF (*)",
+              "nameEn": "Automatic downshift deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Kick-down-Deaktivierung (optional)",
+              "nameEn": "Kick-down deactivation (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Race-Modus ohne Drehmomentreduzierung (optional)",
+              "nameEn": "Race mode without torque reduction (optional)",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Race-Kupplungskennlinien-Kalibrierung",
+              "nameEn": "Special race clutch characteristics calibration",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Spezielle Anti-Rupfen-Anfahrfunktion",
+              "nameEn": "Special anti judder take-off functionality",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": false,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Launch Control",
+          "description": "Aktivierung und/oder Erweiterung der Launch Control inkl. benutzerdefinierbarer Launch-Einstellungen",
+          "options": [
+            {
+              "name": "Verbesserte LC-Reaktionszeit für schnellere Starts",
+              "nameEn": "Improved LC response time for quicker launches",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Mehrstufige LC-Drehzahlbegrenzung",
+              "nameEn": "Multi-step LC RPM limits",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Unterschiedliche LC-Modi für D/S/M",
+              "nameEn": "Different LC modes for D/S/M mode",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "LC-Aktivierung bei eingeschaltetem ESP",
+              "nameEn": "LC with ESP ON activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": true,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Boost-on-Launch-Modus (inkl. „Rally-Sound“)",
+              "nameEn": "Boost on Launch mode (included \"rally sound\")",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": false,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zusätzliche Optionen",
+          "description": "Weitere optionale Funktionen, verfügbar für bestimmte Modelle",
+          "options": [
+            {
+              "name": "Aktivierung der Ganganzeige (MFA)",
+              "nameEn": "Gear Display Indicator (MFA) activation",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Reduzierte Motorbremse",
+              "nameEn": "Reduced engine braking",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            },
+            {
+              "name": "Deaktivierung des Segelmodus (Coasting)",
+              "nameEn": "Coasting disabling",
+              "stages": {
+                "fahrbarkeit": false,
+                "stage1": false,
+                "stage2": false,
+                "stage2plus": true,
+                "stage3": true,
+                "stage4": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

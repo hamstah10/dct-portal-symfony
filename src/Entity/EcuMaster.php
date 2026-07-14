@@ -26,6 +26,9 @@ class EcuMaster
     private ?string $controlUnitKind = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    private ?string $processor = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
     #[ORM\ManyToOne]
@@ -86,6 +89,18 @@ class EcuMaster
     public function setControlUnitKind(?string $controlUnitKind): static
     {
         $this->controlUnitKind = $controlUnitKind;
+
+        return $this;
+    }
+
+    public function getProcessor(): ?string
+    {
+        return $this->processor;
+    }
+
+    public function setProcessor(?string $processor): static
+    {
+        $this->processor = $processor;
 
         return $this;
     }

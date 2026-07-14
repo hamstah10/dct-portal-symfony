@@ -1,4 +1,57 @@
 entries:
+  - date: "2026-07-10"
+    version: "v2026.07.10.2"
+    type: "feature"
+    portals: ["easyadmin", "superadmin"]
+    title: "Fahrzeugdatenbank: neue Stammdaten „Sportmarke“"
+    description: "Baureihen und Motoren können jetzt einer Sportmarke (z.B. M, AMG, RS, Abarth) zugeordnet werden — inklusive eigenem Logo, das in Fahrzeugdatenbank-API und Superadmin angezeigt wird."
+    items:
+      - "Neuer Stammdaten-Bereich „Sportmarke“ unter Fahrzeugdatenbank → Fahrzeuge → Stammdaten"
+      - "Sportmarke mit Name, Bild/Logo (Media Manager) und Beschreibung pflegbar"
+      - "Optional an Baureihe und/oder Motor hinterlegbar"
+      - "Fahrzeugdatenbank-API liefert die Sportmarke (Name, Logo) mit an Baureihe und Motor aus"
+      - "Sportmarken-Logo erscheint im Superadmin bei Fahrzeugsuche und Motor-Details"
+
+  - date: "2026-07-10"
+    version: "v2026.07.10.1"
+    type: "fix"
+    portals: ["mobile"]
+    title: "Mobile App: Login-Token jetzt sicher gespeichert"
+    description: "Die DCT Files Admin App (iOS/Android) speicherte den Login-Token bisher unverschlüsselt in AsyncStorage. Er landet jetzt im geschützten Secure Store (iOS Keychain / Android Keystore)."
+    items:
+      - "expo-secure-store ersetzt AsyncStorage für den Auth-Token"
+      - "Benutzerdaten und Portal-Infos bleiben weiterhin in AsyncStorage (unkritisch)"
+      - "Betrifft Login, Session-Wiederherstellung und Logout"
+
+  - date: "2026-07-10"
+    version: "v2026.07.10.0"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "Partner Wizard: Fragebogen frei konfigurierbar"
+    description: "Der Fragebogen des Partner-Wizard-Widgets war bisher fest im Code hinterlegt. Er lässt sich jetzt komplett im EasyAdmin bearbeiten — inklusive Reihenfolge, Feldtypen, Pflichtfeldern und bedingter Anzeige einzelner Fragen."
+    items:
+      - "Neue Bereiche „Schritte“, „Fragen“ und „Antwortoptionen“ unter Tools → Partner Wizard"
+      - "Fragen unterstützen Feldtyp, Mehrfachauswahl, Pflichtfeld sowie bedingte Anzeige abhängig von einer vorherigen Antwort"
+      - "Antwortoptionen können ein Icon/Bild über den Media Manager erhalten"
+      - "Neuer Vorschau-Button direkt in der Partner-Wizard-Client-Liste öffnet das Widget live in neuem Tab"
+      - "Produktempfehlungen (Shop-Produkte) sind jetzt direkt am Client hinterlegbar"
+      - "Sonderpreis eines Shop-Produkts wird in Tool- und Produktempfehlungen berücksichtigt"
+      - "Paket-Empfehlung berücksichtigt jetzt zusätzlich das gewünschte Website-Paket (Komplettpaket / nur Website / nur Konfigurator)"
+
+  - date: "2026-07-06"
+    version: "v2026.07.06.3"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "ECU Intelligence: Fahrzeugdatenbank-Abgleich für erkannte ECUs"
+    description: "Aus News automatisch erkannte ECUs lassen sich jetzt direkt gegen die echte Fahrzeugdatenbank abgleichen — als konkreter Vorschlag, welche Fahrzeuge/Motoren von einer neuen Tool-Unterstützung betroffen sein könnten."
+    items:
+      - "Neue Bereiche „Fahrzeug-Matches“ und „Plattform-Aliase“ unter ECU Intelligence"
+      - "Button „Fahrzeuge matchen“ an jeder erkannten ECU gleicht sie gegen die Fahrzeugdatenbank ab"
+      - "Score-basiertes Matching (ECU-Name, Familie, MCU, Fahrzeug-Hinweis, Hersteller, Protokoll/Methode) mit Konfidenz-Stufen exakt/stark/wahrscheinlich/möglich"
+      - "Markenverwandtschaften wie Fiat Ducato ↔ Peugeot Boxer über pflegbare Plattform-Aliase berücksichtigt"
+      - "Treffer können bestätigt, abgelehnt, ignoriert oder veröffentlicht werden"
+      - "Neuer Kombi-Button „Analyse + Matching starten“ an jeder Anbieter-News führt ECU-Erkennung und Fahrzeug-Matching in einem Schritt aus"
+
   - date: "2026-07-06"
     version: "v2026.07.06.2"
     type: "fix"

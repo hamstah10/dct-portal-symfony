@@ -20,6 +20,7 @@ final class SuperadminPortalBootstrapBuilder
         Portal::MODULE_OPS_EMAIL => ['label' => 'E-Mail', 'path' => '/operations/email'],
         Portal::MODULE_OPS_CALENDAR => ['label' => 'Kalender', 'path' => '/operations/calendar'],
         Portal::MODULE_OPS_INSTALLATION => ['label' => 'Installation', 'path' => '/operations/installation'],
+        Portal::MODULE_OPS_DSG => ['label' => 'DSG-Optionen', 'path' => '/operations/dsg'],
     ];
 
     /**

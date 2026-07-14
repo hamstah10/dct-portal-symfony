@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\CodeEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Tfd\PartnerWizardBundle\Entity\PartnerWizardClient;
 
 final class PartnerWizardClientCrudController extends AbstractCrudController
@@ -33,11 +34,30 @@ final class PartnerWizardClientCrudController extends AbstractCrudController
         yield ArrayField::new('allowedDomains', 'Erlaubte Domains')->hideOnIndex();
         yield AssociationField::new('enabledVehicleCategories', 'Aktive Fahrzeugarten')->autocomplete()->setFormTypeOption('by_reference', false)->hideOnIndex();
         yield AssociationField::new('enabledCurrentTools', 'Tools im Wizard')->autocomplete()->setFormTypeOption('by_reference', false)->hideOnIndex();
+        yield AssociationField::new('recommendedProducts', 'Produktempfehlungen')->autocomplete()->setFormTypeOption('by_reference', false)->hideOnIndex();
         yield ArrayField::new('enabledServices', 'Aktive Leistungen')->hideOnIndex();
         yield ArrayField::new('customLabels', 'Eigene Labels')->hideOnIndex();        yield TextareaField::new('privacyNotice', 'DSGVO Hinweis')->hideOnIndex();
         yield TextareaField::new('toolDisclaimer', 'Tool Disclaimer')->hideOnIndex();
         yield TextField::new('notificationEmail', 'Benachrichtigung an');
         yield BooleanField::new('sendNotificationEmail', 'E-Mail senden');
         yield BooleanField::new('active', 'Aktiv');
+        yield TextField::new('clientId', 'Vorschau')
+            ->onlyOnIndex()
+            ->renderAsHtml()
+            ->formatValue(fn (mixed $value, ?PartnerWizardClient $client): string => $this->renderPreviewButton($client));
+    }
+
+    private function renderPreviewButton(?PartnerWizardClient $client): string
+    {
+        if (!$client instanceof PartnerWizardClient || null === $client->getId()) {
+            return '';
+        }
+
+        $url = $this->generateUrl('tfd_partner_wizard_preview', ['clientId' => $client->getClientId()], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return sprintf(
+            '<a href="%s" class="btn btn-secondary btn-sm" target="_blank" rel="noopener"><i class="fa fa-eye me-1" aria-hidden="true"></i> Vorschau</a>',
+            htmlspecialchars($url, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+        );
     }
 }

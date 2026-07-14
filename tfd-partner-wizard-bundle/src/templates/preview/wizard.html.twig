@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Partner Wizard – Vorschau: {{ client.name }}</title>
+<link rel="stylesheet" href="/widgets/partner-wizard/style.css?v=17">
+<style>
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body.tfd-preview--dark {
+    background: #0f0f10;
+  }
+  body.tfd-preview--light {
+    background: #f2f2f2;
+  }
+  .tfd-preview-header {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+  }
+  .tfd-preview-header h1 {
+    font-size: 20px;
+    margin: 0 0 6px;
+  }
+  .tfd-preview-header p {
+    margin: 0;
+    font-size: 13px;
+  }
+  body.tfd-preview--dark .tfd-preview-header h1 { color: #fff; }
+  body.tfd-preview--dark .tfd-preview-header p { color: #888; }
+  body.tfd-preview--light .tfd-preview-header h1 { color: #1a1a1a; }
+  body.tfd-preview--light .tfd-preview-header p { color: #666; }
+  .tfd-preview-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body class="tfd-preview--{{ client.theme == 'light' ? 'light' : 'dark' }}">
+
+<div class="tfd-preview-header">
+  <h1>Partner Wizard – Vorschau</h1>
+  <p>Client: <code>{{ client.clientId }}</code> ({{ client.name }}) — Theme: <code>{{ client.theme }}</code> — nur zur internen Ansicht, nicht verlinkt.</p>
+</div>
+
+<div class="tfd-preview-wrap">
+  <tfd-partner-wizard
+    client-id="{{ client.clientId }}"
+    api-base-url="/"
+    primary-color="{{ client.primaryColor }}"
+    theme="{{ client.theme == 'light' ? 'light' : 'dark' }}">
+  </tfd-partner-wizard>
+</div>
+
+<script src="/widgets/partner-wizard/tfd-partner-wizard.umd.js?v=17"></script>
+</body>
+</html>

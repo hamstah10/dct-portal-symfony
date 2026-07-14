@@ -97,4 +97,76 @@ final class VehicleApiProxyController extends AbstractController
 
         return $this->vehicleApiProxy->proxyAsset($path);
     }
+
+    #[Route('/vehicle-api/admin/stages/save', name: 'superadmin_portal_vehicle_api_admin_stages_save', methods: ['POST'])]
+    public function saveStage(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/stages/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/series/save', name: 'superadmin_portal_vehicle_api_admin_series_save', methods: ['POST'])]
+    public function saveSeries(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/series/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/models/save', name: 'superadmin_portal_vehicle_api_admin_models_save', methods: ['POST'])]
+    public function saveModel(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/models/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/engines/save', name: 'superadmin_portal_vehicle_api_admin_engines_save', methods: ['POST'])]
+    public function saveEngine(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/engines/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/options/save', name: 'superadmin_portal_vehicle_api_admin_options_save', methods: ['POST'])]
+    public function saveOption(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/options/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/ecus/save', name: 'superadmin_portal_vehicle_api_admin_ecus_save', methods: ['POST'])]
+    public function saveEcu(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/ecus/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/gearboxes/save', name: 'superadmin_portal_vehicle_api_admin_gearboxes_save', methods: ['POST'])]
+    public function saveGearbox(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/gearboxes/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/hints/save', name: 'superadmin_portal_vehicle_api_admin_hints_save', methods: ['POST'])]
+    public function saveHint(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/hints/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/tool-entries/save', name: 'superadmin_portal_vehicle_api_admin_tool_entries_save', methods: ['POST'])]
+    public function saveToolEntry(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/tool-entries/save', $request, $portalRuntimeResolver);
+    }
+
+    #[Route('/vehicle-api/admin/stages/{id}/inactive', name: 'superadmin_portal_vehicle_api_admin_stages_inactive', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function deactivateStage(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        return $this->proxyAdminSave('/admin/stages/' . $id . '/inactive', $request, $portalRuntimeResolver);
+    }
+
+    private function proxyAdminSave(string $path, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portal = $portalRuntimeResolver->requirePortalSystem($request);
+
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload)) {
+            $payload = [];
+        }
+
+        return $this->vehicleApiProxy->proxyPost($path, $payload, null, $portal);
+    }
 }

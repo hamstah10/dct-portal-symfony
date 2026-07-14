@@ -23,6 +23,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NullFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
@@ -163,6 +164,10 @@ final class VehicleBrandCrudController extends AbstractCrudController
                 ->formatValue(fn (?string $value): string => $this->renderSingleImagePreview($value)),
             CkEditor5Field::new('description'),
             TextField::new('slug'),
+            TextareaField::new('synonyms', 'Synonyme')
+                ->hideOnIndex()
+                ->setRequired(false)
+                ->setHelp('Alternative Suchbegriffe, kommagetrennt oder zeilenweise – z.B. "vw, volkswagon". Die Marke wird dann auch über diese Begriffe gefunden.'),
             IntegerField::new('sorting'),
             BooleanField::new('active'),
             BooleanField::new('showInTopMenu', 'Top Menü'),

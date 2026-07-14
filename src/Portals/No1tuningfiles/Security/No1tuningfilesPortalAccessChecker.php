@@ -8,7 +8,7 @@ use App\Entity\Kunde;
 
 final class No1tuningfilesPortalAccessChecker
 {
-    private const ALLOWED_COMPANY_CODE = 'NO';
+    private const ALLOWED_COMPANY_CODES = ['NO', 'NO1'];
 
     public function canAccess(Kunde $customer): bool
     {
@@ -18,6 +18,6 @@ final class No1tuningfilesPortalAccessChecker
 
         $companyCode = strtoupper(trim((string) $customer->getFirma()?->getKuerzel()));
 
-        return self::ALLOWED_COMPANY_CODE === $companyCode;
+        return in_array($companyCode, self::ALLOWED_COMPANY_CODES, true);
     }
 }

@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -70,6 +71,14 @@ final class VehicleDataPoolCrudController extends AbstractCrudController
             TextField::new('poolKey', 'Key'),
             TextareaField::new('description')->setRequired(false),
             AssociationField::new('vehicleTypes', 'Fahrzeugtypen'),
+
+            FormField::addFieldset('Sichtbare Inhalte')
+                ->setHelp('Steuert, welche Inhalte in der API-Antwort dieses Datenbestands enthalten sind.'),
+            BooleanField::new('showPrices', 'Preise anzeigen'),
+            BooleanField::new('showHints', 'Hinweise anzeigen'),
+            BooleanField::new('showGearbox', 'Getriebe anzeigen'),
+            BooleanField::new('showDyno', 'Dyno-Chart anzeigen'),
+            BooleanField::new('showEcoStage', 'Eco-Stage anzeigen'),
         ];
     }
 

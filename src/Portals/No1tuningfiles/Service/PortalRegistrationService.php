@@ -60,9 +60,11 @@ final class PortalRegistrationService
         }
 
         $portalConfig = $this->portalRuntimeResolver->resolveCurrentPortal();
-        $firma = $this->firmaRepository->findActiveByKuerzel('NO') ?? $portalConfig?->getFirma();
+        $firma = $this->firmaRepository->findActiveByKuerzel('NO1')
+            ?? $this->firmaRepository->findActiveByKuerzel('NO')
+            ?? $portalConfig?->getFirma();
         if (null === $firma) {
-            throw new \RuntimeException('Die Firma no1tuningfiles.com (NO) wurde nicht gefunden oder ist inaktiv.');
+            throw new \RuntimeException('Die Firma no1tuningfiles.com (NO1) wurde nicht gefunden oder ist inaktiv.');
         }
 
         $plainPassword = trim((string) ($payload['plainPassword'] ?? ''));

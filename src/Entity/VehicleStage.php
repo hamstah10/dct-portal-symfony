@@ -76,6 +76,12 @@ class VehicleStage
     private ?string $engineType = null;
 
     /**
+     * @var array<string, mixed>|null
+     */
+    #[ORM\Column(name: 'dyno_chart', type: Types::JSON, nullable: true)]
+    private ?array $dynoChart = null;
+
+    /**
      * @var array<int, mixed>
      */
     private array $uploadedImages = [];
@@ -364,6 +370,45 @@ class VehicleStage
     public function setEngineType(?string $engineType): static
     {
         $this->engineType = $engineType;
+
+        return $this;
+    }
+
+    public function getDynoChart(): ?array
+    {
+        return $this->dynoChart;
+    }
+
+    /**
+     * @param array<string, mixed>|null $dynoChart
+     */
+    public function setDynoChart(?array $dynoChart): static
+    {
+        $this->dynoChart = $dynoChart;
+
+        return $this;
+    }
+
+    public function getDynoChartJson(): ?string
+    {
+        if (null === $this->dynoChart) {
+            return null;
+        }
+
+        return json_encode($this->dynoChart, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES) ?: null;
+    }
+
+    public function setDynoChartJson(?string $dynoChartJson): static
+    {
+        $value = trim((string) $dynoChartJson);
+        if ('' === $value) {
+            $this->dynoChart = null;
+
+            return $this;
+        }
+
+        $decoded = json_decode($value, true);
+        $this->dynoChart = is_array($decoded) ? $decoded : $this->dynoChart;
 
         return $this;
     }

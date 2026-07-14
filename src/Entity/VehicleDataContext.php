@@ -36,6 +36,27 @@ class VehicleDataContext
     #[ORM\Column]
     private bool $active = true;
 
+    #[ORM\Column]
+    private bool $showPrices = true;
+
+    #[ORM\Column]
+    private bool $showHints = true;
+
+    #[ORM\Column]
+    private bool $showGearbox = true;
+
+    #[ORM\Column]
+    private bool $showDyno = true;
+
+    #[ORM\Column]
+    private bool $showEcoStage = true;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $showOptionCategories = true;
+
+    #[ORM\Column]
+    private bool $allowVehicleEditing = false;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'default_vehicle_data_pool', referencedColumnName: 'uid', nullable: true, onDelete: 'SET NULL')]
     private ?VehicleDataPool $defaultVehicleDataPool = null;
@@ -139,6 +160,90 @@ class VehicleDataContext
     public function setActive(bool $active): static
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function isShowPrices(): bool
+    {
+        return $this->showPrices;
+    }
+
+    public function setShowPrices(bool $showPrices): static
+    {
+        $this->showPrices = $showPrices;
+
+        return $this;
+    }
+
+    public function isShowHints(): bool
+    {
+        return $this->showHints;
+    }
+
+    public function setShowHints(bool $showHints): static
+    {
+        $this->showHints = $showHints;
+
+        return $this;
+    }
+
+    public function isShowGearbox(): bool
+    {
+        return $this->showGearbox;
+    }
+
+    public function setShowGearbox(bool $showGearbox): static
+    {
+        $this->showGearbox = $showGearbox;
+
+        return $this;
+    }
+
+    public function isShowDyno(): bool
+    {
+        return $this->showDyno;
+    }
+
+    public function setShowDyno(bool $showDyno): static
+    {
+        $this->showDyno = $showDyno;
+
+        return $this;
+    }
+
+    public function isShowEcoStage(): bool
+    {
+        return $this->showEcoStage;
+    }
+
+    public function setShowEcoStage(bool $showEcoStage): static
+    {
+        $this->showEcoStage = $showEcoStage;
+
+        return $this;
+    }
+
+    public function isShowOptionCategories(): bool
+    {
+        return $this->showOptionCategories;
+    }
+
+    public function setShowOptionCategories(bool $showOptionCategories): static
+    {
+        $this->showOptionCategories = $showOptionCategories;
+
+        return $this;
+    }
+
+    public function isAllowVehicleEditing(): bool
+    {
+        return $this->allowVehicleEditing;
+    }
+
+    public function setAllowVehicleEditing(bool $allowVehicleEditing): static
+    {
+        $this->allowVehicleEditing = $allowVehicleEditing;
 
         return $this;
     }

@@ -28,6 +28,10 @@ class EcuOption
     #[ORM\JoinColumn(name: 'master_option', referencedColumnName: 'uid', nullable: true, onDelete: 'SET NULL')]
     private ?EcuOptionMaster $masterOption = null;
 
+    #[ORM\ManyToOne(inversedBy: 'options')]
+    #[ORM\JoinColumn(name: 'category_master_id', referencedColumnName: 'uid', nullable: true, onDelete: 'SET NULL')]
+    private ?EcuOptionCategoryMaster $categoryMaster = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -65,6 +69,12 @@ class EcuOption
     #[ORM\ManyToMany(targetEntity: Ecu::class, mappedBy: 'options')]
     private Collection $ecus;
 
+    /**
+     * @var Collection<int, VehicleEngine>
+     */
+    #[ORM\ManyToMany(targetEntity: VehicleEngine::class, mappedBy: 'options')]
+    private Collection $vehicleEngines;
+
     private mixed $uploadedImage = null;
 
     /**
@@ -75,6 +85,7 @@ class EcuOption
     public function __construct()
     {
         $this->ecus = new ArrayCollection();
+        $this->vehicleEngines = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -119,6 +130,18 @@ class EcuOption
     public function setMasterOption(?EcuOptionMaster $masterOption): static
     {
         $this->masterOption = $masterOption;
+
+        return $this;
+    }
+
+    public function getCategoryMaster(): ?EcuOptionCategoryMaster
+    {
+        return $this->categoryMaster;
+    }
+
+    public function setCategoryMaster(?EcuOptionCategoryMaster $categoryMaster): static
+    {
+        $this->categoryMaster = $categoryMaster;
 
         return $this;
     }
@@ -291,5 +314,13 @@ class EcuOption
     public function getEcus(): Collection
     {
         return $this->ecus;
+    }
+
+    /**
+     * @return Collection<int, VehicleEngine>
+     */
+    public function getVehicleEngines(): Collection
+    {
+        return $this->vehicleEngines;
     }
 }

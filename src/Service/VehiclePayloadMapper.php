@@ -8,6 +8,7 @@ use App\Entity\EcuOptionHint;
 use App\Entity\EinbauHinweis;
 use App\Entity\Gearbox;
 use App\Entity\MediaAsset;
+use App\Entity\PerformanceBrand;
 use App\Entity\VehicleEngine;
 use App\Entity\VehicleFrontendSettings;
 use App\Entity\VehicleStage;
@@ -26,7 +27,7 @@ final class VehiclePayloadMapper
     ) {
     }
 
-    public function mapStagePayload(VehicleStage $stage, bool $showPrices): array
+    public function mapStagePayload(VehicleStage $stage, bool $showPrices, bool $showDyno = true): array
     {
         return [
             'id' => $stage->getId(),
@@ -39,6 +40,14 @@ final class VehiclePayloadMapper
             'icon' => $stage->getResolvedIconPath(),
             'images' => self::toPathList($stage->getImages()),
             'videos' => $stage->getVideos(),
+            'dynoChart' => $showDyno ? $stage->getDynoChart() : null,
+            'slug' => $stage->getSlug(),
+            'originalPs' => $stage->getOriginalPs(),
+            'originalNm' => $stage->getOriginalNm(),
+            'rpmStart' => $stage->getRpmStart(),
+            'rpmEnd' => $stage->getRpmEnd(),
+            'engineType' => $stage->getEngineType(),
+            'active' => $stage->isActive(),
         ];
     }
 
@@ -47,9 +56,9 @@ final class VehiclePayloadMapper
      *
      * @return array<int, array<string, mixed>>
      */
-    public function mapStagePayloads(array $stages, bool $showPrices): array
+    public function mapStagePayloads(array $stages, bool $showPrices, bool $showDyno = true): array
     {
-        return array_values(array_map(fn (VehicleStage $stage): array => $this->mapStagePayload($stage, $showPrices), $stages));
+        return array_values(array_map(fn (VehicleStage $stage): array => $this->mapStagePayload($stage, $showPrices, $showDyno), $stages));
     }
 
     /**
@@ -57,7 +66,7 @@ final class VehiclePayloadMapper
      *
      * @return array<int, array<string, mixed>>
      */
-    public function mapEcuPayloads(array $ecus, bool $showPrices): array
+    public function mapEcuPayloads(array $ecus, bool $showPrices, bool $showHints = true, bool $showOptionCategories = true): array
     {
         return array_values(array_map(fn (Ecu $ecu): array => [
             'id' => $ecu->getId(),
@@ -65,14 +74,23 @@ final class VehiclePayloadMapper
             'type' => $this->resolveEcuType($ecu),
             'controlUnitKind' => $this->resolveEcuControlUnitKind($ecu),
             'manufacturer' => $this->resolveEcuManufacturerName($ecu),
+            'manufacturerId' => $ecu->getManufacturer()?->getId(),
+            'toolManufacturerId' => $ecu->getToolManufacturer()?->getId(),
             'manufacturerLogo' => $this->normalizePublicPath($this->resolveEcuManufacturerLogo($ecu)),
+            'description' => $ecu->getDescription(),
+            'image' => $this->normalizePublicPath($ecu->getImage()),
             'toolEntries' => array_values(array_map(fn ($entry) => [
+                'id' => $entry->getId(),
                 'manufacturer' => $entry->getToolManufacturer()?->getName(),
                 'manufacturerLogo' => $this->normalizePublicPath($entry->getToolManufacturer()?->getLogo()),
+                'toolManufacturerId' => $entry->getToolManufacturer()?->getId(),
+                'methodIds' => $entry->getToolMethods()->map(fn ($m) => $m->getId())->getValues(),
                 'methods' => $entry->getToolMethods()->map(fn ($m) => [
                     'name' => $m->getName(),
                     'icon' => $this->normalizePublicPath($m->getImage()),
                 ])->getValues(),
+                'position' => $entry->getPosition(),
+                'kind' => 'ecu',
             ], $ecu->getToolEntries()->toArray())),
             'toolManufacturer' => $ecu->getToolManufacturer()?->getName(),
             'toolManufacturerLogo' => $this->normalizePublicPath($ecu->getToolManufacturer()?->getLogo()),
@@ -80,15 +98,15 @@ final class VehiclePayloadMapper
                 'name' => $m->getName(),
                 'icon' => $this->normalizePublicPath($m->getImage()),
             ])->getValues(),
-            'options' => $this->mapEcuOptionPayloads($ecu, $showPrices),
-            'optionHints' => $this->mapEcuOptionHints($ecu),
+            'options' => $this->mapEcuOptionPayloads($ecu, $showPrices, $showOptionCategories),
+            'optionHints' => $showHints ? $this->mapEcuOptionHints($ecu) : [],
         ], $ecus));
     }
 
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function mapEcuOptionPayloads(Ecu $ecu, bool $showPrices): array
+    public function mapEcuOptionPayloads(Ecu $ecu, bool $showPrices, bool $showOptionCategories = true): array
     {
         $options = array_values(array_filter(
             $ecu->getOptions()->toArray(),
@@ -97,17 +115,62 @@ final class VehiclePayloadMapper
                 && $option->isActive()
                 && $option->getVehicleDataPool()?->getId() === $ecu->getVehicleDataPool()?->getId()
         ));
+
+        return $this->mapOptionPayloads($options, $showPrices, $showOptionCategories);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function mapEngineOptionPayloads(VehicleEngine $engine, bool $showPrices, bool $showOptionCategories = true): array
+    {
+        $options = array_values(array_filter(
+            $engine->getOptions()->toArray(),
+            static fn (mixed $option): bool => $option instanceof EcuOption
+                && null !== $option->getId()
+                && $option->isActive()
+                && $option->getVehicleDataPool()?->getId() === $engine->getVehicleDataPool()?->getId()
+        ));
+
+        return $this->mapOptionPayloads($options, $showPrices, $showOptionCategories);
+    }
+
+    /**
+     * @param array<int, EcuOption> $options
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function mapOptionPayloads(array $options, bool $showPrices, bool $showOptionCategories): array
+    {
         usort($options, fn (EcuOption $a, EcuOption $b): int => strnatcasecmp($this->resolveEcuOptionName($a), $this->resolveEcuOptionName($b)));
 
-        return array_values(array_map(fn (EcuOption $option): array => [
-            'id' => $option->getId(),
-            'name' => $this->resolveEcuOptionName($option),
-            'masterOptionName' => $option->getMasterOption()?->getName(),
-            'description' => $this->resolveEcuOptionDescription($option),
-            'icon' => $this->normalizePublicPath($this->resolveEcuOptionIcon($option)),
-            'price' => $showPrices ? $option->getPrice() : null,
-            'isMainOption' => $option->isMainOption(),
-        ], $options));
+        return array_values(array_map(function (EcuOption $option) use ($showPrices, $showOptionCategories): array {
+            $payload = [
+                'id' => $option->getId(),
+                'name' => $this->resolveEcuOptionName($option),
+                'masterOptionName' => $option->getMasterOption()?->getName(),
+                'description' => $this->resolveEcuOptionDescription($option),
+                'icon' => $this->normalizePublicPath($this->resolveEcuOptionIcon($option)),
+                'price' => $showPrices ? $option->getPrice() : null,
+                'isMainOption' => $option->isMainOption(),
+                'slug' => $option->getSlug(),
+                'tooltipText' => $option->getTooltipText(),
+                'active' => $option->isActive(),
+            ];
+
+            if ($showOptionCategories) {
+                $category = $option->getCategoryMaster() ?? $option->getMasterOption()?->getCategoryMaster();
+                $payload['category'] = $category instanceof \App\Entity\EcuOptionCategoryMaster ? [
+                    'id' => $category->getId(),
+                    'name' => $category->getName(),
+                    'slug' => $category->getSlug(),
+                    'icon' => $category->getResolvedIconPath(),
+                    'sorting' => $category->getSorting(),
+                ] : null;
+            }
+
+            return $payload;
+        }, $options));
     }
 
     /**
@@ -142,8 +205,25 @@ final class VehiclePayloadMapper
             'icon' => $this->normalizePublicPath($gearbox->getResolvedIconPath()),
             'images' => self::toPathList($gearbox->getImages()),
             'type' => $gearbox->getGearboxType()?->getTitle(),
+            'typeId' => $gearbox->getGearboxType()?->getId(),
             'manufacturer' => $gearbox->getManufacturer()?->getName(),
+            'manufacturerId' => $gearbox->getManufacturer()?->getId(),
             'manufacturerLogo' => $this->normalizePublicPath($gearbox->getManufacturer()?->getLogo()),
+            'sorting' => $gearbox->getSorting(),
+            'active' => $gearbox->isActive(),
+            'toolEntries' => array_values(array_map(fn ($entry) => [
+                'id' => $entry->getId(),
+                'manufacturer' => $entry->getToolManufacturer()?->getName(),
+                'manufacturerLogo' => $this->normalizePublicPath($entry->getToolManufacturer()?->getLogo()),
+                'toolManufacturerId' => $entry->getToolManufacturer()?->getId(),
+                'methodIds' => $entry->getToolMethods()->map(fn ($m) => $m->getId())->getValues(),
+                'methods' => $entry->getToolMethods()->map(fn ($m) => [
+                    'name' => $m->getName(),
+                    'icon' => $this->normalizePublicPath($m->getImage()),
+                ])->getValues(),
+                'position' => $entry->getPosition(),
+                'kind' => 'gearbox',
+            ], $gearbox->getToolEntries()->toArray())),
         ], $gearboxes));
     }
 
@@ -220,10 +300,22 @@ final class VehiclePayloadMapper
     }
 
     /**
+     * @param array{showPrices?: bool, showHints?: bool, showGearbox?: bool, showDyno?: bool, showEcoStage?: bool, showOptionCategories?: bool, allowVehicleEditing?: bool}|null $featureFlags
+     *
      * @return array<string, mixed>
      */
-    public function buildEngineDetailsData(VehicleEngine $engine, \App\Entity\VehicleDataPool $pool, ?string $requestedTemplateVariant = null): array
+    public function buildEngineDetailsData(VehicleEngine $engine, \App\Entity\VehicleDataPool $pool, ?string $requestedTemplateVariant = null, ?array $featureFlags = null): array
     {
+        $featureFlags = array_merge([
+            'showPrices' => true,
+            'showHints' => true,
+            'showGearbox' => true,
+            'showDyno' => true,
+            'showEcoStage' => true,
+            'showOptionCategories' => true,
+            'allowVehicleEditing' => false,
+        ], $featureFlags ?? []);
+
         $model = $engine->getVehicleModel();
         $series = $model?->getVehicleSeries();
         $brand = $series?->getVehicleBrand();
@@ -232,7 +324,7 @@ final class VehiclePayloadMapper
         $requestedVariant = trim((string) ($requestedTemplateVariant ?? ''));
         $templateVariant = '' !== $requestedVariant ? $requestedVariant : $settings->getTemplateVariant();
         $layoutSettings = $settings->getLayoutSettings($templateVariant);
-        $showPrices = (bool) ($layoutSettings['showPrices'] ?? false);
+        $showPrices = (bool) ($layoutSettings['showPrices'] ?? false) && $featureFlags['showPrices'];
 
         $stages = array_values(array_filter(
             $engine->getStages()->toArray(),
@@ -261,9 +353,13 @@ final class VehiclePayloadMapper
                 'torque' => $engine->getTorque(),
                 'fuel' => $engine->getFuel(),
                 'displacement' => $engine->getDisplacement(),
+                'compression' => $engine->getCompression(),
+                'boreStroke' => $engine->getBoreStroke(),
+                'engineCode' => $engine->getEngineCode(),
                 'image' => $engine->getImage(),
                 'glbModel' => $engine->getGlbModel(),
                 'mediaDisplayMode' => $engine->getMediaDisplayMode(),
+                'performanceBrand' => $this->mapPerformanceBrand($engine->getPerformanceBrand()),
             ],
             'brand' => [
                 'id' => $brand?->getId(),
@@ -273,21 +369,56 @@ final class VehiclePayloadMapper
             'series' => [
                 'id' => $series?->getId(),
                 'name' => $series?->getName(),
+                'description' => $series?->getDescription(),
+                'slug' => $series?->getSlug(),
+                'active' => $series?->isActive(),
+                'sorting' => $series?->getSorting(),
+                'performanceBrand' => $this->mapPerformanceBrand($series?->getPerformanceBrand()),
             ],
             'model' => [
                 'id' => $model?->getId(),
                 'name' => $model?->getName(),
+                'description' => $model?->getDescription(),
+                'slug' => $model?->getSlug(),
+                'active' => $model?->isActive(),
+                'sorting' => $model?->getSorting(),
             ],
-            'stages' => $this->mapStagePayloads($stages, $showPrices),
-            'ecus' => $this->mapEcuPayloads($allEcus, $showPrices),
-            'gearboxes' => $this->mapGearboxPayloads($gearboxes),
-            'einbauHinweise' => $this->mapEinbauHinweise($engine),
+            'stages' => $this->mapStagePayloads($stages, $showPrices, $featureFlags['showDyno']),
+            'ecus' => $this->mapEcuPayloads($allEcus, $showPrices, $featureFlags['showHints'], $featureFlags['showOptionCategories']),
+            'engineOptions' => $this->mapEngineOptionPayloads($engine, $showPrices, $featureFlags['showOptionCategories']),
+            'gearboxes' => $featureFlags['showGearbox'] ? $this->mapGearboxPayloads($gearboxes) : [],
+            'einbauHinweise' => $featureFlags['showHints'] ? $this->mapEinbauHinweise($engine) : [],
             'settings' => $this->buildFrontendSettingsPayload($settings),
+            'editOptions' => $featureFlags['allowVehicleEditing'] ? [
+                'ecus' => array_values(array_map(static fn (Ecu $item): array => [
+                    'id' => $item->getId(),
+                    'name' => $item->getName(),
+                ], $allEcus)),
+            ] : ['ecus' => []],
+            'showPrices' => $showPrices,
+            'showEcoStage' => $featureFlags['showEcoStage'],
+            'showOptionCategories' => $featureFlags['showOptionCategories'],
+            'allowVehicleEditing' => $featureFlags['allowVehicleEditing'],
+            'editingAllowed' => $featureFlags['allowVehicleEditing'],
             'pool' => [
                 'id' => $pool->getId(),
                 'key' => $pool->getPoolKey(),
                 'name' => $pool->getName(),
             ],
+        ];
+    }
+
+    /** @return array{id: int, name: string, logo: ?string}|null */
+    public function mapPerformanceBrand(?PerformanceBrand $performanceBrand): ?array
+    {
+        if (!$performanceBrand instanceof PerformanceBrand || null === $performanceBrand->getId()) {
+            return null;
+        }
+
+        return [
+            'id' => $performanceBrand->getId(),
+            'name' => $performanceBrand->getName(),
+            'logo' => $this->normalizePublicPath($performanceBrand->getResolvedImagePath()),
         ];
     }
 

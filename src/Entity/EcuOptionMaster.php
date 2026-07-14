@@ -24,6 +24,10 @@ class EcuOptionMaster
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'category_master_id', referencedColumnName: 'uid', nullable: true, onDelete: 'SET NULL')]
+    private ?EcuOptionCategoryMaster $categoryMaster = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $icon = null;
 
@@ -76,6 +80,18 @@ class EcuOptionMaster
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getCategoryMaster(): ?EcuOptionCategoryMaster
+    {
+        return $this->categoryMaster;
+    }
+
+    public function setCategoryMaster(?EcuOptionCategoryMaster $categoryMaster): static
+    {
+        $this->categoryMaster = $categoryMaster;
 
         return $this;
     }

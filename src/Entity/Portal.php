@@ -61,6 +61,7 @@ class Portal
     public const MODULE_OPS_EMAIL = 'ops_email';
     public const MODULE_OPS_CALENDAR = 'ops_calendar';
     public const MODULE_OPS_INSTALLATION = 'ops_installation';
+    public const MODULE_OPS_DSG = 'ops_dsg';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -699,6 +700,7 @@ class Portal
             'Operations / E-Mail' => self::MODULE_OPS_EMAIL,
             'Operations / Kalender' => self::MODULE_OPS_CALENDAR,
             'Operations / Installation' => self::MODULE_OPS_INSTALLATION,
+            'Operations / DSG-Optionen' => self::MODULE_OPS_DSG,
         ];
     }
 

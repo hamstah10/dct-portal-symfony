@@ -43,7 +43,10 @@ final class VehicleDataContextResolver
         }
 
         if ($context instanceof VehicleDataContext && $context->getDefaultVehicleDataPool() instanceof VehicleDataPool) {
-            return $context->getDefaultVehicleDataPool();
+            $defaultPool = $context->getDefaultVehicleDataPool();
+            if ($defaultPool->isActive()) {
+                return $defaultPool;
+            }
         }
 
         if ($context instanceof VehicleDataContext && 1 === $context->getAllowedDataPools()->count()) {
@@ -80,5 +83,29 @@ final class VehicleDataContextResolver
         }
 
         return $apiToken?->getVehicleDataContext();
+    }
+
+    /**
+     * Combines the visibility toggles of the resolved pool and (if present) the resolved
+     * context. A feature is only visible if neither the pool nor the context disables it.
+     *
+     * @return array{showPrices: bool, showHints: bool, showGearbox: bool, showDyno: bool, showEcoStage: bool, showOptionCategories: bool, allowVehicleEditing: bool}
+     */
+    public function resolveFeatureFlags(?VehicleDataPool $pool, ?VehicleDataContext $context): array
+    {
+        return [
+            'showPrices' => (!$pool instanceof VehicleDataPool || $pool->isShowPrices())
+                && (!$context instanceof VehicleDataContext || $context->isShowPrices()),
+            'showHints' => (!$pool instanceof VehicleDataPool || $pool->isShowHints())
+                && (!$context instanceof VehicleDataContext || $context->isShowHints()),
+            'showGearbox' => (!$pool instanceof VehicleDataPool || $pool->isShowGearbox())
+                && (!$context instanceof VehicleDataContext || $context->isShowGearbox()),
+            'showDyno' => (!$pool instanceof VehicleDataPool || $pool->isShowDyno())
+                && (!$context instanceof VehicleDataContext || $context->isShowDyno()),
+            'showEcoStage' => (!$pool instanceof VehicleDataPool || $pool->isShowEcoStage())
+                && (!$context instanceof VehicleDataContext || $context->isShowEcoStage()),
+            'showOptionCategories' => (!$context instanceof VehicleDataContext || $context->isShowOptionCategories()),
+            'allowVehicleEditing' => (!$context instanceof VehicleDataContext || $context->isAllowVehicleEditing()),
+        ];
     }
 }

@@ -82,6 +82,9 @@ class VehicleEngine
     #[ORM\Column(name: 'engine_code', length: 255, nullable: true)]
     private ?string $engineCode = null;
 
+    #[ORM\Column(name: 'read_methods', type: Types::JSON, nullable: true)]
+    private ?array $readMethods = null;
+
     #[ORM\Column(nullable: true)]
     private ?int $vmax = null;
 
@@ -127,11 +130,21 @@ class VehicleEngine
     #[ORM\InverseJoinColumn(name: 'uid_foreign', referencedColumnName: 'uid')]
     private Collection $gearboxes;
 
+    /**
+     * @var Collection<int, EcuOption>
+     */
+    #[ORM\ManyToMany(targetEntity: EcuOption::class, inversedBy: 'vehicleEngines')]
+    #[ORM\JoinTable(name: 'tx_chiptuningdatabase_vehicleengine_ecuoption_mm')]
+    #[ORM\JoinColumn(name: 'uid_local', referencedColumnName: 'uid')]
+    #[ORM\InverseJoinColumn(name: 'uid_foreign', referencedColumnName: 'uid')]
+    private Collection $options;
+
     public function __construct()
     {
         $this->stages = new ArrayCollection();
         $this->ecuRelations = new ArrayCollection();
         $this->gearboxes = new ArrayCollection();
+        $this->options = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -451,6 +464,21 @@ class VehicleEngine
         return $this;
     }
 
+    public function getReadMethods(): ?array
+    {
+        return $this->readMethods;
+    }
+
+    /**
+     * @param array<int, string>|null $readMethods
+     */
+    public function setReadMethods(?array $readMethods): static
+    {
+        $this->readMethods = $readMethods;
+
+        return $this;
+    }
+
     public function getVmax(): ?int
     {
         return $this->vmax;
@@ -588,6 +616,30 @@ class VehicleEngine
             $this->gearboxes->add($gearbox);
             $gearbox->addVehicleEngine($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EcuOption>
+     */
+    public function getOptions(): Collection
+    {
+        return $this->options;
+    }
+
+    public function addOption(EcuOption $option): static
+    {
+        if (!$this->options->contains($option)) {
+            $this->options->add($option);
+        }
+
+        return $this;
+    }
+
+    public function removeOption(EcuOption $option): static
+    {
+        $this->options->removeElement($option);
 
         return $this;
     }

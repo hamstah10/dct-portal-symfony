@@ -2,6 +2,7 @@
 
 namespace Tfd\PartnerWizardBundle\Entity;
 
+use App\Entity\ShopProduct;
 use App\Entity\ToolManufacturer;
 use App\Entity\VehicleType;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -59,6 +60,15 @@ class PartnerWizardClient
     #[ORM\InverseJoinColumn(name: 'tool_manufacturer_id', referencedColumnName: 'uid', onDelete: 'CASCADE')]
     private Collection $enabledCurrentTools;
 
+    /**
+     * @var Collection<int, ShopProduct>
+     */
+    #[ORM\ManyToMany(targetEntity: ShopProduct::class)]
+    #[ORM\JoinTable(name: 'tfd_partner_wizard_client_shopproduct')]
+    #[ORM\JoinColumn(name: 'client_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'shop_product_uid', referencedColumnName: 'uid', onDelete: 'CASCADE')]
+    private Collection $recommendedProducts;
+
     #[ORM\Column(type: 'json')]
     private array $enabledServices = [
         'stage1', 'stage2', 'eco', 'adblue', 'dpf', 'agr', 'vmax', 'pops', 'hardcut', 'dsg', 'diagnose', 'coding'
@@ -94,6 +104,7 @@ class PartnerWizardClient
         $this->packages = new ArrayCollection();
         $this->enabledVehicleCategories = new ArrayCollection();
         $this->enabledCurrentTools = new ArrayCollection();
+        $this->recommendedProducts = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -157,6 +168,26 @@ class PartnerWizardClient
     public function removeEnabledCurrentTool(ToolManufacturer $toolManufacturer): self
     {
         $this->enabledCurrentTools->removeElement($toolManufacturer);
+
+        return $this;
+    }
+    /**
+     * @return Collection<int, ShopProduct>
+     */
+    public function getRecommendedProducts(): Collection { return $this->recommendedProducts; }
+
+    public function addRecommendedProduct(ShopProduct $product): self
+    {
+        if (!$this->recommendedProducts->contains($product)) {
+            $this->recommendedProducts->add($product);
+        }
+
+        return $this;
+    }
+
+    public function removeRecommendedProduct(ShopProduct $product): self
+    {
+        $this->recommendedProducts->removeElement($product);
 
         return $this;
     }

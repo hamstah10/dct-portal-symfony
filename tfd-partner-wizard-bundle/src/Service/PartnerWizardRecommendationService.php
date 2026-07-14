@@ -26,6 +26,7 @@ final class PartnerWizardRecommendationService
         $currentTool = (string) ($payload['currentTool'] ?? '');
         $vehicleTypeIds = array_map('intval', (array) ($payload['vehicleCategories'] ?? []));
         $services = $payload['services'] ?? [];
+        $website = (string) ($payload['website'] ?? '');
         $goal = (string) ($payload['goal'] ?? '');
         $experience = (string) ($payload['experience'] ?? '');
         $mainVehicleTypeId = (int) ($payload['mainVehicleCategory'] ?? 0);
@@ -38,6 +39,9 @@ final class PartnerWizardRecommendationService
 
         $tools = $this->recommendTools($client, $vehicleTypeIds, $services, $desiredToolLevel);
         $package = $this->selectPackage($client, $recommendationStatus, $goal, $experience, $vehicleTypeIds, $count);
+        if (!$noTool) {
+            $package = $this->selectWebsitePackage($client, $website) ?? $package;
+        }
 
         $toolDirection = $this->buildToolDirection($noTool, $tools, $vehicleTypeIds, $mainVehicleTypeId, $desiredToolLevel, $currentTool);
 
@@ -54,7 +58,21 @@ final class PartnerWizardRecommendationService
             'nextStep' => $package?->getCtaLabel() ?? ($noTool ? 'Tool-Beratung anfragen' : 'Händleranfrage senden'),
             'estimatedMonthlyRevenue' => $estimatedMonthlyRevenue,
             'disclaimer' => $client->getToolDisclaimer(),
+            'recommendedProducts' => $this->recommendedProducts($client),
         ];
+    }
+
+    private function recommendedProducts(PartnerWizardClient $client): array
+    {
+        $products = array_filter(
+            $client->getRecommendedProducts()->toArray(),
+            static fn (ShopProduct $product): bool => $product->isActive()
+        );
+
+        return array_values(array_map(
+            fn (ShopProduct $product): array => $this->serializeShopProduct($product),
+            $products
+        ));
     }
 
     /**
@@ -109,7 +127,7 @@ final class PartnerWizardRecommendationService
                 'description' => $tool->getDescription(),
                 'level' => $tool->getLevel(),
                 'score' => $score,
-                'imageUrl' => $tool->getImageUrl() ?: $this->firstProductImageUrl($tool->getShopProduct()),
+                'imageUrl' => $tool->getImageUrl(),
                 'product' => $this->serializeProduct($tool),
                 'fromCombination' => $matchedCombination,
                 'fullVehicleMatch' => $fullVehicleMatch,
@@ -187,22 +205,31 @@ final class PartnerWizardRecommendationService
             return null;
         }
 
+        return $this->serializeShopProduct($product);
+    }
+
+    private function serializeShopProduct(ShopProduct $product): array
+    {
         return [
             'uid' => $product->getUid(),
             'title' => $product->getTitle(),
             'sku' => $product->getSku(),
             'price' => $product->getPrice(),
+            'specialPrice' => $this->resolveSpecialPrice($product),
             'slug' => $product->getSlug(),
             'imageUrl' => $this->firstProductImageUrl($product),
         ];
     }
 
-    private function firstProductImageUrl(?ShopProduct $product): ?string
+    private function resolveSpecialPrice(ShopProduct $product): ?string
     {
-        if (!$product instanceof ShopProduct) {
-            return null;
-        }
+        $specialPrice = (float) $product->getSpecialPrice();
 
+        return $specialPrice > 0 ? $product->getSpecialPrice() : null;
+    }
+
+    private function firstProductImageUrl(ShopProduct $product): ?string
+    {
         foreach ($product->getMediaAssets() as $asset) {
             $path = trim((string) $asset->getFilePath());
             if ('' === $path) {
@@ -217,6 +244,32 @@ final class PartnerWizardRecommendationService
             $baseUrl = null !== $request ? $request->getSchemeAndHttpHost() : '';
 
             return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int[] $vehicleTypeIds
+     */
+    private function selectWebsitePackage(PartnerWizardClient $client, string $website): ?PartnerWizardPackage
+    {
+        $websiteKey = match ($website) {
+            'full_package', 'website_only', 'configurator_only' => $website,
+            default => '',
+        };
+
+        if ('' === $websiteKey) {
+            return null;
+        }
+
+        foreach ($this->em->getRepository(PartnerWizardPackage::class)->findBy(
+            ['client' => $client, 'active' => true],
+            ['priority' => 'ASC']
+        ) as $package) {
+            if ($package->getPackageKey() === $websiteKey) {
+                return $package;
+            }
         }
 
         return null;

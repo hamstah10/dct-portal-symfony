@@ -13,6 +13,7 @@ use App\Entity\Kunde;
 use App\Entity\SupportEmailMessage;
 use App\Entity\SupportTicket;
 use App\Entity\SuperadminCalendarEntry;
+use App\Entity\SuperadminPinnedVehicleType;
 use App\Entity\SuperadminRememberedVehicle;
 use App\Repository\AuftragRepository;
 use App\Repository\EmailKontoRepository;
@@ -21,6 +22,7 @@ use App\Repository\KundeRepository;
 use App\Repository\SupportEmailMessageRepository;
 use App\Repository\SupportTicketRepository;
 use App\Repository\SuperadminCalendarEntryRepository;
+use App\Repository\SuperadminPinnedVehicleTypeRepository;
 use App\Repository\SuperadminRememberedVehicleRepository;
 use App\Service\SupportEmailFetchService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,9 +45,185 @@ final class OperationsDataController extends AbstractController
         private readonly FirmaRepository $firmaRepository,
         private readonly SuperadminCalendarEntryRepository $calendarEntryRepository,
         private readonly SuperadminRememberedVehicleRepository $rememberedVehicleRepository,
+        private readonly SuperadminPinnedVehicleTypeRepository $pinnedVehicleTypeRepository,
         private readonly SupportEmailFetchService $supportEmailFetchService,
+        private readonly \App\Repository\GearboxStageOptionRepository $gearboxStageOptionRepository,
+        private readonly \App\Repository\GearboxStageInfoRepository $gearboxStageInfoRepository,
+        private readonly \App\Repository\GearboxDtcCodeRepository $gearboxDtcCodeRepository,
+        private readonly \App\Repository\SuperadminSettingRepository $superadminSettingRepository,
+        private readonly \App\Repository\VehicleBrandRepository $vehicleBrandRepository,
+        private readonly \Symfony\Component\AssetMapper\AssetMapperInterface $assetMapper,
         private readonly EntityManagerInterface $entityManager,
     ) {
+    }
+
+    #[Route('/operations-api/settings', name: 'superadmin_portal_operations_api_settings', methods: ['GET'])]
+    public function settings(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portalRuntimeResolver->requirePortalSystem($request);
+
+        $settings = [];
+        foreach ($this->superadminSettingRepository->findAll() as $setting) {
+            $settings[$setting->getSettingKey()] = $setting->getSettingValue();
+        }
+
+        return $this->json(['data' => (object) $settings]);
+    }
+
+    #[Route('/operations-api/settings', name: 'superadmin_portal_operations_api_settings_set', methods: ['PUT'])]
+    public function settingsSet(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portalRuntimeResolver->requirePortalSystem($request);
+
+        $body = json_decode((string) $request->getContent(), true);
+        $key = is_array($body) ? trim((string) ($body['key'] ?? '')) : '';
+        if ('' === $key || preg_match('/^[a-z0-9._-]{2,100}$/i', $key) !== 1) {
+            return $this->json(['message' => 'Ungültiger Einstellungs-Schlüssel.'], 400);
+        }
+
+        $setting = $this->superadminSettingRepository->findOneBy(['settingKey' => $key]);
+        if (!$setting instanceof \App\Entity\SuperadminSetting) {
+            $setting = (new \App\Entity\SuperadminSetting())->setSettingKey($key);
+        }
+
+        $setting->setSettingValue($body['value'] ?? null);
+        $this->entityManager->persist($setting);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => ['key' => $key, 'value' => $setting->getSettingValue()]]);
+    }
+
+    #[Route('/operations-api/vehicle-brands', name: 'superadmin_portal_operations_api_vehicle_brands', methods: ['GET'])]
+    public function vehicleBrands(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portal = $portalRuntimeResolver->requirePortalSystem($request);
+
+        $pool = $portal->getVehicleDataPool();
+        if (null === $pool) {
+            return $this->json(['data' => []]);
+        }
+
+        $brands = $this->vehicleBrandRepository->createQueryBuilder('b')
+            ->andWhere('b.vehicleDataPool = :pool')
+            ->andWhere('b.active = :active')
+            ->setParameter('pool', $pool)
+            ->setParameter('active', true)
+            ->orderBy('b.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        return $this->json(['data' => array_values(array_map(
+            static fn (\App\Entity\VehicleBrand $brand): array => [
+                'id' => $brand->getId(),
+                'name' => $brand->getName(),
+                'showInTopMenu' => $brand->isShowInTopMenu(),
+            ],
+            $brands
+        ))]);
+    }
+
+    #[Route('/operations-api/vehicle-brands/{id}/top-menu', name: 'superadmin_portal_operations_api_vehicle_brand_top_menu', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function vehicleBrandTopMenu(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portal = $portalRuntimeResolver->requirePortalSystem($request);
+
+        $brand = $this->vehicleBrandRepository->find($id);
+        if (!$brand instanceof \App\Entity\VehicleBrand || $brand->getVehicleDataPool()?->getId() !== $portal->getVehicleDataPool()?->getId()) {
+            return $this->json(['message' => 'Marke nicht gefunden.'], 404);
+        }
+
+        $body = json_decode((string) $request->getContent(), true);
+        $enabled = is_array($body) && filter_var($body['enabled'] ?? false, FILTER_VALIDATE_BOOL);
+
+        $brand->setShowInTopMenu($enabled);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => [
+            'id' => $brand->getId(),
+            'name' => $brand->getName(),
+            'showInTopMenu' => $brand->isShowInTopMenu(),
+        ]]);
+    }
+
+    #[Route('/operations-api/dsg-dtc-codes', name: 'superadmin_portal_operations_api_dsg_dtc_codes', methods: ['GET'])]
+    public function dsgDtcCodes(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portalRuntimeResolver->requirePortalSystem($request);
+
+        $codes = $this->gearboxDtcCodeRepository->findActiveOrdered();
+
+        return $this->json(['data' => array_values(array_map(
+            static fn (\App\Entity\GearboxDtcCode $code): array => [
+                'id' => $code->getId(),
+                'obdCode' => $code->getObdCode(),
+                'vagCode' => $code->getVagCode(),
+                'description' => $code->getDescription(),
+            ],
+            $codes
+        ))]);
+    }
+
+    #[Route('/operations-api/dsg-stage-infos', name: 'superadmin_portal_operations_api_dsg_stage_infos', methods: ['GET'])]
+    public function dsgStageInfos(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portalRuntimeResolver->requirePortalSystem($request);
+
+        $infos = $this->gearboxStageInfoRepository->findActiveOrdered();
+
+        return $this->json(['data' => array_values(array_map(
+            static fn (\App\Entity\GearboxStageInfo $info): array => [
+                'name' => $info->getName(),
+                'description' => $info->getDescription(),
+                'features' => array_values(array_map(
+                    static fn (\App\Entity\GearboxStageInfoFeature $feature): array => [
+                        'label' => $feature->getLabel(),
+                        'included' => $feature->isIncluded(),
+                    ],
+                    $info->getFeatures()->toArray()
+                )),
+            ],
+            $infos
+        ))]);
+    }
+
+    #[Route('/operations-api/dsg-stage-options', name: 'superadmin_portal_operations_api_dsg_stage_options', methods: ['GET'])]
+    public function dsgStageOptions(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $portalRuntimeResolver->requirePortalSystem($request);
+
+        $rows = $this->gearboxStageOptionRepository->findBy(['active' => true], ['sorting' => 'ASC', 'id' => 'ASC']);
+
+        $gearboxes = [];
+        foreach ($rows as $row) {
+            $gearboxName = $row->getGearboxName();
+            $category = $row->getCategory();
+
+            $gearboxes[$gearboxName] ??= ['name' => $gearboxName, 'categories' => []];
+            $gearboxes[$gearboxName]['categories'][$category] ??= [
+                'name' => $category,
+                'description' => $row->getCategoryDescription(),
+                'options' => [],
+            ];
+
+            $gearboxes[$gearboxName]['categories'][$category]['options'][] = [
+                'id' => $row->getId(),
+                'name' => $row->getName(),
+                'fahrbarkeit' => $row->getFahrbarkeit(),
+                'stage1' => $row->getStage1(),
+                'stage2' => $row->getStage2(),
+                'stage2plus' => $row->getStage2Plus(),
+                'stage3' => $row->getStage3(),
+                'stage4' => $row->getStage4(),
+            ];
+        }
+
+        return $this->json(['data' => array_values(array_map(
+            static fn (array $gearbox): array => [
+                'name' => $gearbox['name'],
+                'categories' => array_values($gearbox['categories']),
+            ],
+            $gearboxes
+        ))]);
     }
 
     #[Route('/operations-api/order-notifications', name: 'superadmin_portal_operations_api_order_notifications', methods: ['GET'])]
@@ -476,6 +654,56 @@ final class OperationsDataController extends AbstractController
         return $this->json(['data' => ['deleted' => true]]);
     }
 
+    #[Route('/operations-api/pinned-vehicle-type', name: 'superadmin_portal_operations_api_pinned_vehicle_type_get', methods: ['GET'])]
+    public function pinnedVehicleType(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $pinned = $this->pinnedVehicleTypeRepository->findOneBy([]);
+
+        return $this->json([
+            'data' => $pinned instanceof SuperadminPinnedVehicleType ? ['typeId' => $pinned->getTypeId()] : null,
+        ]);
+    }
+
+    #[Route('/operations-api/pinned-vehicle-type', name: 'superadmin_portal_operations_api_pinned_vehicle_type_set', methods: ['PUT'])]
+    public function pinnedVehicleTypeSet(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $body = json_decode((string) $request->getContent(), true);
+        $typeId = is_array($body) && isset($body['typeId']) && is_numeric($body['typeId']) ? (int) $body['typeId'] : 0;
+        if ($typeId <= 0) {
+            return $this->json(['message' => 'Fahrzeugtyp fehlt.'], 400);
+        }
+
+        $pinned = $this->pinnedVehicleTypeRepository->findOneBy([]);
+        if (!$pinned instanceof SuperadminPinnedVehicleType) {
+            $pinned = new SuperadminPinnedVehicleType();
+        }
+
+        $pinned->setTypeId($typeId)->touch();
+
+        $this->entityManager->persist($pinned);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => ['typeId' => $pinned->getTypeId()]]);
+    }
+
+    #[Route('/operations-api/pinned-vehicle-type', name: 'superadmin_portal_operations_api_pinned_vehicle_type_delete', methods: ['DELETE'])]
+    public function pinnedVehicleTypeDelete(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $pinned = $this->pinnedVehicleTypeRepository->findOneBy([]);
+        if ($pinned instanceof SuperadminPinnedVehicleType) {
+            $this->entityManager->remove($pinned);
+            $this->entityManager->flush();
+        }
+
+        return $this->json(['data' => true]);
+    }
+
     #[Route('/operations-api/calendar-entries', name: 'superadmin_portal_operations_api_calendar_entries', methods: ['GET'])]
     public function calendarEntries(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
     {
@@ -713,6 +941,46 @@ final class OperationsDataController extends AbstractController
         return $this->json(['data' => $stats]);
     }
 
+    /** @var array<string, string|null> */
+    private array $orderBrandLogoCache = [];
+
+    /**
+     * Markenlogo für die Auftragsliste über den Brand-Master auflösen (pro Request gecacht).
+     */
+    private function resolveOrderBrandLogo(?string $manufacturer): ?string
+    {
+        $key = mb_strtolower(trim((string) ($manufacturer ?? '')));
+        if ('' === $key) {
+            return null;
+        }
+
+        if (array_key_exists($key, $this->orderBrandLogoCache)) {
+            return $this->orderBrandLogoCache[$key];
+        }
+
+        $master = $this->entityManager->getRepository(\App\Entity\BrandMaster::class)
+            ->createQueryBuilder('bm')
+            ->andWhere('LOWER(bm.name) = :name')
+            ->setParameter('name', $key)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $path = trim((string) ($master?->getResolvedImagePath() ?? ''));
+
+        // AssetMapper-Pfade (assets/...) auf den digested Public-Pfad aufloesen,
+        // da der logische Pfad nicht direkt ausliefbar ist.
+        $logical = ltrim($path, '/');
+        if (str_starts_with($logical, 'assets/')) {
+            $publicPath = $this->assetMapper->getPublicPath(substr($logical, 7));
+            $path = $publicPath ?? '';
+        } elseif ('' !== $path && !str_starts_with($path, '/') && !preg_match('#^https?://#i', $path)) {
+            $path = '/' . $path;
+        }
+
+        return $this->orderBrandLogoCache[$key] = ('' !== $path ? $path : null);
+    }
+
     private function serializeOrder(Auftrag $order): array
     {
         $customer = $order->getKunde();
@@ -750,6 +1018,7 @@ final class OperationsDataController extends AbstractController
             'customer_email' => $customer?->getEmail() ?? $order->getCustomerEmail() ?? '',
             'company_id' => $company?->getId(),
             'company_name' => $company?->getName() ?? $customer?->getFirmenname(),
+            'vehicle_brand_logo' => $this->resolveOrderBrandLogo($order->getManufacturer()),
             'vehicle_label' => $vehicleLabel ?: 'Fahrzeug nicht angegeben',
             'vehicle_subline' => trim(implode(' · ', array_filter([
                 $order->getEngine(),

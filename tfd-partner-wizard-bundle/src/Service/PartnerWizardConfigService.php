@@ -2,6 +2,7 @@
 
 namespace Tfd\PartnerWizardBundle\Service;
 
+use App\Entity\MediaAsset;
 use App\Entity\ShopProduct;
 use App\Entity\ToolManufacturer;
 use App\Entity\VehicleType;
@@ -9,6 +10,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Tfd\PartnerWizardBundle\Entity\PartnerWizardClient;
 use Tfd\PartnerWizardBundle\Entity\PartnerWizardPackage;
+use Tfd\PartnerWizardBundle\Entity\PartnerWizardQuestion;
+use Tfd\PartnerWizardBundle\Entity\PartnerWizardQuestionOption;
+use Tfd\PartnerWizardBundle\Entity\PartnerWizardStep;
 use Tfd\PartnerWizardBundle\Entity\PartnerWizardTool;
 
 final class PartnerWizardConfigService
@@ -71,7 +75,7 @@ final class PartnerWizardConfigService
                 ),
                 'services' => $tool->getRecommendedForServices(),
                 'level' => $tool->getLevel(),
-                'imageUrl' => $tool->getImageUrl() ?: $this->firstProductImageUrl($tool->getShopProduct()),
+                'imageUrl' => $tool->getImageUrl(),
                 'product' => $this->serializeProduct($tool),
             ], $tools),
             'packages' => array_map(fn (PartnerWizardPackage $package) => [
@@ -82,6 +86,81 @@ final class PartnerWizardConfigService
                 'features' => $package->getFeatures(),
                 'ctaLabel' => $package->getCtaLabel(),
             ], $packages),
+            'steps' => $this->serializeSteps($client),
+        ];
+    }
+
+    private function serializeSteps(PartnerWizardClient $client): array
+    {
+        $steps = $this->em->getRepository(PartnerWizardStep::class)->findBy(
+            ['client' => $client, 'active' => true],
+            ['priority' => 'ASC']
+        );
+
+        return array_map(fn (PartnerWizardStep $step) => [
+            'key' => $step->getStepKey(),
+            'label' => $step->getLabel(),
+            'type' => $step->getType(),
+            'questions' => array_map(
+                fn (PartnerWizardQuestion $question) => $this->serializeQuestion($client, $question),
+                array_values(array_filter(
+                    $step->getQuestions()->toArray(),
+                    static fn (PartnerWizardQuestion $question): bool => $question->isActive()
+                ))
+            ),
+        ], $steps);
+    }
+
+    private function serializeQuestion(PartnerWizardClient $client, PartnerWizardQuestion $question): array
+    {
+        return [
+            'answerKey' => $question->getAnswerKey(),
+            'title' => $question->getTitle(),
+            'helpText' => $question->getHelpText(),
+            'questionType' => $question->getQuestionType(),
+            'multiSelect' => $question->isMultiSelect(),
+            'fieldType' => $question->getFieldType(),
+            'required' => $question->isRequired(),
+            'dependsOnAnswerKey' => $question->getDependsOnAnswerKey(),
+            'dependsOnValue' => $question->getDependsOnValue(),
+            'options' => $this->resolveQuestionOptions($client, $question),
+        ];
+    }
+
+    private function resolveQuestionOptions(PartnerWizardClient $client, PartnerWizardQuestion $question): array
+    {
+        return match ($question->getQuestionType()) {
+            'vehicleType' => array_map(
+                fn (VehicleType $vehicleType) => $this->serializeVehicleType($vehicleType),
+                $client->getEnabledVehicleCategories()->toArray()
+            ),
+            'toolManufacturer' => array_map(
+                fn (ToolManufacturer $toolManufacturer) => $this->serializeCurrentToolOption($toolManufacturer),
+                $client->getEnabledCurrentTools()->toArray()
+            ),
+            default => array_map(
+                fn (PartnerWizardQuestionOption $option) => $this->serializeQuestionOption($option),
+                array_values(array_filter(
+                    $question->getOptions()->toArray(),
+                    static fn (PartnerWizardQuestionOption $option): bool => $option->isActive()
+                ))
+            ),
+        };
+    }
+
+    private function serializeQuestionOption(PartnerWizardQuestionOption $option): array
+    {
+        $iconUrl = $option->getMediaAsset() instanceof MediaAsset
+            ? $this->publicAssetUrl($option->getMediaAsset()->getFilePath())
+            : $this->publicAssetUrl($option->getIcon());
+
+        return [
+            'value' => $option->getValue(),
+            'title' => $option->getTitle(),
+            'text' => $option->getText(),
+            'icon' => $iconUrl,
+            'imageUrl' => $iconUrl,
+            'numericValue' => $option->getNumericValue(),
         ];
     }
 
@@ -115,17 +194,21 @@ final class PartnerWizardConfigService
             'title' => $product->getTitle(),
             'sku' => $product->getSku(),
             'price' => $product->getPrice(),
+            'specialPrice' => $this->resolveSpecialPrice($product),
             'slug' => $product->getSlug(),
             'imageUrl' => $this->firstProductImageUrl($product),
         ];
     }
 
-    private function firstProductImageUrl(?ShopProduct $product): ?string
+    private function resolveSpecialPrice(ShopProduct $product): ?string
     {
-        if (!$product instanceof ShopProduct) {
-            return null;
-        }
+        $specialPrice = (float) $product->getSpecialPrice();
 
+        return $specialPrice > 0 ? $product->getSpecialPrice() : null;
+    }
+
+    private function firstProductImageUrl(ShopProduct $product): ?string
+    {
         foreach ($product->getMediaAssets() as $asset) {
             $path = trim((string) $asset->getFilePath());
             if ('' === $path) {

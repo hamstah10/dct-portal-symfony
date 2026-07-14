@@ -38,6 +38,9 @@ use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardToolCrudController;
 use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardCombinationCrudController;
 use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardPackageCrudController;
 use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardLeadCrudController;
+use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardQuestionCrudController;
+use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardQuestionOptionCrudController;
+use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardStepCrudController;
 use Tuningfux\InstagramBundle\Entity\InstagramAccount;
 use App\Repository\CustomerChatMessageRepository;
 use App\Service\SupportTicketFileService;
@@ -4630,6 +4633,9 @@ final class DashboardController extends AbstractDashboardController
             AdminPageRegistry::crudKey(AntriebsartCrudController::class) => MenuItem::linkTo(AntriebsartCrudController::class, 'Antriebsarten', 'mdi:petrol-pump')->setAction('index'),
             AdminPageRegistry::crudKey(VehicleStageCrudController::class) => MenuItem::linkTo(VehicleStageCrudController::class, 'Stages', 'ix:gaugechart')->setAction('index'),
             AdminPageRegistry::routeKey('admin_vehicle_gearbox') => MenuItem::linkToRoute('Getriebe', 'game-icons:gear-stick', 'admin_vehicle_gearbox'),
+            AdminPageRegistry::crudKey(\App\Controller\Admin\GearboxStageOptionCrudController::class) => MenuItem::linkTo(\App\Controller\Admin\GearboxStageOptionCrudController::class, 'Getriebe-Stage-Optionen', 'mdi:table-cog')->setAction('index'),
+            AdminPageRegistry::crudKey(\App\Controller\Admin\GearboxStageInfoCrudController::class) => MenuItem::linkTo(\App\Controller\Admin\GearboxStageInfoCrudController::class, 'Getriebe-Stage-Infos', 'mdi:text-box-outline')->setAction('index'),
+            AdminPageRegistry::crudKey(\App\Controller\Admin\GearboxDtcCodeCrudController::class) => MenuItem::linkTo(\App\Controller\Admin\GearboxDtcCodeCrudController::class, 'Getriebe-Fehlercodes', 'mdi:alert-circle-outline')->setAction('index'),
             AdminPageRegistry::routeKey('admin_vehicle_ecu') => MenuItem::linkToRoute('ECU', 'streamline:computer-chip-1', 'admin_vehicle_ecu'),
             AdminPageRegistry::routeKey('admin_vehicle_tools') => MenuItem::linkToRoute('Tools', 'streamline:database-setting-solid', 'admin_vehicle_tools'),
         ]);
@@ -4733,6 +4739,15 @@ final class DashboardController extends AbstractDashboardController
              */
             $partnerWizardItems = [
                 MenuItem::linkTo(PartnerWizardClientCrudController::class, 'Einstellungen', 'mdi:tune')
+                    ->setAction('index'),
+
+                MenuItem::linkTo(PartnerWizardStepCrudController::class, 'Schritte', 'mdi:format-list-numbered')
+                    ->setAction('index'),
+
+                MenuItem::linkTo(PartnerWizardQuestionCrudController::class, 'Fragen', 'mdi:comment-question-outline')
+                    ->setAction('index'),
+
+                MenuItem::linkTo(PartnerWizardQuestionOptionCrudController::class, 'Antwortoptionen', 'mdi:format-list-bulleted')
                     ->setAction('index'),
 
                 MenuItem::linkTo(PartnerWizardToolCrudController::class, 'Tool-Empfehlungen', 'mdi:wrench-cog')

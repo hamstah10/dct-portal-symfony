@@ -30,6 +30,9 @@ class BrandMaster
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $synonyms = null;
+
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'vehicle_type', referencedColumnName: 'uid', nullable: true, onDelete: 'SET NULL')]
     private ?VehicleType $vehicleType = null;
@@ -119,6 +122,31 @@ class BrandMaster
         $this->description = $description;
 
         return $this;
+    }
+
+    public function getSynonyms(): ?string
+    {
+        return $this->synonyms;
+    }
+
+    public function setSynonyms(?string $synonyms): static
+    {
+        $synonyms = trim((string) ($synonyms ?? ''));
+        $this->synonyms = '' !== $synonyms ? $synonyms : null;
+
+        return $this;
+    }
+
+    /**
+     * Synonyme als Liste (kommagetrennt oder zeilenweise gepflegt).
+     *
+     * @return array<int, string>
+     */
+    public function getSynonymList(): array
+    {
+        $parts = preg_split('/[,\n;]+/', (string) ($this->synonyms ?? '')) ?: [];
+
+        return array_values(array_filter(array_map(static fn (string $part): string => trim($part), $parts)));
     }
 
     public function getVehicleType(): ?VehicleType

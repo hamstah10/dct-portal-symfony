@@ -41,6 +41,9 @@ class VehicleBrand
     #[ORM\Column(length: 2048, nullable: true)]
     private ?string $slug = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $synonyms = null;
+
     #[ORM\Column(name: 'scraper_source', length: 80, options: ['default' => 'legacy'])]
     private string $scraperSource = 'legacy';
 
@@ -172,6 +175,31 @@ class VehicleBrand
         return $this;
     }
 
+    public function getSynonyms(): ?string
+    {
+        return $this->synonyms;
+    }
+
+    public function setSynonyms(?string $synonyms): static
+    {
+        $synonyms = trim((string) ($synonyms ?? ''));
+        $this->synonyms = '' !== $synonyms ? $synonyms : null;
+
+        return $this;
+    }
+
+    /**
+     * Synonyme als Liste (kommagetrennt oder zeilenweise gepflegt).
+     *
+     * @return array<int, string>
+     */
+    public function getSynonymList(): array
+    {
+        $parts = preg_split('/[,\n;]+/', (string) ($this->synonyms ?? '')) ?: [];
+
+        return array_values(array_filter(array_map(static fn (string $part): string => trim($part), $parts)));
+    }
+
     public function getScraperSource(): string
     {
         return $this->scraperSource;
@@ -255,6 +283,7 @@ class VehicleBrand
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'synonyms' => $this->getSynonymList(),
             'active' => $this->active,
             'sorting' => $this->sorting,
             'vehicleTypeName' => $this->vehicleType?->getName() ?? '',

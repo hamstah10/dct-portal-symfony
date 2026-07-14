@@ -73,10 +73,18 @@ class Gearbox
     #[ORM\ManyToMany(targetEntity: VehicleEngine::class, mappedBy: 'gearboxes')]
     private Collection $vehicleEngines;
 
+    /**
+     * @var Collection<int, GearboxToolEntry>
+     */
+    #[ORM\OneToMany(mappedBy: 'gearbox', targetEntity: GearboxToolEntry::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC', 'id' => 'ASC'])]
+    private Collection $toolEntries;
+
     public function __construct()
     {
         $this->ecus = new ArrayCollection();
         $this->vehicleEngines = new ArrayCollection();
+        $this->toolEntries = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -297,6 +305,35 @@ class Gearbox
     {
         if ($this->vehicleEngines->removeElement($vehicleEngine)) {
             $vehicleEngine->removeGearbox($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, GearboxToolEntry>
+     */
+    public function getToolEntries(): Collection
+    {
+        return $this->toolEntries;
+    }
+
+    public function addToolEntry(GearboxToolEntry $toolEntry): static
+    {
+        if (!$this->toolEntries->contains($toolEntry)) {
+            $this->toolEntries->add($toolEntry);
+            $toolEntry->setGearbox($this);
+        }
+
+        return $this;
+    }
+
+    public function removeToolEntry(GearboxToolEntry $toolEntry): static
+    {
+        if ($this->toolEntries->removeElement($toolEntry)) {
+            if ($toolEntry->getGearbox() === $this) {
+                $toolEntry->setGearbox(null);
+            }
         }
 
         return $this;
