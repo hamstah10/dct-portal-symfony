@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Entity\Auftrag;
@@ -13,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'app:automod:make-eligible',
-    description: 'Markiert einen bestehenden Auftrag als AutoMod-faehig (autoModEnabled=true, autoModStatus=DECRYPTED). Test-Hilfsmittel bis die Wizard-Integration existiert.'
+    description: 'Markiert einen bestehenden Auftrag als AutoMod-faehig (autoModEnabled=true, autoModStatus=DECRYPTED).'
 )]
 final class AutoModBootstrapCommand extends Command
 {

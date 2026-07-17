@@ -12,6 +12,7 @@ use App\Entity\KundeCreditTransaction;
 use App\Entity\Portal;
 use App\Entity\PortalPriceList;
 use App\Entity\PortalPriceListItem;
+use App\Entity\WinolsConfiguration;
 use App\Portals\Chiptuningfile\Form\OrderDummyUploadType;
 use App\Portals\Chiptuningfile\Security\PortalCustomerUser;
 use App\Portals\Chiptuningfile\Service\PaypalOrderService;
@@ -22,6 +23,7 @@ use App\Repository\AuftragRepository;
 use App\Repository\CreditPackageRepository;
 use App\Repository\KundeCreditTransactionRepository;
 use App\Repository\PortalPriceListRepository;
+use App\Repository\WinolsConfigurationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,6 +49,7 @@ final class OrderController extends AbstractController
         private readonly PortalCreditInvoiceService $portalCreditInvoiceService,
         private readonly KundeCreditTransactionRepository $transactionRepository,
         private readonly PortalDashboardBuilder $portalDashboardBuilder,
+        private readonly WinolsConfigurationRepository $winolsConfigurationRepository,
     ) {
     }
 
@@ -110,7 +113,8 @@ final class OrderController extends AbstractController
     #[Route('/auftrag/park', name: 'cpt_portal_order_park', methods: ['POST'])]
     public function park(Request $request): JsonResponse {
         try {
-            $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $portalConfig = $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $winolsConfiguration = $portalConfig->isWinolsEnabled() ? $this->resolveWinolsConfiguration($portalConfig) : null;
             $user = $this->getUser();
             if (!$user instanceof PortalCustomerUser) {
                 return $this->json(['error' => 'Nicht eingeloggt.'], Response::HTTP_UNAUTHORIZED);
@@ -120,7 +124,7 @@ final class OrderController extends AbstractController
             $orderInput = $this->parseOrderPayload($payload);
             $quote = $this->calculateOrderCreditQuote($user->getCustomer(), $orderInput);
             $existingParkedOrder = $this->resolveParkedOrderForCustomer($user->getCustomer(), (int) ($orderInput['parkedOrderId'] ?? 0));
-            $parkedOrder = $this->hydrateOrderEntity($existingParkedOrder ?? new Auftrag(), $user->getCustomer(), $orderInput, $quote, [
+            $parkedOrder = $this->hydrateOrderEntity($existingParkedOrder ?? new Auftrag(), $user->getCustomer(), $orderInput, $quote, $winolsConfiguration, [
                 'context' => 'parked',
                 'state' => 'parked',
                 'updatedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
@@ -175,7 +179,8 @@ final class OrderController extends AbstractController
     #[Route('/auftrag/submit', name: 'cpt_portal_order_submit', methods: ['POST'])]
     public function submit(Request $request): JsonResponse {
         try {
-            $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $portalConfig = $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $winolsConfiguration = $portalConfig->isWinolsEnabled() ? $this->resolveWinolsConfiguration($portalConfig) : null;
 
             $user = $this->getUser();
             if (!$user instanceof PortalCustomerUser) {
@@ -214,7 +219,7 @@ final class OrderController extends AbstractController
         }
 
         $existingParkedOrder = $this->resolveParkedOrderForCustomer($customer, (int) ($orderInput['parkedOrderId'] ?? 0));
-        $order = $this->hydrateOrderEntity($existingParkedOrder ?? new Auftrag(), $customer, $orderInput, $quote, null, false, null);
+        $order = $this->hydrateOrderEntity($existingParkedOrder ?? new Auftrag(), $customer, $orderInput, $quote, $winolsConfiguration, null, false, null);
         $balanceBefore = (int) $customer->getCredits();
 
         try {
@@ -279,7 +284,8 @@ final class OrderController extends AbstractController
     #[Route('/auftrag/paypal/order', name: 'cpt_portal_order_paypal_order', methods: ['POST'])]
     public function createOrderFlowPaypalOrder(Request $request): JsonResponse {
         try {
-            $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $portalConfig = $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $winolsConfiguration = $portalConfig->isWinolsEnabled() ? $this->resolveWinolsConfiguration($portalConfig) : null;
             $customer = $this->getCurrentCustomer();
             /** @var array<string, mixed> $payload */
             $payload = $request->toArray();
@@ -293,7 +299,7 @@ final class OrderController extends AbstractController
                 return $this->json(['message' => 'Fuer diesen Auftrag werden keine zusaetzlichen Credits benoetigt.'], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $pendingOrder = $this->upsertPendingCreditTopupOrder($customer, $orderInput, $quote, $this->entityManager);
+            $pendingOrder = $this->upsertPendingCreditTopupOrder($customer, $orderInput, $quote, $this->entityManager, $winolsConfiguration);
             $paypalOrderId = $this->paypalOrderService->createCustomCreditsOrder($quote['missingCredits'], $customer, $quote['topupPricing'], [
                 'context' => 'order_flow_credit_topup',
                 'pendingOrderId' => $pendingOrder->getId(),
@@ -378,7 +384,9 @@ final class OrderController extends AbstractController
                 return $this->json(['message' => 'Nach der Zahlung stehen noch nicht genug Credits zur Verfuegung.'], Response::HTTP_CONFLICT);
             }
 
-            $this->finalizePendingCreditTopupOrder($pendingOrder, $customer, $refreshedQuote, $this->entityManager);
+            $portalConfig = $this->portalRuntimeResolver->requirePortalModule(Portal::MODULE_ORDER, $request);
+            $winolsConfiguration = $portalConfig->isWinolsEnabled() ? $this->resolveWinolsConfiguration($portalConfig) : null;
+            $this->finalizePendingCreditTopupOrder($pendingOrder, $customer, $refreshedQuote, $this->entityManager, $winolsConfiguration);
 
             return $this->json([
                 'message' => 'Credits gekauft und Auftrag erfolgreich platziert.',
@@ -577,7 +585,7 @@ final class OrderController extends AbstractController
      * @param array<string, mixed> $quote
      * @param array<string, mixed>|null $orderFlow
      */
-    private function hydrateOrderEntity(Auftrag $order, Kunde $customer, array $orderInput, array $quote, ?array $orderFlow, bool $isPending, ?string $forceStatus = null): Auftrag
+    private function hydrateOrderEntity(Auftrag $order, Kunde $customer, array $orderInput, array $quote, ?WinolsConfiguration $winolsConfiguration, ?array $orderFlow, bool $isPending, ?string $forceStatus = null): Auftrag
     {
         $vehicleData = [
             'manufacturer' => $orderInput['manufacturer'],
@@ -647,7 +655,7 @@ final class OrderController extends AbstractController
         }
 
         if (!$isPending) {
-            $this->applyAutoModEligibility($order, $orderInput);
+            $this->applyAutoModEligibility($order, $orderInput, $winolsConfiguration);
         }
 
         return $order;
@@ -656,10 +664,12 @@ final class OrderController extends AbstractController
     /**
      * @param array<string, mixed> $orderInput
      */
-    private function applyAutoModEligibility(Auftrag $order, array $orderInput): void
+    private function applyAutoModEligibility(Auftrag $order, array $orderInput, ?WinolsConfiguration $winolsConfiguration): void
     {
         $eligible = !((bool) ($orderInput['autoReady'] ?? false))
-            && $this->isStorableFileData((string) ($orderInput['fileData'] ?? ''));
+            && $this->isStorableFileData((string) ($orderInput['fileData'] ?? ''))
+            && $winolsConfiguration instanceof WinolsConfiguration
+            && $winolsConfiguration->matchesOrder($order);
 
         if (!$eligible) {
             return;
@@ -732,7 +742,7 @@ final class OrderController extends AbstractController
      * @param array<string, mixed> $orderInput
      * @param array<string, mixed> $quote
      */
-    private function upsertPendingCreditTopupOrder(Kunde $customer, array $orderInput, array $quote, EntityManagerInterface $entityManager): Auftrag
+    private function upsertPendingCreditTopupOrder(Kunde $customer, array $orderInput, array $quote, EntityManagerInterface $entityManager, ?WinolsConfiguration $winolsConfiguration): Auftrag
     {
         $pendingOrderId = (int) ($orderInput['pendingOrderId'] ?? 0);
         $pendingOrder = $pendingOrderId > 0 ? $this->findPendingCreditTopupOrder($customer, $pendingOrderId) : null;
@@ -747,7 +757,7 @@ final class OrderController extends AbstractController
             'updatedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
         ];
 
-        $order = $this->hydrateOrderEntity($pendingOrder ?? new Auftrag(), $customer, $orderInput, $quote, $orderFlow, true, null);
+        $order = $this->hydrateOrderEntity($pendingOrder ?? new Auftrag(), $customer, $orderInput, $quote, $winolsConfiguration, $orderFlow, true, null);
         $entityManager->persist($order);
         $entityManager->flush();
 
@@ -776,7 +786,7 @@ final class OrderController extends AbstractController
     /**
      * @param array<string, mixed> $quote
      */
-    private function finalizePendingCreditTopupOrder(Auftrag $order, Kunde $customer, array $quote, EntityManagerInterface $entityManager): void
+    private function finalizePendingCreditTopupOrder(Auftrag $order, Kunde $customer, array $quote, EntityManagerInterface $entityManager, ?WinolsConfiguration $winolsConfiguration): void
     {
         $vehicleData = $order->getVehicleData();
         if (($vehicleData['orderFlow']['state'] ?? null) === 'finalized') {
@@ -792,11 +802,16 @@ final class OrderController extends AbstractController
         if ((bool) ($vehicleData['autoReady'] ?? false)) {
             $this->ensureAutoReadyFinishedFile($order);
         } else {
-            $this->applyAutoModEligibility($order, ['autoReady' => false, 'fileData' => (string) $order->getFileData()]);
+            $this->applyAutoModEligibility($order, ['autoReady' => false, 'fileData' => (string) $order->getFileData()], $winolsConfiguration);
         }
 
         $entityManager->persist($order);
         $entityManager->flush();
+    }
+
+    private function resolveWinolsConfiguration(Portal $portalConfig): ?WinolsConfiguration
+    {
+        return $this->winolsConfigurationRepository->findActiveForPortal($portalConfig);
     }
 
     private function resolvePriceListSection(string $vehicleType): string

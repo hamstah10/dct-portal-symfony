@@ -1,4 +1,30 @@
 entries:
+  - date: "2026-07-15"
+    version: "v2026.07.15.0"
+    type: "feature"
+    portals: ["easyadmin"]
+    title: "Dashboard: Schnelllinks-Karten unter dem Portal-Journal"
+    description: "Neuer Bereich direkt unter dem Portal-Journal auf dem EasyAdmin-Dashboard: gruppierte Schnellzugriffs-Karten zu den wichtigsten Bereichen, damit man nicht erst über das Hauptmenü navigieren muss."
+    items:
+      - "Karte „Fahrzeugdatenbank“ mit Links zu Motoren, Stages und ECU"
+      - "Karte „Arbeit“ mit Links zu Aufträgen, Kunden und Credits"
+      - "Icons der Links entsprechen den Icons aus der Hauptnavigation"
+      - "Karten im Kartendesign mit einer Spalte pro Link, Hover-Effekt und größerer Schrift für Überschriften und Link-Labels"
+
+  - date: "2026-07-14"
+    version: "v2026.07.14.0"
+    type: "feature"
+    portals: ["easyadmin", "chiptuningfile", "no1tuningfiles", "api"]
+    title: "WinOLS AutoMod: mehrere Konfigurationen pro Portal statt ein globaler Token"
+    description: "Die WinOLS-AutoMod-Anbindung lief bisher über einen einzigen globalen API-Token und eine gemeinsame Job-Warteschlange für alle Portale. Jetzt lassen sich beliebig viele WinOLS-Konfigurationen anlegen, jede mit eigenem API-Token/-URL, zugeordneten Portalen und Regeln, welche Aufträge sie überhaupt bearbeiten darf."
+    items:
+      - "Neuer EasyAdmin-Bereich „WinOLS“ (Verwaltung / Einstellungen) zum Anlegen von Konfigurationen mit API-URL, eigenem API-Token, zugeordneten Portalen und Aktiv-Schalter"
+      - "Pro Konfiguration beliebig viele Regeln: erlaubte Tool-Hersteller, Slave/Master-Modus und erlaubte Dateiendungen bestimmen, ob ein Auftrag automatisch an WinOLS geht"
+      - "Neuer Schalter „WinOLS aktiv“ am Portal, damit die Funktion gezielt pro Portal ein-/ausgeschaltet werden kann"
+      - "Auftrag wird nur noch für AutoMod vorgemerkt, wenn eine aktive, zum Portal passende WinOLS-Konfiguration mit passender Regel existiert (Chiptuningfile- und No1tuningfiles-Bestellabläufe angepasst)"
+      - "Job-API (/api/v1/job) läuft jetzt portalbezogen: Auth über den Token der jeweiligen WinOLS-Konfiguration statt eines einzigen globalen Tokens, Job-Auswahl berücksichtigt die Firma/das Portal"
+      - "Dokumentation für die WinOLS-AutoMod-API ergänzt (Endpunkte, Datei-Ablage, Postman-Collection, offene Aufgaben) unter docs/winols/"
+
   - date: "2026-07-10"
     version: "v2026.07.10.2"
     type: "feature"

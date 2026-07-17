@@ -1,9 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
+use App\Brand\Common\Portal\PortalRuntimeResolver;
 use App\Entity\Auftrag;
+use App\Entity\Portal;
+use App\Entity\WinolsConfiguration;
 use App\Repository\AuftragRepository;
+use App\Repository\WinolsConfigurationRepository;
 use App\Service\Realtime\PortalMercureTopics;
 use App\Service\Realtime\PortalRealtimePublisher;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,10 +19,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\Mime\Email;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Uid\Ulid;
 
 #[Route('/api/v1/job')]
 final class AutoModJobApiController extends AbstractController
@@ -25,46 +30,70 @@ final class AutoModJobApiController extends AbstractController
 
     public function __construct(
         private readonly AuftragRepository $auftragRepository,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly MailerInterface $mailer,
-        private readonly LoggerInterface $logger,
+        private readonly WinolsConfigurationRepository $winolsConfigurationRepository,
+        private readonly PortalRuntimeResolver $portalRuntimeResolver,
         private readonly PortalRealtimePublisher $portalRealtimePublisher,
         private readonly PortalMercureTopics $portalMercureTopics,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly LoggerInterface $logger,
+        #[Autowire('%winols.api_token%')]
         private readonly string $apiToken,
+        #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
-        #[Autowire('%portal.mailer_from%')]
-        private readonly string $fromAddress,
-        #[Autowire('%portal.registration_notify_to%')]
-        private readonly string $notifyTo,
     ) {
     }
 
-    #[Route('', name: 'api_v1_job_get', methods: ['GET'])]
+    #[Route('', name: 'api_winols_job_get', methods: ['GET'])]
     public function getJob(Request $request): JsonResponse
     {
-        if (!$this->isAuthorized($request)) {
-            return new JsonResponse(['status' => false, 'message' => 'Unauthorized.'], 401);
+        $portal = $this->resolveActiveWinolsPortal($request);
+        $configuration = $this->resolveWinolsConfiguration($portal);
+
+        if (null !== ($error = $this->authorizeRequest($request, $configuration))) {
+            return $error;
         }
 
-        $order = $this->auftragRepository->findNextAutoModJob();
-        if (null === $order) {
-            return new JsonResponse(['status' => true, 'order' => null]);
+        if (!$portal instanceof Portal || null === $portal->getFirma() || !$configuration instanceof WinolsConfiguration) {
+            return $this->json([
+                'status' => true,
+                'order' => null,
+            ]);
         }
 
-        $relativePath = $this->ensureDecodedSourceFileOnDisk($order);
-        if (null === $relativePath) {
-            $this->logger->error('AutoMod job source file could not be materialized.', ['ulid' => $order->getUlid()]);
+        $order = null;
+        foreach ($this->auftragRepository->findNextAutoModJobs($portal->getFirma(), 100) as $candidate) {
+            if (!$candidate instanceof Auftrag) {
+                continue;
+            }
 
-            return new JsonResponse(['status' => true, 'order' => null]);
+            if ($configuration->matchesOrder($candidate)) {
+                $order = $candidate;
+                break;
+            }
         }
 
-        return new JsonResponse([
+        if (!$order instanceof Auftrag) {
+            return $this->json([
+                'status' => true,
+                'order' => null,
+            ]);
+        }
+
+        if (null === $order->getUlid() || '' === trim((string) $order->getUlid())) {
+            $order->setUlid((string) new Ulid());
+            $this->entityManager->flush();
+        }
+
+        $fileUrl = $this->ensureDecodedSourceFileOnDisk($order);
+        $absoluteFileUrl = rtrim($request->getSchemeAndHttpHost(), '/') . $fileUrl;
+
+        return $this->json([
             'status' => true,
             'order' => [
-                'ulid' => $order->getUlid(),
-                'file_name' => $order->getFileName(),
-                'file' => $request->getSchemeAndHttpHost() . '/' . $relativePath,
-                'auto_mod_status' => Auftrag::AUTOMOD_STATUS_DECRYPTED,
+                'ulid' => (string) $order->getUlid(),
+                'file_name' => (string) $order->getFileName(),
+                'file' => $absoluteFileUrl,
+                'auto_mod_status' => (int) ($order->getAutoModStatus() ?? Auftrag::AUTOMOD_STATUS_DECRYPTED),
                 'modification' => [
                     'name' => $order->getAutoModModificationName(),
                     'options' => $order->getAutoModModificationOptions(),
@@ -73,169 +102,184 @@ final class AutoModJobApiController extends AbstractController
         ]);
     }
 
-    #[Route('', name: 'api_v1_job_post', methods: ['POST'])]
+    #[Route('', name: 'api_winols_job_post', methods: ['POST'])]
     public function postJob(Request $request): JsonResponse
     {
-        if (!$this->isAuthorized($request)) {
-            return new JsonResponse(['status' => false, 'message' => 'Unauthorized.'], 401);
+        $portal = $this->resolveActiveWinolsPortal($request);
+        $configuration = $this->resolveWinolsConfiguration($portal);
+
+        if (null !== ($error = $this->authorizeRequest($request, $configuration))) {
+            return $error;
         }
 
         $ulid = trim((string) $request->request->get('ulid', ''));
-        if ('' === $ulid) {
-            return new JsonResponse(['status' => false, 'message' => 'ulid ist erforderlich.']);
-        }
+        $statusValue = (int) $request->request->get('auto_mod_status', 0);
+        $winolsId = trim((string) $request->request->get('winols_id', ''));
+        $resultFile = $request->files->get('file');
 
-        $rawStatus = (string) $request->request->get('auto_mod_status', '');
-        if (!in_array($rawStatus, ['3', '9'], true)) {
-            return new JsonResponse(['status' => false, 'message' => 'auto_mod_status muss 3 oder 9 sein.']);
+        if ('' === $ulid) {
+            return $this->errorResponse('ulid fehlt.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $order = $this->auftragRepository->findByUlid($ulid);
-        if (null === $order) {
-            return new JsonResponse(['status' => false, 'message' => 'Auftrag nicht gefunden.']);
+        if (!$order instanceof Auftrag) {
+            return $this->errorResponse('Auftrag nicht gefunden.', Response::HTTP_NOT_FOUND);
         }
 
-        $winolsId = trim((string) $request->request->get('winols_id', ''));
-        if ('' !== $winolsId) {
-            $order->setWinolsId($winolsId);
-        }
+        if (9 === $statusValue) {
+            $order
+                ->setAutoModStatus(Auftrag::AUTOMOD_STATUS_FAILED)
+                ->setAutoModFailureReason('WinOLS hat die Verarbeitung als fehlgeschlagen gemeldet.')
+                ->setAutoModSubmittedAt(new \DateTimeImmutable())
+                ->setWinolsId('' !== $winolsId ? $winolsId : $order->getWinolsId());
 
-        if ('9' === $rawStatus) {
-            $order->setAutoModStatus(Auftrag::AUTOMOD_STATUS_FAILED);
-            $order->setAutoModSubmittedAt(new \DateTimeImmutable());
             $this->entityManager->flush();
+            $this->publishOrderStatusChange($order, 'WinOLS-Verarbeitung fehlgeschlagen.');
 
-            $this->notifyAdminOfFailure($order);
-            $this->publishAutoModStatusEvent($order);
-
-            return new JsonResponse(['status' => true, 'message' => 'Order updated successfully.']);
+            return $this->json([
+                'status' => true,
+                'message' => 'Order updated successfully.',
+            ]);
         }
 
-        /** @var UploadedFile|null $file */
-        $file = $request->files->get('file');
-        if (null === $file) {
-            return new JsonResponse(['status' => false, 'message' => 'file ist erforderlich wenn auto_mod_status=3.']);
+        if (3 !== $statusValue) {
+            return $this->errorResponse('auto_mod_status muss 3 oder 9 sein.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        try {
-            $this->storeResultFile($order, $file);
-        } catch (\Throwable $e) {
-            $this->logger->error('AutoMod result file storage failed.', ['exception' => $e, 'ulid' => $ulid]);
-
-            return new JsonResponse(['status' => false, 'message' => 'Datei konnte nicht gespeichert werden.']);
+        if (!$resultFile instanceof UploadedFile) {
+            return $this->errorResponse('file fehlt.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $order->setAutoModStatus(Auftrag::AUTOMOD_STATUS_COMPLETED);
-        $order->setAutoModSubmittedAt(new \DateTimeImmutable());
-        $order->setStatus(Auftrag::STATUS_COMPLETED);
+        $this->storeResultFile($order, $resultFile);
+        $order
+            ->setAutoModStatus(Auftrag::AUTOMOD_STATUS_COMPLETED)
+            ->setAutoModFailureReason(null)
+            ->setAutoModSubmittedAt(new \DateTimeImmutable())
+            ->setWinolsId('' !== $winolsId ? $winolsId : $order->getWinolsId());
+
         $this->entityManager->flush();
+        $this->publishOrderStatusChange($order, 'WinOLS-Verarbeitung abgeschlossen.');
 
-        $this->publishAutoModStatusEvent($order);
-
-        return new JsonResponse(['status' => true, 'message' => 'Order updated successfully.']);
+        return $this->json([
+            'status' => true,
+            'message' => 'Order updated successfully.',
+        ]);
     }
 
-    private function publishAutoModStatusEvent(Auftrag $order): void
+    private function authorizeRequest(Request $request, ?WinolsConfiguration $configuration): ?JsonResponse
     {
-        $kunde = $order->getKunde();
-        if (null === $kunde || null === $kunde->getId()) {
-            return;
+        $bearerToken = $this->getBearerToken($request);
+        $expectedToken = null !== $configuration && '' !== trim($configuration->getApiToken())
+            ? $configuration->getApiToken()
+            : $this->apiToken;
+
+        if (null === $bearerToken || '' === trim($expectedToken) || !hash_equals($expectedToken, $bearerToken)) {
+            return $this->errorResponse('Unauthorized.', Response::HTTP_UNAUTHORIZED);
         }
 
-        $this->portalRealtimePublisher->publish(
-            $this->portalMercureTopics->customerOrders((int) $kunde->getId()),
-            sprintf('Auftrag %s AutoMod-Status aktualisiert', (string) $order->getOrderNumber()),
-            [
-                'kind' => 'order.status_changed',
-                'orderId' => $order->getId(),
-                'orderNumber' => $order->getOrderNumber(),
-                'customerId' => $kunde->getId(),
-                'status' => $order->getStatus(),
-                'autoModStatus' => $order->getAutoModStatus(),
-                'autoModFailureReason' => $order->getAutoModFailureReason(),
-                'changedAt' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
-                'source' => 'automod',
-            ],
-        );
+        return null;
     }
 
-    private function isAuthorized(Request $request): bool
+    private function resolveWinolsConfiguration(?Portal $portal): ?WinolsConfiguration
     {
-        $provided = $this->getBearerToken($request);
-
-        return null !== $provided && '' !== trim($this->apiToken) && hash_equals($this->apiToken, $provided);
-    }
-
-    private function ensureDecodedSourceFileOnDisk(Auftrag $order): ?string
-    {
-        $ulid = $order->getUlid();
-        if (null === $ulid || '' === $ulid) {
+        if (!$portal instanceof Portal) {
             return null;
         }
 
-        $relative = sprintf('storage/tmp/decode/%s.bin', $ulid);
-        $absolute = rtrim($this->projectDir, '/') . '/public/' . $relative;
+        return $this->winolsConfigurationRepository->findActiveForPortal($portal);
+    }
 
-        if (is_file($absolute)) {
-            return $relative;
-        }
-
-        $decoded = base64_decode((string) $order->getFileData(), true);
-        if (false === $decoded) {
+    private function resolveActiveWinolsPortal(Request $request): ?Portal
+    {
+        $portal = $this->portalRuntimeResolver->resolveCurrentPortal($request);
+        if (!$portal instanceof Portal) {
             return null;
         }
 
-        if (!is_dir(dirname($absolute)) && !@mkdir(dirname($absolute), 0775, true) && !is_dir(dirname($absolute))) {
+        if (!$portal->isActive() || !$portal->isPortalEnabled() || !$portal->isWinolsEnabled()) {
             return null;
         }
 
-        return @file_put_contents($absolute, $decoded) !== false ? $relative : null;
+        return $portal;
+    }
+
+    private function ensureDecodedSourceFileOnDisk(Auftrag $order): string
+    {
+        $ulid = trim((string) $order->getUlid());
+        if ('' === $ulid) {
+            $ulid = (string) new Ulid();
+            $order->setUlid($ulid);
+        }
+
+        $relativePath = sprintf('storage/tmp/decode/%s.bin', $ulid);
+        $absolutePath = rtrim($this->projectDir, '/') . '/public/' . $relativePath;
+        $directory = \dirname($absolutePath);
+
+        if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
+            throw new \RuntimeException('Decode-Verzeichnis konnte nicht erstellt werden.');
+        }
+
+        if (!is_file($absolutePath)) {
+            $decoded = base64_decode((string) ($order->getFileData() ?? ''), true);
+            if (false === $decoded) {
+                $decoded = (string) ($order->getFileData() ?? '');
+            }
+
+            if (false === @file_put_contents($absolutePath, $decoded)) {
+                throw new \RuntimeException('Decode-Datei konnte nicht geschrieben werden.');
+            }
+        }
+
+        return '/' . $relativePath;
     }
 
     private function storeResultFile(Auftrag $order, UploadedFile $file): void
     {
         $orderId = $order->getId();
         if (null === $orderId) {
-            throw new \RuntimeException('Auftrag hat keine ID.');
-        }
-
-        $targetName = $this->buildFinishedFileName((string) $order->getFileName());
-        $targetName = str_replace("\0", '', $targetName);
-        $targetName = trim(basename(str_replace('\\', '/', $targetName)));
-        if ('' === $targetName) {
-            $targetName = 'mod_file.bin';
+            throw new \RuntimeException('Auftrag ohne ID kann nicht gespeichert werden.');
         }
 
         $relativeDir = sprintf('uploads/auftraege/fertig/%d', $orderId);
         $absoluteDir = rtrim($this->projectDir, '/') . '/public/' . $relativeDir;
         if (!is_dir($absoluteDir) && !@mkdir($absoluteDir, 0775, true) && !is_dir($absoluteDir)) {
-            throw new \RuntimeException('Zielverzeichnis konnte nicht erstellt werden.');
+            throw new \RuntimeException('Zielverzeichnis fuer Ergebnisdatei konnte nicht erstellt werden.');
         }
 
-        if (is_file($absoluteDir . '/' . $targetName)) {
-            $timestamp = (new \DateTimeImmutable())->format('Ymd_His');
-            $base = pathinfo($targetName, \PATHINFO_FILENAME);
-            $ext = pathinfo($targetName, \PATHINFO_EXTENSION);
-            $targetName = '' !== $ext ? sprintf('%s_%s.%s', $base, $timestamp, $ext) : sprintf('%s_%s', $base, $timestamp);
+        $targetName = $this->buildFinishedFileName((string) $order->getFileName());
+        $targetName = basename(str_replace('\\', '/', str_replace("\0", '', $targetName)));
+        if ('' === $targetName) {
+            $targetName = 'mod_file.bin';
         }
 
-        $file->move($absoluteDir, $targetName);
+        try {
+            $storedFile = $file->move($absoluteDir, $targetName);
+            $absolutePath = $storedFile->getPathname();
+        } catch (\Throwable $exception) {
+            $contents = file_get_contents($file->getPathname());
+            if (false === $contents || false === @file_put_contents($absoluteDir . '/' . $targetName, $contents)) {
+                throw new \RuntimeException('Ergebnisdatei konnte nicht gespeichert werden.', 0, $exception);
+            }
+
+            $absolutePath = $absoluteDir . '/' . $targetName;
+        }
 
         $relativePath = $relativeDir . '/' . $targetName;
-        $size = @filesize($absoluteDir . '/' . $targetName);
+        $fileSize = @filesize($absolutePath);
         $uploadedAt = new \DateTimeImmutable();
 
         $order
             ->setFinishedFilePath($relativePath)
             ->setFinishedFileName($targetName)
-            ->setFinishedFileSize(is_int($size) ? $size : null)
-            ->setFinishedFileUploadedAt($uploadedAt);
+            ->setFinishedFileSize(is_int($fileSize) ? $fileSize : null)
+            ->setFinishedFileUploadedAt($uploadedAt)
+            ->setStatus(Auftrag::STATUS_COMPLETED);
 
         $files = $order->getFinishedFiles();
         $files[] = [
             'path' => $relativePath,
             'name' => $targetName,
-            'size' => is_int($size) ? $size : null,
+            'size' => is_int($fileSize) ? $fileSize : null,
             'uploadedAt' => $uploadedAt->format(\DateTimeInterface::ATOM),
         ];
         $order->setFinishedFiles($files);
@@ -259,25 +303,25 @@ final class AutoModJobApiController extends AbstractController
         return sprintf('%s_mod.%s', $base, $extension);
     }
 
-    private function notifyAdminOfFailure(Auftrag $order): void
+    private function publishOrderStatusChange(Auftrag $order, string $summary): void
     {
-        if ('' === trim($this->notifyTo)) {
+        $kunde = $order->getKunde();
+        if (null === $kunde || null === $kunde->getId()) {
             return;
         }
 
-        try {
-            $email = (new Email())
-                ->from(new Address($this->fromAddress, 'AutoMod'))
-                ->to($this->notifyTo)
-                ->subject(sprintf('AutoMod fehlgeschlagen: %s', $order->getOrderNumber()))
-                ->text(sprintf(
-                    "Auftrag %s (ulid %s) ist bei der AutoMod-Verarbeitung fehlgeschlagen.",
-                    $order->getOrderNumber(),
-                    (string) $order->getUlid()
-                ));
-            $this->mailer->send($email);
-        } catch (\Throwable $e) {
-            $this->logger->error('AutoMod failure notification mail failed.', ['exception' => $e]);
-        }
+        $this->portalRealtimePublisher->publish(
+            $this->portalMercureTopics->customerOrders((int) $kunde->getId()),
+            $summary,
+            [
+                'kind' => 'order.status_changed',
+                'orderId' => $order->getId(),
+                'orderNumber' => $order->getOrderNumber(),
+                'customerId' => $kunde->getId(),
+                'status' => $order->getStatus(),
+                'autoModStatus' => $order->getAutoModStatus(),
+                'winolsId' => $order->getWinolsId(),
+            ],
+        );
     }
 }

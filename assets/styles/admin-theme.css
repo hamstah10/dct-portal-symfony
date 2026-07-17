@@ -2482,6 +2482,80 @@ body.ea:not(.page-login) .tfd-journal--hidden .tfd-journal__toggle svg {
     transform: rotate(180deg);
 }
 
+/* ── Schnelllinks ──────────────────────────────────────────────────────── */
+body.ea:not(.page-login) .tfd-quicklinks {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__card {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 16px 18px;
+    min-width: 220px;
+    background: #16203d;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: var(--tfd-shadow-sm) !important;
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__header {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__subheader {
+    margin: 4px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.35);
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__btn.btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    gap: 10px;
+    background: #1b2748 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 8px 16px;
+    font-size: .92rem;
+    font-weight: 600;
+    transition: background .15s, border-color .15s, transform .15s;
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__btn.btn-secondary:hover {
+    background: #24335c !important;
+    border-color: rgba(189, 30, 33, 0.5) !important;
+    transform: translateX(2px);
+}
+
+body.ea:not(.page-login) .tfd-quicklinks__btn.btn-secondary svg {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: #bd1e21;
+}
+
 /* ── Journal-Seite (Vollseite Timeline) ────────────────────────────────── */
 body.ea:not(.page-login) .tfd-journal-page {
     max-width: 780px;

@@ -157,6 +157,18 @@ class VehicleType
         return $this;
     }
 
+    public function getResolvedImagePath(): ?string
+    {
+        $mediaAssetPath = trim((string) ($this->imageMediaAsset?->getFilePath() ?? ''));
+        if ('' !== $mediaAssetPath) {
+            return $mediaAssetPath;
+        }
+
+        $legacyPath = trim((string) ($this->image ?? ''));
+
+        return '' !== $legacyPath ? $legacyPath : null;
+    }
+
     public function isActive(): bool
     {
         return $this->active;

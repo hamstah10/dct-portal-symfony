@@ -59,6 +59,7 @@ final class PortalCrudController extends AbstractCrudController
                 ->setChoices(Portal::getPortalTypeChoices()),
             BooleanField::new('active', 'Aktiv'),
             BooleanField::new('portalEnabled', 'Portal aktiv'),
+            BooleanField::new('winolsEnabled', 'WinOLS aktiv'),
             BooleanField::new('websiteEnabled', 'Website aktiv'),
             BooleanField::new('customerRegistrationEnabled', 'Registrierung aktiv'),
             IntegerField::new('sortOrder', 'Sortierung'),

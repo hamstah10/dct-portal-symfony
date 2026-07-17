@@ -145,6 +145,9 @@ class Portal
     private bool $portalEnabled = true;
 
     #[ORM\Column]
+    private bool $winolsEnabled = false;
+
+    #[ORM\Column]
     private bool $websiteEnabled = true;
 
     #[ORM\Column]
@@ -489,6 +492,18 @@ class Portal
     public function setPortalEnabled(bool $portalEnabled): static
     {
         $this->portalEnabled = $portalEnabled;
+
+        return $this;
+    }
+
+    public function isWinolsEnabled(): bool
+    {
+        return $this->winolsEnabled;
+    }
+
+    public function setWinolsEnabled(bool $winolsEnabled): static
+    {
+        $this->winolsEnabled = $winolsEnabled;
 
         return $this;
     }

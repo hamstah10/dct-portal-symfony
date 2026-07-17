@@ -45,37 +45,55 @@
         </section>
         {% endif %}
 
-        <section class="tfd-dashboard-hero-panel">
-            <div class="tfd-dashboard-hero-copy">
-                <div class="tfd-dashboard-hero-eyebrow">Superadmin</div>
-                <h2 class="tfd-dashboard-hero-title">Operations, Umsatz und Fahrzeugdaten in einer Oberfläche.</h2>
-                <p class="tfd-dashboard-hero-text">
-                    Steuere aktive Aufträge, Credits, eCommerce, Abos und Fahrzeugnutzung in einem klaren Admin mit stabiler EasyAdmin-Basis.
-                </p>
-                <div class="tfd-dashboard-hero-actions">
-                    <a href="{{ path('admin_auftrag_index') }}" class="btn btn-primary">Aufträge öffnen</a>
-                    <a href="{{ path('admin_vehicle_database_overview') }}" class="btn btn-secondary">Fahrzeugdatenbank</a>
-                    <a href="{{ path('admin_statistics') }}" class="btn btn-secondary">Mehr Statistiken</a>
-                    <a href="{{ path('admin_test_actions') }}" class="btn btn-secondary">TestActions</a>
-                </div>
-            </div>
-            <div class="tfd-dashboard-hero-aside">
-                <div class="tfd-dashboard-hero-stat">
-                    <span class="tfd-dashboard-hero-stat__label">Offene Aufträge</span>
-                    <strong class="tfd-dashboard-hero-stat__value">{{ openOrderCount }}</strong>
-                    <span class="tfd-dashboard-hero-stat__meta">Aktuell in Bearbeitung oder offen</span>
-                </div>
-                <div class="tfd-dashboard-hero-stat">
-                    <span class="tfd-dashboard-hero-stat__label">Abgeschlossen</span>
-                    <strong class="tfd-dashboard-hero-stat__value">{{ completedOrderCount }}</strong>
-                    <span class="tfd-dashboard-hero-stat__meta">Quote {{ completionRate }}%</span>
-                </div>
-                <div class="tfd-dashboard-hero-stat">
-                    <span class="tfd-dashboard-hero-stat__label">Monatsumsatz netto</span>
-                    <strong class="tfd-dashboard-hero-stat__value">{{ revenueCurrentMonth|number_format(0, ',', '.') }} €</strong>
-                    <span class="tfd-dashboard-hero-stat__meta">Brutto {{ revenueCurrentMonthGross|number_format(0, ',', '.') }} €</span>
-                </div>
-            </div>
+        {# ── Schnelllinks ─────────────────────────────────────────────────── #}
+        {% set quicklinkGroups = [
+            { header: 'Fahrzeugdatenbank', links: [
+                { label: 'Motoren', path: path('admin_vehicle_engine_index'), icon: 'line-md:engine-filled' },
+                { label: 'Stages', path: path('admin_vehicle_stage_index'), icon: 'ix:gaugechart' },
+                { label: 'ECU', path: path('admin_vehicle_ecu'), icon: 'streamline:computer-chip-1' },
+            ], subgroups: [
+                { header: 'Stammdaten', links: [
+                    { label: 'Einbau-Hinweise', path: path('admin_einbau_hinweis_index'), icon: 'mdi:map-marker-radius' },
+                    { label: 'Sportmarken', path: path('admin_performance_brand_index'), icon: 'mdi:speedometer' },
+                ] },
+            ] },
+            { header: 'Arbeit', links: [
+                { label: 'Aufträge', path: path('admin_auftrag_index'), icon: 'lets-icons:order' },
+                { label: 'Kunden', path: path('admin_kunde_index'), icon: 'raphael:customer' },
+                { label: 'Credits', path: path('admin_kunde_credit_transaction_index'), icon: 'tabler:credits' },
+            ] },
+            { header: 'Einstellungen', links: [
+                { label: 'Wasserzeichen-Vorlagen', path: path('admin_watermark_preset_index'), icon: 'mdi:watermark' },
+                { label: 'Wasserzeichen-Bereiche', path: path('admin_admin_watermark_areas'), icon: 'mdi:image-area' },
+                { label: 'Textbausteine', path: path('admin_textbaustein_index'), icon: 'mdi:text-box-multiple' },
+                { label: 'Portale', path: path('admin_portal_index'), icon: 'mdi:web-box' },
+            ] },
+        ] %}
+        <section class="tfd-quicklinks">
+            {% for group in quicklinkGroups|reverse %}
+                <article class="tfd-quicklinks__card">
+                    <h3 class="tfd-quicklinks__header">{{ group.header }}</h3>
+                    <div class="tfd-quicklinks__buttons">
+                        {% for link in group.links %}
+                            <a href="{{ link.path }}" class="btn btn-secondary tfd-quicklinks__btn">
+                                {{ ux_icon(link.icon) }} {{ link.label }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                    {% if group.subgroups is defined %}
+                        {% for subgroup in group.subgroups %}
+                            <h4 class="tfd-quicklinks__subheader">{{ subgroup.header }}</h4>
+                            <div class="tfd-quicklinks__buttons">
+                                {% for link in subgroup.links %}
+                                    <a href="{{ link.path }}" class="btn btn-secondary tfd-quicklinks__btn">
+                                        {{ ux_icon(link.icon) }} {{ link.label }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </article>
+            {% endfor %}
         </section>
 
         <section class="tfd-dashboard-kpi-grid">

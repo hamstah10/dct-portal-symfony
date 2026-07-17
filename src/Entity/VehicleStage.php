@@ -374,6 +374,9 @@ class VehicleStage
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getDynoChart(): ?array
     {
         return $this->dynoChart;

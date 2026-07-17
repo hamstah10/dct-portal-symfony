@@ -84,6 +84,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 use App\Controller\Admin\WatermarkPresetCrudController;
+use App\Controller\Admin\WinolsConfigurationCrudController;
 use App\Controller\Admin\TextbausteinCrudController;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -4933,6 +4934,7 @@ final class DashboardController extends AbstractDashboardController
             AdminPageRegistry::crudKey(PortalCrudController::class) => MenuItem::linkTo(PortalCrudController::class, 'Portale', 'mdi:web-box')->setAction('index'),
             AdminPageRegistry::crudKey(PortalPriceListCrudController::class) => MenuItem::linkTo(PortalPriceListCrudController::class, 'Portal-Preislisten', 'mdi:format-list-bulleted-type')->setAction('index'),
             AdminPageRegistry::crudKey(PortalPriceListItemCrudController::class) => MenuItem::linkTo(PortalPriceListItemCrudController::class, 'Portal-Preisliste Positionen', 'mdi:playlist-edit')->setAction('index'),
+            AdminPageRegistry::crudKey(WinolsConfigurationCrudController::class) => MenuItem::linkTo(WinolsConfigurationCrudController::class, 'WinOLS', 'mdi:chip')->setAction('index'),
             AdminPageRegistry::crudKey(WatermarkPresetCrudController::class) => MenuItem::linkTo(WatermarkPresetCrudController::class, 'Wasserzeichen-Vorlagen', 'mdi:watermark')->setAction('index'),
             AdminPageRegistry::routeKey('admin_admin_watermark_areas') => MenuItem::linkToRoute('Wasserzeichen-Bereiche', 'mdi:image-area', 'admin_admin_watermark_areas'),
             AdminPageRegistry::crudKey(TextbausteinCrudController::class) => MenuItem::linkTo(TextbausteinCrudController::class, 'Textbausteine', 'mdi:text-box-multiple')->setAction('index'),

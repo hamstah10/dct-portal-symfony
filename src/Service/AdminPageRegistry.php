@@ -240,6 +240,7 @@ final class AdminPageRegistry
             self::crudKey(\App\Controller\Admin\PortalCrudController::class) => 'Verwaltung / Einstellungen / Portale',
             self::crudKey(\App\Controller\Admin\PortalPriceListCrudController::class) => 'Verwaltung / Einstellungen / Portal-Preislisten',
             self::crudKey(\App\Controller\Admin\PortalPriceListItemCrudController::class) => 'Verwaltung / Einstellungen / Portal-Preisliste Positionen',
+            self::crudKey(\App\Controller\Admin\WinolsConfigurationCrudController::class) => 'Verwaltung / Einstellungen / WinOLS',
             self::crudKey(\App\Controller\Admin\TextbausteinCrudController::class) => 'Verwaltung / Einstellungen / Textbausteine',
 
             self::crudKey(\App\Controller\Admin\ZugangsdatenCrudController::class) => 'Verwaltung / Security / Zugangsdaten',
