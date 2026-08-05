@@ -1,0 +1,50 @@
+:root {
+  /* ---- brand ramps ---- */
+  --red-50:  #FDECEC;
+  --red-100: #FBD5D6;
+  --red-200: #F5A8AA;
+  --red-300: #EE7174;
+  --red-400: #E84A4E;
+  --red-500: #E31E24;   /* brand red — sampled from logo */
+  --red-600: #C5161B;
+  --red-700: #9E1115;
+  --red-800: #6E0C0F;
+
+  --carbon-25:  #FAFAFA;
+  --carbon-50:  #F5F5F5;
+  --carbon-100: #ECECEC;
+  --carbon-200: #DEDEDE;
+  --carbon-300: #C7C7C8;
+  --carbon-400: #9A9A9D;
+  --carbon-500: #6B6B6E;
+  --carbon-600: #4A4A4B;
+  --carbon-700: #343433;
+  --carbon-800: #2B2A29;   /* brand carbon — sampled from logo */
+  --carbon-900: #1C1B1B;
+  --carbon-950: #121211;
+
+  /* ---- semantic (light) ---- */
+  --bg:            #FFFFFF;
+  --bg-grid:       #ECECEC;
+  --surface:       #FFFFFF;
+  --surface-2:     #F5F5F5;
+  --surface-3:     #ECECEC;
+  --border:        #E6E6E6;
+  --border-strong: #D2D2D3;
+
+  --text:        #2B2A29;
+  --text-muted:  #6B6B6E;
+  --text-subtle: #9A9A9D;
+
+  --accent:        #E31E24;
+  --accent-hover:  #C5161B;
+  --accent-press:  #9E1115;
+  --accent-soft:   #FDECEC;
+  --accent-text:   #C5161B;
+  --text-on-accent:#FFFFFF;
+
+  --info:        #1F6FEB;  --info-soft:    #E7F0FE;
+  --success:     #1F9D55;  --success-soft: #E4F5EC;
+  --warning:     #C7820B;  --warning-soft: #FBF1DC;
+  --danger:      #E31E24;  --danger-soft:  #FDECEC;
+}

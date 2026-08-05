@@ -75,10 +75,8 @@ final class AdminIssueController extends AbstractController
             $issue->setScreenshotDataUrl($payload['screenshotDataUrl'] ?? null);
             $issue->setAudioUrl($payload['audioUrl'] ?? null);
 
-            $dbUser = $this->entityManager->getRepository(User::class)->find($user->getId());
-            if ($dbUser instanceof User) {
-                $issue->setCreatedBy($dbUser);
-            }
+            $issue->setCreatedById($user->getId() ?? null);
+            $issue->setCreatedByName($user->getUsername() ?? 'Unknown');
 
             $this->entityManager->persist($issue);
             $this->entityManager->flush();
@@ -148,11 +146,8 @@ final class AdminIssueController extends AbstractController
             $comment = new AdminIssueComment();
             $comment->setText($payload['text'] ?? '');
             $comment->setIssue($issue);
-
-            $dbUser = $this->entityManager->getRepository(User::class)->find($user->getId());
-            if ($dbUser instanceof User) {
-                $comment->setAuthor($dbUser);
-            }
+            $comment->setAuthorId($user->getId() ?? null);
+            $comment->setAuthorName($user->getUsername() ?? 'Unknown');
 
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
@@ -160,7 +155,7 @@ final class AdminIssueController extends AbstractController
             return new JsonResponse([
                 'id' => $comment->getId(),
                 'text' => $comment->getText(),
-                'authorName' => $comment->getAuthor()?->getUsername() ?? 'Unknown',
+                'authorName' => $comment->getAuthorName() ?? 'Unknown',
                 'createdAt' => $comment->getCreatedAt()->format('c'),
             ], Response::HTTP_CREATED);
         } catch (\Exception $e) {
@@ -192,19 +187,15 @@ final class AdminIssueController extends AbstractController
             'currentValue' => $issue->getCurrentValue(),
             'screenshotDataUrl' => $issue->getScreenshotDataUrl(),
             'audioUrl' => $issue->getAudioUrl(),
-            'assignedTo' => $issue->getAssignedTo() ? [
-                'id' => $issue->getAssignedTo()->getId(),
-                'name' => $issue->getAssignedTo()->getUsername(),
-            ] : null,
-            'createdBy' => $issue->getCreatedBy() ? [
-                'id' => $issue->getCreatedBy()->getId(),
-                'name' => $issue->getCreatedBy()->getUsername(),
-            ] : null,
+            'assignedToId' => $issue->getAssignedToId(),
+            'assignedToName' => $issue->getAssignedToName(),
+            'createdById' => $issue->getCreatedById(),
+            'createdByName' => $issue->getCreatedByName(),
             'comments' => array_map(static function ($comment) {
                 return [
                     'id' => $comment->getId(),
                     'text' => $comment->getText(),
-                    'authorName' => $comment->getAuthor()?->getUsername() ?? 'Unknown',
+                    'authorName' => $comment->getAuthorName() ?? 'Unknown',
                     'createdAt' => $comment->getCreatedAt()->format('c'),
                 ];
             }, $issue->getComments()->toArray()),

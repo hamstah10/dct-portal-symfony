@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[ORM\Entity(repositoryClass: AdminIssueRepository::class)]
 #[ORM\Table(name: 'admin_issue')]
@@ -37,13 +38,17 @@ class AdminIssue
     #[ORM\Column(type: Types::JSON)]
     private array $labels = [];
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'assigned_to_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
-    private ?User $assignedTo = null;
+    #[ORM\Column(nullable: true)]
+    private ?int $assignedToId = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: false)]
-    private ?User $createdBy = null;
+    #[ORM\Column(nullable: true)]
+    private ?string $assignedToName = null;
+
+    #[ORM\Column(nullable: false)]
+    private ?int $createdById = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $createdByName = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $pageUrl = null;
@@ -175,25 +180,47 @@ class AdminIssue
         return $this;
     }
 
-    public function getAssignedTo(): ?User
+    public function getAssignedToId(): ?int
     {
-        return $this->assignedTo;
+        return $this->assignedToId;
     }
 
-    public function setAssignedTo(?User $assignedTo): static
+    public function setAssignedToId(?int $assignedToId): static
     {
-        $this->assignedTo = $assignedTo;
+        $this->assignedToId = $assignedToId;
         return $this;
     }
 
-    public function getCreatedBy(): ?User
+    public function getAssignedToName(): ?string
     {
-        return $this->createdBy;
+        return $this->assignedToName;
     }
 
-    public function setCreatedBy(User $createdBy): static
+    public function setAssignedToName(?string $assignedToName): static
     {
-        $this->createdBy = $createdBy;
+        $this->assignedToName = $assignedToName;
+        return $this;
+    }
+
+    public function getCreatedById(): ?int
+    {
+        return $this->createdById;
+    }
+
+    public function setCreatedById(?int $createdById): static
+    {
+        $this->createdById = $createdById;
+        return $this;
+    }
+
+    public function getCreatedByName(): ?string
+    {
+        return $this->createdByName;
+    }
+
+    public function setCreatedByName(?string $createdByName): static
+    {
+        $this->createdByName = $createdByName;
         return $this;
     }
 

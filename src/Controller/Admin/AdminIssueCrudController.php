@@ -44,8 +44,6 @@ final class AdminIssueCrudController extends AbstractCrudController
             ->add(ChoiceFilter::new('status'))
             ->add(ChoiceFilter::new('priority'))
             ->add(ChoiceFilter::new('category'))
-            ->add(EntityFilter::new('createdBy'))
-            ->add(EntityFilter::new('assignedTo'))
             ->add('createdAt');
     }
 
@@ -93,9 +91,9 @@ final class AdminIssueCrudController extends AbstractCrudController
                 ->setChoices($priorityChoices),
             ArrayField::new('labels', 'Labels')
                 ->hideOnIndex(),
-            AssociationField::new('createdBy', 'Erstellt von')
+            TextField::new('createdByName', 'Erstellt von')
                 ->onlyOnIndex(),
-            AssociationField::new('assignedTo', 'Zugewiesen an')
+            TextField::new('assignedToName', 'Zugewiesen an')
                 ->hideOnIndex(),
             DateTimeField::new('createdAt', 'Erstellt am')
                 ->hideOnForm(),

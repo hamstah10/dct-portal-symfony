@@ -20,9 +20,11 @@ class AdminIssueComment
     #[ORM\JoinColumn(name: 'issue_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?AdminIssue $issue = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'author_id', referencedColumnName: 'id', nullable: false)]
-    private ?User $author = null;
+    #[ORM\Column(nullable: false)]
+    private ?int $authorId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $authorName = null;
 
     #[ORM\Column(type: Types::TEXT)]
     private string $text = '';
@@ -51,14 +53,25 @@ class AdminIssueComment
         return $this;
     }
 
-    public function getAuthor(): ?User
+    public function getAuthorId(): ?int
     {
-        return $this->author;
+        return $this->authorId;
     }
 
-    public function setAuthor(User $author): static
+    public function setAuthorId(int $authorId): static
     {
-        $this->author = $author;
+        $this->authorId = $authorId;
+        return $this;
+    }
+
+    public function getAuthorName(): ?string
+    {
+        return $this->authorName;
+    }
+
+    public function setAuthorName(?string $authorName): static
+    {
+        $this->authorName = $authorName;
         return $this;
     }
 

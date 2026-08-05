@@ -1,0 +1,127 @@
+<!-- @dsCard group="Portal" viewport="1440x820" name="Login & Registrierung" subtitle="Händler-Portal Auth · Split-Layout mit Carbon-Panel, Login/Registrieren-Umschalter" -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No1 Tuningfiles — Händler-Portal Login</title>
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--surface-2); color: var(--text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+a { color: var(--accent-text); text-decoration: none; }
+a:hover { color: var(--accent); text-decoration: underline; }
+@keyframes auth-rise { 0% { transform: translateY(14px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+.auth-input { width: 100%; font-family: var(--font-sans); font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 11px 13px 11px 40px; outline: none; transition: border-color var(--dur-fast), box-shadow var(--dur-fast); }
+.auth-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(227,30,36,0.12); }
+.auth-input::placeholder { color: var(--text-subtle); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+function Field({ icon, label, type = 'text', placeholder, half }) {
+  return (
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: half ? '1 1 0' : '1 1 100%', minWidth: 0 }}>
+      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>{label}</span>
+      <span style={{ position: 'relative', display: 'block' }}>
+        <i data-lucide={icon} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', width: 16, height: 16, color: 'var(--text-subtle)' }}></i>
+        <input className="auth-input" type={type} placeholder={placeholder} />
+      </span>
+    </label>
+  );
+}
+
+function AuthScreen() {
+  const [mode, setMode] = React.useState('login');
+  React.useEffect(() => { if (window.lucide) window.lucide.createIcons(); });
+  const login = mode === 'login';
+  const tabStyle = (on) => ({
+    flex: 1, textAlign: 'center', fontFamily: 'var(--font-display)', fontWeight: 700, textTransform: 'uppercase',
+    letterSpacing: '0.05em', fontSize: 13, padding: '10px 0', cursor: 'pointer', borderRadius: 'var(--radius-sm)',
+    color: on ? '#fff' : 'var(--text-muted)', background: on ? 'var(--accent)' : 'transparent',
+    transition: 'background var(--dur-fast), color var(--dur-fast)',
+  });
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(520px, 680px) 1fr', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 64px', background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
+        <img src="../../assets/No1-logo.png" alt="No1 Tuningfiles" style={{ height: 34, width: 'auto', alignSelf: 'flex-start', marginBottom: 30 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
+          <div style={{ width: 8, height: 30, background: 'var(--accent)', transform: 'skewX(-12deg)' }}></div>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontWeight: 800, textTransform: 'uppercase', fontSize: 28, lineHeight: 1, margin: 0 }}>{login ? <span>Willkommen <span style={{ color: 'var(--accent)' }}>zurück</span></span> : <span>Händler <span style={{ color: 'var(--accent)' }}>werden</span></span>}</h1>
+        </div>
+        <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: '8px 0 26px' }}>{login ? 'Melde dich im Händler-Portal an, um Aufträge, Files und Credits zu verwalten.' : 'Registriere deinen Betrieb und erhalte Zugang zu Files, Preisliste und Support.'}</p>
+        <div style={{ display: 'flex', gap: 6, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 5, marginBottom: 26 }}>
+          <div style={tabStyle(login)} onClick={() => setMode('login')}>Anmelden</div>
+          <div style={tabStyle(!login)} onClick={() => setMode('register')}>Registrieren</div>
+        </div>
+        <form key={mode} onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: 16, animation: 'auth-rise 320ms var(--ease-out)' }}>
+          {!login && (
+            <div style={{ display: 'flex', gap: 14 }}>
+              <Field icon="user" label="Vorname" placeholder="Max" half />
+              <Field icon="user" label="Nachname" placeholder="Mustermann" half />
+            </div>
+          )}
+          {!login && <Field icon="building-2" label="Firma / Werkstatt" placeholder="Mustermann Performance GmbH" />}
+          <Field icon="mail" label="E-Mail" type="email" placeholder="name@werkstatt.de" />
+          <Field icon="lock" label="Passwort" type="password" placeholder="••••••••" />
+          {!login && <Field icon="lock-keyhole" label="Passwort bestätigen" type="password" placeholder="••••••••" />}
+          {login ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 13 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', cursor: 'pointer' }}>
+                <input type="checkbox" style={{ accentColor: 'var(--accent)', width: 15, height: 15 }} /> Angemeldet bleiben
+              </label>
+              <a href="#">Passwort vergessen?</a>
+            </div>
+          ) : (
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <input type="checkbox" style={{ accentColor: 'var(--accent)', width: 15, height: 15, marginTop: 2 }} />
+              <span>Ich akzeptiere die <a href="#">AGB</a> und die <a href="#">Datenschutzerklärung</a>.</span>
+            </label>
+          )}
+          <button type="submit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9, fontFamily: 'var(--font-display)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 14, color: '#fff', background: 'var(--accent)', border: 'none', borderRadius: 'var(--radius-sm)', padding: '13px 0', cursor: 'pointer', marginTop: 4, boxShadow: 'var(--shadow-md)', transition: 'background var(--dur-fast)' }} onMouseEnter={(e) => e.currentTarget.style.background = 'var(--accent-hover)'} onMouseLeave={(e) => e.currentTarget.style.background = 'var(--accent)'}>
+            {login ? 'Anmelden' : 'Konto erstellen'} <i data-lucide="arrow-right" style={{ width: 16, height: 16 }}></i>
+          </button>
+        </form>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 22 }}>
+          {login ? <span>Noch kein Händler-Konto? <a href="#" onClick={(e) => { e.preventDefault(); setMode('register'); }}>Jetzt registrieren</a></span> : <span>Bereits registriert? <a href="#" onClick={(e) => { e.preventDefault(); setMode('login'); }}>Zum Login</a></span>}
+        </div>
+      </div>
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--carbon-900)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 72px' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 10, background: 'repeating-conic-gradient(#000 0% 25%, #fff 0% 50%)', backgroundSize: '20px 20px', opacity: 0.35 }}></div>
+        <div style={{ position: 'absolute', top: -80, right: -120, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(227,30,36,0.22), transparent 65%)' }}></div>
+        <div style={{ position: 'absolute', bottom: 60, left: -60, width: 200, height: 8, background: 'var(--accent)', transform: 'skewX(-30deg)', opacity: 0.5 }}></div>
+        <div style={{ position: 'absolute', bottom: 84, left: -90, width: 160, height: 8, background: 'rgba(255,255,255,0.25)', transform: 'skewX(-30deg)' }}></div>
+        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 14 }}>/ Händler-Portal</div>
+        <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontWeight: 800, textTransform: 'uppercase', fontSize: 44, lineHeight: 1.05, color: '#fff', maxWidth: 520 }}>Tuning Files.<br />Aufträge.<br /><span style={{ color: 'var(--accent)' }}>Vollgas.</span></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 36, maxWidth: 440 }}>
+          {[['file-check-2', 'Individuelle Files in unter 30 Minuten'], ['gauge', 'Konfigurator, Preisliste & DTC-Datenbank'], ['circle-dollar-sign', 'Faires Credit-System — keine Grundgebühr']].map(([ic, t]) => (
+            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 13, color: '#cfcfcf', fontSize: 14.5 }}>
+              <span style={{ width: 34, height: 34, flex: '0 0 auto', borderRadius: 'var(--radius-sm)', background: 'rgba(227,30,36,0.15)', border: '1px solid rgba(227,30,36,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i data-lucide={ic} style={{ width: 16, height: 16, color: 'var(--accent)' }}></i>
+              </span>
+              {t}
+            </div>
+          ))}
+        </div>
+        <div style={{ position: 'absolute', bottom: 22, right: 28, fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>No1 Tuningfiles · Händler-Portal</div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<AuthScreen />);
+</script>
+<template id="__bundler_thumbnail" data-bg-color="#1C1B1B">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#1C1B1B"/>
+    <text x="380" y="430" font-family="Arial, sans-serif" font-weight="900" font-style="italic" font-size="300" fill="#FFFFFF">No</text>
+    <text x="760" y="430" font-family="Arial, sans-serif" font-weight="900" font-style="italic" font-size="300" fill="#E31E24">1</text>
+  </svg>
+</template>
+</body>
+</html>
