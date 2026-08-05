@@ -46,26 +46,38 @@ final class Version20260704080000 extends AbstractMigration
         $connection->executeStatement('CREATE TABLE tfd_partner_wizard_lead_vehicletype (lead_id INT NOT NULL, vehicle_type_id INT NOT NULL, INDEX IDX_TFD_PW_LEAD_VT_LEAD (lead_id), INDEX IDX_TFD_PW_LEAD_VT_TYPE (vehicle_type_id), PRIMARY KEY(lead_id, vehicle_type_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
 
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_client_vehicletype ADD CONSTRAINT FK_TFD_PW_CLIENT_VT_CLIENT FOREIGN KEY (client_id) REFERENCES tfd_partner_wizard_client (id) ON DELETE CASCADE');
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_client_vehicletype ADD CONSTRAINT FK_TFD_PW_CLIENT_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        if ($this->tableExists('tx_chiptuningdatabase_vehicletype', $connection)) {
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_client_vehicletype ADD CONSTRAINT FK_TFD_PW_CLIENT_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        }
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_tool_vehicletype ADD CONSTRAINT FK_TFD_PW_TOOL_VT_TOOL FOREIGN KEY (tool_id) REFERENCES tfd_partner_wizard_tool (id) ON DELETE CASCADE');
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_tool_vehicletype ADD CONSTRAINT FK_TFD_PW_TOOL_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        if ($this->tableExists('tx_chiptuningdatabase_vehicletype', $connection)) {
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_tool_vehicletype ADD CONSTRAINT FK_TFD_PW_TOOL_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        }
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_package_vehicletype ADD CONSTRAINT FK_TFD_PW_PACKAGE_VT_PACKAGE FOREIGN KEY (package_id) REFERENCES tfd_partner_wizard_package (id) ON DELETE CASCADE');
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_package_vehicletype ADD CONSTRAINT FK_TFD_PW_PACKAGE_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        if ($this->tableExists('tx_chiptuningdatabase_vehicletype', $connection)) {
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_package_vehicletype ADD CONSTRAINT FK_TFD_PW_PACKAGE_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        }
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_combination_vehicletype ADD CONSTRAINT FK_TFD_PW_COMB_VT_COMB FOREIGN KEY (combination_id) REFERENCES tfd_partner_wizard_combination (id) ON DELETE CASCADE');
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_combination_vehicletype ADD CONSTRAINT FK_TFD_PW_COMB_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        if ($this->tableExists('tx_chiptuningdatabase_vehicletype', $connection)) {
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_combination_vehicletype ADD CONSTRAINT FK_TFD_PW_COMB_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        }
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead_vehicletype ADD CONSTRAINT FK_TFD_PW_LEAD_VT_LEAD FOREIGN KEY (lead_id) REFERENCES tfd_partner_wizard_lead (id) ON DELETE CASCADE');
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead_vehicletype ADD CONSTRAINT FK_TFD_PW_LEAD_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        if ($this->tableExists('tx_chiptuningdatabase_vehicletype', $connection)) {
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead_vehicletype ADD CONSTRAINT FK_TFD_PW_LEAD_VT_TYPE FOREIGN KEY (vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE CASCADE');
+        }
 
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead ADD main_vehicle_type_id INT DEFAULT NULL');
-        $connection->executeStatement('CREATE INDEX IDX_TFD_PW_LEAD_MAIN_VT ON tfd_partner_wizard_lead (main_vehicle_type_id)');
-        $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead ADD CONSTRAINT FK_TFD_PW_LEAD_MAIN_VT FOREIGN KEY (main_vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE SET NULL');
+        if ($this->tableExists('tx_chiptuningdatabase_vehicletype', $connection)) {
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead ADD main_vehicle_type_id INT DEFAULT NULL');
+            $connection->executeStatement('CREATE INDEX IDX_TFD_PW_LEAD_MAIN_VT ON tfd_partner_wizard_lead (main_vehicle_type_id)');
+            $connection->executeStatement('ALTER TABLE tfd_partner_wizard_lead ADD CONSTRAINT FK_TFD_PW_LEAD_MAIN_VT FOREIGN KEY (main_vehicle_type_id) REFERENCES tx_chiptuningdatabase_vehicletype (uid) ON DELETE SET NULL');
 
-        $this->backfillFromJson('tfd_partner_wizard_client', 'client_id', 'tfd_partner_wizard_client_vehicletype', 'enabled_vehicle_categories');
-        $this->backfillFromJson('tfd_partner_wizard_tool', 'tool_id', 'tfd_partner_wizard_tool_vehicletype', 'recommended_for_vehicle_categories');
-        $this->backfillFromJson('tfd_partner_wizard_package', 'package_id', 'tfd_partner_wizard_package_vehicletype', 'recommended_vehicle_categories');
-        $this->backfillFromJson('tfd_partner_wizard_combination', 'combination_id', 'tfd_partner_wizard_combination_vehicletype', 'vehicle_categories');
-        $this->backfillFromJson('tfd_partner_wizard_lead', 'lead_id', 'tfd_partner_wizard_lead_vehicletype', 'vehicle_categories');
-        $this->backfillMainVehicleType();
+            $this->backfillFromJson('tfd_partner_wizard_client', 'client_id', 'tfd_partner_wizard_client_vehicletype', 'enabled_vehicle_categories');
+            $this->backfillFromJson('tfd_partner_wizard_tool', 'tool_id', 'tfd_partner_wizard_tool_vehicletype', 'recommended_for_vehicle_categories');
+            $this->backfillFromJson('tfd_partner_wizard_package', 'package_id', 'tfd_partner_wizard_package_vehicletype', 'recommended_vehicle_categories');
+            $this->backfillFromJson('tfd_partner_wizard_combination', 'combination_id', 'tfd_partner_wizard_combination_vehicletype', 'vehicle_categories');
+            $this->backfillFromJson('tfd_partner_wizard_lead', 'lead_id', 'tfd_partner_wizard_lead_vehicletype', 'vehicle_categories');
+            $this->backfillMainVehicleType();
+        }
 
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_client DROP enabled_vehicle_categories');
         $connection->executeStatement('ALTER TABLE tfd_partner_wizard_tool DROP recommended_for_vehicle_categories');
@@ -230,5 +242,18 @@ final class Version20260704080000 extends AbstractMigration
     public function isTransactional(): bool
     {
         return false;
+    }
+
+    private function tableExists(string $tableName, $connection): bool
+    {
+        try {
+            $result = $connection->executeQuery(
+                "SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?",
+                [$tableName]
+            )->fetchAssociative();
+            return (bool) $result;
+        } catch (\Exception) {
+            return false;
+        }
     }
 }

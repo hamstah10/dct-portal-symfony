@@ -24,7 +24,7 @@ final class Version20260310202000 extends AbstractMigration
             `end_price_include_vat` tinyint NOT NULL,
             `options_template` varchar(64) DEFAULT NULL,
             PRIMARY KEY (`uid`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE `tx_chiptuningprofitcalculator_domain_model_vehicletype` (
             `uid` int NOT NULL AUTO_INCREMENT,
@@ -43,7 +43,7 @@ final class Version20260310202000 extends AbstractMigration
             KEY `IDX_PROFITCALC_VEHICLETYPE_ICON_MEDIA` (`icon_media_asset_id`),
             CONSTRAINT `FK_PROFITCALC_VEHICLETYPE_CALCULATOR` FOREIGN KEY (`calculator`) REFERENCES `tx_chiptuningprofitcalculator_domain_model_calculator` (`uid`) ON DELETE SET NULL,
             CONSTRAINT `FK_PROFITCALC_VEHICLETYPE_ICON_MEDIA` FOREIGN KEY (`icon_media_asset_id`) REFERENCES `media_asset` (`id`) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE `tx_chiptuningprofitcalculator_domain_model_option` (
             `uid` int NOT NULL AUTO_INCREMENT,
@@ -61,7 +61,7 @@ final class Version20260310202000 extends AbstractMigration
             KEY `IDX_PROFITCALC_OPTION_ICON_MEDIA` (`icon_media_asset_id`),
             CONSTRAINT `FK_PROFITCALC_OPTION_VEHICLETYPE` FOREIGN KEY (`vehicle_type`) REFERENCES `tx_chiptuningprofitcalculator_domain_model_vehicletype` (`uid`) ON DELETE SET NULL,
             CONSTRAINT `FK_PROFITCALC_OPTION_ICON_MEDIA` FOREIGN KEY (`icon_media_asset_id`) REFERENCES `media_asset` (`id`) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE `tx_chiptuningprofitcalculator_domain_model_pricetier` (
             `uid` int NOT NULL AUTO_INCREMENT,
@@ -70,7 +70,7 @@ final class Version20260310202000 extends AbstractMigration
             `price_per_file` decimal(10,2) NOT NULL,
             `is_default_price` tinyint NOT NULL,
             PRIMARY KEY (`uid`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql("INSERT INTO `tx_chiptuningprofitcalculator_domain_model_calculator`
             (`uid`, `title`, `vat_rate`, `purchase_price_include_vat`, `end_price_include_vat`, `options_template`) VALUES

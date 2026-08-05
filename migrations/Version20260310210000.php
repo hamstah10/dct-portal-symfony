@@ -33,7 +33,7 @@ final class Version20260310210000 extends AbstractMigration
             is_active TINYINT NOT NULL,
             created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\',
             PRIMARY KEY(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE dyno_customer (
             id VARCHAR(36) NOT NULL,
@@ -46,7 +46,7 @@ final class Version20260310210000 extends AbstractMigration
             PRIMARY KEY(id),
             KEY IDX_DYNO_CUSTOMER_VEHICLE (vehicle_id),
             CONSTRAINT FK_DYNO_CUSTOMER_VEHICLE FOREIGN KEY (vehicle_id) REFERENCES dyno_vehicle (id) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE dyno_trip (
             id VARCHAR(36) NOT NULL,
@@ -67,7 +67,7 @@ final class Version20260310210000 extends AbstractMigration
             PRIMARY KEY(id),
             KEY IDX_DYNO_TRIP_VEHICLE (vehicle_id),
             CONSTRAINT FK_DYNO_TRIP_VEHICLE FOREIGN KEY (vehicle_id) REFERENCES dyno_vehicle (id) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE dyno_sprint (
             id VARCHAR(36) NOT NULL,
@@ -84,7 +84,7 @@ final class Version20260310210000 extends AbstractMigration
             KEY IDX_DYNO_SPRINT_VEHICLE (vehicle_id),
             KEY IDX_DYNO_SPRINT_TYPE (sprint_type),
             CONSTRAINT FK_DYNO_SPRINT_VEHICLE FOREIGN KEY (vehicle_id) REFERENCES dyno_vehicle (id) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
 
         $this->addSql('CREATE TABLE dyno_dtc (
             id INT NOT NULL AUTO_INCREMENT,
@@ -93,7 +93,7 @@ final class Version20260310210000 extends AbstractMigration
             payload JSON DEFAULT NULL,
             created_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\',
             PRIMARY KEY(id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci');
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
     }
 
     public function down(Schema $schema): void
