@@ -42,6 +42,7 @@ use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardQuestionCrudController
 use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardQuestionOptionCrudController;
 use Tfd\PartnerWizardBundle\Controller\Admin\PartnerWizardStepCrudController;
 use Tuningfux\InstagramBundle\Entity\InstagramAccount;
+use App\Controller\Admin\SuperadminDashboardLinkCrudController;
 use App\Repository\CustomerChatMessageRepository;
 use App\Service\SupportTicketFileService;
 use App\Repository\FirmaRepository;
@@ -86,6 +87,8 @@ use Symfony\UX\Chartjs\Model\Chart;
 use App\Controller\Admin\WatermarkPresetCrudController;
 use App\Controller\Admin\WinolsConfigurationCrudController;
 use App\Controller\Admin\TextbausteinCrudController;
+use App\Controller\Admin\ChiptuningWidgetConfigCrudController;
+use App\Controller\Admin\WebsiteWidgetConfigCrudController;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 final class DashboardController extends AbstractDashboardController
@@ -4896,6 +4899,11 @@ final class DashboardController extends AbstractDashboardController
             yield MenuItem::linkTo(WebsiteWidgetConfigCrudController::class, 'Website Widget', 'mdi:widgets-outline')->setAction('index');
         }
 
+        if ($this->isPageAllowed(AdminPageRegistry::crudKey(ChiptuningWidgetConfigCrudController::class))) {
+            yield MenuItem::section('Chiptuning Widget');
+            yield MenuItem::linkTo(ChiptuningWidgetConfigCrudController::class, 'Chiptuning Widget Config', 'mdi:chip')->setAction('index');
+        }
+
         $finanzenItems = [];
         $creditsSubItems = $this->filterMenuItems([
             AdminPageRegistry::routeKey('admin_credits_statistics') => MenuItem::linkToRoute('Statistik', 'la:chart-line', 'admin_credits_statistics'),
@@ -4934,6 +4942,7 @@ final class DashboardController extends AbstractDashboardController
             AdminPageRegistry::crudKey(PortalCrudController::class) => MenuItem::linkTo(PortalCrudController::class, 'Portale', 'mdi:web-box')->setAction('index'),
             AdminPageRegistry::crudKey(PortalPriceListCrudController::class) => MenuItem::linkTo(PortalPriceListCrudController::class, 'Portal-Preislisten', 'mdi:format-list-bulleted-type')->setAction('index'),
             AdminPageRegistry::crudKey(PortalPriceListItemCrudController::class) => MenuItem::linkTo(PortalPriceListItemCrudController::class, 'Portal-Preisliste Positionen', 'mdi:playlist-edit')->setAction('index'),
+            AdminPageRegistry::crudKey(SuperadminDashboardLinkCrudController::class) => MenuItem::linkTo(SuperadminDashboardLinkCrudController::class, 'Superadmin Dashboard-Links', 'mdi:link-variant-plus')->setAction('index'),
             AdminPageRegistry::crudKey(WinolsConfigurationCrudController::class) => MenuItem::linkTo(WinolsConfigurationCrudController::class, 'WinOLS', 'mdi:chip')->setAction('index'),
             AdminPageRegistry::crudKey(WatermarkPresetCrudController::class) => MenuItem::linkTo(WatermarkPresetCrudController::class, 'Wasserzeichen-Vorlagen', 'mdi:watermark')->setAction('index'),
             AdminPageRegistry::routeKey('admin_admin_watermark_areas') => MenuItem::linkToRoute('Wasserzeichen-Bereiche', 'mdi:image-area', 'admin_admin_watermark_areas'),
