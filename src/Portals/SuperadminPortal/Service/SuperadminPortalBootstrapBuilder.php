@@ -14,7 +14,7 @@ final class SuperadminPortalBootstrapBuilder
     private const OPERATIONS_NAVIGATION = [
         Portal::MODULE_OPS_OVERVIEW => ['label' => 'Übersicht', 'path' => '/operations'],
         Portal::MODULE_OPS_ORDERS => ['label' => 'Aufträge', 'path' => '/operations/orders'],
-        Portal::MODULE_OPS_VEHICLES => ['label' => 'Fahrzeugdatenbank', 'path' => '/operations/vehicles'],
+        Portal::MODULE_OPS_VEHICLES => ['label' => 'Chiptuning', 'path' => '/operations/vehicles'],
         Portal::MODULE_OPS_SEARCH => ['label' => 'Suche', 'path' => '/operations/search'],
         Portal::MODULE_OPS_CUSTOMERS => ['label' => 'Kunden', 'path' => '/operations/customers'],
         Portal::MODULE_OPS_TICKETS => ['label' => 'Tickets', 'path' => '/operations/tickets'],

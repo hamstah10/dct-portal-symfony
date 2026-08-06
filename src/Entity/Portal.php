@@ -711,7 +711,7 @@ class Portal
             'Oeffentliche Website' => self::MODULE_PUBLIC_WEBSITE,
             'Operations / Übersicht' => self::MODULE_OPS_OVERVIEW,
             'Operations / Aufträge' => self::MODULE_OPS_ORDERS,
-            'Operations / Fahrzeugdatenbank' => self::MODULE_OPS_VEHICLES,
+            'Operations / Chiptuning' => self::MODULE_OPS_VEHICLES,
             'Operations / Kunden' => self::MODULE_OPS_CUSTOMERS,
             'Operations / Tickets' => self::MODULE_OPS_TICKETS,
             'Operations / E-Mail' => self::MODULE_OPS_EMAIL,
