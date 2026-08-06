@@ -15,12 +15,14 @@ final class SuperadminPortalBootstrapBuilder
         Portal::MODULE_OPS_OVERVIEW => ['label' => 'Übersicht', 'path' => '/operations'],
         Portal::MODULE_OPS_ORDERS => ['label' => 'Aufträge', 'path' => '/operations/orders'],
         Portal::MODULE_OPS_VEHICLES => ['label' => 'Fahrzeugdatenbank', 'path' => '/operations/vehicles'],
+        Portal::MODULE_OPS_SEARCH => ['label' => 'Suche', 'path' => '/operations/search'],
         Portal::MODULE_OPS_CUSTOMERS => ['label' => 'Kunden', 'path' => '/operations/customers'],
         Portal::MODULE_OPS_TICKETS => ['label' => 'Tickets', 'path' => '/operations/tickets'],
         Portal::MODULE_OPS_EMAIL => ['label' => 'E-Mail', 'path' => '/operations/email'],
         Portal::MODULE_OPS_CALENDAR => ['label' => 'Kalender', 'path' => '/operations/calendar'],
         Portal::MODULE_OPS_INSTALLATION => ['label' => 'Installation', 'path' => '/operations/installation'],
         Portal::MODULE_OPS_DSG => ['label' => 'DSG-Optionen', 'path' => '/operations/dsg'],
+        Portal::MODULE_OPS_CONTACT => ['label' => 'Kontakt', 'path' => '/operations/contact'],
     ];
 
     /**
