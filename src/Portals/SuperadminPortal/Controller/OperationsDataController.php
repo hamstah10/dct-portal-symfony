@@ -22,6 +22,7 @@ use App\Repository\KundeRepository;
 use App\Repository\SupportEmailMessageRepository;
 use App\Repository\SupportTicketRepository;
 use App\Repository\SuperadminCalendarEntryRepository;
+use App\Repository\SuperadminDashboardLinkRepository;
 use App\Repository\SuperadminPinnedVehicleTypeRepository;
 use App\Repository\SuperadminRememberedVehicleRepository;
 use App\Service\SupportEmailFetchService;
@@ -44,6 +45,7 @@ final class OperationsDataController extends AbstractController
         private readonly EmailKontoRepository $emailKontoRepository,
         private readonly FirmaRepository $firmaRepository,
         private readonly SuperadminCalendarEntryRepository $calendarEntryRepository,
+        private readonly SuperadminDashboardLinkRepository $dashboardLinkRepository,
         private readonly SuperadminRememberedVehicleRepository $rememberedVehicleRepository,
         private readonly SuperadminPinnedVehicleTypeRepository $pinnedVehicleTypeRepository,
         private readonly SupportEmailFetchService $supportEmailFetchService,
@@ -1374,5 +1376,23 @@ final class OperationsDataController extends AbstractController
             SupportTicket::STATUS_CLOSED => 'closed',
             default => 'open',
         };
+    }
+
+    #[Route('/operations-api/dashboard-links', name: 'superadmin_portal_operations_api_dashboard_links', methods: ['GET'])]
+    public function dashboardLinks(): JsonResponse
+    {
+        $links = $this->dashboardLinkRepository->findBy(['active' => true], ['sortOrder' => 'ASC']);
+
+        return $this->json(array_map(static function ($link): array {
+            return [
+                'id' => $link->getId(),
+                'title' => $link->getTitle(),
+                'url' => $link->getUrl(),
+                'description' => $link->getDescription(),
+                'category' => $link->getCategory(),
+                'iconName' => $link->getIconName(),
+                'openInNewTab' => $link->isOpenInNewTab(),
+            ];
+        }, $links));
     }
 }
