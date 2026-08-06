@@ -62,6 +62,8 @@ class Portal
     public const MODULE_OPS_CALENDAR = 'ops_calendar';
     public const MODULE_OPS_INSTALLATION = 'ops_installation';
     public const MODULE_OPS_DSG = 'ops_dsg';
+    public const MODULE_OPS_SEARCH = 'ops_search';
+    public const MODULE_OPS_CONTACT = 'ops_contact';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -716,6 +718,8 @@ class Portal
             'Operations / Kalender' => self::MODULE_OPS_CALENDAR,
             'Operations / Installation' => self::MODULE_OPS_INSTALLATION,
             'Operations / DSG-Optionen' => self::MODULE_OPS_DSG,
+            'Operations / Suche' => self::MODULE_OPS_SEARCH,
+            'Operations / Kontakt' => self::MODULE_OPS_CONTACT,
         ];
     }
 
