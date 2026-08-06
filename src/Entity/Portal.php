@@ -717,7 +717,7 @@ class Portal
             'Operations / E-Mail' => self::MODULE_OPS_EMAIL,
             'Operations / Kalender' => self::MODULE_OPS_CALENDAR,
             'Operations / Installation' => self::MODULE_OPS_INSTALLATION,
-            'Operations / DSG-Optionen' => self::MODULE_OPS_DSG,
+            'Operations / Getriebe' => self::MODULE_OPS_DSG,
             'Operations / Suche' => self::MODULE_OPS_SEARCH,
             'Operations / Kontakt' => self::MODULE_OPS_CONTACT,
         ];

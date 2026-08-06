@@ -24,7 +24,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family={% for font_name in font_families %}{{ font_name|replace({' ': '+'}) }}:400,500,600,700{% if not loop.last %}|{% endif %}{% endfor %}&display=swap">
     {% endif %}
-    <link rel="stylesheet" href="{{ asset('assets/portals/superadmin-portal/react/static/css/main.css') }}?v={{ react_asset_version }}">
+    <link rel="stylesheet" href="{{ asset('assets/portals/superadmin-portal/react/static/css/main.css') }}">
     <style>
         html {
             --portal-primary-color: {{ primary_color }};
@@ -60,10 +60,48 @@
     </style>
 </head>
 <body class="min-h-screen bg-background text-foreground" style="background-color: {{ content_background_color }}; color: #ffffff;">
-    <div id="root"></div>
+    <div id="root">
+        {% if chiptuningWidgetBootstrap is defined %}
+            <div style="min-height: 320px; display: grid; place-items: center; background: #050505; color: #f8fafc; font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                Chiptuning wird geladen...
+            </div>
+        {% endif %}
+    </div>
     <script>
         window.portalReactBootstrap = {{ reactBootstrap|default({})|json_encode|raw }};
+        {% if chiptuningWidgetBootstrap is defined %}
+        window.chiptuningWidgetBootstrap = {{ chiptuningWidgetBootstrap|json_encode|raw }};
+        {% endif %}
     </script>
-    <script src="{{ asset('assets/portals/superadmin-portal/react/static/js/main.js') }}?v={{ react_asset_version }}" defer></script>
+    {% if chiptuningWidgetBootstrap is defined %}
+        <script>
+            (function () {
+                var sendHeight = function () {
+                    var body = document.body;
+                    var doc = document.documentElement;
+                    var height = Math.max(
+                        body ? body.scrollHeight : 0,
+                        body ? body.offsetHeight : 0,
+                        doc ? doc.clientHeight : 0,
+                        doc ? doc.scrollHeight : 0,
+                        doc ? doc.offsetHeight : 0
+                    );
+                    window.parent.postMessage({ type: 'tuningfux-widget-height', height: height }, '*');
+                };
+                window.addEventListener('load', sendHeight);
+                window.addEventListener('resize', sendHeight);
+                window.addEventListener('message', function (event) {
+                    if (event.data && event.data.type === 'tuningfux-widget-height-request') {
+                        sendHeight();
+                    }
+                });
+                if ('ResizeObserver' in window) {
+                    new ResizeObserver(sendHeight).observe(document.documentElement);
+                }
+                setInterval(sendHeight, 1200);
+            })();
+        </script>
+    {% endif %}
+    <script src="{{ asset('assets/portals/superadmin-portal/react/static/js/main.js') }}" defer></script>
 </body>
 </html>

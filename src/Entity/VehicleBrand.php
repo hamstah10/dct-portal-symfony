@@ -35,6 +35,10 @@ class VehicleBrand
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'image_media_asset', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?MediaAsset $imageMediaAsset = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -135,6 +139,18 @@ class VehicleBrand
     public function setImage(?string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getImageMediaAsset(): ?MediaAsset
+    {
+        return $this->imageMediaAsset;
+    }
+
+    public function setImageMediaAsset(?MediaAsset $imageMediaAsset): static
+    {
+        $this->imageMediaAsset = $imageMediaAsset;
 
         return $this;
     }
