@@ -64,3 +64,8 @@ portal_superadmin_formulas_api:
     resource: ../../src/Portals/SuperadminPortal/Controller/FormulaApiController.php
     type: attribute
     condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_batch_jobs_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/BrandAssistantBatchJobApiController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
