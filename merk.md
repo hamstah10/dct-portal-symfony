@@ -77,6 +77,22 @@ Ein Produkt wird nur ueber die Ecommerce-API ausgegeben, wenn alle Bedingungen e
 
 Related Products in Produktdetails werden ebenfalls nur ausgegeben, wenn sie `apiActive = true` haben.
 
+## Strapi-Shop-Sync: EasyAdmin-Bilder
+
+- Stand 12.08.2026: Der Strapi-Ecommerce-Sync wurde erweitert, damit Produktbilder aus EasyAdmin/Symfony importiert werden koennen.
+- Quelle im Ecommerce-Payload:
+  - `product.images`
+  - Eintraege koennen absolute URLs oder relative Portal-Pfade wie `/uploads/...` sein.
+- Ziel in Strapi:
+  - erstes importiertes Bild -> `Shop Product.heroImage`
+  - alle importierten Bilder -> `Shop Product.gallery`
+- Geaenderte Datei im Strapi-Projekt:
+  - `/var/www/vhosts/dct-files.de/crm.dct-files.de/httpdocs/src/api/shop-product/services/sync.ts`
+- Wichtig fuer Betrieb:
+  - `ECOMMERCE_API_TOKEN` muss in der Strapi-Umgebung gesetzt sein.
+  - `/api/ecommerce/*` muss serverseitig JSON liefern; wenn Nginx auf den React-Catch-all faellt und `text/html` liefert, kann der Sync keine EasyAdmin-Updates ziehen.
+  - Fuer relative Bildpfade nutzt der Sync `ECOMMERCE_MEDIA_BASE_URL`, Default: `https://portal.dct-files.de`.
+
 ## Hinweise fuer Uebertragung
 
 - Migration im Schwesterportal ausfuehren, bevor die API produktiv genutzt wird:

@@ -279,7 +279,8 @@
                     queueElement.textContent = data.queueCount;
                     if (data.latestRun) {
                         const run = data.latestRun;
-                        const statusText = run.success === null ? 'In Warteschlange' : (run.success ? 'Erfolgreich' : 'Fehler');
+                        const pendingText = data.runningCount > 0 ? 'Läuft' : 'In Warteschlange';
+                        const statusText = run.success === null ? pendingText : (run.success ? 'Erfolgreich' : 'Fehler');
                         runStatusElement.textContent = `${statusText} (${run.spider} / ${run.type})`;
                         runMetaElement.textContent = `ID ${run.id}, Exit ${run.exitCode ?? '—'}, ${new Date(run.createdAt).toLocaleString()}`;
                     } else {

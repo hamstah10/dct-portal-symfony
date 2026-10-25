@@ -4787,7 +4787,6 @@ final class DashboardController extends AbstractDashboardController
                 yield $item;
             }
         }
-/*
         $aiItems = $this->filterMenuItems([
             AdminPageRegistry::crudKey(AiProjectCrudController::class) => MenuItem::linkTo(AiProjectCrudController::class, 'Projekte', 'mdi:folder-outline')->setAction('index'),
             AdminPageRegistry::routeKey('admin_ai_chat') => MenuItem::linkToRoute('Chat', 'mdi:robot', 'admin_ai_chat'),
@@ -4804,7 +4803,6 @@ final class DashboardController extends AbstractDashboardController
                 yield $item;
             }
         }
-*/
         $ecommerceItems = [];
         $commerceStatsItems = $this->filterMenuItems([
             AdminPageRegistry::routeKey('admin_shop_statistics') => MenuItem::linkToRoute('Statistik', 'la:chart-line', 'admin_shop_statistics'),

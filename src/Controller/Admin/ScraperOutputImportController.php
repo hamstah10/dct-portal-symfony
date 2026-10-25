@@ -294,7 +294,12 @@ final class ScraperOutputImportController extends AbstractController
                 $brandEntries[] = [
                     'slug' => $brand['slug'],
                     'name' => $brand['name'],
-                    'model_count' => $brand['model_count'],
+                    'model_count' => (int) ($brand['model_count'] ?? 0),
+                    'version_count' => (int) ($brand['version_count'] ?? 0),
+                    'engine_count' => (int) ($brand['engine_count'] ?? 0),
+                    'controller_count' => (int) ($brand['controller_count'] ?? 0),
+                    'option_count' => (int) ($brand['option_count'] ?? 0),
+                    'stage_count' => (int) ($brand['stage_count'] ?? 0),
                     'exists' => null !== $existing,
                     'inPool' => $inPool,
                 ];
@@ -305,11 +310,19 @@ final class ScraperOutputImportController extends AbstractController
             return strcmp((string) ($left['name'] ?? $left['slug'] ?? ''), (string) ($right['name'] ?? $right['slug'] ?? ''));
         });
 
+        $totals = ['model_count' => 0, 'version_count' => 0, 'engine_count' => 0, 'controller_count' => 0, 'option_count' => 0, 'stage_count' => 0];
+        foreach ($brandEntries as $entry) {
+            foreach (array_keys($totals) as $key) {
+                $totals[$key] += $entry[$key];
+            }
+        }
+
         return [
             'files' => $files,
             'analysis' => [
                 'type' => implode(', ', array_keys($types)),
                 'brandCount' => count($brandEntries),
+                'totals' => $totals,
             ],
             'pool' => $pool,
             'brands' => $brandEntries,

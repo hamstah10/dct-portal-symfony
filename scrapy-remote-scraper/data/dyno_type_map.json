@@ -1,0 +1,1423 @@
+{
+    "brands": [
+        {
+            "brand_slug": "acura",
+            "brand_name": "Acura",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "ajp",
+            "brand_name": "AJP",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "alfa-romeo",
+            "brand_name": "Alfa Romeo",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "alpina",
+            "brand_name": "Alpina",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "alpine",
+            "brand_name": "Alpine",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "aprilia",
+            "brand_name": "Aprilia",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "argo",
+            "brand_name": "Argo",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "aston-martin",
+            "brand_name": "Aston Martin",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "audi",
+            "brand_name": "Audi",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "baic",
+            "brand_name": "BAIC",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "benelli",
+            "brand_name": "Benelli",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "bentley",
+            "brand_name": "Bentley",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "bestune",
+            "brand_name": "Bestune",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "bimota",
+            "brand_name": "Bimota",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "bmw-bikes",
+            "brand_name": "BMW Bikes",
+            "type": "moto",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "bmw",
+            "brand_name": "BMW",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "brinxton",
+            "brand_name": "Brinxton",
+            "type": "moto",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "buell",
+            "brand_name": "Buell",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "buick",
+            "brand_name": "Buick",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "byd",
+            "brand_name": "BYD",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "cadillac",
+            "brand_name": "Cadillac",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "campagna-motors",
+            "brand_name": "Campagna Motors",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "can-am",
+            "brand_name": "Can-am",
+            "type": "atv",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "case-ih",
+            "brand_name": "Case ih",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "caterpillar",
+            "brand_name": "Caterpillar",
+            "type": "truck",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "ccm-motorcycle",
+            "brand_name": "CCM Motorcycle",
+            "type": "moto",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "cf-moto",
+            "brand_name": "CF Moto",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "challenger",
+            "brand_name": "Challenger",
+            "type": "truck",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "changan-nevo",
+            "brand_name": "Changan Nevo",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "changan",
+            "brand_name": "Changan",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "chery",
+            "brand_name": "Chery",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "chevrolet",
+            "brand_name": "Chevrolet",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "chrysler",
+            "brand_name": "Chrysler",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "citroen",
+            "brand_name": "Citroën",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "claas",
+            "brand_name": "Claas",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "cmc",
+            "brand_name": "CMC",
+            "type": "truck",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "cupra",
+            "brand_name": "Cupra",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "dacia",
+            "brand_name": "Dacia",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "daewoo",
+            "brand_name": "Daewoo",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "daf",
+            "brand_name": "DAF",
+            "type": "truck",
+            "source": "olsx",
+            "candidates": [
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "dallara",
+            "brand_name": "Dallara",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "deepal",
+            "brand_name": "Deepal",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "deutz",
+            "brand_name": "Deutz",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "dodge",
+            "brand_name": "Dodge",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "donkervoort",
+            "brand_name": "Donkervoort",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "ds",
+            "brand_name": "DS",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "ducati",
+            "brand_name": "Ducati",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "easy-trike",
+            "brand_name": "Easy Trike",
+            "type": "moto",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "energica",
+            "brand_name": "Energica",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "fantic",
+            "brand_name": "Fantic",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "fendt",
+            "brand_name": "Fendt",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "ferrari",
+            "brand_name": "Ferrari",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "fiat",
+            "brand_name": "Fiat",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "ford",
+            "brand_name": "Ford",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "freightliner",
+            "brand_name": "Freightliner",
+            "type": "truck",
+            "source": "olsx",
+            "candidates": [
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "gac",
+            "brand_name": "GAC",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "gasgas",
+            "brand_name": "GasGas",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "geely",
+            "brand_name": "Geely",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "genesis",
+            "brand_name": "Genesis",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "gilera",
+            "brand_name": "Gilera",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "gmc",
+            "brand_name": "GMC",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "goes",
+            "brand_name": "Goes",
+            "type": "atv",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "gwm",
+            "brand_name": "GWM",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "harley-davidson",
+            "brand_name": "Harley Davidson",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "hitachi",
+            "brand_name": "Hitachi",
+            "type": "truck",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "holden",
+            "brand_name": "Holden",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "honda-bikes",
+            "brand_name": "Honda Bikes",
+            "type": "moto",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "honda",
+            "brand_name": "Honda",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "hongqi",
+            "brand_name": "Hongqi",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "hummer",
+            "brand_name": "Hummer",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "husqvarna",
+            "brand_name": "Husqvarna",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "hyosung",
+            "brand_name": "Hyosung",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "hytrack",
+            "brand_name": "Hytrack",
+            "type": "atv",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "hyundai",
+            "brand_name": "Hyundai",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "indian",
+            "brand_name": "Indian",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "ineos",
+            "brand_name": "Ineos",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "infiniti",
+            "brand_name": "Infiniti",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "isuzu",
+            "brand_name": "Isuzu",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "iveco",
+            "brand_name": "Iveco",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "jac",
+            "brand_name": "Jac",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "jaguar",
+            "brand_name": "Jaguar",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "jcb",
+            "brand_name": "JCB",
+            "type": "truck",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "jeep",
+            "brand_name": "Jeep",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "jetour",
+            "brand_name": "Jetour",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "john-deere",
+            "brand_name": "John Deere",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "kawasaki",
+            "brand_name": "Kawasaki",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "kia",
+            "brand_name": "Kia",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "krone",
+            "brand_name": "Krone",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "ktm",
+            "brand_name": "KTM",
+            "type": "moto",
+            "source": "hint",
+            "candidates": [
+                "car",
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "kymco",
+            "brand_name": "Kymco",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "lamborghini-tractors",
+            "brand_name": "Lamborghini tractors",
+            "type": "agricultural",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "lamborghini",
+            "brand_name": "Lamborghini",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "lancia",
+            "brand_name": "Lancia",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "land-rover",
+            "brand_name": "Land Rover",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "lexus",
+            "brand_name": "Lexus",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "lincoln",
+            "brand_name": "Lincoln",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "lindner",
+            "brand_name": "Lindner",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "linhai",
+            "brand_name": "Linhai",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "lotus",
+            "brand_name": "Lotus",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "luxgen",
+            "brand_name": "Luxgen",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "lynk-and-co",
+            "brand_name": "Lynk & Co",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "macbor",
+            "brand_name": "Macbor",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "mack",
+            "brand_name": "Mack",
+            "type": "truck",
+            "source": "olsx",
+            "candidates": [
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "magpower",
+            "brand_name": "Magpower",
+            "type": "moto",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mahindra",
+            "brand_name": "Mahindra",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "man-lcv",
+            "brand_name": "MAN LCV",
+            "type": "truck",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "man-trucks",
+            "brand_name": "MAN Trucks",
+            "type": "truck",
+            "source": "suffix",
+            "candidates": [
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "masai",
+            "brand_name": "Masai",
+            "type": "agricultural",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "maserati",
+            "brand_name": "Maserati",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "mash-motorcycle",
+            "brand_name": "Mash Motorcycle",
+            "type": "moto",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "massey-ferguson",
+            "brand_name": "Massey Ferguson",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mazda",
+            "brand_name": "Mazda",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "mc-cormick",
+            "brand_name": "Mc Cormick",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mclaren",
+            "brand_name": "McLaren",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "mercedes-benz-trucks",
+            "brand_name": "Mercedes-Benz Trucks",
+            "type": "truck",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mercedes-benz",
+            "brand_name": "Mercedes-Benz",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mercury",
+            "brand_name": "Mercury",
+            "type": "boat",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mg",
+            "brand_name": "MG",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "mini",
+            "brand_name": "Mini",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "mitsubishi",
+            "brand_name": "Mitsubishi",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "moto-guzzi",
+            "brand_name": "Moto Guzzi",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "moto-morini",
+            "brand_name": "Moto Morini",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "motron",
+            "brand_name": "Motron",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "mv-agusta",
+            "brand_name": "MV Agusta",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "new-holland",
+            "brand_name": "New Holland",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "nissan",
+            "brand_name": "Nissan",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "norton-motorcycle",
+            "brand_name": "Norton Motorcycle",
+            "type": "moto",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "odes",
+            "brand_name": "Odes",
+            "type": "atv",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "oldsmobile",
+            "brand_name": "Oldsmobile",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "opel",
+            "brand_name": "Opel",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "peugeot",
+            "brand_name": "Peugeot",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "piaggio",
+            "brand_name": "Piaggio",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "polaris",
+            "brand_name": "Polaris",
+            "type": "atv",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "pontiac",
+            "brand_name": "Pontiac",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "porsche",
+            "brand_name": "Porsche",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "proton",
+            "brand_name": "Proton",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "qj-motors",
+            "brand_name": "QJ Motors",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "quadro",
+            "brand_name": "Quadro",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "renault-trucks",
+            "brand_name": "Renault Trucks",
+            "type": "truck",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "renault",
+            "brand_name": "Renault",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "roewe",
+            "brand_name": "Roewe",
+            "type": "car",
+            "source": "manual",
+            "candidates": []
+        },
+        {
+            "brand_slug": "rolls-royce",
+            "brand_name": "Rolls Royce",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "rover",
+            "brand_name": "Rover",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "royal-enfield",
+            "brand_name": "Royal Enfield",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "saab",
+            "brand_name": "Saab",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "same",
+            "brand_name": "Same",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "saturn",
+            "brand_name": "Saturn",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "scania-trucks",
+            "brand_name": "Scania Trucks",
+            "type": "truck",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "seat",
+            "brand_name": "Seat",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "segway-motors",
+            "brand_name": "Segway Motors",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "sherco",
+            "brand_name": "Sherco",
+            "type": "moto",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "skoda",
+            "brand_name": "Skoda",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "smart",
+            "brand_name": "Smart",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "ssangyong",
+            "brand_name": "SsangYong",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "steyr",
+            "brand_name": "Steyr",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "subaru",
+            "brand_name": "Subaru",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "suzuki-bikes",
+            "brand_name": "Suzuki bikes",
+            "type": "moto",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "suzuki",
+            "brand_name": "Suzuki",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "tata",
+            "brand_name": "Tata",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "toyota",
+            "brand_name": "Toyota",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "triumph",
+            "brand_name": "Triumph",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "valtra",
+            "brand_name": "Valtra",
+            "type": "agricultural",
+            "source": "hint",
+            "candidates": []
+        },
+        {
+            "brand_slug": "vauxhall",
+            "brand_name": "Vauxhall",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "vespa",
+            "brand_name": "Vespa",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        },
+        {
+            "brand_slug": "volkswagen",
+            "brand_name": "Volkswagen",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "volvo-trucks",
+            "brand_name": "Volvo Trucks",
+            "type": "truck",
+            "source": "suffix",
+            "candidates": []
+        },
+        {
+            "brand_slug": "volvo",
+            "brand_name": "Volvo",
+            "type": "car",
+            "source": "default_car",
+            "candidates": [
+                "car",
+                "truck"
+            ]
+        },
+        {
+            "brand_slug": "wey",
+            "brand_name": "WEY",
+            "type": "car",
+            "source": "olsx",
+            "candidates": [
+                "car"
+            ]
+        },
+        {
+            "brand_slug": "yamaha",
+            "brand_name": "Yamaha",
+            "type": "moto",
+            "source": "olsx",
+            "candidates": [
+                "moto"
+            ]
+        }
+    ]
+}

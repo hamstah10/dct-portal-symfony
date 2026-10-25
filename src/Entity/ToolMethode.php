@@ -95,6 +95,22 @@ class ToolMethode
         return $this;
     }
 
+    /** Inaktive Methoden werden in den Frontends nicht ausgegeben. */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
+    private bool $active = true;
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
     public function getName(): string
     {
         return $this->name;

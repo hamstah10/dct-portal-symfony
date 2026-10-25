@@ -33,6 +33,15 @@ class EinbauHinweis
     private ?Ecu $activeEcu = null;
 
     /**
+     * @var Collection<int, Ecu>
+     */
+    #[ORM\ManyToMany(targetEntity: Ecu::class)]
+    #[ORM\JoinTable(name: 'tx_chiptuningdatabase_einbau_hinweis_active_ecu_mm')]
+    #[ORM\JoinColumn(name: 'einbau_hinweis_id', referencedColumnName: 'uid')]
+    #[ORM\InverseJoinColumn(name: 'ecu_id', referencedColumnName: 'uid')]
+    private Collection $activeEcus;
+
+    /**
      * @var Collection<int, VehicleEngine>
      */
     #[ORM\ManyToMany(targetEntity: VehicleEngine::class)]
@@ -71,6 +80,7 @@ class EinbauHinweis
 
     public function __construct()
     {
+        $this->activeEcus = new ArrayCollection();
         $this->vehicleEngines = new ArrayCollection();
         $this->vehicleModels = new ArrayCollection();
         $this->images = new ArrayCollection();
@@ -130,6 +140,30 @@ class EinbauHinweis
     public function setActiveEcu(?Ecu $activeEcu): static
     {
         $this->activeEcu = $activeEcu;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ecu>
+     */
+    public function getActiveEcus(): Collection
+    {
+        return $this->activeEcus;
+    }
+
+    public function addActiveEcu(Ecu $ecu): static
+    {
+        if (!$this->activeEcus->contains($ecu)) {
+            $this->activeEcus->add($ecu);
+        }
+
+        return $this;
+    }
+
+    public function removeActiveEcu(Ecu $ecu): static
+    {
+        $this->activeEcus->removeElement($ecu);
 
         return $this;
     }

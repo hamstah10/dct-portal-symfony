@@ -36,14 +36,19 @@ final class VehicleApiProxy
     ) {
     }
 
-    public function proxy(string $path, array $query = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null): JsonResponse
+    public function proxy(string $path, array $query = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null, bool $preferEditableContext = false): JsonResponse
     {
-        return $this->callRequest('GET', $path, ['query' => $query], $user, $portal);
+        return $this->callRequest('GET', $path, ['query' => $query], $user, $portal, $preferEditableContext);
     }
 
-    public function proxyPost(string $path, array $payload = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null): JsonResponse
+    public function proxyPost(string $path, array $payload = [], ?PortalCustomerUserInterface $user = null, ?Portal $portal = null, bool $preferEditableContext = false): JsonResponse
     {
-        return $this->callRequest('POST', $path, ['json' => $payload], $user, $portal);
+        return $this->callRequest('POST', $path, ['json' => $payload], $user, $portal, $preferEditableContext);
+    }
+
+    public function proxyDelete(string $path, ?PortalCustomerUserInterface $user = null, ?Portal $portal = null, bool $preferEditableContext = false): JsonResponse
+    {
+        return $this->callRequest('DELETE', $path, [], $user, $portal, $preferEditableContext);
     }
 
     public function proxyAsset(string $path): HttpResponse
@@ -197,12 +202,12 @@ final class VehicleApiProxy
     /**
      * @param array<string, mixed> $options
      */
-    private function callRequest(string $method, string $path, array $options, ?PortalCustomerUserInterface $user, ?Portal $portal): JsonResponse
+    private function callRequest(string $method, string $path, array $options, ?PortalCustomerUserInterface $user, ?Portal $portal, bool $preferEditableContext = false): JsonResponse
     {
         $portalPool = $portal?->getVehicleDataPool();
 
         try {
-            [$token, $tokenId] = $this->resolveVehicleApiCredentials($user, $portalPool?->isActive() ? $portalPool : null);
+            [$token, $tokenId] = $this->resolveVehicleApiCredentials($user, $portalPool?->isActive() ? $portalPool : null, $preferEditableContext);
         } catch (AccessDeniedHttpException $exception) {
             return new JsonResponse(['message' => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
         }
@@ -250,16 +255,24 @@ final class VehicleApiProxy
     /**
      * @return array{0:string,1:string}
      */
-    private function resolveVehicleApiCredentials(?PortalCustomerUserInterface $user, ?VehicleDataPool $vehicleDataPool = null): array
+    private function resolveVehicleApiCredentials(?PortalCustomerUserInterface $user, ?VehicleDataPool $vehicleDataPool = null, bool $preferEditableContext = false): array
     {
         $tokenEntity = null;
 
+        if ($preferEditableContext && $user instanceof PortalCustomerUserInterface && $vehicleDataPool instanceof VehicleDataPool) {
+            $tokenEntity = $this->apiTokenRepository->findLatestActiveForCustomerAndPoolAllowingVehicleEditing($user->getCustomer(), $vehicleDataPool);
+        }
+
         if ($user instanceof PortalCustomerUserInterface && $vehicleDataPool instanceof VehicleDataPool) {
-            $tokenEntity = $this->apiTokenRepository->findLatestActiveForCustomerAndPool($user->getCustomer(), $vehicleDataPool);
+            $tokenEntity ??= $this->apiTokenRepository->findLatestActiveForCustomerAndPool($user->getCustomer(), $vehicleDataPool);
         }
 
         if (null === $tokenEntity && null === $vehicleDataPool && $user instanceof PortalCustomerUserInterface) {
             $tokenEntity = $this->apiTokenRepository->findLatestActiveForCustomer($user->getCustomer());
+        }
+
+        if ($preferEditableContext && null === $tokenEntity && $vehicleDataPool instanceof VehicleDataPool) {
+            $tokenEntity = $this->apiTokenRepository->findLatestActiveGlobalForPoolAllowingVehicleEditing($vehicleDataPool);
         }
 
         if (null === $tokenEntity && $vehicleDataPool instanceof VehicleDataPool) {

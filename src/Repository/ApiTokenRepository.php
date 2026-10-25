@@ -143,6 +143,41 @@ class ApiTokenRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findLatestActiveForCustomerAndPoolAllowingVehicleEditing(
+        Kunde $customer,
+        VehicleDataPool $vehicleDataPool,
+        ?\DateTimeImmutable $reference = null
+    ): ?ApiToken {
+        $customerId = $customer->getId();
+        $poolId = $vehicleDataPool->getId();
+        if (null === $customerId || null === $poolId) {
+            return null;
+        }
+
+        $reference ??= new \DateTimeImmutable();
+
+        return $this->createQueryBuilder('t')
+            ->innerJoin('t.vehicleDataContext', 'c')
+            ->innerJoin('c.allowedDataPools', 'p')
+            ->andWhere('t.kunde = :customer')
+            ->andWhere('t.active = :active')
+            ->andWhere('c.active = :contextActive')
+            ->andWhere('c.allowVehicleEditing = :allowVehicleEditing')
+            ->andWhere('p = :vehicleDataPool')
+            ->andWhere('t.gueltigBis IS NULL OR t.gueltigBis >= :reference')
+            ->setParameter('customer', $customer)
+            ->setParameter('vehicleDataPool', $vehicleDataPool)
+            ->setParameter('active', true)
+            ->setParameter('contextActive', true)
+            ->setParameter('allowVehicleEditing', true)
+            ->setParameter('reference', $reference)
+            ->orderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function findLatestActiveGlobal(?\DateTimeImmutable $reference = null): ?ApiToken
     {
         $reference ??= new \DateTimeImmutable();
@@ -180,6 +215,37 @@ class ApiTokenRepository extends ServiceEntityRepository
             ->setParameter('vehicleDataPool', $vehicleDataPool)
             ->setParameter('active', true)
             ->setParameter('contextActive', true)
+            ->setParameter('reference', $reference)
+            ->orderBy('t.createdAt', 'DESC')
+            ->addOrderBy('t.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findLatestActiveGlobalForPoolAllowingVehicleEditing(
+        VehicleDataPool $vehicleDataPool,
+        ?\DateTimeImmutable $reference = null
+    ): ?ApiToken {
+        $poolId = $vehicleDataPool->getId();
+        if (null === $poolId) {
+            return null;
+        }
+
+        $reference ??= new \DateTimeImmutable();
+
+        return $this->createQueryBuilder('t')
+            ->innerJoin('t.vehicleDataContext', 'c')
+            ->innerJoin('c.allowedDataPools', 'p')
+            ->andWhere('t.active = :active')
+            ->andWhere('c.active = :contextActive')
+            ->andWhere('c.allowVehicleEditing = :allowVehicleEditing')
+            ->andWhere('p = :vehicleDataPool')
+            ->andWhere('t.gueltigBis IS NULL OR t.gueltigBis >= :reference')
+            ->setParameter('vehicleDataPool', $vehicleDataPool)
+            ->setParameter('active', true)
+            ->setParameter('contextActive', true)
+            ->setParameter('allowVehicleEditing', true)
             ->setParameter('reference', $reference)
             ->orderBy('t.createdAt', 'DESC')
             ->addOrderBy('t.id', 'DESC')

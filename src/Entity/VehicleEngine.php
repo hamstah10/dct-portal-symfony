@@ -100,6 +100,15 @@ class VehicleEngine
     #[ORM\Column(length: 2048, nullable: true)]
     private ?string $slug = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $weight = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $hsn = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $price = null;
+
     #[ORM\Column]
     private int $sorting = 0;
 
@@ -535,6 +544,42 @@ class VehicleEngine
     public function setSlug(?string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getWeight(): ?int
+    {
+        return $this->weight;
+    }
+
+    public function setWeight(?int $weight): static
+    {
+        $this->weight = $weight;
+
+        return $this;
+    }
+
+    public function getHsn(): ?string
+    {
+        return $this->hsn;
+    }
+
+    public function setHsn(?string $hsn): static
+    {
+        $this->hsn = $hsn;
+
+        return $this;
+    }
+
+    public function getPrice(): ?string
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?string $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }

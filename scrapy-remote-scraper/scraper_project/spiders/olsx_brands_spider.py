@@ -47,6 +47,9 @@ class OlsxBrandsSpider(scrapy.Spider):
         model_suffixes=None,
         brands_only=None,
         type=None,
+        checkpoint=None,
+        fill_missing=None,
+        fill_source=None,
         *args,
         **kwargs,
     ):
@@ -83,6 +86,24 @@ class OlsxBrandsSpider(scrapy.Spider):
         self.model_suffix_filters = tuple(dict.fromkeys(suffixes))
         self.brands_only = str(brands_only).lower() in {"1", "true", "yes", "on"} if brands_only is not None else False
         self.brand_data = {}  # Store brand data by slug
+
+        # Nachfüllen: bestehende Ausgabe laden und nur Motoren ohne Stages/Optionen abrufen
+        self.fill_missing = str(fill_missing).lower() in {"1", "true", "yes", "on"} if fill_missing is not None else False
+        self.fill_source = fill_source or None
+        self.fill_data = None
+        self._fill_output_path = None
+        self._fill_done = 0
+        if self.fill_missing:
+            self.fill_data = self._load_fill_source()
+            self.logger.info("Nachfüllen aktiv: %s Marken geladen aus %s", len(self.fill_data), self._fill_source_path())
+
+        # Zwischenstand: bei Abbruch kann der Lauf mit demselben Checkpoint (+ JOBDIR) fortgesetzt werden
+        self.checkpoint_path = checkpoint or None
+        self._changes_since_checkpoint = 0
+        if self.checkpoint_path and os.path.exists(self.checkpoint_path):
+            with open(self.checkpoint_path, encoding="utf-8") as f:
+                self.brand_data = json.load(f)
+            self.logger.info("Checkpoint geladen: %s (%s Marken)", self.checkpoint_path, len(self.brand_data))
 
         # Create file logger
         log_path = os.path.join(os.getcwd(), 'olsx_brands_spider.log')
@@ -378,6 +399,7 @@ class OlsxBrandsSpider(scrapy.Spider):
 
     def parse_engine(self, response):
         self.logger.info("ENGINE %s status=%s", response.url, response.status)
+        self._note_change()
         
         brand_slug = response.meta["brand_slug"]
         model_slug = response.meta["model_slug"]
@@ -421,6 +443,17 @@ class OlsxBrandsSpider(scrapy.Spider):
 
     def _extract_stage_slugs(self, response) -> list[str]:
         slugs = []
+        # Aktuelles Markup: Stage-Panels sind tabpanels mit id="panel-<slug>"
+        for panel_id in response.xpath("//*[@role='tabpanel']/@id").getall():
+            slug = (panel_id or "").strip().lower()
+            if slug.startswith("panel-"):
+                slug = slug[len("panel-"):]
+            if slug in self.non_stage_slugs or not re.fullmatch(r"stage\d+[a-z0-9+-]*", slug):
+                continue
+            if slug not in slugs:
+                slugs.append(slug)
+
+        # Älteres Markup: <template x-if="selectedTab === '...'">
         for raw_condition in response.xpath("//template/@x-if").getall():
             if not raw_condition:
                 continue
@@ -438,18 +471,23 @@ class OlsxBrandsSpider(scrapy.Spider):
         return slugs
 
     def _extract_stage_metrics(self, response, tab_slug: str) -> dict:
-        rows = response.xpath(
-            f'//template[contains(@x-if, "\'{tab_slug}\'")]//tbody/tr'
-        )
+        # Aktuelles Markup: Tabelle im Panel id="panel-<slug>". Altes Markup: <template x-if>.
+        rows = response.xpath(f'//*[@id="panel-{tab_slug}"]//tbody/tr')
+        if not rows:
+            rows = response.xpath(f'//template[contains(@x-if, "\'{tab_slug}\'")]//tbody/tr')
         row_map = {}
 
         for row in rows:
-            label = self.clean(" ".join(row.xpath("./td[1]//text()").getall()))
+            # Zellen in Reihenfolge: Bezeichnung (th oder td), Leistung, Drehmoment
+            cells = row.xpath("./th|./td")
+            if len(cells) < 3:
+                continue
+            label = self.clean(" ".join(cells[0].xpath(".//text()").getall()))
             if not label:
                 continue
 
-            power_ps = self._extract_int(" ".join(row.xpath("./td[2]//text()").getall()))
-            torque_nm = self._extract_int(" ".join(row.xpath("./td[3]//text()").getall()))
+            power_ps = self._extract_int(" ".join(cells[1].xpath(".//text()").getall()))
+            torque_nm = self._extract_int(" ".join(cells[2].xpath(".//text()").getall()))
 
             row_map[label.lower()] = {
                 "name": label,
@@ -507,6 +545,39 @@ class OlsxBrandsSpider(scrapy.Spider):
 
     def _extract_controllers(self, response) -> list[dict]:
         controllers = []
+
+        # Aktuelles Markup: Liste (ul > li) unter der Überschrift "Steuergeräte ...".
+        # Read-Methoden stehen in der Zeile "Lesegeräte: A, B, C".
+        for heading in response.xpath('//h2[contains(normalize-space(.), "Steuergeräte")]')[:1]:
+            for item in heading.xpath("following-sibling::ul[1]/li"):
+                manufacturer = self.clean(" ".join(item.xpath(".//strong//text()").getall()))
+                full_text = self.clean(" ".join(item.xpath("./p[1]//text()").getall()))
+                model = full_text
+                if manufacturer and full_text.startswith(manufacturer):
+                    model = self.clean(full_text[len(manufacturer):])
+
+                tools_text = self.clean(" ".join(item.xpath("./p[contains(@class, 'text-sm')]//text()").getall()))
+                tools_text = re.sub(r"^[^:]*:\s*", "", tools_text or "")
+                tools = [tool for tool in (self.clean(part) for part in tools_text.split(",")) if tool]
+
+                if not manufacturer and not model:
+                    continue
+
+                ecu_type = "MCU"
+                if (manufacturer or "").upper() in {"ZF", "TEMIC"} or "DQ" in (model or "").upper():
+                    ecu_type = "TCU"
+
+                controllers.append({
+                    "manufacturer": manufacturer,
+                    "model": model,
+                    "ecu_type": ecu_type,
+                    "tools": tools,
+                })
+
+        if controllers:
+            return sorted(controllers, key=_controller_sort_key)
+
+        # Älteres Markup: Links nach der Überschrift, Read-Methoden im Tooltip
         controller_links = response.xpath(
             '//h2[contains(normalize-space(.), "Steuergeräte")]'
             '/following-sibling::a'
@@ -542,10 +613,15 @@ class OlsxBrandsSpider(scrapy.Spider):
 
     def _extract_options(self, response) -> list[dict]:
         options = []
-        option_links = response.xpath(
-            '//h2[contains(normalize-space(.), "Verfügbare Optionen")]'
-            '/following-sibling::a'
-        )
+        # Optionen sind inzwischen Buttons (früher Links). Nur Geschwister bis zur nächsten Überschrift.
+        option_links = []
+        for heading in response.xpath('//h2[contains(normalize-space(.), "Verfügbare Optionen")]'):
+            for sibling in heading.xpath("following-sibling::*"):
+                tag = sibling.root.tag if hasattr(sibling.root, "tag") else ""
+                if tag == "h2":
+                    break
+                if tag in ("a", "button"):
+                    option_links.append(sibling)
 
         for link in option_links:
             name = self.clean(" ".join(link.xpath(".//text()").getall()))
@@ -660,7 +736,99 @@ class OlsxBrandsSpider(scrapy.Spider):
         )
         return out_path
 
+    def _output_dir(self) -> str:
+        return os.path.join(os.getcwd(), "data", "output", self.name, self.scraper_type)
+
+    def _fill_source_path(self) -> str:
+        if self.fill_source:
+            return self.fill_source
+        candidates = [
+            os.path.join(self._output_dir(), f)
+            for f in os.listdir(self._output_dir())
+            if f.startswith(f"olsx_brands_{self.scraper_type}_") and f.endswith(".json") and "_partial" not in f
+        ]
+        if not candidates:
+            raise ValueError(f"Keine Ausgabedatei zum Nachfüllen gefunden in {self._output_dir()}")
+        return max(candidates, key=os.path.getmtime)
+
+    def _load_fill_source(self) -> list:
+        with open(self._fill_source_path(), encoding="utf-8") as f:
+            return json.load(f)
+
+    def start_requests(self):
+        if not self.fill_missing:
+            yield from super().start_requests()
+            return
+
+        for b_i, brand in enumerate(self.fill_data):
+            for m_i, model in enumerate(brand.get("models", [])):
+                for v_i, version in enumerate(model.get("versions", [])):
+                    for e_i, engine in enumerate(version.get("engines", [])):
+                        if engine.get("stages_checked") or not engine.get("url"):
+                            continue
+                        yield scrapy.Request(
+                            engine["url"],
+                            callback=self.parse_engine_fill,
+                            meta={"ref": (b_i, m_i, v_i, e_i)},
+                            dont_filter=True,
+                        )
+
+    def parse_engine_fill(self, response):
+        b_i, m_i, v_i, e_i = response.meta["ref"]
+        engine = self.fill_data[b_i]["models"][m_i]["versions"][v_i]["engines"][e_i]
+
+        stages = []
+        for stage_slug in self._extract_stage_slugs(response):
+            metrics = self._extract_stage_metrics(response, stage_slug)
+            if not engine.get("original") and metrics["original"]:
+                engine["original"] = metrics["original"]
+            if metrics["stage"]:
+                stages.append(metrics["stage"])
+
+        engine["stages"] = sorted(stages, key=_sort_key_name_slug)
+        engine["stage_count"] = len(engine["stages"])
+        engine["options"] = self._extract_options(response)
+        # Steuergeräte inkl. Read-Methoden neu, im Ausgabeformat (nach Hersteller gruppiert)
+        engine["controllers"] = self._group_controllers(self._extract_controllers(response))
+        engine["stages_checked"] = True
+
+        self._fill_done += 1
+        self.logger.info("FILL %s stages=%s options=%s controllers=%s", response.url, engine["stage_count"], len(engine["options"]), len(engine["controllers"]))
+        if self._fill_done % 200 == 0:
+            self._write_filled()
+
+    def _write_filled(self) -> None:
+        if self._fill_output_path is None:
+            os.makedirs(self._output_dir(), exist_ok=True)
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self._fill_output_path = os.path.join(self._output_dir(), f"olsx_brands_{self.scraper_type}_{ts}_filled.json")
+        tmp_path = f"{self._fill_output_path}.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(self.fill_data, f, ensure_ascii=False)
+        os.replace(tmp_path, self._fill_output_path)
+
+    def _note_change(self, every: int = 25) -> None:
+        """Alle `every` Engine-Seiten den Zwischenstand sichern."""
+        self._changes_since_checkpoint += 1
+        if self._changes_since_checkpoint >= every:
+            self._save_checkpoint()
+
+    def _save_checkpoint(self) -> None:
+        if not self.checkpoint_path or not self.brand_data:
+            return
+        tmp_path = f"{self.checkpoint_path}.tmp"
+        os.makedirs(os.path.dirname(self.checkpoint_path) or ".", exist_ok=True)
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(self.brand_data, f, ensure_ascii=False)
+        os.replace(tmp_path, self.checkpoint_path)  # atomar: nie eine halbe Datei
+        self._changes_since_checkpoint = 0
+
     def closed(self, reason):
+        if self.fill_missing:
+            self._write_filled()
+            self.logger.info("Nachfüllen beendet (reason=%s): %s Motoren geprüft, %s", reason, self._fill_done, self._fill_output_path)
+            return
+        self._save_checkpoint()
         if not self.brand_data:
             return
 

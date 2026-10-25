@@ -197,8 +197,12 @@ final class ChiptuningWidgetConfigCrudController extends AbstractCrudController
 
     private function buildIframeSnippet(ChiptuningWidgetConfig $widget): string
     {
+        $iframeId = 'chiptuning-widget-' . preg_replace('/[^a-zA-Z0-9_-]+/', '-', (string) $widget->getEmbedKey());
+
         return sprintf(
-            '<iframe src="%s" width="100%%" height="%d" frameborder="0" style="border:none;"></iframe>',
+            '<iframe id="%1$s" src="%2$s" width="100%%" height="%3$d" frameborder="0" style="border:none;"></iframe>' . "\n" .
+            '<script>(function(){var iframe=document.getElementById("%1$s");if(!iframe)return;window.addEventListener("message",function(event){if(event.source!==iframe.contentWindow)return;var data=event.data||{};if(data.type==="dct-widget-scroll-top"){iframe.scrollIntoView({behavior:"smooth",block:"start"});}});})();</script>',
+            $iframeId,
             $this->buildWidgetUrl($widget),
             $widget->getIframeHeight()
         );

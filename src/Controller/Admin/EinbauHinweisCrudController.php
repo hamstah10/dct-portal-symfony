@@ -288,6 +288,14 @@ final class EinbauHinweisCrudController extends AbstractCrudController
             }
         }
         $entityInstance->setActiveEcu($activeEcu);
+        foreach ($entityInstance->getActiveEcus()->toArray() as $ecu) {
+            if ($ecu instanceof Ecu) {
+                $entityInstance->removeActiveEcu($ecu);
+            }
+        }
+        if ($activeEcu instanceof Ecu) {
+            $entityInstance->addActiveEcu($activeEcu);
+        }
 
         // Handle vehicle model selections
         $modelIds = array_filter(array_map('intval', $request->request->all('vehicle_model_ids')));

@@ -18,13 +18,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title|default('Superadmin Portal') }}</title>
-    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('assets/portals/superadmin-portal/favicon.svg') }}" type="image/svg+xml">
     {% if font_families is not empty %}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family={% for font_name in font_families %}{{ font_name|replace({' ': '+'}) }}:400,500,600,700{% if not loop.last %}|{% endif %}{% endfor %}&display=swap">
     {% endif %}
-    <link rel="stylesheet" href="{{ asset('assets/portals/superadmin-portal/react/static/css/main.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/portals/superadmin-portal/react/static/css/main.css') }}?v={{ react_asset_version }}">
     <style>
         html {
             --portal-primary-color: {{ primary_color }};
@@ -102,6 +102,6 @@
             })();
         </script>
     {% endif %}
-    <script src="{{ asset('assets/portals/superadmin-portal/react/static/js/main.js') }}" defer></script>
+    <script src="{{ asset('assets/portals/superadmin-portal/react/static/js/main.js') }}?v={{ react_asset_version }}" defer></script>
 </body>
 </html>

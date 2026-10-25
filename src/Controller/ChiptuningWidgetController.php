@@ -78,6 +78,9 @@ final class ChiptuningWidgetController extends AbstractController
 
         var data = event.data || {};
         if (!data || data.type !== 'tuningfux-widget-height') {
+            if (data && data.type === 'dct-widget-scroll-top') {
+                iframe.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
             return;
         }
 

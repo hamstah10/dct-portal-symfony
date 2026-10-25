@@ -13,8 +13,10 @@ use App\Entity\Kunde;
 use App\Entity\SupportEmailMessage;
 use App\Entity\SupportTicket;
 use App\Entity\SuperadminCalendarEntry;
+use App\Entity\SuperadminCalendarEvent;
 use App\Entity\SuperadminPinnedVehicleType;
 use App\Entity\SuperadminRememberedVehicle;
+use App\Entity\SuperadminVehicleCompareList;
 use App\Repository\AuftragRepository;
 use App\Repository\EmailKontoRepository;
 use App\Repository\FirmaRepository;
@@ -25,6 +27,8 @@ use App\Repository\SuperadminCalendarEntryRepository;
 use App\Repository\SuperadminDashboardLinkRepository;
 use App\Repository\SuperadminPinnedVehicleTypeRepository;
 use App\Repository\SuperadminRememberedVehicleRepository;
+use App\Repository\SuperadminVehicleCompareListRepository;
+use App\Service\SuperadminProjectPasswordCipher;
 use App\Service\SupportEmailFetchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +36,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -45,7 +50,6 @@ final class OperationsDataController extends AbstractController
         private readonly EmailKontoRepository $emailKontoRepository,
         private readonly FirmaRepository $firmaRepository,
         private readonly SuperadminCalendarEntryRepository $calendarEntryRepository,
-        private readonly SuperadminDashboardLinkRepository $dashboardLinkRepository,
         private readonly SuperadminRememberedVehicleRepository $rememberedVehicleRepository,
         private readonly SuperadminPinnedVehicleTypeRepository $pinnedVehicleTypeRepository,
         private readonly SupportEmailFetchService $supportEmailFetchService,
@@ -56,6 +60,9 @@ final class OperationsDataController extends AbstractController
         private readonly \App\Repository\VehicleBrandRepository $vehicleBrandRepository,
         private readonly \Symfony\Component\AssetMapper\AssetMapperInterface $assetMapper,
         private readonly EntityManagerInterface $entityManager,
+        private readonly SuperadminDashboardLinkRepository $dashboardLinkRepository,
+        private readonly SuperadminVehicleCompareListRepository $vehicleCompareListRepository,
+        private readonly \App\Repository\SuperadminProjectRepository $superadminProjectRepository,
     ) {
     }
 
@@ -551,6 +558,60 @@ final class OperationsDataController extends AbstractController
         ]);
     }
 
+    /** Zähler für die Badges in der Hauptnavigation: offene Aufträge und offene Tickets. */
+    #[Route('/operations-api/nav-counts', name: 'superadmin_portal_operations_api_nav_counts', methods: ['GET'])]
+    public function navCounts(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $orders = (int) $this->auftragRepository->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->andWhere('a.status = :status')
+            ->setParameter('status', Auftrag::STATUS_RECEIVED)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $tickets = (int) $this->supportTicketRepository->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->andWhere('t.status = :status')
+            ->setParameter('status', SupportTicket::STATUS_OPEN)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $this->json(['data' => ['orders' => $orders, 'tickets' => $tickets]]);
+    }
+
+    /** Status eines Tickets ändern. Die ID ist die Ticket-Nummer aus der Liste. */
+    #[Route('/operations-api/tickets/{id}/status', name: 'superadmin_portal_operations_api_ticket_status', methods: ['POST'])]
+    public function ticketStatus(string $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $payload = json_decode((string) $request->getContent(), true);
+        $status = is_array($payload) ? (string) ($payload['status'] ?? '') : '';
+        $mapped = match ($status) {
+            'open' => SupportTicket::STATUS_OPEN,
+            'in_progress' => SupportTicket::STATUS_IN_PROGRESS,
+            'closed' => SupportTicket::STATUS_CLOSED,
+            default => null,
+        };
+        if (null === $mapped) {
+            throw new BadRequestHttpException('Unbekannter Ticket-Status.');
+        }
+
+        // Die Ticket-Nummer wird aus der ID gebildet (T-000123), ist also kein eigenes Feld.
+        $ticketId = 1 === preg_match('/^T-0*(\d+)$/i', $id, $matches) ? (int) $matches[1] : (ctype_digit($id) ? (int) $id : 0);
+        $ticket = $ticketId > 0 ? $this->supportTicketRepository->find($ticketId) : null;
+        if (!$ticket instanceof SupportTicket) {
+            throw new NotFoundHttpException('Ticket nicht gefunden.');
+        }
+
+        $ticket->setStatus($mapped);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeTicket($ticket)]);
+    }
+
     #[Route('/operations-api/companies', name: 'superadmin_portal_operations_api_companies', methods: ['GET'])]
     public function companies(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
     {
@@ -799,6 +860,152 @@ final class OperationsDataController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json(['data' => $this->serializeCalendarEntry($entry)], 201);
+    }
+
+    #[Route('/operations-api/calendar-events', name: 'superadmin_portal_operations_api_calendar_events_list', methods: ['GET'])]
+    public function calendarEventList(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $events = $this->entityManager->getRepository(SuperadminCalendarEvent::class)->findBy([], ['startsAt' => 'ASC'], 2000);
+
+        return $this->json(['data' => array_map(fn (SuperadminCalendarEvent $event): array => $this->serializeCalendarEvent($event), $events)]);
+    }
+
+    #[Route('/operations-api/calendar-events', name: 'superadmin_portal_operations_api_calendar_events_create', methods: ['POST'])]
+    public function calendarEventCreate(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $body = json_decode((string) $request->getContent(), true);
+        if (!is_array($body)) {
+            return $this->json(['message' => 'Ungültige Anfrage.'], 400);
+        }
+
+        $event = new SuperadminCalendarEvent();
+        $error = $this->fillCalendarEvent($event, $body);
+        if (null !== $error) {
+            return $this->json(['message' => $error], 400);
+        }
+
+        $this->entityManager->persist($event);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeCalendarEvent($event)], 201);
+    }
+
+    #[Route('/operations-api/calendar-events/{id}', name: 'superadmin_portal_operations_api_calendar_events_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    public function calendarEventUpdate(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $event = $this->entityManager->getRepository(SuperadminCalendarEvent::class)->find($id);
+        if (null === $event) {
+            return $this->json(['message' => 'Termin nicht gefunden.'], 404);
+        }
+
+        $body = json_decode((string) $request->getContent(), true);
+        if (!is_array($body)) {
+            return $this->json(['message' => 'Ungültige Anfrage.'], 400);
+        }
+
+        $error = $this->fillCalendarEvent($event, $body);
+        if (null !== $error) {
+            return $this->json(['message' => $error], 400);
+        }
+
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeCalendarEvent($event)]);
+    }
+
+    #[Route('/operations-api/calendar-events/{id}', name: 'superadmin_portal_operations_api_calendar_events_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function calendarEventDelete(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $event = $this->entityManager->getRepository(SuperadminCalendarEvent::class)->find($id);
+        if (null === $event) {
+            return $this->json(['message' => 'Termin nicht gefunden.'], 404);
+        }
+
+        $this->entityManager->remove($event);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => ['id' => $id, 'deleted' => true]]);
+    }
+
+    /**
+     * Übernimmt die Felder aus dem Request. Gibt eine Fehlermeldung zurück oder null bei Erfolg.
+     *
+     * @param array<string, mixed> $body
+     */
+    private function fillCalendarEvent(SuperadminCalendarEvent $event, array $body): ?string
+    {
+        $title = trim((string) ($body['title'] ?? ''));
+        if ('' === $title) {
+            return 'Titel fehlt.';
+        }
+
+        $startsAt = $this->parseDateTime((string) ($body['start'] ?? ''));
+        $endsAt = $this->parseDateTime((string) ($body['end'] ?? ''));
+        if (null === $startsAt || null === $endsAt) {
+            return 'Start oder Ende fehlt.';
+        }
+
+        if ($endsAt < $startsAt) {
+            return 'Ende muss nach dem Start liegen.';
+        }
+
+        // Zeiten in der Server-Zeitzone speichern, sonst verschieben sich die Termine beim Lesen
+        $zone = new \DateTimeZone(date_default_timezone_get());
+        // firmaId 0/fehlend = Termin gilt für alle Firmen
+        $firmaId = (int) ($body['firmaId'] ?? 0);
+        $firma = $firmaId > 0 ? $this->firmaRepository->find($firmaId) : null;
+        if ($firmaId > 0 && !$firma instanceof Firma) {
+            return 'Firma nicht gefunden.';
+        }
+
+        $calendarId = in_array($body['calendarId'] ?? null, ['support', 'operations', 'marketing'], true)
+            ? (string) $body['calendarId']
+            : 'support';
+        $guests = is_array($body['guests'] ?? null)
+            ? array_values(array_filter(array_map(static fn (mixed $guest): string => trim((string) $guest), $body['guests']), static fn (string $guest): bool => '' !== $guest))
+            : [];
+
+        $event
+            ->setFirma($firma)
+            ->setTitle($title)
+            ->setDescription(trim((string) ($body['description'] ?? '')) ?: null)
+            ->setLocation(trim((string) ($body['location'] ?? '')) ?: null)
+            ->setGuests($guests)
+            ->setCalendarId($calendarId)
+            ->setColor(trim((string) ($body['color'] ?? '')) ?: null)
+            ->setAllDay((bool) ($body['allDay'] ?? false))
+            ->setStartsAt($startsAt->setTimezone($zone))
+            ->setEndsAt($endsAt->setTimezone($zone))
+            ->setUpdatedAt(new \DateTimeImmutable());
+
+        return null;
+    }
+
+    /** @return array<string, mixed> */
+    private function serializeCalendarEvent(SuperadminCalendarEvent $event): array
+    {
+        return [
+            'id' => $event->getId(),
+            'firmaId' => $event->getFirma()?->getId(),
+            'firmaName' => $event->getFirma()?->getName(),
+            'title' => $event->getTitle(),
+            'description' => $event->getDescription(),
+            'location' => $event->getLocation(),
+            'guests' => $event->getGuests(),
+            'calendarId' => $event->getCalendarId(),
+            'color' => $event->getColor(),
+            'allDay' => $event->isAllDay(),
+            'start' => $event->getStartsAt()->format(\DATE_ATOM),
+            'end' => $event->getEndsAt()->format(\DATE_ATOM),
+        ];
     }
 
     #[Route('/operations-api/emails', name: 'superadmin_portal_operations_api_emails', methods: ['GET'])]
@@ -1383,16 +1590,265 @@ final class OperationsDataController extends AbstractController
     {
         $links = $this->dashboardLinkRepository->findBy(['active' => true], ['sortOrder' => 'ASC']);
 
-        return $this->json(array_map(static function ($link): array {
-            return [
-                'id' => $link->getId(),
-                'title' => $link->getTitle(),
-                'url' => $link->getUrl(),
-                'description' => $link->getDescription(),
-                'category' => $link->getCategory(),
-                'iconName' => $link->getIconName(),
-                'openInNewTab' => $link->isOpenInNewTab(),
-            ];
-        }, $links));
+        return $this->json([
+            'data' => array_map(static function ($link): array {
+                return [
+                    'id' => $link->getId(),
+                    'title' => $link->getTitle(),
+                    'url' => $link->getUrl(),
+                    'description' => $link->getDescription(),
+                    'category' => $link->getCategory(),
+                    'icon_name' => $link->getIconName(),
+                    'open_in_new_tab' => $link->isOpenInNewTab(),
+                ];
+            }, $links),
+        ]);
+    }
+
+    #[Route('/operations-api/vehicle-compare-lists', name: 'superadmin_portal_operations_api_vehicle_compare_lists', methods: ['GET'])]
+    public function vehicleCompareLists(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['data' => []], 401);
+        }
+
+        $lists = $this->vehicleCompareListRepository->findBy(['user' => $user], ['updatedAt' => 'DESC']);
+
+        return $this->json([
+            'data' => array_map(static function ($list): array {
+                return [
+                    'id' => $list->getId(),
+                    'name' => $list->getName(),
+                    'vehicles' => $list->getVehicles(),
+                    'createdAt' => $list->getCreatedAt()->format('c'),
+                    'updatedAt' => $list->getUpdatedAt()->format('c'),
+                ];
+            }, $lists),
+        ]);
+    }
+
+    #[Route('/operations-api/vehicle-compare-lists', name: 'superadmin_portal_operations_api_vehicle_compare_lists_create', methods: ['POST'])]
+    public function createVehicleCompareList(Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        $name = $payload['name'] ?? 'Unbenannt';
+        $vehicles = $payload['vehicles'] ?? [];
+
+        $list = new SuperadminVehicleCompareList();
+        $list->setUser($user);
+        $list->setName($name);
+        $list->setVehicles($vehicles);
+
+        $this->entityManager->persist($list);
+        $this->entityManager->flush();
+
+        return $this->json([
+            'data' => [
+                'id' => $list->getId(),
+                'name' => $list->getName(),
+                'vehicles' => $list->getVehicles(),
+                'createdAt' => $list->getCreatedAt()->format('c'),
+                'updatedAt' => $list->getUpdatedAt()->format('c'),
+            ],
+        ], 201);
+    }
+
+    #[Route('/operations-api/vehicle-compare-lists/{id}', name: 'superadmin_portal_operations_api_vehicle_compare_lists_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function deleteVehicleCompareList(int $id, Request $request): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return $this->json(['error' => 'Unauthorized'], 401);
+        }
+
+        $list = $this->vehicleCompareListRepository->find($id);
+        if (!$list || $list->getUser() !== $user) {
+            throw new NotFoundHttpException('Compare list not found');
+        }
+
+        $this->entityManager->remove($list);
+        $this->entityManager->flush();
+
+        return $this->json(['deleted' => true]);
+    }
+
+    #[Route('/operations-api/superadmin-projects', name: 'superadmin_portal_operations_api_superadmin_projects', methods: ['GET'])]
+    public function superadminProjects(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $projects = $this->superadminProjectRepository->findBy([], ['createdAt' => 'DESC']);
+
+        return $this->json([
+            'data' => array_map(fn (\App\Entity\SuperadminProject $project): array => $this->serializeSuperadminProject($project), $projects),
+        ]);
+    }
+
+    #[Route('/operations-api/superadmin-projects/{id}', name: 'superadmin_portal_operations_api_superadmin_project_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function superadminProjectDetail(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $project = $this->superadminProjectRepository->find($id);
+        if (!$project) {
+            return $this->json(['message' => 'Projekt nicht gefunden'], 404);
+        }
+
+        return $this->json(['data' => $this->serializeSuperadminProject($project)]);
+    }
+
+    #[Route('/operations-api/superadmin-projects/{id}/login-password', name: 'superadmin_portal_operations_api_superadmin_project_login_password', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function superadminProjectLoginPassword(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver, SuperadminProjectPasswordCipher $passwordCipher): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $project = $this->superadminProjectRepository->find($id);
+        if (!$project) {
+            return $this->json(['message' => 'Projekt nicht gefunden'], 404);
+        }
+
+        $encrypted = $project->getLoginPasswordEncrypted();
+        $password = null === $encrypted ? null : $passwordCipher->decrypt($encrypted);
+
+        return $this->json(['data' => ['login_password' => $password]]);
+    }
+
+    #[Route('/operations-api/superadmin-projects', name: 'superadmin_portal_operations_api_superadmin_project_create', methods: ['POST'])]
+    public function createSuperadminProject(Request $request, PortalRuntimeResolver $portalRuntimeResolver, SuperadminProjectPasswordCipher $passwordCipher): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $body = json_decode((string) $request->getContent(), true);
+        $body = is_array($body) ? $body : [];
+
+        $project = new \App\Entity\SuperadminProject();
+        $project->setName((string) ($body['name'] ?? ''));
+        $project->setUrl((string) ($body['url'] ?? ''));
+        $project->setDescription((string) ($body['description'] ?? '') ?: null);
+        $project->setLoginUsername((string) ($body['login_username'] ?? ''));
+        $project->setActive((bool) ($body['active'] ?? true));
+        $this->applyLoginPassword($project, $body, $passwordCipher);
+
+        $this->entityManager->persist($project);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeSuperadminProject($project)], 201);
+    }
+
+    #[Route('/operations-api/superadmin-projects/{id}', name: 'superadmin_portal_operations_api_superadmin_project_update', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    public function updateSuperadminProject(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver, SuperadminProjectPasswordCipher $passwordCipher): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $project = $this->superadminProjectRepository->find($id);
+        if (!$project) {
+            return $this->json(['message' => 'Projekt nicht gefunden'], 404);
+        }
+
+        $body = json_decode((string) $request->getContent(), true);
+        $body = is_array($body) ? $body : [];
+
+        $project->setName((string) ($body['name'] ?? $project->getName()));
+        $project->setUrl((string) ($body['url'] ?? $project->getUrl()));
+        $project->setDescription((string) ($body['description'] ?? '') ?: null);
+        $project->setLoginUsername((string) ($body['login_username'] ?? ''));
+        if (isset($body['active'])) {
+            $project->setActive((bool) $body['active']);
+        }
+        $this->applyLoginPassword($project, $body, $passwordCipher);
+
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeSuperadminProject($project)]);
+    }
+
+    #[Route('/operations-api/superadmin-projects/{id}', name: 'superadmin_portal_operations_api_superadmin_project_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function deleteSuperadminProject(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $project = $this->superadminProjectRepository->find($id);
+        if (!$project) {
+            return $this->json(['message' => 'Projekt nicht gefunden'], 404);
+        }
+
+        $this->entityManager->remove($project);
+        $this->entityManager->flush();
+
+        return $this->json(['deleted' => true]);
+    }
+
+    #[Route('/operations-api/superadmin-projects/{id}/upload-image', name: 'superadmin_portal_operations_api_superadmin_project_upload_image', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function uploadProjectImage(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $project = $this->superadminProjectRepository->find($id);
+        if (!$project) {
+            return $this->json(['message' => 'Projekt nicht gefunden'], 404);
+        }
+
+        $uploadedFile = $request->files->get('image');
+        if (!$uploadedFile) {
+            return $this->json(['message' => 'Keine Datei hochgeladen'], 400);
+        }
+
+        if (!str_starts_with($uploadedFile->getMimeType() ?? '', 'image/')) {
+            return $this->json(['message' => 'Nur Bilder sind erlaubt'], 400);
+        }
+
+        if ($uploadedFile->getSize() > 5 * 1024 * 1024) {
+            return $this->json(['message' => 'Datei zu groß (max. 5MB)'], 400);
+        }
+
+        $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/projects';
+        if (!is_dir($uploadsDir)) {
+            mkdir($uploadsDir, 0755, true);
+        }
+
+        $filename = $id . '-' . time() . '-' . bin2hex(random_bytes(4)) . '.' . $uploadedFile->guessExtension();
+        $uploadedFile->move($uploadsDir, $filename);
+
+        $project->setImagePath('/uploads/projects/' . $filename);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeSuperadminProject($project)]);
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    private function applyLoginPassword(\App\Entity\SuperadminProject $project, array $body, SuperadminProjectPasswordCipher $passwordCipher): void
+    {
+        if (!array_key_exists('login_password', $body) || '' === (string) $body['login_password']) {
+            return;
+        }
+
+        $project->setLoginPasswordEncrypted($passwordCipher->encrypt((string) $body['login_password']));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serializeSuperadminProject(\App\Entity\SuperadminProject $project): array
+    {
+        return [
+            'id' => $project->getId(),
+            'name' => $project->getName(),
+            'url' => $project->getUrl(),
+            'description' => $project->getDescription(),
+            'image_path' => $project->getImagePath(),
+            'login_username' => $project->getLoginUsername(),
+            'has_login_password' => null !== $project->getLoginPasswordEncrypted(),
+            'active' => $project->isActive(),
+            'created_at' => $project->getCreatedAt()->format('c'),
+            'updated_at' => $project->getUpdatedAt()->format('c'),
+        ];
     }
 }

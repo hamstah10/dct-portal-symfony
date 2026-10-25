@@ -3,9 +3,64 @@ portal_superadmin_portal:
     type: attribute
     exclude:
         - ../../src/Portals/SuperadminPortal/Controller/OperationsDataController.php
+        - ../../src/Portals/SuperadminPortal/Controller/ScraperDataController.php
+        - ../../src/Portals/SuperadminPortal/Controller/ScraperDbCompareController.php
+        - ../../src/Portals/SuperadminPortal/Controller/ScraperDbDiffController.php
+        - ../../src/Portals/SuperadminPortal/Controller/KnowledgeEntryApiController.php
+        - ../../src/Portals/SuperadminPortal/Controller/ScraperSearchController.php
     condition: "request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal'"
 
 portal_superadmin_operations_api:
     resource: ../../src/Portals/SuperadminPortal/Controller/OperationsDataController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_scraper_data_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperDataController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_scraper_db_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperDbCompareController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_scraper_db_api_diff:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperDbDiffController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_brand_assistant_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/BrandAssistantController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_dyno_by_type_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperDynoByTypeController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_stage_check_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperStageCheckController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_dyno_type_map_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperDynoTypeMapController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_knowledge_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/KnowledgeEntryApiController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_scraper_search_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/ScraperSearchController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_formulas_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/FormulaApiController.php
     type: attribute
     condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"

@@ -2,7 +2,11 @@
 
 namespace App\Service;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use App\Entity\Ecu;
+use App\Entity\ToolManufacturer;
+use App\Entity\ToolMethode;
 use App\Entity\EcuOption;
 use App\Entity\EcuOptionHint;
 use App\Entity\EinbauHinweis;
@@ -66,7 +70,7 @@ final class VehiclePayloadMapper
      *
      * @return array<int, array<string, mixed>>
      */
-    public function mapEcuPayloads(array $ecus, bool $showPrices, bool $showHints = true, bool $showOptionCategories = true): array
+    public function mapEcuPayloads(array $ecus, bool $showPrices, bool $showHints = true, bool $showOptionCategories = true, ?VehicleEngine $engine = null): array
     {
         return array_values(array_map(fn (Ecu $ecu): array => [
             'id' => $ecu->getId(),
@@ -75,38 +79,38 @@ final class VehiclePayloadMapper
             'controlUnitKind' => $this->resolveEcuControlUnitKind($ecu),
             'manufacturer' => $this->resolveEcuManufacturerName($ecu),
             'manufacturerId' => $ecu->getManufacturer()?->getId(),
-            'toolManufacturerId' => $ecu->getToolManufacturer()?->getId(),
+            'toolManufacturerId' => $this->activeToolManufacturer($ecu->getToolManufacturer())?->getId(),
             'manufacturerLogo' => $this->normalizePublicPath($this->resolveEcuManufacturerLogo($ecu)),
             'description' => $ecu->getDescription(),
             'image' => $this->normalizePublicPath($ecu->getImage()),
             'toolEntries' => array_values(array_map(fn ($entry) => [
                 'id' => $entry->getId(),
-                'manufacturer' => $entry->getToolManufacturer()?->getName(),
-                'manufacturerLogo' => $this->normalizePublicPath($entry->getToolManufacturer()?->getLogo()),
-                'toolManufacturerId' => $entry->getToolManufacturer()?->getId(),
-                'methodIds' => $entry->getToolMethods()->map(fn ($m) => $m->getId())->getValues(),
-                'methods' => $entry->getToolMethods()->map(fn ($m) => [
+                'manufacturer' => $this->activeToolManufacturer($entry->getToolManufacturer())?->getName(),
+                'manufacturerLogo' => $this->normalizePublicPath($this->activeToolManufacturer($entry->getToolManufacturer())?->getLogo()),
+                'toolManufacturerId' => $this->activeToolManufacturer($entry->getToolManufacturer())?->getId(),
+                'methodIds' => $this->activeToolMethods($entry->getToolMethods())->map(fn ($m) => $m->getId())->getValues(),
+                'methods' => $this->activeToolMethods($entry->getToolMethods())->map(fn ($m) => [
                     'name' => $m->getName(),
                     'icon' => $this->normalizePublicPath($m->getImage()),
                 ])->getValues(),
                 'position' => $entry->getPosition(),
                 'kind' => 'ecu',
-            ], $ecu->getToolEntries()->toArray())),
-            'toolManufacturer' => $ecu->getToolManufacturer()?->getName(),
-            'toolManufacturerLogo' => $this->normalizePublicPath($ecu->getToolManufacturer()?->getLogo()),
-            'toolMethods' => $ecu->getToolMethods()->map(fn ($m) => [
+            ], $this->activeToolEntries($ecu->getToolEntries()->toArray()))),
+            'toolManufacturer' => $this->activeToolManufacturer($ecu->getToolManufacturer())?->getName(),
+            'toolManufacturerLogo' => $this->normalizePublicPath($this->activeToolManufacturer($ecu->getToolManufacturer())?->getLogo()),
+            'toolMethods' => $this->activeToolMethods($ecu->getToolMethods())->map(fn ($m) => [
                 'name' => $m->getName(),
                 'icon' => $this->normalizePublicPath($m->getImage()),
             ])->getValues(),
-            'options' => $this->mapEcuOptionPayloads($ecu, $showPrices, $showOptionCategories),
-            'optionHints' => $showHints ? $this->mapEcuOptionHints($ecu) : [],
+            'options' => $this->mapEcuOptionPayloads($ecu, $showPrices, $showOptionCategories, $engine),
+            'optionHints' => $showHints ? $this->mapEcuOptionHints($ecu, $engine) : [],
         ], $ecus));
     }
 
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function mapEcuOptionPayloads(Ecu $ecu, bool $showPrices, bool $showOptionCategories = true): array
+    public function mapEcuOptionPayloads(Ecu $ecu, bool $showPrices, bool $showOptionCategories = true, ?VehicleEngine $engine = null): array
     {
         $options = array_values(array_filter(
             $ecu->getOptions()->toArray(),
@@ -115,6 +119,7 @@ final class VehiclePayloadMapper
                 && $option->isActive()
                 && $option->getVehicleDataPool()?->getId() === $ecu->getVehicleDataPool()?->getId()
         ));
+        $options = $this->filterOptionsForEngineFuel($options, $engine);
 
         return $this->mapOptionPayloads($options, $showPrices, $showOptionCategories);
     }
@@ -131,8 +136,111 @@ final class VehiclePayloadMapper
                 && $option->isActive()
                 && $option->getVehicleDataPool()?->getId() === $engine->getVehicleDataPool()?->getId()
         ));
+        $options = $this->filterOptionsForEngineFuel($options, $engine);
 
         return $this->mapOptionPayloads($options, $showPrices, $showOptionCategories);
+    }
+
+    /**
+     * @param array<int, EcuOption> $options
+     *
+     * @return array<int, EcuOption>
+     */
+    private function filterOptionsForEngineFuel(array $options, ?VehicleEngine $engine): array
+    {
+        if (!$this->isPetrolEngine($engine) && !$this->isDieselEngine($engine)) {
+            return $options;
+        }
+
+        return array_values(array_filter(
+            $options,
+            fn (EcuOption $option): bool => !(
+                ($this->isPetrolEngine($engine) && $this->isDpfOption($option))
+                || ($this->isDieselEngine($engine) && $this->isPopsAndBangsOption($option))
+            )
+        ));
+    }
+
+    private function isPetrolEngine(?VehicleEngine $engine): bool
+    {
+        $fuel = mb_strtolower(trim((string) $engine?->getFuel()));
+        if ('' === $fuel || str_contains($fuel, 'diesel')) {
+            return false;
+        }
+
+        return str_contains($fuel, 'benzin')
+            || str_contains($fuel, 'petrol')
+            || str_contains($fuel, 'gasoline')
+            || str_contains($fuel, 'otto')
+            || str_contains($fuel, 'super');
+    }
+
+    private function isDieselEngine(?VehicleEngine $engine): bool
+    {
+        return str_contains(mb_strtolower(trim((string) $engine?->getFuel())), 'diesel');
+    }
+
+    private function isDpfOption(EcuOption $option): bool
+    {
+        $master = $option->getMasterOption();
+        $haystack = implode(' ', array_filter([
+            $option->getName(),
+            $option->getSlug(),
+            $master?->getName(),
+            $master?->getSlug(),
+            $master?->getModuleSlug(),
+        ], static fn (?string $value): bool => null !== $value && '' !== trim($value)));
+
+        return $this->containsDpfReference($haystack);
+    }
+
+    private function isPopsAndBangsOption(EcuOption $option): bool
+    {
+        $master = $option->getMasterOption();
+        $haystack = implode(' ', array_filter([
+            $option->getName(),
+            $option->getSlug(),
+            $master?->getName(),
+            $master?->getSlug(),
+            $master?->getModuleSlug(),
+        ], static fn (?string $value): bool => null !== $value && '' !== trim($value)));
+
+        return $this->containsPopsAndBangsReference($haystack);
+    }
+
+    private function isDpfMasterOption(\App\Entity\EcuOptionMaster $master): bool
+    {
+        $haystack = implode(' ', array_filter([
+            $master->getName(),
+            $master->getSlug(),
+            $master->getModuleSlug(),
+        ], static fn (?string $value): bool => null !== $value && '' !== trim($value)));
+
+        return $this->containsDpfReference($haystack);
+    }
+
+    private function isPopsAndBangsMasterOption(\App\Entity\EcuOptionMaster $master): bool
+    {
+        $haystack = implode(' ', array_filter([
+            $master->getName(),
+            $master->getSlug(),
+            $master->getModuleSlug(),
+        ], static fn (?string $value): bool => null !== $value && '' !== trim($value)));
+
+        return $this->containsPopsAndBangsReference($haystack);
+    }
+
+    private function containsDpfReference(string $haystack): bool
+    {
+        return preg_match('/(^|[^a-z0-9])dpf([^a-z0-9]|$)/i', $haystack) === 1
+            || preg_match('/diesel\\s*[- ]?\\s*partikelfilter/i', $haystack) === 1;
+    }
+
+    private function containsPopsAndBangsReference(string $haystack): bool
+    {
+        return preg_match('/pop\\s*&?\\s*bang/i', $haystack) === 1
+            || preg_match('/pops\\s*&?\\s*bangs/i', $haystack) === 1
+            || preg_match('/popn?bang/i', $haystack) === 1;
     }
 
     /**
@@ -176,7 +284,7 @@ final class VehiclePayloadMapper
     /**
      * @return array<int, array{masterOption: string, hints: array<int, array<string, string|null>>}>
      */
-    public function mapEcuOptionHints(Ecu $ecu): array
+    public function mapEcuOptionHints(Ecu $ecu, ?VehicleEngine $engine = null): array
     {
         $groups = $this->ecuHintsResolver->resolveForEcu($ecu);
 
@@ -188,7 +296,13 @@ final class VehiclePayloadMapper
                 'model' => $h->getModel(),
                 'notes' => $h->getNotesDe() ?? $h->getNotes(),
             ], $group['hints'])),
-        ], $groups));
+        ], array_filter(
+            $groups,
+            fn (array $group): bool => !(
+                ($this->isPetrolEngine($engine) && $this->isDpfMasterOption($group['master']))
+                || ($this->isDieselEngine($engine) && $this->isPopsAndBangsMasterOption($group['master']))
+            )
+        )));
     }
 
     /**
@@ -213,17 +327,17 @@ final class VehiclePayloadMapper
             'active' => $gearbox->isActive(),
             'toolEntries' => array_values(array_map(fn ($entry) => [
                 'id' => $entry->getId(),
-                'manufacturer' => $entry->getToolManufacturer()?->getName(),
-                'manufacturerLogo' => $this->normalizePublicPath($entry->getToolManufacturer()?->getLogo()),
-                'toolManufacturerId' => $entry->getToolManufacturer()?->getId(),
-                'methodIds' => $entry->getToolMethods()->map(fn ($m) => $m->getId())->getValues(),
-                'methods' => $entry->getToolMethods()->map(fn ($m) => [
+                'manufacturer' => $this->activeToolManufacturer($entry->getToolManufacturer())?->getName(),
+                'manufacturerLogo' => $this->normalizePublicPath($this->activeToolManufacturer($entry->getToolManufacturer())?->getLogo()),
+                'toolManufacturerId' => $this->activeToolManufacturer($entry->getToolManufacturer())?->getId(),
+                'methodIds' => $this->activeToolMethods($entry->getToolMethods())->map(fn ($m) => $m->getId())->getValues(),
+                'methods' => $this->activeToolMethods($entry->getToolMethods())->map(fn ($m) => [
                     'name' => $m->getName(),
                     'icon' => $this->normalizePublicPath($m->getImage()),
                 ])->getValues(),
                 'position' => $entry->getPosition(),
                 'kind' => 'gearbox',
-            ], $gearbox->getToolEntries()->toArray())),
+            ], $this->activeToolEntries($gearbox->getToolEntries()->toArray()))),
         ], $gearboxes));
     }
 
@@ -234,21 +348,44 @@ final class VehiclePayloadMapper
     {
         $hinweise = $this->einbauHinweisRepository->findForEngine($engine);
 
-        return array_values(array_map(fn (EinbauHinweis $h): array => [
-            'id' => $h->getId(),
-            'title' => $h->getTitle(),
-            'description' => $h->getDescription(),
-            'ecuOptionMaster' => $h->getEcuOptionMaster()?->getName(),
-            'activeEcuId' => $h->getActiveEcu()?->getId(),
-            'activeEcuName' => $h->getActiveEcu()?->getName(),
-            'images' => array_values(array_map(
-                fn (MediaAsset $a): array => [
-                    'src' => $this->normalizePublicPath($a->getFilePath()) ?? '',
-                    'annotations' => $a->getAnnotations() ?? [],
-                ],
-                $h->getImages()->toArray()
-            )),
-        ], $hinweise));
+        return array_values(array_map(function (EinbauHinweis $h): array {
+            $activeEcus = [];
+            foreach ($h->getActiveEcus() as $ecu) {
+                if ($ecu instanceof \App\Entity\Ecu && null !== $ecu->getId()) {
+                    $activeEcus[$ecu->getId()] = [
+                        'id' => $ecu->getId(),
+                        'name' => $ecu->getName(),
+                    ];
+                }
+            }
+
+            $legacyEcu = $h->getActiveEcu();
+            if ($legacyEcu instanceof \App\Entity\Ecu && null !== $legacyEcu->getId()) {
+                $activeEcus[$legacyEcu->getId()] = [
+                    'id' => $legacyEcu->getId(),
+                    'name' => $legacyEcu->getName(),
+                ];
+            }
+
+            $firstActiveEcu = reset($activeEcus) ?: null;
+
+            return [
+                'id' => $h->getId(),
+                'title' => $h->getTitle(),
+                'description' => $h->getDescription(),
+                'ecuOptionMaster' => $h->getEcuOptionMaster()?->getName(),
+                'activeEcuId' => $firstActiveEcu['id'] ?? null,
+                'activeEcuName' => $firstActiveEcu['name'] ?? null,
+                'activeEcus' => array_values($activeEcus),
+                'images' => array_values(array_map(
+                    fn (MediaAsset $a): array => [
+                        'src' => $this->normalizePublicPath($a->getFilePath()) ?? '',
+                        'annotations' => $a->getAnnotations() ?? [],
+                    ],
+                    $h->getImages()->toArray()
+                )),
+            ];
+        }, $hinweise));
     }
 
     /**
@@ -384,7 +521,7 @@ final class VehiclePayloadMapper
                 'sorting' => $model?->getSorting(),
             ],
             'stages' => $this->mapStagePayloads($stages, $showPrices, $featureFlags['showDyno']),
-            'ecus' => $this->mapEcuPayloads($allEcus, $showPrices, $featureFlags['showHints'], $featureFlags['showOptionCategories']),
+            'ecus' => $this->mapEcuPayloads($allEcus, $showPrices, $featureFlags['showHints'], $featureFlags['showOptionCategories'], $engine),
             'engineOptions' => $this->mapEngineOptionPayloads($engine, $showPrices, $featureFlags['showOptionCategories']),
             'gearboxes' => $featureFlags['showGearbox'] ? $this->mapGearboxPayloads($gearboxes) : [],
             'einbauHinweise' => $featureFlags['showHints'] ? $this->mapEinbauHinweise($engine) : [],
@@ -537,6 +674,35 @@ final class VehiclePayloadMapper
         }
 
         return null;
+    }
+
+    /** Nur aktive Tool-Methoden ausgeben. */
+    private function activeToolMethods(Collection $methods): Collection
+    {
+        return new ArrayCollection(array_values(array_filter(
+            $methods->toArray(),
+            static fn (mixed $method): bool => $method instanceof ToolMethode && $method->isActive()
+        )));
+    }
+
+    /** Tool-Hersteller nur ausgeben, wenn er aktiv ist. */
+    private function activeToolManufacturer(?ToolManufacturer $manufacturer): ?ToolManufacturer
+    {
+        return $manufacturer instanceof ToolManufacturer && $manufacturer->isActive() ? $manufacturer : null;
+    }
+
+    /**
+     * Tool-Einträge inaktiver Hersteller entfallen, die ECU/das Getriebe bleibt erhalten.
+     *
+     * @param array<int, mixed> $entries
+     * @return array<int, mixed>
+     */
+    private function activeToolEntries(array $entries): array
+    {
+        return array_values(array_filter(
+            $entries,
+            fn (mixed $entry): bool => $entry->getToolManufacturer() === null || $this->activeToolManufacturer($entry->getToolManufacturer()) !== null
+        ));
     }
 
     public function normalizePublicPath(?string $path): ?string

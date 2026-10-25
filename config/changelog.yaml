@@ -1,4 +1,20 @@
 entries:
+  - date: "2026-10-24"
+    version: "v2026.10.24.0"
+    type: "feature"
+    portals: ["superadmin", "easyadmin"]
+    title: "Superadmin: Formeln & Logik, Markenwissen/Marken-Assistent in der Suche, Tour-Fixes"
+    description: "Neuer Bereich „Formeln & Logik“ im Superadmin-Portal, Suche um Markenwissen und Marken-Assistent erweitert, Fehler-Reporter und Hilfe-Touren korrigiert, KI-Bereich im EasyAdmin-Menü wieder eingeblendet."
+    items:
+      - "Formeln & Logik (Zahnrad-Menü → Weitere Bereiche, /operations/formulas): Formeln mit Variablen und Wenn-Dann-Regeln (erste passende Regel gewinnt, leere Bedingung = Standardfall), Bereich als freies Label, Testfeld mit Beispielwerten; Auswertung über symfony/expression-language mit freigegebenen Funktionen round, floor, ceil, abs, min, max, clamp"
+      - "Backend dazu: Entity Formula, FormulaRepository, FormulaEvaluator (evaluateByKey() zum Aufruf aus anderen Bereichen), FormulaApiController unter /operations-api/formulas, Migration Version20261024140000 (Tabelle formula), Route-Block portal_superadmin_formulas_api in config/routes/portal_superadmin_portal.yaml"
+      - "Suche: Tab „Wissensdatenbank“ ersetzt durch „Markenwissen“ (durchsucht das Wissensprojekt „Marken-Wissen“ über GET /operations-api/brand-knowledge/search) und neuer Tab „Marken-Assistent“ (gemeinsame Komponente BrandAssistantView, auch in den Scraper-Daten genutzt)"
+      - "Wissensdatenbank ist jetzt eine eigene Seite (/operations/knowledge) und im Zahnrad-Menü verlinkt; Link „Einbauhinweise“ aus dem Zahnrad-Menü entfernt"
+      - "Fehler-Reporter („Fehler melden“, Zähler) und seine Panels sitzen jetzt links unten statt rechts"
+      - "Hilfe-Touren: die zwei Buttons oben links sind zu einem Hilfe-Menü (Einführung / Was ist neu?) zusammengefasst; veraltete Tour-Ziele (ops_communication, ops_vehicle_search, ops_memory, vehicles, dsg) auf data-nav-path umgestellt, damit die Tour-Karte nicht mehr außerhalb des Bildschirms landet"
+      - "EasyAdmin: Menübereich „AI“ (Projekte, Chat, Agent, Firecrawl, DALL-E, Bildanalyse, PDF-Analyse, Fahrzeugdatenbank) im DashboardController wieder einkommentiert"
+      - "Bekannt: Der Typebot „Händler-Assistent“ (tuning-fux-h-ndler-assistent-jkciswk) liefert auf dem Typebot-Server 404 und muss dort veröffentlicht oder die ID korrigiert werden"
+
   - date: "2026-07-15"
     version: "v2026.07.15.0"
     type: "feature"

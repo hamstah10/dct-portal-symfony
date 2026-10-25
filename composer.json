@@ -18,6 +18,7 @@
         "nikic/php-parser": "^5.7",
         "pentiminax/ux-datatables": "^0.27.0",
         "symfony/ai-agent": "^0.6.0",
+        "symfony/ai-anthropic-platform": "^0.6.0",
         "symfony/ai-bundle": "^0.6.0",
         "symfony/ai-chat": "^0.6.0",
         "symfony/ai-doctrine-message-store": "^0.6.0",

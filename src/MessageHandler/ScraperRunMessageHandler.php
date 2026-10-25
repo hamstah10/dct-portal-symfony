@@ -10,6 +10,8 @@ use JsonException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 #[AsMessageHandler]
@@ -27,7 +29,18 @@ final class ScraperRunMessageHandler
     {
         $scraperDir = $this->projectDir . '/scrapy-remote-scraper';
 
+        // Resume: Olsx-Spider bekommen einen festen Job-Ordner pro Typ (Scrapy JOBDIR + Checkpoint).
+        // Bricht ein Lauf ab, setzt der nächste Start genau dort fort. Nach Erfolg wird der Ordner gelöscht.
+        $jobDir = null;
+        if ('olsx_brands_spider' === $message->getSpider()) {
+            $jobDir = sprintf('%s/data/jobs/%s_%s', $scraperDir, $message->getSpider(), $message->getType() ?: 'car');
+        }
+
         $command = ['scrapy', 'crawl', $message->getSpider()];
+        if (null !== $jobDir) {
+            $command[] = '-s';
+            $command[] = 'JOBDIR=' . $jobDir;
+        }
         foreach ($message->getArguments() as $key => $value) {
             if (null === $value || '' === trim($value)) {
                 continue;
@@ -35,16 +48,23 @@ final class ScraperRunMessageHandler
             $command[] = '-a';
             $command[] = sprintf('%s=%s', $key, $value);
         }
+        if (null !== $jobDir) {
+            $command[] = '-a';
+            $command[] = 'checkpoint=' . $jobDir . '/brand_data.json';
+        }
 
         $before = $this->findLatestOutputFile($scraperDir, $message->getSpider(), $message->getType(), $message->getArguments());
         $beforeMtime = $before['mtime'] ?? null;
         $process = new Process($command, $scraperDir);
-        $process->setTimeout(900);
-        $process->setIdleTimeout(300);
+        // Kein Gesamtzeitlimit: Crawls dauern teils mehrere Stunden. Nur ein Leerlauf von 1 Stunde
+        // (keine Ausgabe, Prozess hängt) bricht ab. Abbrüche werden als fehlgeschlagener Lauf gespeichert,
+        // ohne Wiederholung, und der nächste Start setzt dort fort.
+        $process->setTimeout(null);
+        $process->setIdleTimeout(3600);
         try {
             $process->mustRun();
-        } catch (ProcessFailedException $exception) {
-            // let exit code and stderr capture below
+        } catch (ProcessFailedException | ProcessTimedOutException) {
+            // Exit code und stderr werden unten erfasst
         }
         $after = $this->findLatestOutputFile($scraperDir, $message->getSpider(), $message->getType(), $message->getArguments(), $beforeMtime);
         if (null === $after && null !== $before && 'truck_chiptuningfiles' !== $message->getSpider()) {
@@ -81,6 +101,10 @@ final class ScraperRunMessageHandler
 
         $this->entityManager->persist($run);
         $this->entityManager->flush();
+
+        if (null !== $jobDir && $process->isSuccessful() && !$wasShutdown) {
+            (new Filesystem())->remove($jobDir);
+        }
     }
 
     /**

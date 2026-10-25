@@ -2,15 +2,27 @@ ai:
     platform:
         openai:
             api_key: '%env(OPENAI_API_KEY)%'
+        anthropic:
+            api_key: '%env(default::ANTHROPIC_API_KEY)%'
 
     agent:
         default:
+            platform: 'ai.platform.openai'
             model: 'gpt-5-mini'
             memory:
                 service: 'App\Service\Ai\AdminMemoryProvider'
             tools:
                 services:
                     - 'App\Service\Ai\VehicleDatabaseTool'
+        brand_research:
+            platform: 'ai.platform.anthropic'
+            model: 'claude-sonnet-4-5-20250929'
+            tools:
+                services:
+                    - 'App\Service\Ai\KnowledgeSearchTool'
+                    - 'App\Service\Ai\BrandDataTool'
+                    - 'App\Service\Ai\VehicleDatabaseTool'
+                    - 'App\Service\Ai\BrandWebSearchTool'
 
     vectorizer:
         project_knowledge:

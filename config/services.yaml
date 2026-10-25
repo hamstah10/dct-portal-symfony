@@ -32,6 +32,9 @@ parameters:
     vehicle_api_base_url: '%env(default:vehicle_api_base_url_default:VEHICLE_API_BASE_URL)%'
 
 services:
+    # Standard-Plattform für Autowiring; Claude wird nur explizit im Agenten brand_research genutzt.
+    Symfony\AI\Platform\PlatformInterface: '@ai.platform.openai'
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.

@@ -30,6 +30,7 @@ use App\Repository\ShopShippingMethodRepository;
 use App\Repository\ShopTagRepository;
 use App\Repository\ShopTaxRepository;
 use App\Repository\ShopVideoRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -46,6 +47,11 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 )]
 class ImportShopCatalogCommand extends Command
 {
+    /**
+     * @var list<int>
+     */
+    private array $keptProductUids = [];
+
     /**
      * @var array<int, ShopCategory>
      */
@@ -254,6 +260,9 @@ class ImportShopCatalogCommand extends Command
                 $category->setUid($uid);
                 $this->entityManager->persist($category);
             }
+            if ($category->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $category
                 ->setPid($this->toInt($row, 'pid'))
@@ -313,6 +322,9 @@ class ImportShopCatalogCommand extends Command
                 $manufacturer->setUid($uid);
                 $this->entityManager->persist($manufacturer);
             }
+            if ($manufacturer->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $manufacturer
                 ->setPid($this->toInt($row, 'pid'))
@@ -360,6 +372,9 @@ class ImportShopCatalogCommand extends Command
                 $tax->setUid($uid);
                 $this->entityManager->persist($tax);
             }
+            if ($tax->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $tax
                 ->setPid($this->toInt($row, 'pid'))
@@ -398,6 +413,9 @@ class ImportShopCatalogCommand extends Command
                 $tag = new ShopTag();
                 $tag->setUid($uid);
                 $this->entityManager->persist($tag);
+            }
+            if ($tag->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
             }
 
             $tag
@@ -441,6 +459,9 @@ class ImportShopCatalogCommand extends Command
                 $shipping = new ShopShippingMethod();
                 $shipping->setUid($uid);
                 $this->entityManager->persist($shipping);
+            }
+            if ($shipping->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
             }
 
             $shipping
@@ -487,6 +508,9 @@ class ImportShopCatalogCommand extends Command
                 $payment->setUid($uid);
                 $this->entityManager->persist($payment);
             }
+            if ($payment->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $payment
                 ->setPid($this->toInt($row, 'pid'))
@@ -530,6 +554,11 @@ class ImportShopCatalogCommand extends Command
                 $product = new ShopProduct();
                 $product->setUid($uid);
                 $this->entityManager->persist($product);
+            }
+            if ($product->getTstamp() > $this->toInt($row, 'tstamp')) {
+                $this->keptProductUids[] = $uid;
+
+                continue;
             }
 
             $manufacturer = $this->resolveManufacturer($this->toInt($row, 'manufacturer'));
@@ -614,6 +643,9 @@ class ImportShopCatalogCommand extends Command
                 $option->setUid($uid);
                 $this->entityManager->persist($option);
             }
+            if ($option->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $option
                 ->setPid($this->toInt($row, 'pid'))
@@ -654,6 +686,9 @@ class ImportShopCatalogCommand extends Command
                 $value->setUid($uid);
                 $this->entityManager->persist($value);
             }
+            if ($value->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $value
                 ->setPid($this->toInt($row, 'pid'))
@@ -692,6 +727,9 @@ class ImportShopCatalogCommand extends Command
                 $scope = new ShopProductDeliveryScope();
                 $scope->setUid($uid);
                 $this->entityManager->persist($scope);
+            }
+            if ($scope->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
             }
 
             $scope
@@ -733,6 +771,9 @@ class ImportShopCatalogCommand extends Command
                 $link->setUid($uid);
                 $this->entityManager->persist($link);
             }
+            if ($link->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $link
                 ->setPid($this->toInt($row, 'pid'))
@@ -768,6 +809,9 @@ class ImportShopCatalogCommand extends Command
                 $download = new ShopDownload();
                 $download->setUid($uid);
                 $this->entityManager->persist($download);
+            }
+            if ($download->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
             }
 
             $download
@@ -810,6 +854,9 @@ class ImportShopCatalogCommand extends Command
                 $video->setUid($uid);
                 $this->entityManager->persist($video);
             }
+            if ($video->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
+            }
 
             $video
                 ->setPid($this->toInt($row, 'pid'))
@@ -851,6 +898,9 @@ class ImportShopCatalogCommand extends Command
                 $order = new ShopOrder();
                 $order->setUid($uid);
                 $this->entityManager->persist($order);
+            }
+            if ($order->getTstamp() > $this->toInt($row, 'tstamp')) {
+                continue;
             }
 
             $order
@@ -905,18 +955,26 @@ class ImportShopCatalogCommand extends Command
      */
     private function importJoinTable(Connection $connection, string $table, array $rows): void
     {
-        $connection->executeStatement('DELETE FROM ' . $table);
+        $keptUids = array_values(array_unique($this->keptProductUids));
+
+        if ([] === $keptUids) {
+            $connection->executeStatement('DELETE FROM ' . $table);
+        } else {
+            $connection->executeStatement(
+                'DELETE FROM ' . $table . ' WHERE uid_local NOT IN (:kept)',
+                ['kept' => $keptUids],
+                ['kept' => ArrayParameterType::INTEGER],
+            );
+        }
 
         foreach ($rows as $row) {
-            if (!is_array($row)) {
+            if (!is_array($row) || in_array($this->toInt($row, 'uid_local'), $keptUids, true)) {
                 continue;
             }
 
             $connection->insert($table, [
                 'uid_local' => $this->toInt($row, 'uid_local'),
                 'uid_foreign' => $this->toInt($row, 'uid_foreign'),
-                'sorting' => $this->toInt($row, 'sorting'),
-                'sorting_foreign' => $this->toInt($row, 'sorting_foreign'),
             ]);
         }
     }

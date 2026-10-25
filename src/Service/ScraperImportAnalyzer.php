@@ -93,8 +93,7 @@ final class ScraperImportAnalyzer
                 $brands[] = [
                     'slug' => $brand['brand_slug'] ?? null,
                     'name' => $brand['brand_name'] ?? null,
-                    'model_count' => $brand['model_count'] ?? 0,
-                ];
+                ] + $this->countBrand($brand);
             }
         }
 
@@ -103,6 +102,47 @@ final class ScraperImportAnalyzer
             'brandCount' => count($brands),
             'brands' => $brands,
         ];
+    }
+
+    /**
+     * Zählt alle Ebenen einer Marke: Modelle, Versionen, Motoren, Steuergeräte, Optionen, Stages.
+     *
+     * @param array<string,mixed> $brand
+     * @return array{model_count:int,version_count:int,engine_count:int,controller_count:int,option_count:int,stage_count:int}
+     */
+    public function countBrand(array $brand): array
+    {
+        $counts = ['model_count' => 0, 'version_count' => 0, 'engine_count' => 0, 'controller_count' => 0, 'option_count' => 0, 'stage_count' => 0];
+
+        foreach ((array) ($brand['models'] ?? []) as $model) {
+            if (!is_array($model)) {
+                continue;
+            }
+            ++$counts['model_count'];
+
+            foreach ((array) ($model['versions'] ?? []) as $version) {
+                if (!is_array($version)) {
+                    continue;
+                }
+                ++$counts['version_count'];
+
+                foreach ((array) ($version['engines'] ?? []) as $engine) {
+                    if (!is_array($engine)) {
+                        continue;
+                    }
+                    ++$counts['engine_count'];
+                    $counts['option_count'] += count((array) ($engine['options'] ?? []));
+                    $counts['stage_count'] += count((array) ($engine['stages'] ?? []));
+
+                    // Steuergeräte sind je Hersteller gruppiert, gezählt wird jedes Gerät
+                    foreach ((array) ($engine['controllers'] ?? []) as $group) {
+                        $counts['controller_count'] += count((array) ((is_array($group) ? ($group['items'] ?? []) : [])));
+                    }
+                }
+            }
+        }
+
+        return $counts;
     }
 
     private function createMetadata(string $path): array

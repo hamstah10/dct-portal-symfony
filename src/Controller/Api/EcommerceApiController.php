@@ -6,9 +6,13 @@ use App\Entity\ApiToken;
 use App\Entity\ShopProduct;
 use App\Repository\ApiTokenRepository;
 use App\Repository\ShopCategoryRepository;
+use App\Repository\ShopDownloadRepository;
 use App\Repository\ShopManufacturerRepository;
+use App\Repository\ShopProductDeliveryScopeRepository;
 use App\Repository\ShopProductLinkRepository;
+use App\Repository\ShopProductOptionRepository;
 use App\Repository\ShopProductRepository;
+use App\Repository\ShopVideoRepository;
 use App\Service\EcommercePayloadMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,6 +31,10 @@ final class EcommerceApiController extends AbstractController
         private readonly ShopCategoryRepository $categoryRepository,
         private readonly ShopManufacturerRepository $manufacturerRepository,
         private readonly ShopProductLinkRepository $productLinkRepository,
+        private readonly ShopProductOptionRepository $productOptionRepository,
+        private readonly ShopProductDeliveryScopeRepository $deliveryScopeRepository,
+        private readonly ShopVideoRepository $videoRepository,
+        private readonly ShopDownloadRepository $downloadRepository,
         private readonly EcommercePayloadMapper $payloadMapper,
     ) {
     }
@@ -120,7 +128,11 @@ final class EcommerceApiController extends AbstractController
             'data' => $this->payloadMapper->mapProduct(
                 $product,
                 true,
-                $this->productLinkRepository->findVisibleByProduct($product)
+                $this->productLinkRepository->findVisibleByProduct($product),
+                $this->productOptionRepository->findBy(['product' => $product, 'deleted' => false, 'hidden' => false], ['sorting' => 'ASC']),
+                $this->deliveryScopeRepository->findBy(['product' => $product, 'deleted' => false, 'hidden' => false], ['sorting' => 'ASC']),
+                $this->videoRepository->findBy(['product' => $product, 'deleted' => false, 'hidden' => false], ['sorting' => 'ASC']),
+                $this->downloadRepository->findBy(['product' => $product, 'deleted' => false, 'hidden' => false], ['sorting' => 'ASC']),
             ),
         ]);
     }
@@ -172,7 +184,10 @@ final class EcommerceApiController extends AbstractController
             return $this->errorResponse('Bearer-Token fehlt.', Response::HTTP_UNAUTHORIZED);
         }
 
-        $apiToken = $this->apiTokenRepository->findValidByToken($provided);
+        $tokenIdentifier = trim((string) $request->headers->get('X-Token-Id', ''));
+        $apiToken = '' !== $tokenIdentifier
+            ? $this->apiTokenRepository->findValidByTokenAndIdentifier($provided, $tokenIdentifier)
+            : $this->apiTokenRepository->findValidByToken($provided);
         if (!$apiToken instanceof ApiToken) {
             return $this->errorResponse('API-Token ist ungueltig oder abgelaufen.', Response::HTTP_UNAUTHORIZED);
         }

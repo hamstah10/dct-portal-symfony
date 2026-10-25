@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
+# Projektwurzel: scripts/ liegt in scrapy-remote-scraper/ unterhalb des Symfony-Projekts
+cd "$(dirname "$0")/../.."
+
+# Der Handler ruft "scrapy" ohne Pfad auf, daher das Venv des Scrapers in den PATH nehmen
+export PATH="$(pwd)/scrapy-remote-scraper/.venv/bin:${PATH}"
 
 : "${MESSENGER_TRANSPORT_DSN:?MESSENGER_TRANSPORT_DSN must be set}"
 

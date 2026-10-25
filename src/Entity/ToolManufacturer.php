@@ -178,6 +178,22 @@ class ToolManufacturer
         return $this;
     }
 
+    /** Inaktive Hersteller werden in den Frontends nicht mehr ausgegeben. */
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => true])]
+    private bool $active = true;
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): static
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
     public function getLogo(): ?string
     {
         return $this->logo;

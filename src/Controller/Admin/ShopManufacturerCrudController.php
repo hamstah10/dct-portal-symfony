@@ -2,12 +2,15 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\MediaAsset;
 use App\Entity\ShopManufacturer;
 use App\Repository\ShopManufacturerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminCrud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -42,7 +45,31 @@ final class ShopManufacturerCrudController extends AbstractCrudController
             IdField::new('uid')->hideOnForm(),
             TextField::new('title', 'Name'),
             TextField::new('slug', 'Slug')->hideOnIndex(),
-            TextField::new('logo', 'Logo')->hideOnIndex(),
+            AssociationField::new('logoMediaAsset', 'Logo')
+                ->setRequired(false)
+                ->setQueryBuilder(static fn (QueryBuilder $qb) => $qb->andWhere('entity.mediaType = :image')->setParameter('image', MediaAsset::TYPE_IMAGE)->orderBy('entity.name', 'ASC'))
+                ->setFormTypeOption('placeholder', 'Logo auswaehlen')
+                ->setFormTypeOption('attr', [
+                    'data-stage-icon-media-select' => '1',
+                    'data-placeholder' => 'Logo auswaehlen',
+                ])
+                ->setFormTypeOption('choice_attr', static function (?MediaAsset $mediaAsset): array {
+                    if (!$mediaAsset instanceof MediaAsset) {
+                        return [];
+                    }
+
+                    $filePath = trim((string) $mediaAsset->getFilePath());
+                    if ('' === $filePath) {
+                        return [];
+                    }
+
+                    if (!str_starts_with($filePath, '/') && !preg_match('#^https?://#i', $filePath)) {
+                        $filePath = '/' . $filePath;
+                    }
+
+                    return ['data-image' => $filePath, 'data-name' => $mediaAsset->getName()];
+                })
+                ->hideOnIndex(),
             TextField::new('website', 'Website')->hideOnIndex(),
             IntegerField::new('manufacturerPage', 'Seiten-ID')->hideOnIndex(),
             TextareaField::new('description', 'Beschreibung')->hideOnIndex(),

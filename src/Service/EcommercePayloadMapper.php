@@ -4,20 +4,29 @@ namespace App\Service;
 
 use App\Entity\MediaAsset;
 use App\Entity\ShopCategory;
+use App\Entity\ShopDownload;
 use App\Entity\ShopManufacturer;
 use App\Entity\ShopProduct;
+use App\Entity\ShopProductDeliveryScope;
 use App\Entity\ShopProductLink;
+use App\Entity\ShopProductOption;
+use App\Entity\ShopProductOptionValue;
 use App\Entity\ShopShippingMethod;
 use App\Entity\ShopTag;
 use App\Entity\ShopTax;
+use App\Entity\ShopVideo;
 
 final class EcommercePayloadMapper
 {
     /**
      * @param list<ShopProductLink> $links
+     * @param list<ShopProductOption> $options
+     * @param list<ShopProductDeliveryScope> $deliveryScopes
+     * @param list<ShopVideo> $videos
+     * @param list<ShopDownload> $downloads
      * @return array<string, mixed>
      */
-    public function mapProduct(ShopProduct $product, bool $detail = false, array $links = []): array
+    public function mapProduct(ShopProduct $product, bool $detail = false, array $links = [], array $options = [], array $deliveryScopes = [], array $videos = [], array $downloads = []): array
     {
         $payload = [
             'uid' => $product->getUid(),
@@ -53,13 +62,100 @@ final class EcommercePayloadMapper
             ...$payload,
             'description' => $product->getDescription(),
             'headline' => $product->getHeadline(),
+            'featuresHeadline' => $product->getFeaturesHeadline(),
+            'featuresText' => $product->getFeaturesText(),
+            'recommendationHeadline' => $product->getRecommendationHeadline(),
+            'recommendationText' => $product->getRecommendationText(),
+            'startupHelpHeadline' => $product->getStartupHelpHeadline(),
+            'startupHelpText' => $product->getStartupHelpText(),
+            'operatingCosts' => $product->getOperatingCosts(),
+            'extensions' => $product->getExtensions(),
             'weight' => $this->normalizeNullableDecimal($product->getWeight()),
             'shippingFree' => $product->isShippingFree(),
+            'metaTitle' => $product->getMetaTitle(),
+            'metaDescription' => $product->getMetaDescription(),
+            'metaKeywords' => $product->getMetaKeywords(),
+            'canonicalUrl' => $product->getCanonicalUrl(),
             'tax' => $this->mapTax($product->getTax()),
             'tags' => $this->mapTags($product),
             'relatedProducts' => $this->mapRelatedProducts($product),
             'shippingMethods' => $this->mapShippingMethods($product),
             'links' => array_map(fn (ShopProductLink $link): array => $this->mapProductLink($link), $links),
+            'options' => array_map(fn (ShopProductOption $option): array => $this->mapOption($option), $options),
+            'deliveryScope' => array_map(fn (ShopProductDeliveryScope $scope): array => $this->mapDeliveryScope($scope), $deliveryScopes),
+            'videos' => array_map(fn (ShopVideo $video): array => $this->mapVideo($video), $videos),
+            'downloads' => array_map(fn (ShopDownload $download): array => $this->mapDownload($download), $downloads),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapDownload(ShopDownload $download): array
+    {
+        return [
+            'uid' => $download->getUid(),
+            'title' => $download->getTitle(),
+            'description' => $download->getDescription(),
+            'file' => $this->normalizePublicPath($download->getFile()),
+            'sorting' => $download->getSorting(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapOption(ShopProductOption $option): array
+    {
+        $values = array_filter(
+            $option->getOptionValues()->toArray(),
+            static fn (ShopProductOptionValue $value): bool => !$value->isDeleted() && !$value->isHidden()
+        );
+        usort($values, static fn (ShopProductOptionValue $a, ShopProductOptionValue $b): int => $a->getSorting() <=> $b->getSorting());
+
+        return [
+            'uid' => $option->getUid(),
+            'title' => $option->getTitle(),
+            'type' => $option->getType(),
+            'required' => $option->isRequired(),
+            'sorting' => $option->getSorting(),
+            'values' => array_values(array_map(fn (ShopProductOptionValue $value): array => [
+                'uid' => $value->getUid(),
+                'title' => $value->getTitle(),
+                'priceModifier' => $this->normalizeDecimal($value->getPriceModifier()),
+                'specialPrice' => $this->normalizeDecimal($value->getSpecialPrice()),
+                'description' => $value->getDescription(),
+                'image' => $this->normalizePublicPath($value->getImage()),
+                'sorting' => $value->getSorting(),
+            ], $values)),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapDeliveryScope(ShopProductDeliveryScope $scope): array
+    {
+        return [
+            'uid' => $scope->getUid(),
+            'title' => $scope->getTitle(),
+            'description' => $scope->getDescription(),
+            'sorting' => $scope->getSorting(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mapVideo(ShopVideo $video): array
+    {
+        return [
+            'uid' => $video->getUid(),
+            'title' => $video->getTitle(),
+            'description' => $video->getDescription(),
+            'url' => $video->getVideoUrl(),
+            'file' => $this->normalizePublicPath($video->getFile()),
+            'sorting' => $video->getSorting(),
         ];
     }
 
@@ -96,7 +192,7 @@ final class EcommercePayloadMapper
             'uid' => $manufacturer->getUid(),
             'title' => $manufacturer->getTitle(),
             'slug' => $manufacturer->getSlug(),
-            'logo' => $this->normalizePublicPath($manufacturer->getLogo()),
+            'logo' => $this->normalizePublicPath($manufacturer->getLogoMediaAsset()?->getFilePath() ?? $manufacturer->getLogo()),
             'description' => $manufacturer->getDescription(),
             'website' => $manufacturer->getWebsite(),
             'sorting' => $manufacturer->getSorting(),

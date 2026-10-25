@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\Dropzone\Form\DropzoneType;
@@ -49,6 +50,7 @@ final class ToolMethodeCrudController extends AbstractCrudController
                 ->setFormTypeOption('multiple', true)
                 ->setFormTypeOption('by_reference', false),
             TextField::new('name'),
+            BooleanField::new('active', 'Aktiv')->setHelp('Inaktive Methoden werden in den Frontends nicht ausgegeben.'),
             TextField::new('image', 'Bild')
                 ->hideOnForm()
                 ->renderAsHtml()

@@ -432,8 +432,19 @@ final class ScraperControlController extends AbstractController
     {
         $connection = $this->entityManager->getConnection();
         $queueCount = 0;
+        $runningCount = 0;
         try {
-            $queueCount = (int) $connection->fetchOne('SELECT COUNT(*) FROM messenger_messages WHERE queue_name = ?', ['async']);
+            // Doctrine-Transport speichert unter dem queue_name aus der DSN, ohne Angabe ist das "default".
+            // Nur noch nicht ausgelieferte Nachrichten zählen, ausgelieferte laufen gerade.
+            $queueCount = (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM messenger_messages WHERE queue_name = ? AND delivered_at IS NULL',
+                ['default']
+            );
+            // Ausgelieferte, noch nicht abgeschlossene Nachrichten = gerade laufende Scraper-Jobs
+            $runningCount = (int) $connection->fetchOne(
+                'SELECT COUNT(*) FROM messenger_messages WHERE queue_name = ? AND delivered_at IS NOT NULL',
+                ['default']
+            );
         } catch (\Throwable) {
         }
 
@@ -454,6 +465,7 @@ final class ScraperControlController extends AbstractController
 
         return new JsonResponse([
             'queueCount' => $queueCount,
+            'runningCount' => $runningCount,
             'latestRun' => $runData,
             'timestamp' => (new \DateTimeImmutable())->format('c'),
         ]);

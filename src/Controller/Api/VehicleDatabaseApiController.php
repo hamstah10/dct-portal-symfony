@@ -31,6 +31,7 @@ use App\Repository\VehicleSeriesRepository;
 use App\Repository\VehicleTypeRepository;
 use App\Service\Analytics\VehicleUsageTracker;
 use App\Service\VehicleDataContextResolver;
+use App\Service\VehicleMasterDataService;
 use App\Service\VehiclePayloadMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -54,6 +55,7 @@ final class VehicleDatabaseApiController extends AbstractController
         private readonly VehicleDataContextResolver $vehicleDataContextResolver,
         private readonly VehiclePayloadMapper $vehiclePayloadMapper,
         private readonly EntityManagerInterface $entityManager,
+        private readonly VehicleMasterDataService $vehicleMasterDataService,
     ) {
     }
 
@@ -443,6 +445,22 @@ final class VehicleDatabaseApiController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/performance-brands', name: 'api_vehicle_database_admin_performance_brands', methods: ['GET'])]
+    public function performanceBrands(Request $request): JsonResponse
+    {
+        [$dbToken] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        $items = array_map(
+            static fn (PerformanceBrand $brand): array => ['id' => $brand->getId(), 'name' => $brand->getName()],
+            $this->entityManager->getRepository(PerformanceBrand::class)->findBy(['active' => true], ['name' => 'ASC']),
+        );
+
+        return new JsonResponse(['data' => $items]);
+    }
+
     #[Route('/admin/series/save', name: 'api_vehicle_database_admin_series_save', methods: ['POST'])]
     public function saveSeries(Request $request): JsonResponse
     {
@@ -462,9 +480,19 @@ final class VehicleDatabaseApiController extends AbstractController
         }
 
         $seriesId = (int) ($payload['id'] ?? 0);
-        $series = $this->entityManager->getRepository(VehicleSeries::class)->find($seriesId);
-        if (!$series instanceof VehicleSeries || $series->getVehicleDataPool()?->getId() !== $pool->getId()) {
-            return $this->errorResponse('Baureihe nicht gefunden.', Response::HTTP_NOT_FOUND);
+        if ($seriesId <= 0) {
+            $brand = $this->entityManager->getRepository(\App\Entity\VehicleBrand::class)->find((int) ($payload['vehicleBrandId'] ?? 0));
+            if (!$brand instanceof \App\Entity\VehicleBrand || $brand->getVehicleDataPool()?->getId() !== $pool->getId()) {
+                return $this->errorResponse('Marke nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+
+            $series = (new VehicleSeries())->setVehicleBrand($brand)->setVehicleDataPool($pool);
+            $this->entityManager->persist($series);
+        } else {
+            $series = $this->entityManager->getRepository(VehicleSeries::class)->find($seriesId);
+            if (!$series instanceof VehicleSeries || $series->getVehicleDataPool()?->getId() !== $pool->getId()) {
+                return $this->errorResponse('Baureihe nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
         }
 
         $series
@@ -472,7 +500,12 @@ final class VehicleDatabaseApiController extends AbstractController
             ->setDescription($this->sanitizeNullableString($payload['description'] ?? $series->getDescription()))
             ->setSlug($this->sanitizeNullableString($payload['slug'] ?? $series->getSlug()))
             ->setActive($this->sanitizeBool($payload['active'] ?? $series->isActive()))
-            ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $series->getSorting()) ?? 0);
+            ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $series->getSorting()) ?? 0)
+            ->setImage($this->sanitizeNullableString($payload['image'] ?? $series->getImage()));
+
+        if (array_key_exists('performanceBrandId', $payload)) {
+            $series->setPerformanceBrand($this->findPerformanceBrand($payload['performanceBrandId']));
+        }
 
         $this->entityManager->flush();
 
@@ -505,9 +538,19 @@ final class VehicleDatabaseApiController extends AbstractController
         }
 
         $modelId = (int) ($payload['id'] ?? 0);
-        $model = $this->entityManager->getRepository(VehicleModel::class)->find($modelId);
-        if (!$model instanceof VehicleModel || $model->getVehicleDataPool()?->getId() !== $pool->getId()) {
-            return $this->errorResponse('Modell nicht gefunden.', Response::HTTP_NOT_FOUND);
+        if ($modelId <= 0) {
+            $series = $this->entityManager->getRepository(VehicleSeries::class)->find((int) ($payload['vehicleSeriesId'] ?? 0));
+            if (!$series instanceof VehicleSeries || $series->getVehicleDataPool()?->getId() !== $pool->getId()) {
+                return $this->errorResponse('Baureihe nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+
+            $model = (new VehicleModel())->setVehicleSeries($series)->setVehicleDataPool($pool);
+            $this->entityManager->persist($model);
+        } else {
+            $model = $this->entityManager->getRepository(VehicleModel::class)->find($modelId);
+            if (!$model instanceof VehicleModel || $model->getVehicleDataPool()?->getId() !== $pool->getId()) {
+                return $this->errorResponse('Modell nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
         }
 
         $model
@@ -515,7 +558,8 @@ final class VehicleDatabaseApiController extends AbstractController
             ->setDescription($this->sanitizeNullableString($payload['description'] ?? $model->getDescription()))
             ->setSlug($this->sanitizeNullableString($payload['slug'] ?? $model->getSlug()))
             ->setActive($this->sanitizeBool($payload['active'] ?? $model->isActive()))
-            ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $model->getSorting()) ?? 0);
+            ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $model->getSorting()) ?? 0)
+            ->setImage($this->sanitizeNullableString($payload['image'] ?? $model->getImage()));
 
         $this->entityManager->flush();
 
@@ -548,9 +592,19 @@ final class VehicleDatabaseApiController extends AbstractController
         }
 
         $engineId = (int) ($payload['id'] ?? 0);
-        $engine = $this->entityManager->getRepository(VehicleEngine::class)->find($engineId);
-        if (!$engine instanceof VehicleEngine || $engine->getVehicleDataPool()?->getId() !== $pool->getId()) {
-            return $this->errorResponse('Motor nicht gefunden.', Response::HTTP_NOT_FOUND);
+        if ($engineId <= 0) {
+            $model = $this->entityManager->getRepository(VehicleModel::class)->find((int) ($payload['vehicleModelId'] ?? 0));
+            if (!$model instanceof VehicleModel || $model->getVehicleDataPool()?->getId() !== $pool->getId()) {
+                return $this->errorResponse('Modell nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+
+            $engine = (new VehicleEngine())->setVehicleModel($model)->setVehicleDataPool($pool);
+            $this->entityManager->persist($engine);
+        } else {
+            $engine = $this->entityManager->getRepository(VehicleEngine::class)->find($engineId);
+            if (!$engine instanceof VehicleEngine || $engine->getVehicleDataPool()?->getId() !== $pool->getId()) {
+                return $this->errorResponse('Motor nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
         }
 
         $engine
@@ -559,11 +613,23 @@ final class VehicleDatabaseApiController extends AbstractController
             ->setSlug($this->sanitizeNullableString($payload['slug'] ?? $engine->getSlug()))
             ->setActive($this->sanitizeBool($payload['active'] ?? $engine->isActive()))
             ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $engine->getSorting()) ?? 0)
+            ->setImage($this->sanitizeNullableString($payload['image'] ?? $engine->getImage()))
             ->setHorsepower($this->sanitizeNullableInt($payload['horsepower'] ?? $engine->getHorsepower()))
             ->setTorque($this->sanitizeNullableInt($payload['torque'] ?? $engine->getTorque()))
             ->setFuel($this->sanitizeNullableString($payload['fuel'] ?? $engine->getFuel()))
             ->setDisplacement($this->sanitizeNullableString($payload['displacement'] ?? $engine->getDisplacement()))
-            ->setEcus($this->sanitizeNullableInt($payload['ecus'] ?? $engine->getEcus()));
+            ->setEcus($this->sanitizeNullableInt($payload['ecus'] ?? $engine->getEcus()))
+            ->setCompression($this->sanitizeNullableString($payload['compression'] ?? $engine->getCompression()))
+            ->setBoreStroke($this->sanitizeNullableString($payload['boreStroke'] ?? $engine->getBoreStroke()))
+            ->setEngineCode($this->sanitizeNullableString($payload['engineCode'] ?? $engine->getEngineCode()))
+            ->setVmax($this->sanitizeNullableInt($payload['vmax'] ?? $engine->getVmax()))
+            ->setAcceleration0100($this->sanitizeNullableString($payload['acceleration0100'] ?? $engine->getAcceleration0100()))
+            ->setAcceleration0200($this->sanitizeNullableString($payload['acceleration0200'] ?? $engine->getAcceleration0200()))
+            ->setAcceleration100200($this->sanitizeNullableString($payload['acceleration100200'] ?? $engine->getAcceleration100200()));
+
+        if (array_key_exists('performanceBrandId', $payload)) {
+            $engine->setPerformanceBrand($this->findPerformanceBrand($payload['performanceBrandId']));
+        }
 
         $this->entityManager->flush();
 
@@ -650,9 +716,15 @@ final class VehicleDatabaseApiController extends AbstractController
         }
 
         $ecuId = (int) ($payload['id'] ?? 0);
-        $ecu = $this->entityManager->getRepository(Ecu::class)->find($ecuId);
-        if (!$ecu instanceof Ecu || $ecu->getVehicleDataPool()?->getId() !== $pool->getId()) {
-            return $this->errorResponse('ECU nicht gefunden.', Response::HTTP_NOT_FOUND);
+        $isNewEcu = $ecuId <= 0;
+        if ($isNewEcu) {
+            $ecu = (new Ecu())->setVehicleDataPool($pool);
+            $this->entityManager->persist($ecu);
+        } else {
+            $ecu = $this->findInPool(Ecu::class, $ecuId, $pool);
+            if (!$ecu instanceof Ecu) {
+                return $this->errorResponse('ECU nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
         }
 
         $ecu
@@ -663,6 +735,15 @@ final class VehicleDatabaseApiController extends AbstractController
             ->setManufacturer($this->resolveEntityReference(EcuManufacturer::class, $payload['manufacturerId'] ?? null))
             ->setToolManufacturer($this->resolveEntityReference(ToolManufacturer::class, $payload['toolManufacturerId'] ?? null))
             ->setImage($this->sanitizeNullableString($payload['image'] ?? $ecu->getImage()));
+
+        // Neue ECU direkt am Motor verknuepfen, wenn engineId uebergeben wird
+        if ($isNewEcu && (int) ($payload['engineId'] ?? 0) > 0) {
+            $engine = $this->findInPool(VehicleEngine::class, (int) $payload['engineId'], $pool);
+            if (!$engine instanceof VehicleEngine) {
+                return $this->errorResponse('Motor nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+            $engine->addEcuRelation($ecu);
+        }
 
         $this->entityManager->flush();
 
@@ -749,12 +830,23 @@ final class VehicleDatabaseApiController extends AbstractController
             return $this->errorResponse('Hinweis nicht gefunden.', Response::HTTP_NOT_FOUND);
         }
 
+        $activeEcu = $this->resolveEntityReference(Ecu::class, $payload['activeEcuId'] ?? null);
+
         $hint
             ->setTitle($this->sanitizeString($payload['title'] ?? $hint->getTitle(), true))
             ->setDescription($this->sanitizeNullableString($payload['description'] ?? $hint->getDescription()))
             ->setEcuOptionMaster($this->resolveEntityReference(EcuOptionMaster::class, $payload['ecuOptionMasterId'] ?? null))
-            ->setActiveEcu($this->resolveEntityReference(Ecu::class, $payload['activeEcuId'] ?? null))
+            ->setActiveEcu($activeEcu)
             ->setActive($this->sanitizeBool($payload['active'] ?? $hint->isActive()));
+
+        foreach ($hint->getActiveEcus()->toArray() as $ecu) {
+            if ($ecu instanceof Ecu) {
+                $hint->removeActiveEcu($ecu);
+            }
+        }
+        if ($activeEcu instanceof Ecu) {
+            $hint->addActiveEcu($activeEcu);
+        }
 
         $this->syncHintImages($hint, $this->sanitizeIdList($payload['imageIds'] ?? null));
 
@@ -766,6 +858,10 @@ final class VehicleDatabaseApiController extends AbstractController
             'description' => $hint->getDescription(),
             'ecuOptionMasterId' => $hint->getEcuOptionMaster()?->getId(),
             'activeEcuId' => $hint->getActiveEcu()?->getId(),
+            'activeEcuIds' => array_values(array_filter(array_map(
+                static fn (Ecu $ecu): ?int => $ecu->getId(),
+                $hint->getActiveEcus()->toArray()
+            ))),
             'active' => $hint->isActive(),
         ]]);
     }
@@ -843,6 +939,589 @@ final class VehicleDatabaseApiController extends AbstractController
         return new JsonResponse(['data' => ['id' => $stage->getId(), 'active' => false]]);
     }
 
+    #[Route('/admin/{entity}/{id}', name: 'api_vehicle_database_admin_delete', requirements: ['entity' => 'series|models|engines|stages', 'id' => '\d+'], methods: ['DELETE'])]
+    public function deleteHierarchyEntity(string $entity, int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool, $context, $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        [$class, $childCount, $label] = match ($entity) {
+            'series' => [VehicleSeries::class, static fn (object $e): int => $e->getModels()->count(), 'Baureihe'],
+            'models' => [VehicleModel::class, static fn (object $e): int => $e->getEngines()->count(), 'Modell'],
+            'engines' => [VehicleEngine::class, static fn (object $e): int => $e->getStages()->count(), 'Motor'],
+            default => [VehicleStage::class, static fn (object $e): int => 0, 'Stage'],
+        };
+
+        $item = $this->entityManager->getRepository($class)->find($id);
+        if (!$item instanceof $class || $item->getVehicleDataPool()?->getId() !== $pool->getId()) {
+            return $this->errorResponse($label . ' nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $children = $childCount($item);
+        if ($children > 0) {
+            return $this->errorResponse($label . ' hat noch ' . $children . ' Unterdatensaetze. Bitte zuerst loeschen oder deaktivieren.', Response::HTTP_CONFLICT);
+        }
+
+        $this->entityManager->remove($item);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => ['id' => $id, 'deleted' => true]]);
+    }
+
+    #[Route('/admin/{entity}/{id}/move', name: 'api_vehicle_database_admin_move', requirements: ['entity' => 'series|models|engines', 'id' => '\d+'], methods: ['POST'])]
+    public function moveHierarchyEntity(string $entity, int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool, $context, $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $config = $this->hierarchyConfig($entity);
+        $item = $this->findInPool($config['class'], $id, $pool);
+        if (!is_object($item)) {
+            return $this->errorResponse($config['label'] . ' nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $parent = $this->findInPool($config['parentClass'], (int) ($payload['parentId'] ?? 0), $pool);
+        if (!is_object($parent)) {
+            return $this->errorResponse($config['parentLabel'] . ' nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $item->{$config['setParent']}($parent);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => ['id' => $id, 'parentId' => $parent->getId()]]);
+    }
+
+    #[Route('/admin/{entity}/{id}/merge', name: 'api_vehicle_database_admin_merge', requirements: ['entity' => 'series|models|engines', 'id' => '\d+'], methods: ['POST'])]
+    public function mergeHierarchyEntity(string $entity, int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool, $context, $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $config = $this->hierarchyConfig($entity);
+        $source = $this->findInPool($config['class'], $id, $pool);
+        if (!is_object($source)) {
+            return $this->errorResponse($config['label'] . ' nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $targetId = (int) ($payload['targetId'] ?? 0);
+        $target = $targetId > 0 && $targetId !== $id ? $this->findInPool($config['class'], $targetId, $pool) : null;
+        if (!is_object($target)) {
+            return $this->errorResponse('Ziel ' . $config['label'] . ' nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        // Nur Eintraege mit gleichem Elternteil zusammenfuehren, sonst entsteht ein falscher Baum.
+        if ($source->{$config['getParent']}()?->getId() !== $target->{$config['getParent']}()?->getId()) {
+            return $this->errorResponse('Zusammenfuehren ist nur innerhalb desselben Elternteils moeglich.', Response::HTTP_CONFLICT);
+        }
+
+        $moved = 0;
+        foreach ($source->{$config['getChildren']}()->toArray() as $child) {
+            $child->{$config['childSetParent']}($target);
+            ++$moved;
+        }
+
+        $this->entityManager->remove($source);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => ['id' => $id, 'targetId' => $target->getId(), 'movedChildren' => $moved, 'deleted' => true]]);
+    }
+
+    #[Route('/admin/brands/{id}', name: 'api_vehicle_database_admin_brands_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function brandDetail(int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        $brand = $this->findInPool(\App\Entity\VehicleBrand::class, $id, $pool);
+        if (!$brand instanceof \App\Entity\VehicleBrand) {
+            return $this->errorResponse('Marke nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse(['data' => [
+            'id' => $brand->getId(),
+            'vehicleTypeId' => $brand->getVehicleType()?->getId(),
+            'name' => $brand->getName(),
+            'slug' => $brand->getSlug(),
+            'description' => $brand->getDescription(),
+            'synonyms' => $brand->getSynonyms(),
+            'active' => $brand->isActive(),
+            'sorting' => $brand->getSorting(),
+            'image' => $brand->getImage(),
+        ]]);
+    }
+
+    #[Route('/admin/types/{id}', name: 'api_vehicle_database_admin_types_detail', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function typeDetail(int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        $type = $this->entityManager->getRepository(VehicleType::class)->find($id);
+        if (!$type instanceof VehicleType || !$pool->getVehicleTypes()->contains($type)) {
+            return $this->errorResponse('Fahrzeugtyp nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse(['data' => [
+            'id' => $type->getId(),
+            'name' => $type->getName(),
+            'slug' => $type->getSlug(),
+            'description' => $type->getDescription(),
+            'active' => $type->isActive(),
+            'sorting' => $type->getSorting(),
+            'image' => $type->getImage(),
+        ]]);
+    }
+
+    /** @return array<string, mixed> */
+    private function serializeEcu(Ecu $ecu): array
+    {
+        return [
+            'id' => $ecu->getId(),
+            'name' => $ecu->getName(),
+            'description' => $ecu->getDescription(),
+            'type' => $ecu->getType(),
+            'controlUnitKind' => $ecu->getControlUnitKind(),
+            'image' => $ecu->getImage(),
+            'manufacturerId' => $ecu->getManufacturer()?->getId(),
+            'toolManufacturerId' => $ecu->getToolManufacturer()?->getId(),
+        ];
+    }
+
+    #[Route('/admin/ecus', name: 'api_vehicle_database_admin_ecus_list', methods: ['GET'])]
+    public function ecuList(Request $request): JsonResponse
+    {
+        [$dbToken, $pool] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        $ecus = $this->entityManager->getRepository(Ecu::class)->findBy(['vehicleDataPool' => $pool], ['name' => 'ASC']);
+
+        return new JsonResponse(['data' => array_map(fn (Ecu $ecu): array => $this->serializeEcu($ecu), $ecus)]);
+    }
+
+    #[Route('/admin/engines/{id}/ecus', name: 'api_vehicle_database_admin_engine_ecus_list', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function engineEcus(int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        $engine = $this->findInPool(VehicleEngine::class, $id, $pool);
+        if (!$engine instanceof VehicleEngine) {
+            return $this->errorResponse('Motor nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $ecus = array_values(array_filter(
+            $engine->getEcuRelations()->toArray(),
+            static fn (Ecu $ecu): bool => $ecu->getVehicleDataPool()?->getId() === $pool->getId()
+        ));
+        usort($ecus, static fn (Ecu $a, Ecu $b): int => strnatcasecmp($a->getName(), $b->getName()));
+
+        return new JsonResponse(['data' => array_map(fn (Ecu $ecu): array => $this->serializeEcu($ecu), $ecus)]);
+    }
+
+    #[Route('/admin/engines/{id}/ecus', name: 'api_vehicle_database_admin_engine_ecus_link', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function linkEngineEcu(int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool, , $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $engine = $this->findInPool(VehicleEngine::class, $id, $pool);
+        if (!$engine instanceof VehicleEngine) {
+            return $this->errorResponse('Motor nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $ecu = $this->findInPool(Ecu::class, (int) ($payload['ecuId'] ?? 0), $pool);
+        if (!$ecu instanceof Ecu) {
+            return $this->errorResponse('ECU nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$engine->getEcuRelations()->contains($ecu)) {
+            $engine->addEcuRelation($ecu);
+            $this->entityManager->flush();
+        }
+
+        return new JsonResponse(['data' => ['engineId' => $id, 'ecuId' => $ecu->getId(), 'linked' => true]]);
+    }
+
+    #[Route('/admin/engines/{id}/ecus/{ecuId}', name: 'api_vehicle_database_admin_engine_ecus_unlink', requirements: ['id' => '\d+', 'ecuId' => '\d+'], methods: ['DELETE'])]
+    public function unlinkEngineEcu(int $id, int $ecuId, Request $request): JsonResponse
+    {
+        [$dbToken, $pool, , $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        $engine = $this->findInPool(VehicleEngine::class, $id, $pool);
+        if (!$engine instanceof VehicleEngine) {
+            return $this->errorResponse('Motor nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $ecu = $this->findInPool(Ecu::class, $ecuId, $pool);
+        if (!$ecu instanceof Ecu) {
+            return $this->errorResponse('ECU nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $engine->removeEcuRelation($ecu);
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => ['engineId' => $id, 'ecuId' => $ecuId, 'linked' => false]]);
+    }
+
+    #[Route('/admin/editing-allowed', name: 'api_vehicle_database_admin_editing_allowed', methods: ['GET'])]
+    public function editingAllowed(Request $request): JsonResponse
+    {
+        [$dbToken, , , $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        return new JsonResponse(['data' => ['allowVehicleEditing' => (bool) $featureFlags['allowVehicleEditing']]]);
+    }
+
+    #[Route('/admin/{entity}/{id}', name: 'api_vehicle_database_admin_hierarchy_detail', requirements: ['entity' => 'series|models|engines', 'id' => '\d+'], methods: ['GET'])]
+    public function hierarchyDetail(string $entity, int $id, Request $request): JsonResponse
+    {
+        [$dbToken, $pool, , $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        $config = $this->hierarchyConfig($entity);
+        $item = $this->findInPool($config['class'], $id, $pool);
+        if (!is_object($item)) {
+            return $this->errorResponse($config['label'] . ' nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        // Rohdaten statt Listenfelder: sonst wuerde das Speichern im Editor Felder leeren.
+        $row = [
+            'id' => $item->getId(),
+            'name' => $item->getName(),
+            'description' => $item->getDescription(),
+            'slug' => $item->getSlug(),
+            'active' => $item->isActive(),
+            'sorting' => $item->getSorting(),
+            'image' => $item->getImage(),
+        ];
+        if ($item instanceof VehicleSeries) {
+            $row['vehicleBrandId'] = $item->getVehicleBrand()?->getId();
+            $row['performanceBrandId'] = $item->getPerformanceBrand()?->getId();
+        } elseif ($item instanceof VehicleModel) {
+            $row['vehicleSeriesId'] = $item->getVehicleSeries()?->getId();
+        } elseif ($item instanceof VehicleEngine) {
+            $row['vehicleModelId'] = $item->getVehicleModel()?->getId();
+            $row['horsepower'] = $item->getHorsepower();
+            $row['torque'] = $item->getTorque();
+            $row['ecus'] = $item->getEcus();
+            $row['fuel'] = $item->getFuel();
+            $row['displacement'] = $item->getDisplacement();
+            $row['performanceBrandId'] = $item->getPerformanceBrand()?->getId();
+            $row['compression'] = $item->getCompression();
+            $row['boreStroke'] = $item->getBoreStroke();
+            $row['engineCode'] = $item->getEngineCode();
+            $row['vmax'] = $item->getVmax();
+            $row['acceleration0100'] = $item->getAcceleration0100();
+            $row['acceleration0200'] = $item->getAcceleration0200();
+            $row['acceleration100200'] = $item->getAcceleration100200();
+        }
+
+        return new JsonResponse(['data' => $row]);
+    }
+
+    #[Route('/admin/brands/save', name: 'api_vehicle_database_admin_brands_save', methods: ['POST'])]
+    public function saveBrand(Request $request): JsonResponse
+    {
+        [$dbToken, $pool, $context, $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $brandId = (int) ($payload['id'] ?? 0);
+        if ($brandId > 0) {
+            $brand = $this->findInPool(\App\Entity\VehicleBrand::class, $brandId, $pool);
+            if (!$brand instanceof \App\Entity\VehicleBrand) {
+                return $this->errorResponse('Marke nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+        } else {
+            // Neue Marke: Typ muss zum Pool gehoeren
+            $type = $this->entityManager->getRepository(VehicleType::class)->find((int) ($payload['vehicleTypeId'] ?? 0));
+            if (!$type instanceof VehicleType || !$pool->getVehicleTypes()->contains($type)) {
+                return $this->errorResponse('Fahrzeugtyp nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+
+            $brand = (new \App\Entity\VehicleBrand())->setVehicleType($type)->setVehicleDataPool($pool);
+            $this->entityManager->persist($brand);
+        }
+
+        $brand
+            ->setName($this->sanitizeString($payload['name'] ?? $brand->getName(), true))
+            ->setDescription($this->sanitizeNullableString($payload['description'] ?? $brand->getDescription()))
+            ->setSlug($this->sanitizeNullableString($payload['slug'] ?? $brand->getSlug()))
+            ->setSynonyms($this->sanitizeNullableString($payload['synonyms'] ?? $brand->getSynonyms()))
+            ->setActive($this->sanitizeBool($payload['active'] ?? $brand->isActive()))
+            ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $brand->getSorting()) ?? 0)
+            ->setImage($this->sanitizeNullableString($payload['image'] ?? $brand->getImage()));
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => [
+            'id' => $brand->getId(),
+            'name' => $brand->getName(),
+            'slug' => $brand->getSlug(),
+            'active' => $brand->isActive(),
+            'sorting' => $brand->getSorting(),
+        ]]);
+    }
+
+    #[Route('/admin/types/save', name: 'api_vehicle_database_admin_types_save', methods: ['POST'])]
+    public function saveType(Request $request): JsonResponse
+    {
+        [$dbToken, $pool, $context, $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        // Typen sind pool-uebergreifend, bearbeitbar nur wenn sie im Pool verknuepft sind
+        $type = $this->entityManager->getRepository(VehicleType::class)->find((int) ($payload['id'] ?? 0));
+        if (!$type instanceof VehicleType || !$pool->getVehicleTypes()->contains($type)) {
+            return $this->errorResponse('Fahrzeugtyp nicht gefunden.', Response::HTTP_NOT_FOUND);
+        }
+
+        $type
+            ->setName($this->sanitizeString($payload['name'] ?? $type->getName(), true))
+            ->setDescription($this->sanitizeNullableString($payload['description'] ?? $type->getDescription()))
+            ->setSlug($this->sanitizeNullableString($payload['slug'] ?? $type->getSlug()))
+            ->setActive($this->sanitizeBool($payload['active'] ?? $type->isActive()))
+            ->setSorting($this->sanitizeNullableInt($payload['sorting'] ?? $type->getSorting()) ?? 0)
+            ->setImage($this->sanitizeNullableString($payload['image'] ?? $type->getImage()));
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => [
+            'id' => $type->getId(),
+            'name' => $type->getName(),
+            'slug' => $type->getSlug(),
+            'active' => $type->isActive(),
+            'sorting' => $type->getSorting(),
+        ]]);
+    }
+
+    #[Route('/admin/brands/reorder', name: 'api_vehicle_database_admin_brands_reorder', methods: ['POST'])]
+    public function reorderBrands(Request $request): JsonResponse
+    {
+        [$dbToken, $pool, $context, $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $items = is_array($payload['items'] ?? null) ? $payload['items'] : [];
+        $updated = [];
+        foreach ($items as $item) {
+            $brand = $this->findInPool(\App\Entity\VehicleBrand::class, (int) ($item['id'] ?? 0), $pool);
+            if (!$brand instanceof \App\Entity\VehicleBrand) {
+                return $this->errorResponse('Marke nicht gefunden.', Response::HTTP_NOT_FOUND);
+            }
+
+            $brand->setSorting($this->sanitizeNullableInt($item['sorting'] ?? 0) ?? 0);
+            $updated[] = $brand->getId();
+        }
+
+        $this->entityManager->flush();
+
+        return new JsonResponse(['data' => ['updated' => $updated]]);
+    }
+
+    #[Route('/admin/master/{resource}', name: 'api_vehicle_database_admin_master_list', requirements: ['resource' => 'tool-manufacturers|tool-methodes|gearbox-dtc-codes|gearbox-stage-infos|gearbox-stage-options'], methods: ['GET'])]
+    public function masterList(string $resource, Request $request): JsonResponse
+    {
+        [$dbToken] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        return new JsonResponse(['data' => $this->vehicleMasterDataService->list($resource)]);
+    }
+
+    #[Route('/admin/master/{resource}/save', name: 'api_vehicle_database_admin_master_save', requirements: ['resource' => 'tool-manufacturers|tool-methodes|gearbox-dtc-codes|gearbox-stage-infos|gearbox-stage-options'], methods: ['POST'])]
+    public function masterSave(string $resource, Request $request): JsonResponse
+    {
+        [$dbToken, , , $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $payload = $this->readJsonPayload($request);
+        } catch (\InvalidArgumentException) {
+            return $this->errorResponse('Ungueltiger JSON-Body.', Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            return new JsonResponse(['data' => $this->vehicleMasterDataService->save($resource, $payload)]);
+        } catch (\InvalidArgumentException $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\OutOfBoundsException $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
+        } catch (\LogicException $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_CONFLICT);
+        }
+    }
+
+    #[Route('/admin/master/{resource}/{id}', name: 'api_vehicle_database_admin_master_delete', requirements: ['resource' => 'tool-manufacturers|tool-methodes|gearbox-dtc-codes|gearbox-stage-infos|gearbox-stage-options', 'id' => '\d+'], methods: ['DELETE'])]
+    public function masterDelete(string $resource, int $id, Request $request): JsonResponse
+    {
+        [$dbToken, , , $featureFlags] = $this->resolveEditableScope($request);
+        if ($dbToken instanceof JsonResponse) {
+            return $dbToken;
+        }
+
+        if (!$featureFlags['allowVehicleEditing']) {
+            return $this->errorResponse('Bearbeiten ist fuer diesen Datenkontext nicht freigegeben.', Response::HTTP_FORBIDDEN);
+        }
+
+        try {
+            $this->vehicleMasterDataService->delete($resource, $id);
+        } catch (\OutOfBoundsException $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
+        } catch (\LogicException $exception) {
+            return $this->errorResponse($exception->getMessage(), Response::HTTP_CONFLICT);
+        }
+
+        return new JsonResponse(['data' => ['id' => $id, 'deleted' => true]]);
+    }
+
+    /**
+     * @return array{class: class-string, parentClass: class-string, label: string, parentLabel: string, setParent: string, getParent: string, getChildren: string, childSetParent: string}
+     */
+    private function hierarchyConfig(string $entity): array
+    {
+        return match ($entity) {
+            'series' => [
+                'class' => VehicleSeries::class, 'parentClass' => \App\Entity\VehicleBrand::class,
+                'label' => 'Baureihe', 'parentLabel' => 'Marke',
+                'setParent' => 'setVehicleBrand', 'getParent' => 'getVehicleBrand',
+                'getChildren' => 'getModels', 'childSetParent' => 'setVehicleSeries',
+            ],
+            'models' => [
+                'class' => VehicleModel::class, 'parentClass' => VehicleSeries::class,
+                'label' => 'Modell', 'parentLabel' => 'Baureihe',
+                'setParent' => 'setVehicleSeries', 'getParent' => 'getVehicleSeries',
+                'getChildren' => 'getEngines', 'childSetParent' => 'setVehicleModel',
+            ],
+            default => [
+                'class' => VehicleEngine::class, 'parentClass' => VehicleModel::class,
+                'label' => 'Motor', 'parentLabel' => 'Modell',
+                'setParent' => 'setVehicleModel', 'getParent' => 'getVehicleModel',
+                'getChildren' => 'getStages', 'childSetParent' => 'setVehicleEngine',
+            ],
+        };
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $class
+     * @return T|null
+     */
+    private function findInPool(string $class, int $id, VehicleDataPool $pool): ?object
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $entity = $this->entityManager->getRepository($class)->find($id);
+        if (!is_object($entity) || !method_exists($entity, 'getVehicleDataPool') || $entity->getVehicleDataPool()?->getId() !== $pool->getId()) {
+            return null;
+        }
+
+        return $entity;
+    }
+
     /**
      * @return array{0: ApiToken|JsonResponse, 1: VehicleDataPool|null, 2: \App\Entity\VehicleDataContext|null, 3: array<string, bool>}
      */
@@ -864,6 +1543,19 @@ final class VehicleDatabaseApiController extends AbstractController
         $pool = $this->vehicleDataContextResolver->resolvePoolForRequest($request, $dbToken);
         $context = $this->vehicleDataContextResolver->resolveContextForRequest($request, $dbToken);
         $featureFlags = $this->vehicleDataContextResolver->resolveFeatureFlags($pool, $context);
+
+        // Ohne Pool gibt es keinen Schreib-/Lesebereich. Ohne diese Pruefung schlagen die Pool-Vergleiche mit 500 fehl.
+        if (!$pool instanceof VehicleDataPool) {
+            return [$this->errorResponse('Kein Datenpool fuer diesen API-Token verfuegbar.', Response::HTTP_FORBIDDEN), null, null, [
+                'showPrices' => false,
+                'showHints' => false,
+                'showGearbox' => false,
+                'showDyno' => false,
+                'showEcoStage' => false,
+                'showOptionCategories' => false,
+                'allowVehicleEditing' => false,
+            ]];
+        }
 
         return [$dbToken, $pool, $context, $featureFlags];
     }
@@ -1080,6 +1772,18 @@ final class VehicleDatabaseApiController extends AbstractController
     }
 
     /** @return array{id: int, name: string, logo: ?string}|null */
+    private function findPerformanceBrand(mixed $id): ?PerformanceBrand
+    {
+        $id = (int) $id;
+        if ($id <= 0) {
+            return null;
+        }
+
+        $brand = $this->entityManager->getRepository(PerformanceBrand::class)->find($id);
+
+        return $brand instanceof PerformanceBrand ? $brand : null;
+    }
+
     private function mapPerformanceBrand(?PerformanceBrand $performanceBrand): ?array
     {
         if (!$performanceBrand instanceof PerformanceBrand || null === $performanceBrand->getId()) {

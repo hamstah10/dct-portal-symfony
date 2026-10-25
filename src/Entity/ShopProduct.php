@@ -108,6 +108,9 @@ class ShopProduct implements ManualUidEntityInterface
     #[ORM\Column(name: 'is_active', type: Types::BOOLEAN)]
     private bool $isActive = false;
 
+    #[ORM\Column(name: 'api_active', type: Types::BOOLEAN)]
+    private bool $apiActive = false;
+
     #[ORM\ManyToOne(targetEntity: ShopTax::class, inversedBy: 'products')]
     #[ORM\JoinColumn(name: 'tax', referencedColumnName: 'uid', nullable: true)]
     private ?ShopTax $tax = null;
@@ -589,6 +592,18 @@ class ShopProduct implements ManualUidEntityInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function isApiActive(): bool
+    {
+        return $this->apiActive;
+    }
+
+    public function setApiActive(bool $apiActive): static
+    {
+        $this->apiActive = $apiActive;
 
         return $this;
     }

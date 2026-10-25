@@ -62,6 +62,10 @@ class ShopManufacturer implements ManualUidEntityInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logo = null;
 
+    #[ORM\ManyToOne(targetEntity: MediaAsset::class)]
+    #[ORM\JoinColumn(name: 'logo_media_asset_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?MediaAsset $logoMediaAsset = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -263,6 +267,18 @@ class ShopManufacturer implements ManualUidEntityInterface
     public function setSlug(?string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getLogoMediaAsset(): ?MediaAsset
+    {
+        return $this->logoMediaAsset;
+    }
+
+    public function setLogoMediaAsset(?MediaAsset $logoMediaAsset): static
+    {
+        $this->logoMediaAsset = $logoMediaAsset;
 
         return $this;
     }

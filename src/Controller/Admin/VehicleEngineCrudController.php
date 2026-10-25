@@ -115,6 +115,9 @@ final class VehicleEngineCrudController extends AbstractCrudController
             ->setAcceleration0100($source->getAcceleration0100())
             ->setAcceleration0200($source->getAcceleration0200())
             ->setAcceleration100200($source->getAcceleration100200())
+            ->setWeight($source->getWeight())
+            ->setHsn($source->getHsn())
+            ->setPrice($source->getPrice())
             ->setSlug($source->getSlug())
             ->setSorting($source->getSorting());
 
@@ -316,6 +319,16 @@ final class VehicleEngineCrudController extends AbstractCrudController
             NumberField::new('acceleration0100')->hideOnIndex(),
             NumberField::new('acceleration0200')->hideOnIndex(),
             NumberField::new('acceleration100200')->hideOnIndex(),
+            IntegerField::new('weight', 'Gewicht (kg)')
+                ->setHelp('Motorgewicht in Kilogramm')
+                ->hideOnIndex(),
+            TextField::new('hsn', 'HSN/TSN')
+                ->setHelp('Herstellerschlüsselnummer / Typschlüsselnummer')
+                ->hideOnIndex(),
+            NumberField::new('price', 'Preis (€)')
+                ->setNumDecimals(2)
+                ->setHelp('UVP des Motors in Euro')
+                ->hideOnIndex(),
             TextField::new('slug')->hideOnIndex(),
             IntegerField::new('sorting')->hideOnIndex(),
         ];

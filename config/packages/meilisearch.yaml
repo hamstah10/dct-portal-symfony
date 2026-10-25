@@ -72,11 +72,14 @@ meilisearch:
         filterableAttributes:
           - active
           - fuel
+          - horsepower
+          - brandName
           - vehicleTypeName
           - dataPoolKey
         sortableAttributes:
           - name
           - horsepower
+          - brandName
 
     - name: ecu_masters
       class: App\Entity\EcuMaster

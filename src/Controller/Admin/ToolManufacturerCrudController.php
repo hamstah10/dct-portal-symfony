@@ -10,6 +10,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\UX\Dropzone\Form\DropzoneType;
@@ -56,6 +57,7 @@ final class ToolManufacturerCrudController extends AbstractCrudController
             TextField::new('land'),
             TextField::new('telefon'),
             TextField::new('email'),
+            BooleanField::new('active', 'Aktiv')->setHelp('Inaktive Hersteller werden in den Frontends nicht ausgegeben.'),
             Field::new('uploadedLogo', 'Logo hochladen')
                 ->onlyOnForms()
                 ->setFormType(DropzoneType::class)
