@@ -56,6 +56,7 @@ class Portal
     public const MODULE_OPS_OVERVIEW = 'ops_overview';
     public const MODULE_OPS_ORDERS = 'ops_orders';
     public const MODULE_OPS_VEHICLES = 'ops_vehicles';
+    public const MODULE_OPS_BATCH_JOBS = 'ops_batch_jobs';
     public const MODULE_OPS_CUSTOMERS = 'ops_customers';
     public const MODULE_OPS_TICKETS = 'ops_tickets';
     public const MODULE_OPS_EMAIL = 'ops_email';
@@ -712,6 +713,7 @@ class Portal
             'Operations / Übersicht' => self::MODULE_OPS_OVERVIEW,
             'Operations / Aufträge' => self::MODULE_OPS_ORDERS,
             'Operations / Chiptuning' => self::MODULE_OPS_VEHICLES,
+            'Operations / Batch-Jobs' => self::MODULE_OPS_BATCH_JOBS,
             'Operations / Kunden' => self::MODULE_OPS_CUSTOMERS,
             'Operations / Tickets' => self::MODULE_OPS_TICKETS,
             'Operations / E-Mail' => self::MODULE_OPS_EMAIL,
