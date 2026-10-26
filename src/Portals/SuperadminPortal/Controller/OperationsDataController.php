@@ -1190,6 +1190,63 @@ final class OperationsDataController extends AbstractController
         return $this->orderBrandLogoCache[$key] = ('' !== $path ? $path : null);
     }
 
+    /** Verbrauchte Credits je Kunde (Verbrauch minus Storno). */
+    private ?array $customerCreditsCache = null;
+
+    private function customerCredits(?int $customerId): int
+    {
+        if (null === $customerId) {
+            return 0;
+        }
+
+        if (null === $this->customerCreditsCache) {
+            $rows = $this->entityManager->getConnection()->fetchAllAssociative(
+                "SELECT kunde_id, SUM(-amount) AS credits FROM kunde_credit_transaction WHERE transaction_type IN ('usage', 'reversal') GROUP BY kunde_id"
+            );
+            $this->customerCreditsCache = [];
+            foreach ($rows as $row) {
+                $this->customerCreditsCache[(int) $row['kunde_id']] = (int) $row['credits'];
+            }
+        }
+
+        return $this->customerCreditsCache[$customerId] ?? 0;
+    }
+
+    /** Verbrauchte Credits je Auftragsnummer, aus den Kunden-Transaktionen (Verbrauch minus Storno). */
+    private ?array $orderCreditsCache = null;
+
+    private function orderCredits(?string $orderNumber): int
+    {
+        if (null === $orderNumber || '' === $orderNumber) {
+            return 0;
+        }
+
+        if (null === $this->orderCreditsCache) {
+            $rows = $this->entityManager->getConnection()->fetchAllAssociative(
+                "SELECT id, amount, transaction_type, description, reversal_of_id FROM kunde_credit_transaction WHERE transaction_type IN ('usage', 'reversal')"
+            );
+            $usageOrder = [];
+            foreach ($rows as $row) {
+                if ('usage' === $row['transaction_type'] && preg_match('/^Auftrag (\S+)/', (string) $row['description'], $m)) {
+                    $usageOrder[(int) $row['id']] = $m[1];
+                }
+            }
+            $map = [];
+            foreach ($rows as $row) {
+                $number = 'usage' === $row['transaction_type']
+                    ? ($usageOrder[(int) $row['id']] ?? null)
+                    : ($usageOrder[(int) $row['reversal_of_id']] ?? null);
+                if (null === $number) {
+                    continue;
+                }
+                $map[$number] = ($map[$number] ?? 0) - (int) $row['amount'];
+            }
+            $this->orderCreditsCache = $map;
+        }
+
+        return (int) ($this->orderCreditsCache[$orderNumber] ?? 0);
+    }
+
     private function serializeOrder(Auftrag $order): array
     {
         $customer = $order->getKunde();
@@ -1221,6 +1278,7 @@ final class OperationsDataController extends AbstractController
             'updated_at' => $order->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
             'status' => $this->mapOrderStatus($order->getStatus()),
             'total_eur' => 0,
+            'credits' => $this->orderCredits($order->getOrderNumber()),
             'items' => $items,
             'customer_id' => $customer?->getId(),
             'customer_name' => $customerName,
@@ -1321,6 +1379,7 @@ final class OperationsDataController extends AbstractController
             'customer_number' => $customer->getKundennummer(),
             'order_count' => count($orders),
             'total_eur' => 0,
+            'credits' => $this->customerCredits($customer->getId()),
             'vehicle_label' => $vehicleLabel,
             'admin_url' => $customer->getId() !== null ? '/admin/kunde/' . $customer->getId() : null,
         ];

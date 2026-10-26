@@ -76,7 +76,8 @@ final class ProcessBrandAssistantBatchJobHandler
                 Message::ofUser($context)
             );
 
-            $result = $this->agent->call($messages);
+            // Standard-Ausgabelimit des Anthropic-Modells liegt bei 1000 Token und schneidet Analysen ab.
+            $result = $this->agent->call($messages, ['max_tokens' => 4096]);
             $answer = (string) $result->getContent();
 
             $item->setResult($answer)

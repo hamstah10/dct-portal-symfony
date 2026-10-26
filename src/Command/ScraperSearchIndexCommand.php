@@ -97,14 +97,20 @@ final class ScraperSearchIndexCommand extends Command
     private function sourceFiles(string $base): array
     {
         $result = [];
+        // Olsx: alle Sammeldateien je Typ (ohne Teildateien). Gleiche Motoren aus mehreren Dateien ergeben dieselbe ID und werden zusammengeführt.
         foreach (glob($base . '/olsx_brands_spider/*', GLOB_ONLYDIR) ?: [] as $dir) {
             $type = basename($dir);
-            $files = array_values(array_filter(glob($dir . '/olsx_brands_' . $type . '_*.json') ?: [], static fn (string $f): bool => !str_contains(basename($f), '_partial')));
-            if ([] === $files) {
-                continue;
+            foreach (glob($dir . '/olsx_brands_' . $type . '_*.json') ?: [] as $file) {
+                if (!str_contains(basename($file), '_partial')) {
+                    $result[] = ['olsx', $type, $file];
+                }
             }
-            usort($files, static fn (string $a, string $b): int => filemtime($b) <=> filemtime($a));
-            $result[] = ['olsx', $type, $files[0]];
+        }
+        // Olsx: Einzeldateien je Marke aus dem Ausgabeordner je Typ (car, truck, moto, atv, boat, jetski, agricultural)
+        foreach (['car', 'truck', 'moto', 'atv', 'boat', 'jetski', 'agricultural'] as $type) {
+            foreach (glob($base . '/' . $type . '/*.json') ?: [] as $file) {
+                $result[] = ['olsx', $type, $file];
+            }
         }
 
         foreach (glob($base . '/dyno/dyno_chiptuningfiles/*.json') ?: [] as $file) {
@@ -114,6 +120,10 @@ final class ScraperSearchIndexCommand extends Command
             foreach (glob($dir . '/*.json') ?: [] as $file) {
                 $result[] = ['truck_chiptuningfiles', basename($dir), $file];
             }
+        }
+        // Tuning Datenbank: eine Datei je Marke und Typ (nur Pkw vorhanden)
+        foreach (glob($base . '/tuning_datenbank/car/*.json') ?: [] as $file) {
+            $result[] = ['td', 'car', $file];
         }
 
         return $result;
@@ -188,6 +198,7 @@ final class ScraperSearchIndexCommand extends Command
                         'type' => $type,
                         'brand' => $brandName,
                         'brand_slug' => $brandSlug,
+                        'brand_logo' => is_string($brandFile['brand_logo'] ?? null) ? $brandFile['brand_logo'] : null,
                         'model' => (string) ($model['display_name'] ?? $model['name'] ?? ''),
                         'version' => (string) ($version['display_name'] ?? $version['name'] ?? ''),
                         'engine' => (string) ($engine['display_name'] ?? $engine['name'] ?? ''),

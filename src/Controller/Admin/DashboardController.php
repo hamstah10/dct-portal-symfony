@@ -7,6 +7,7 @@ use App\Entity\Ecu;
 use App\Entity\EcuOption;
 use App\Entity\Gearbox;
 use App\Entity\GearboxType;
+use App\Entity\PerformanceFormula;
 use App\Entity\Kunde;
 use App\Entity\KundeCreditTransaction;
 use App\Entity\Auftrag;
@@ -4634,6 +4635,7 @@ final class DashboardController extends AbstractDashboardController
             AdminPageRegistry::crudKey(VehicleSeriesCrudController::class) => MenuItem::linkTo(VehicleSeriesCrudController::class, 'Baureihen', 'fluent-mdl2:build-definition')->setAction('index'),
             AdminPageRegistry::crudKey(VehicleModelCrudController::class) => MenuItem::linkTo(VehicleModelCrudController::class, 'Modelle', 'carbon:model-alt')->setAction('index'),
             AdminPageRegistry::crudKey(VehicleEngineCrudController::class) => MenuItem::linkTo(VehicleEngineCrudController::class, 'Motoren', 'line-md:engine-filled')->setAction('index'),
+            AdminPageRegistry::crudKey(PerformanceFormulaCrudController::class) => MenuItem::linkTo(PerformanceFormulaCrudController::class, 'Leistungsformeln', 'mdi:calculator')->setAction('index'),
             AdminPageRegistry::crudKey(AntriebsartCrudController::class) => MenuItem::linkTo(AntriebsartCrudController::class, 'Antriebsarten', 'mdi:petrol-pump')->setAction('index'),
             AdminPageRegistry::crudKey(VehicleStageCrudController::class) => MenuItem::linkTo(VehicleStageCrudController::class, 'Stages', 'ix:gaugechart')->setAction('index'),
             AdminPageRegistry::routeKey('admin_vehicle_gearbox') => MenuItem::linkToRoute('Getriebe', 'game-icons:gear-stick', 'admin_vehicle_gearbox'),

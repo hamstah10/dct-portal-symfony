@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace App\Portals\SuperadminPortal\Controller;
 
-use App\Brand\Common\Context\SystemType;
-use App\Brand\Common\Portal\PortalRuntimeResolver;
 use App\Entity\KnowledgeEntry;
-use App\Entity\Portal;
-use App\Repository\KnowledgeEntryRepository;
-use App\Service\Ai\KnowledgeSearchTool;
+use App\Entity\VehicleEngine;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,127 +14,151 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * Wissensdatenbank: Fragen und Entscheidungen aus der Planung des KI-Wissens.
- */
 final class KnowledgeEntryApiController extends AbstractController
 {
     public function __construct(
-        private readonly PortalRuntimeResolver $portalRuntimeResolver,
-        private readonly KnowledgeEntryRepository $entries,
         private readonly EntityManagerInterface $entityManager,
-        private readonly KnowledgeSearchTool $brandKnowledgeSearch,
     ) {
     }
 
-    #[Route('/operations-api/knowledge', name: 'superadmin_portal_knowledge_index', methods: ['GET'])]
-    public function index(Request $request): JsonResponse
+    #[Route('/operations-api/knowledge-entries', name: 'superadmin_portal_knowledge_list', methods: ['GET'])]
+    public function list(Request $request): JsonResponse
     {
-        $this->assertAccess($request);
+        $category = $request->query->get('category');
+        $tag = $request->query->get('tag');
+        $search = $request->query->get('search');
+        $engineId = $request->query->get('engineId');
 
-        $items = array_map($this->serialize(...), $this->entries->findAllOrdered());
+        $qb = $this->entityManager->getRepository(KnowledgeEntry::class)
+            ->createQueryBuilder('ke')
+            ->where('ke.active = true')
+            ->orderBy('ke.updatedAt', 'DESC');
 
-        return $this->json(['data' => $items]);
+        if ($category) {
+            $qb->andWhere('ke.category = :category')
+                ->setParameter('category', $category);
+        }
+
+        if ($search) {
+            $qb->andWhere('(ke.title LIKE :search OR ke.content LIKE :search)')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($tag) {
+            $qb->andWhere('JSON_CONTAINS(ke.tags, JSON_QUOTE(:tag)) = 1')
+                ->setParameter('tag', $tag);
+        }
+
+        if ($engineId) {
+            $qb->leftJoin('ke.vehicleEngines', 've')
+                ->andWhere('ve.id = :engineId OR :engineId IS NULL')
+                ->setParameter('engineId', $engineId);
+        }
+
+        $entries = $qb->setMaxResults(100)->getQuery()->getResult();
+
+        $data = array_map(fn (KnowledgeEntry $e) => [
+            'id' => $e->getId(),
+            'title' => $e->getTitle(),
+            'content' => $e->getContent(),
+            'category' => $e->getCategory(),
+            'tags' => $e->getTags(),
+            'usefulness' => $e->getUsefulness(),
+            'engineCount' => $e->getVehicleEngines()->count(),
+            'createdAt' => $e->getCreatedAt()->format('c'),
+            'updatedAt' => $e->getUpdatedAt()->format('c'),
+        ], $entries);
+
+        return $this->json(['data' => $data]);
     }
 
-    #[Route('/operations-api/brand-knowledge/search', name: 'superadmin_portal_brand_knowledge_search', methods: ['GET'])]
-    public function searchBrandKnowledge(Request $request): JsonResponse
+    #[Route('/operations-api/knowledge-entries', name: 'superadmin_portal_knowledge_create', methods: ['POST'])]
+    public function create(Request $request): JsonResponse
     {
-        $this->assertAccess($request);
-
-        $query = trim((string) $request->query->get('q', ''));
-        if ('' === $query) {
-            return $this->json(['data' => []]);
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload)) {
+            throw new BadRequestHttpException('Invalid JSON');
         }
 
-        $result = $this->brandKnowledgeSearch->search($query);
-        if (!$result['found']) {
-            return $this->json(['data' => [], 'message' => $result['passages']]);
-        }
+        $entry = new KnowledgeEntry();
+        $entry->setTitle((string) ($payload['title'] ?? ''));
+        $entry->setContent((string) ($payload['content'] ?? ''));
+        $entry->setCategory((string) ($payload['category'] ?? 'Allgemein'));
+        $entry->setTags((array) ($payload['tags'] ?? []));
+        $entry->setActive((bool) ($payload['active'] ?? true));
 
-        $items = [];
-        foreach (preg_split('/\n\n(?=\[\d+\] )/', $result['passages']) ?: [] as $part) {
-            if (1 !== preg_match('/^\[\d+\] ([^\n]*)\n(.*)$/s', $part, $matches)) {
-                continue;
+        if (isset($payload['engineIds']) && is_array($payload['engineIds'])) {
+            foreach ($payload['engineIds'] as $engineId) {
+                $engine = $this->entityManager->getRepository(VehicleEngine::class)->find($engineId);
+                if ($engine) {
+                    $entry->addVehicleEngine($engine);
+                }
             }
-            $items[] = ['source' => $matches[1], 'text' => $matches[2]];
         }
 
-        return $this->json(['data' => $items]);
+        $this->entityManager->persist($entry);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => ['id' => $entry->getId()]], 201);
     }
 
-    #[Route('/operations-api/knowledge/{code}', name: 'superadmin_portal_knowledge_update', requirements: ['code' => '[A-Z][0-9]{1,3}'], methods: ['PUT'])]
-    public function update(string $code, Request $request): JsonResponse
+    #[Route('/operations-api/knowledge-entries/{id}', name: 'superadmin_portal_knowledge_show', methods: ['GET'])]
+    public function show(int $id): JsonResponse
     {
-        $this->assertAccess($request);
+        $entry = $this->entityManager->getRepository(KnowledgeEntry::class)->find($id);
+        if (!$entry) {
+            throw new NotFoundHttpException('Entry not found');
+        }
 
-        $entry = $this->entries->findOneBy(['code' => $code]);
-        if (null === $entry) {
-            throw new NotFoundHttpException('Eintrag nicht gefunden.');
+        return $this->json(['data' => [
+            'id' => $entry->getId(),
+            'title' => $entry->getTitle(),
+            'content' => $entry->getContent(),
+            'category' => $entry->getCategory(),
+            'tags' => $entry->getTags(),
+            'usefulness' => $entry->getUsefulness(),
+            'active' => $entry->isActive(),
+            'engineIds' => array_map(fn (VehicleEngine $e) => $e->getId(), $entry->getVehicleEngines()->toArray()),
+        ]]);
+    }
+
+    #[Route('/operations-api/knowledge-entries/{id}', name: 'superadmin_portal_knowledge_update', methods: ['PUT'])]
+    public function update(int $id, Request $request): JsonResponse
+    {
+        $entry = $this->entityManager->getRepository(KnowledgeEntry::class)->find($id);
+        if (!$entry) {
+            throw new NotFoundHttpException('Entry not found');
         }
 
         $payload = json_decode((string) $request->getContent(), true);
         if (!is_array($payload)) {
-            throw new BadRequestHttpException('Ungültige Anfrage.');
+            throw new BadRequestHttpException('Invalid JSON');
         }
 
-        if (array_key_exists('status', $payload)) {
-            if (!in_array($payload['status'], KnowledgeEntry::STATUSES, true)) {
-                throw new BadRequestHttpException('Unbekannter Status.');
-            }
-            $entry->setStatus($payload['status']);
-        }
+        if (isset($payload['title'])) $entry->setTitle((string) $payload['title']);
+        if (isset($payload['content'])) $entry->setContent((string) $payload['content']);
+        if (isset($payload['category'])) $entry->setCategory((string) $payload['category']);
+        if (isset($payload['tags'])) $entry->setTags((array) $payload['tags']);
+        if (isset($payload['active'])) $entry->setActive((bool) $payload['active']);
+        if (isset($payload['usefulness'])) $entry->setUsefulness((int) $payload['usefulness']);
 
-        if (array_key_exists('answer', $payload)) {
-            $answer = array_values(array_filter(array_map(
-                static fn (mixed $line): string => trim((string) $line),
-                is_array($payload['answer']) ? $payload['answer'] : [],
-            ), static fn (string $line): bool => '' !== $line));
-            $entry->setAnswer([] === $answer ? null : $answer);
-            if (null !== $entry->getAnswer() && null === $entry->getAnswerLabel()) {
-                $entry->setAnswerLabel('Antwort des Nutzers');
-            }
-        }
-
-        if (array_key_exists('note', $payload)) {
-            $note = trim((string) ($payload['note'] ?? ''));
-            $entry->setNote('' === $note ? null : $note);
-        }
-
-        $entry->touch();
+        $entry->setUpdatedAt(new \DateTimeImmutable());
         $this->entityManager->flush();
 
-        return $this->json(['data' => $this->serialize($entry)]);
+        return $this->json(['success' => true]);
     }
 
-    /**
-     * @return array{code: string, group: string, status: string, question: string, answerLabel: ?string, answer: ?list<string>, listItems: ?list<string>, note: ?string, updatedAt: string}
-     */
-    private function serialize(KnowledgeEntry $entry): array
+    #[Route('/operations-api/knowledge-entries/{id}', name: 'superadmin_portal_knowledge_delete', methods: ['DELETE'])]
+    public function delete(int $id): JsonResponse
     {
-        return [
-            'code' => $entry->getCode(),
-            'group' => $entry->getGroupTitle(),
-            'status' => $entry->getStatus(),
-            'question' => $entry->getQuestion(),
-            'answerLabel' => $entry->getAnswerLabel(),
-            'answer' => $entry->getAnswer(),
-            'listItems' => $entry->getListItems(),
-            'note' => $entry->getNote(),
-            'updatedAt' => $entry->getUpdatedAt()->format(\DateTimeInterface::ATOM),
-        ];
-    }
-
-    private function assertAccess(Request $request): void
-    {
-        $systemType = (string) $request->attributes->get('_brand_system_type', '');
-        if (SystemType::SUPERADMIN === $systemType) {
-            return;
+        $entry = $this->entityManager->getRepository(KnowledgeEntry::class)->find($id);
+        if (!$entry) {
+            throw new NotFoundHttpException('Entry not found');
         }
 
-        $portal = $this->portalRuntimeResolver->requirePortalSystem($request);
-        if ($portal->getPortalType() !== Portal::TYPE_SUPERADMIN_PORTAL) {
-            throw new NotFoundHttpException('Superadmin operations API not available for this portal.');
-        }
+        $this->entityManager->remove($entry);
+        $this->entityManager->flush();
+
+        return $this->json(['success' => true]);
     }
 }

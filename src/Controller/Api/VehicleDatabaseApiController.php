@@ -625,7 +625,10 @@ final class VehicleDatabaseApiController extends AbstractController
             ->setVmax($this->sanitizeNullableInt($payload['vmax'] ?? $engine->getVmax()))
             ->setAcceleration0100($this->sanitizeNullableString($payload['acceleration0100'] ?? $engine->getAcceleration0100()))
             ->setAcceleration0200($this->sanitizeNullableString($payload['acceleration0200'] ?? $engine->getAcceleration0200()))
-            ->setAcceleration100200($this->sanitizeNullableString($payload['acceleration100200'] ?? $engine->getAcceleration100200()));
+            ->setAcceleration100200($this->sanitizeNullableString($payload['acceleration100200'] ?? $engine->getAcceleration100200()))
+            ->setWeight($this->sanitizeNullableInt($payload['weight'] ?? $engine->getWeight()))
+            ->setDrivetrain(in_array($payload['drivetrain'] ?? null, ['Allrad', 'Front', 'Heck'], true) ? $payload['drivetrain'] : null)
+            ->setTurbocharger(\is_bool($payload['turbocharger'] ?? null) ? $payload['turbocharger'] : $engine->hasTurbocharger());
 
         if (array_key_exists('performanceBrandId', $payload)) {
             $engine->setPerformanceBrand($this->findPerformanceBrand($payload['performanceBrandId']));
@@ -1275,6 +1278,9 @@ final class VehicleDatabaseApiController extends AbstractController
             $row['acceleration0100'] = $item->getAcceleration0100();
             $row['acceleration0200'] = $item->getAcceleration0200();
             $row['acceleration100200'] = $item->getAcceleration100200();
+            $row['weight'] = $item->getWeight();
+            $row['drivetrain'] = $item->getDrivetrain();
+            $row['turbocharger'] = $item->hasTurbocharger();
         }
 
         return new JsonResponse(['data' => $row]);

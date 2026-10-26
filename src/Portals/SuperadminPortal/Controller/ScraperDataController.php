@@ -21,7 +21,10 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ScraperDataController extends AbstractController
 {
     private const TYPES = ['car', 'truck', 'moto', 'atv', 'agricultural', 'boat', 'jetski'];
-    private const PROVIDERS = ['olsx', 'dyno', 'truck_chiptuningfiles'];
+    private const PROVIDERS = ['olsx', 'dyno', 'truck_chiptuningfiles', 'td'];
+
+    /** Typen, für die die Tuning-Datenbank (TD) Ordner hat (data/output/tuning_datenbank/<typ>). */
+    private const TD_TYPES = ['car'];
 
     /** Typen, für die truck_chiptuningfiles Ordner hat (data/output/truck_chiptuningfiles/<typ>). */
     private const TRUCK_CHIPTUNINGFILES_TYPES = ['car', 'truck', 'agricultural'];
@@ -50,6 +53,10 @@ final class ScraperDataController extends AbstractController
     {
         $this->assertAccess($request);
         [$provider, $type] = $this->resolveScope($request);
+        if ('td' === $provider) {
+            // Einzelne Marken der Tuning-Datenbank sind sehr groß (über 200 MB). Das Standardlimit reicht dafür nicht.
+            ini_set('memory_limit', '3G');
+        }
 
         $this->ensureViewer($provider, $type);
         $path = $this->viewerDir($provider, $type) . '/brands/' . $slug . '.json';
@@ -127,6 +134,15 @@ final class ScraperDataController extends AbstractController
             return $dir;
         }
 
+        if ('td' === $provider) {
+            $dir = $base . '/tuning_datenbank/' . $type;
+            if (!is_dir($dir)) {
+                throw new NotFoundHttpException('Keine Tuning-Datenbank-Daten gefunden.');
+            }
+
+            return $dir;
+        }
+
         if ('truck_chiptuningfiles' === $provider) {
             $dir = $base . '/truck_chiptuningfiles/' . $type;
             if (!is_dir($dir)) {
@@ -164,6 +180,7 @@ final class ScraperDataController extends AbstractController
         $key = match ($provider) {
             'dyno' => 'dyno',
             'truck_chiptuningfiles' => 'truck_chiptuningfiles/' . $type,
+            'td' => 'td',
             default => $type,
         };
 
@@ -181,6 +198,9 @@ final class ScraperDataController extends AbstractController
         $type = strtolower((string) $request->query->get('type', 'car'));
         if ('olsx' === $provider && !in_array($type, self::TYPES, true)) {
             throw new NotFoundHttpException('Unbekannter Typ.');
+        }
+        if ('td' === $provider && !in_array($type, self::TD_TYPES, true)) {
+            throw new NotFoundHttpException('Für die Tuning-Datenbank gibt es nur den Typ Pkw.');
         }
         if ('truck_chiptuningfiles' === $provider && !in_array($type, self::TRUCK_CHIPTUNINGFILES_TYPES, true)) {
             throw new NotFoundHttpException('Unbekannter Typ.');

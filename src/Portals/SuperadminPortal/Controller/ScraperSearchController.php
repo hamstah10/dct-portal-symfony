@@ -21,8 +21,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final class ScraperSearchController extends AbstractController
 {
     private const INDEX = 'scraper_engines';
-    private const PROVIDERS = ['olsx', 'dyno', 'truck_chiptuningfiles'];
-    private const LIMIT = 50;
+    private const PROVIDERS = ['olsx', 'dyno', 'truck_chiptuningfiles', 'td'];
+    private const PER_PAGE = 20;
     private const MIN_QUERY_LENGTH = 2;
 
     public function __construct(
@@ -40,16 +40,18 @@ final class ScraperSearchController extends AbstractController
         $this->assertAccess($request);
 
         $query = trim((string) $request->query->get('q', ''));
+        $page = max(1, (int) $request->query->get('page', 1));
         if (mb_strlen($query) < self::MIN_QUERY_LENGTH) {
-            return $this->json(['data' => ['hits' => [], 'total' => 0]]);
+            return $this->json(['data' => ['hits' => [], 'total' => 0, 'totalPages' => 0, 'page' => 1]]);
         }
 
         $body = [
             'q' => $query,
             // Alle eingegebenen Wörter müssen vorkommen. Sonst lässt Meilisearch Wörter weg (z. B. „50d“) und zeigt nur noch die Marke.
             'matchingStrategy' => 'all',
-            'limit' => self::LIMIT,
-            'attributesToRetrieve' => ['id', 'provider', 'type', 'brand', 'model', 'version', 'engine', 'fuel_type', 'stage_count', 'url'],
+            'page' => $page,
+            'hitsPerPage' => self::PER_PAGE,
+            'attributesToRetrieve' => ['id', 'provider', 'type', 'brand', 'brand_logo', 'model', 'version', 'engine', 'fuel_type', 'stage_count', 'url'],
         ];
 
         $filters = [];
@@ -79,7 +81,9 @@ final class ScraperSearchController extends AbstractController
 
         return $this->json(['data' => [
             'hits' => $data['hits'] ?? [],
-            'total' => $data['estimatedTotalHits'] ?? count($data['hits'] ?? []),
+            'total' => $data['totalHits'] ?? $data['estimatedTotalHits'] ?? count($data['hits'] ?? []),
+            'totalPages' => $data['totalPages'] ?? 0,
+            'page' => $data['page'] ?? $page,
         ]]);
     }
 

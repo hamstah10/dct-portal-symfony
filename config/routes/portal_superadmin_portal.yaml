@@ -30,6 +30,11 @@ portal_superadmin_scraper_db_api_diff:
     type: attribute
     condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
 
+portal_superadmin_mercedes_transmission_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/MercedesTransmissionController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
 portal_superadmin_brand_assistant_api:
     resource: ../../src/Portals/SuperadminPortal/Controller/BrandAssistantController.php
     type: attribute
@@ -68,3 +73,14 @@ portal_superadmin_formulas_api:
 portal_superadmin_batch_jobs_api:
     resource: ../../src/Portals/SuperadminPortal/Controller/BrandAssistantBatchJobApiController.php
     type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_performance_formulas_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/PerformanceFormulaApiController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_batch_job_results_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/BatchJobResultApiController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"

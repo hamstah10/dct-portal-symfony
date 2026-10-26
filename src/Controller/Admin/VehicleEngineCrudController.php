@@ -319,6 +319,12 @@ final class VehicleEngineCrudController extends AbstractCrudController
             NumberField::new('acceleration0100')->hideOnIndex(),
             NumberField::new('acceleration0200')->hideOnIndex(),
             NumberField::new('acceleration100200')->hideOnIndex(),
+            BooleanField::new('turbocharger', 'Turbolader')
+                ->hideOnIndex(),
+            ChoiceField::new('drivetrain', 'Antrieb')
+                ->setChoices(['Allrad' => 'Allrad', 'Front' => 'Front', 'Heck' => 'Heck'])
+                ->setRequired(false)
+                ->hideOnIndex(),
             IntegerField::new('weight', 'Gewicht (kg)')
                 ->setHelp('Motorgewicht in Kilogramm')
                 ->hideOnIndex(),

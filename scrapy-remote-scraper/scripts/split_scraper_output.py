@@ -37,64 +37,92 @@ SCHEMA = 2
 FILE_RE = re.compile(r"^olsx_brands_([a-z]+)_(\d{8})_(\d{6})(?:_([a-z]+))?\.json$")
 
 
-def stats_for(brands):
-    """Leistungswerte, Stage-Gewinn und Abdeckung über alle Motoren."""
-    engines = [e for b in brands for m in (b.get("models") or []) for v in (m.get("versions") or [])
-               for e in (v.get("engines") or [])]
-    total = len(engines)
+class StatsAcc:
+    """Sammelt die Leistungswerte Marke für Marke. So muss nie die ganze Ausgabe im Speicher liegen."""
 
-    def summary(values):
-        if not values:
-            return None
-        return {"count": len(values), "min": min(values), "max": max(values),
-                "avg": round(sum(values) / len(values), 1)}
+    def __init__(self):
+        self.total = 0
+        self.orig_ps, self.orig_nm, self.gains_ps, self.gains_nm = [], [], [], []
+        self.with_stages = self.with_options = self.with_controllers = self.with_tools = self.checked = 0
+        self.dyno = {"stage-1": 0, "stage-2": 0}
 
-    orig_ps, orig_nm, gains_ps, gains_nm = [], [], [], []
-    with_stages = with_options = with_controllers = with_tools = checked = 0
-    for e in engines:
+    def add(self, brand):
+        for m in (brand.get("models") or []):
+            for v in (m.get("versions") or []):
+                for e in (v.get("engines") or []):
+                    self._add_engine(e)
+
+    def _add_engine(self, e):
+        self.total += 1
         original = e.get("original") or {}
         if original.get("power_ps") is not None:
-            orig_ps.append(original["power_ps"])
+            self.orig_ps.append(original["power_ps"])
         if original.get("torque_nm") is not None:
-            orig_nm.append(original["torque_nm"])
+            self.orig_nm.append(original["torque_nm"])
 
         stages = [st for st in (e.get("stages") or []) if st.get("power_ps") is not None]
         if stages:
-            with_stages += 1
+            self.with_stages += 1
             best = max(stages, key=lambda st: st["power_ps"])
             if original.get("power_ps") is not None:
-                gains_ps.append(best["power_ps"] - original["power_ps"])
+                self.gains_ps.append(best["power_ps"] - original["power_ps"])
             best_nm = [st["torque_nm"] for st in stages if st.get("torque_nm") is not None]
             if best_nm and original.get("torque_nm") is not None:
-                gains_nm.append(max(best_nm) - original["torque_nm"])
+                self.gains_nm.append(max(best_nm) - original["torque_nm"])
 
         if e.get("options"):
-            with_options += 1
+            self.with_options += 1
         groups = e.get("controllers") or []
         if groups:
-            with_controllers += 1
+            self.with_controllers += 1
         if any(item.get("tools") for g in groups for item in (g or {}).get("items") or []):
-            with_tools += 1
+            self.with_tools += 1
         if e.get("stages_checked"):
-            checked += 1
+            self.checked += 1
+        # Dyno-Charts je Stage (nur Motoren mit Messpunkten zählen)
+        charts = e.get("dyno_charts") or {}
+        for stage in self.dyno:
+            if any((charts.get(stage) or {}).get(curve) for curve in ("original", "optimized")):
+                self.dyno[stage] += 1
 
-    def pct(n):
-        return round(100 * n / total, 1) if total else 0.0
+    def finish(self):
+        total = self.total
 
-    return {
-        "power_ps": summary(orig_ps),
-        "torque_nm": summary(orig_nm),
-        "stage_gain_ps": summary(gains_ps),
-        "stage_gain_nm": summary(gains_nm),
-        "coverage": {
-            "engines": total,
-            "with_stages_pct": pct(with_stages),
-            "with_options_pct": pct(with_options),
-            "with_controllers_pct": pct(with_controllers),
-            "with_tools_pct": pct(with_tools),
-            "checked_pct": pct(checked),
-        },
-    }
+        def summary(values):
+            if not values:
+                return None
+            return {"count": len(values), "min": min(values), "max": max(values),
+                    "avg": round(sum(values) / len(values), 1)}
+
+        def pct(n):
+            return round(100 * n / total, 1) if total else 0.0
+
+        def missing(count):
+            return {"count": count, "missing": total - count, "pct": pct(count)}
+
+        return {
+            "dyno_charts": {"engines": total, "stage_1": missing(self.dyno["stage-1"]), "stage_2": missing(self.dyno["stage-2"])},
+            "power_ps": summary(self.orig_ps),
+            "torque_nm": summary(self.orig_nm),
+            "stage_gain_ps": summary(self.gains_ps),
+            "stage_gain_nm": summary(self.gains_nm),
+            "coverage": {
+                "engines": total,
+                "with_stages_pct": pct(self.with_stages),
+                "with_options_pct": pct(self.with_options),
+                "with_controllers_pct": pct(self.with_controllers),
+                "with_tools_pct": pct(self.with_tools),
+                "checked_pct": pct(self.checked),
+            },
+        }
+
+
+def stats_for(brands):
+    """Leistungswerte, Stage-Gewinn und Abdeckung über alle Motoren (Einzeldatei-Modus)."""
+    acc = StatsAcc()
+    for b in brands:
+        acc.add(b)
+    return acc.finish()
 
 
 def runs_for(series_dir, type_name):
@@ -133,17 +161,16 @@ def main():
     source, target = sys.argv[1], sys.argv[2]
     series_dir = sys.argv[3] if len(sys.argv) == 4 else os.path.dirname(os.path.normpath(source))
 
+    acc = StatsAcc()
+    summaries = []
     if os.path.isdir(source):
-        # Ordner mit einer JSON-Datei je Marke (z. B. Dyno)
-        brands = []
-        for name in sorted(os.listdir(source)):
-            if name.endswith(".json"):
-                with open(os.path.join(source, name), encoding="utf-8") as f:
-                    brands.append(json.load(f))
-        source_mtime = int(max((os.path.getmtime(os.path.join(source, n)) for n in os.listdir(source) if n.endswith(".json")), default=os.path.getmtime(source)))
+        # Ordner mit einer JSON-Datei je Marke (z. B. Dyno, Tuning-Datenbank): eine Datei nach der anderen
+        files = sorted(n for n in os.listdir(source) if n.endswith(".json"))
+        source_mtime = int(max((os.path.getmtime(os.path.join(source, n)) for n in files), default=os.path.getmtime(source)))
         source_name = os.path.basename(os.path.normpath(source))
-        type_name = "dyno"
+        type_name = "td" if "tuning_datenbank" in os.path.normpath(source) else "dyno"
     else:
+        files = None
         with open(source, encoding="utf-8") as f:
             brands = json.load(f)
         source_mtime = int(os.path.getmtime(source))
@@ -155,13 +182,13 @@ def main():
         shutil.rmtree(brands_dir)
     os.makedirs(brands_dir, exist_ok=True)
 
-    summaries = []
-    for brand in brands:
+    def handle(brand):
         slug = safe_slug(brand.get("brand_slug"))
         if slug is None:
-            continue
+            return
         with open(os.path.join(brands_dir, f"{slug}.json"), "w", encoding="utf-8") as f:
             json.dump(brand, f, ensure_ascii=False)
+        acc.add(brand)
         summaries.append({
             "slug": slug,
             "name": brand.get("brand_name"),
@@ -169,10 +196,18 @@ def main():
             **count_brand(brand),
         })
 
+    if files is not None:
+        for name in files:
+            with open(os.path.join(source, name), encoding="utf-8") as f:
+                handle(json.load(f))
+    else:
+        for brand in brands:
+            handle(brand)
+
     totals = {key: sum(item[key] for item in summaries) for key in
               ("model_count", "version_count", "engine_count", "controller_count", "option_count", "stage_count")}
 
-    runs = runs_for(series_dir, type_name) if type_name != "dyno" else []
+    runs = runs_for(series_dir, type_name) if type_name not in ("dyno", "td") else []
     if type_name == "dyno":
         # Lauf-Informationen für Dyno stehen in crawl_info.json neben dem Ordner
         info_path = os.path.join(os.path.dirname(os.path.normpath(source)), "crawl_info.json")
@@ -188,7 +223,7 @@ def main():
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "brand_count": len(summaries),
         "totals": totals,
-        "stats": stats_for(brands),
+        "stats": acc.finish(),
         "runs": runs,
         "date_from": runs[0]["started_at"] if runs else None,
         "date_to": runs[-1].get("ended_at") or datetime.fromtimestamp(source_mtime).isoformat() if runs else datetime.fromtimestamp(source_mtime).isoformat(),

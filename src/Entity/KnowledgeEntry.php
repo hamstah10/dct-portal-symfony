@@ -1,68 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
-use App\Repository\KnowledgeEntryRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Frage oder Entscheidung aus der Planung des KI-Wissens (Wissensdatenbank im Superadmin).
- */
-#[ORM\Entity(repositoryClass: KnowledgeEntryRepository::class)]
+#[ORM\Entity]
 #[ORM\Table(name: 'knowledge_entry')]
-#[ORM\Index(name: 'IDX_KNOWLEDGE_ENTRY_POSITION', columns: ['position'])]
 class KnowledgeEntry
 {
-    public const STATUS_ANSWERED = 'answered';
-    public const STATUS_OPEN = 'open';
-    public const STATUS_CHECKED = 'checked';
-
-    public const STATUSES = [self::STATUS_ANSWERED, self::STATUS_OPEN, self::STATUS_CHECKED];
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 16, unique: true)]
-    private string $code = '';
-
-    #[ORM\Column(length: 120)]
-    private string $groupTitle = '';
-
-    #[ORM\Column(length: 16)]
-    private string $status = self::STATUS_ANSWERED;
+    #[ORM\Column(length: 255)]
+    private string $title = '';
 
     #[ORM\Column(type: Types::TEXT)]
-    private string $question = '';
+    private string $content = '';
 
-    #[ORM\Column(length: 120, nullable: true)]
-    private ?string $answerLabel = null;
+    #[ORM\Column(length: 100)]
+    private string $category = '';
 
-    /**
-     * @var list<string>|null
-     */
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $answer = null;
+    #[ORM\Column(type: Types::JSON)]
+    private array $tags = [];
 
-    /**
-     * @var list<string>|null
-     */
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $listItems = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $note = null;
+    #[ORM\ManyToMany(targetEntity: VehicleEngine::class)]
+    #[ORM\JoinTable(
+        name: 'knowledge_entry_vehicle_engine',
+        joinColumns: [new ORM\JoinColumn(name: 'knowledge_entry_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'vehicle_engine_uid', referencedColumnName: 'uid')],
+    )]
+    private Collection $vehicleEngines;
 
     #[ORM\Column]
-    private int $position = 0;
+    private bool $active = true;
+
+    #[ORM\Column]
+    private int $usefulness = 0;
+
+    #[ORM\Column]
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column]
     private \DateTimeImmutable $updatedAt;
 
     public function __construct()
     {
+        $this->vehicleEngines = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
@@ -71,124 +62,97 @@ class KnowledgeEntry
         return $this->id;
     }
 
-    public function getCode(): string
+    public function getTitle(): string
     {
-        return $this->code;
+        return $this->title;
     }
 
-    public function setCode(string $code): static
+    public function setTitle(string $title): static
     {
-        $this->code = $code;
-
+        $this->title = $title;
         return $this;
     }
 
-    public function getGroupTitle(): string
+    public function getContent(): string
     {
-        return $this->groupTitle;
+        return $this->content;
     }
 
-    public function setGroupTitle(string $groupTitle): static
+    public function setContent(string $content): static
     {
-        $this->groupTitle = $groupTitle;
-
+        $this->content = $content;
         return $this;
     }
 
-    public function getStatus(): string
+    public function getCategory(): string
     {
-        return $this->status;
+        return $this->category;
     }
 
-    public function setStatus(string $status): static
+    public function setCategory(string $category): static
     {
-        $this->status = $status;
-
+        $this->category = $category;
         return $this;
     }
 
-    public function getQuestion(): string
+    public function getTags(): array
     {
-        return $this->question;
+        return $this->tags;
     }
 
-    public function setQuestion(string $question): static
+    public function setTags(array $tags): static
     {
-        $this->question = $question;
-
-        return $this;
-    }
-
-    public function getAnswerLabel(): ?string
-    {
-        return $this->answerLabel;
-    }
-
-    public function setAnswerLabel(?string $answerLabel): static
-    {
-        $this->answerLabel = $answerLabel;
-
+        $this->tags = $tags;
         return $this;
     }
 
     /**
-     * @return list<string>|null
+     * @return Collection<int, VehicleEngine>
      */
-    public function getAnswer(): ?array
+    public function getVehicleEngines(): Collection
     {
-        return $this->answer;
+        return $this->vehicleEngines;
     }
 
-    /**
-     * @param list<string>|null $answer
-     */
-    public function setAnswer(?array $answer): static
+    public function addVehicleEngine(VehicleEngine $engine): static
     {
-        $this->answer = $answer;
-
+        if (!$this->vehicleEngines->contains($engine)) {
+            $this->vehicleEngines->add($engine);
+        }
         return $this;
     }
 
-    /**
-     * @return list<string>|null
-     */
-    public function getListItems(): ?array
+    public function removeVehicleEngine(VehicleEngine $engine): static
     {
-        return $this->listItems;
-    }
-
-    /**
-     * @param list<string>|null $listItems
-     */
-    public function setListItems(?array $listItems): static
-    {
-        $this->listItems = $listItems;
-
+        $this->vehicleEngines->removeElement($engine);
         return $this;
     }
 
-    public function getNote(): ?string
+    public function isActive(): bool
     {
-        return $this->note;
+        return $this->active;
     }
 
-    public function setNote(?string $note): static
+    public function setActive(bool $active): static
     {
-        $this->note = $note;
-
+        $this->active = $active;
         return $this;
     }
 
-    public function getPosition(): int
+    public function getUsefulness(): int
     {
-        return $this->position;
+        return $this->usefulness;
     }
 
-    public function setPosition(int $position): static
+    public function setUsefulness(int $usefulness): static
     {
-        $this->position = $position;
-
+        $this->usefulness = max(0, min(100, $usefulness));
         return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 
     public function getUpdatedAt(): \DateTimeImmutable
@@ -196,10 +160,9 @@ class KnowledgeEntry
         return $this->updatedAt;
     }
 
-    public function touch(): static
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
-        $this->updatedAt = new \DateTimeImmutable();
-
+        $this->updatedAt = $updatedAt;
         return $this;
     }
 }

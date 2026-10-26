@@ -103,6 +103,12 @@ class VehicleEngine
     #[ORM\Column(nullable: true)]
     private ?int $weight = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $drivetrain = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $turbocharger = null;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $hsn = null;
 
@@ -111,6 +117,12 @@ class VehicleEngine
 
     #[ORM\Column]
     private int $sorting = 0;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $aiAnalysisData = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $aiAnalysisUpdatedAt = null;
 
     private mixed $uploadedImage = null;
     private mixed $uploadedGlbModel = null;
@@ -548,6 +560,32 @@ class VehicleEngine
         return $this;
     }
 
+    /** Turbolader vorhanden: true = Ja, false = Nein, null = unbekannt. */
+    public function hasTurbocharger(): ?bool
+    {
+        return $this->turbocharger;
+    }
+
+    public function setTurbocharger(?bool $turbocharger): static
+    {
+        $this->turbocharger = $turbocharger;
+
+        return $this;
+    }
+
+    /** Antrieb: Allrad, Front oder Heck. */
+    public function getDrivetrain(): ?string
+    {
+        return $this->drivetrain;
+    }
+
+    public function setDrivetrain(?string $drivetrain): static
+    {
+        $this->drivetrain = $drivetrain;
+
+        return $this;
+    }
+
     public function getWeight(): ?int
     {
         return $this->weight;
@@ -712,6 +750,29 @@ class VehicleEngine
     private static function isValidMediaDisplayMode(string $mode): bool
     {
         return in_array($mode, array_values(self::getMediaDisplayModeChoices()), true);
+    }
+
+    public function getAiAnalysisData(): ?array
+    {
+        return $this->aiAnalysisData;
+    }
+
+    public function setAiAnalysisData(?array $aiAnalysisData): static
+    {
+        $this->aiAnalysisData = $aiAnalysisData;
+        $this->aiAnalysisUpdatedAt = new \DateTimeImmutable();
+        return $this;
+    }
+
+    public function getAiAnalysisUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->aiAnalysisUpdatedAt;
+    }
+
+    public function setAiAnalysisUpdatedAt(?\DateTimeImmutable $aiAnalysisUpdatedAt): static
+    {
+        $this->aiAnalysisUpdatedAt = $aiAnalysisUpdatedAt;
+        return $this;
     }
 
     /** @return array<string, mixed> */

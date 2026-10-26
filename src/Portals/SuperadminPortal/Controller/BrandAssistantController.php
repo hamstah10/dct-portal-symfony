@@ -81,7 +81,8 @@ final class BrandAssistantController extends AbstractController
         // Aktuelle Frage hinzufügen
         $messages->add(Message::ofUser($question));
 
-        $result = $this->agent->call($messages);
+        // Standard-Ausgabelimit des Anthropic-Modells liegt bei 1000 Token und schneidet Antworten ab.
+        $result = $this->agent->call($messages, ['max_tokens' => 2048]);
         $answer = (string) $result->getContent();
 
         // Frage und Antwort bleiben erhalten, damit sie später in das Wissensprojekt „Marken-Wissen” übernommen werden können.
