@@ -91,7 +91,12 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Model</label>
-                                <input type="text" name="model" class="form-control" value="{{ model }}">
+                                <select name="model" class="form-select">
+                                    {% if model not in models %}<option value="{{ model }}" selected>{{ model }}</option>{% endif %}
+                                    {% for m in models %}
+                                        <option value="{{ m }}" {{ model == m ? 'selected' : '' }}>{{ m }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-tuningfux">Scrape &amp; Antworten</button>
                         </form>

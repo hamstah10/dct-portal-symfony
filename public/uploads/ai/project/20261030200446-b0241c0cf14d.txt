@@ -1,0 +1,360 @@
+# Marken-Wissen: Assistenten-Fragen und Antworten
+
+## Frage: hat honda noch sportwagen
+
+Basierend auf aktuellen Informationen aus dem Internet:
+
+**Honda hat derzeit keinen klassischen Sportwagen mehr im Programm:**
+
+1. **Honda NSX** - **Nicht mehr verfügbar**: Der Supersportwagen wurde 2022 eingestellt. Die zweite Generation mit Hybrid-Antrieb (3,5-Liter V6 + Elektromotoren, 573 PS) ist nicht mehr in Produktion. Ein Nachfolger ist aktuell nicht angekündigt. (Quelle: finn.com)
+
+2. **Honda Civic Type R** - **In Deutschland Ende 2025 eingestellt**: Die letzte Generation (FL5) mit 329 PS starkem 2,0-Liter-Turbo wurde Ende 2025 mit einer "Ultimate Edition" verabschiedet. In anderen Märkten wie den USA ist der Type R 2024/2025 noch erhältlich (315-329 PS). (Quellen: finn.com, autoscout24.de, carbuzz.com)
+
+3. **Honda Prelude** - **Neues Sportcoupé ab Frühjahr 2026**: Honda bringt in Deutschland ab Frühjahr 2026 den neuen Prelude mit Vollhybrid-Antrieb (184 PS) ab 49.500 €. Dies ist jedoch eher ein Sportcoupé als ein reiner Sportwagen. (Quelle: finn.com)
+
+**Fazit:** Honda hat aktuell keinen echten Sportwagen mehr im Sortiment. Der NSX ist seit 2022 Geschichte, der Civic Type R läuft in Europa aus. Der kommende Prelude ist eher sportlich-elegant als ein Performance-Sportwagen.
+
+## Frage: amg
+
+**AMG** ist die Performance- und Sportmarke von Mercedes-Benz. Die Abkürzung steht für "Aufrecht, Melcher und Großaspach" – die Gründer Hans Werner Aufrecht und Erhard Melcher, sowie der Geburtsort Aufrechts.
+
+**Interne Daten:**
+Die Marke "AMG" ist als eigenständige Marke in unserer Dyno-Zuordnung **nicht enthalten**. AMG-Fahrzeuge werden vermutlich unter "Mercedes" oder "Mercedes-Benz" geführt.
+
+**Externe Informationen (Internet):**
+- **Philosophie:** AMG-Motoren werden nach dem "One Man, One Engine"-Prinzip handgefertigt und von jedem Ingenieur signiert (Quelle: hamptonmotor.co)
+- **Tuning-Potenzial:** AMG-Fahrzeuge haben ab Werk bereits hohe Leistungen (z.B. C63S über 500 PS), bieten aber deutliches Tuning-Potenzial durch ECU/DME-Kalibrierung, Turbo-Upgrades, Auspuffanlagen und Getriebe-Tuning
+- **Typische Tuning-Maßnahmen:** 
+  - Software-Optimierung (Chiptuning) mit Leistungssteigerungen von 100+ PS
+  - Hardware: Downpipes, Intercooler, Performance-Ladeluftkühler, Sportauspuff
+  - Vmax-Freischaltung (Entfernung der elektronischen Geschwindigkeitsbegrenzung)
+- **Gängige Modelle:** A35/A45, C43/C63, E53/E63, AMG GT (verschiedene Varianten), GLC/GLE/G-Klasse AMG-Versionen
+
+Möchtest du Informationen zu einem spezifischen AMG-Modell oder zur Erfassung von AMG-Fahrzeugen in unserem System?
+
+## Frage: kommt ein golf mit dem 5 zylinder raus
+
+Nein, der VW Golf wurde **nicht mit einem 5-Zylinder-Motor** angeboten. 
+
+Nach den Suchergebnissen hatte der Golf folgende Motorisierungen:
+
+**Golf 5 (2003-2008):**
+- **Benziner**: Überwiegend 4-Zylinder (1,4–2,0 Liter) mit 75–240 PS
+- **Topmodell R32**: 6-Zylinder VR6 mit 3,2 Liter und 250 PS
+- **Diesel**: 4-Zylinder (1,9 und 2,0 Liter) mit 75–170 PS
+
+**VW baute zwar 5-Zylinder-Motoren**, aber diese kamen in anderen Modellen zum Einsatz:
+- Golf **IV**, Bora, New Beetle und Passat B5 (1997–2005) hatten 5-Zylinder-VR-Motoren
+- T4 und T5 Transporter mit 5-Zylinder Otto- und Dieselmotoren
+
+**Quellen**: 
+- https://www.volkswagen.de (offizielle VW-Seite zum Golf 5)
+- https://de.wikipedia.org/wiki/Fünfzylindermotor
+- https://www.pkw.de/autokatalog/vw/golf/5
+
+## Frage: amg gt black series modelle
+
+Basierend auf meiner Recherche gibt es beim **Mercedes-AMG GT Black Series** nur **eine Modellvariante** (C190, 2021-2023), allerdings mit einigen Besonderheiten:
+
+## Mercedes-AMG GT Black Series (Hauptmodell)
+- **Baujahre:** 2021-2023
+- **Motor:** M178 LS2, 4,0-Liter V8 Biturbo
+- **Leistung:** 730 PS (537 kW) bei 6.700-6.900 U/min
+- **Drehmoment:** 800 Nm bei 2.000-6.000 U/min
+- **0-100 km/h:** 3,2 Sekunden
+- **Höchstgeschwindigkeit:** 325 km/h
+- **Produktion:** Limitiert auf 1.700 Einheiten
+- Quelle: https://en.wikipedia.org/wiki/Mercedes-AMG_GT
+
+## Sondervariante:
+- **AMG GT Track Series (2022):** Track-only Version basierend auf dem Black Series, limitiert auf 55 Einheiten zum 55. AMG-Jubiläum
+- Quelle: https://en.wikipedia.org/wiki/Mercedes-AMG_GT
+
+**Hinweis:** In unserer internen Datenbank ist aktuell nur ein AMG GT-Modell (55 AMG mit 476 PS, Modell 2023 - C192) verzeichnet, jedoch nicht die Black Series-Variante selbst.
+
+Der AMG GT Black Series ist die sechste Black Series-Variante von Mercedes-AMG nach SLK 55, CLK 63, SL 65, C 63 und SLS AMG Black Series.
+
+## Frage: amg gt black series modelle
+
+**AMG GT Black Series Modelle:**
+
+Der **Mercedes-AMG GT Black Series (C190)** wurde von 2021 bis 2023 produziert und ist die bislang einzige GT-Variante mit der Black Series-Bezeichnung. Es ist das sechste und neueste Black Series-Modell von Mercedes-AMG.
+
+**Technische Daten (intern + Internet):**
+- **Intern (Datenbank):** AMG GT Black Series (4.0T) mit 730 PS und 800 Nm (Benzin), Serie C190-FL, Baujahr ab 2017
+- **Motor:** 4,0-Liter V8 Biturbo (M178 LS2) mit Flat-Plane-Kurbelwelle
+- **Leistung:** 730 PS (537 kW) bei 6.700–6.900 U/min
+- **Drehmoment:** 800 Nm bei 2.000–6.000 U/min
+- **0–100 km/h:** 3,2 Sekunden
+- **Höchstgeschwindigkeit:** 325 km/h
+- **Antrieb:** Hinterradantrieb, 7-Gang-Doppelkupplungsgetriebe
+- **Produktion:** ca. 1.700 Exemplare
+- **Preis:** ab ca. 335.240 € / 325.000 USD
+
+**Sondermodell:**
+- **AMG GT Black Series P One Edition** (2021): Limitierte Sonderedition mit ca. 275 Einheiten
+
+**Quellen:**
+- Intern: Fahrzeugdatenbank
+- https://www.batmangarage.com/news/mercedes-amg-black-series.html
+- https://www.carcollectorinternational.com/research/buyers-guides/mercedes-benz/amg-gt-black-series
+- https://en.wikipedia.org/wiki/Mercedes-AMG_GT
+
+**Hinweis:** Es gibt nur *ein* AMG GT Black Series-Modell (plus die P One Edition als Sonderversion). Informationen über ein "AMG GT R Black Series" als separates Modell sind irreführend – der GT Black Series ist die eigenständige Top-Version der GT-Baureihe.
+
+## Frage: amg black series welche gab es alle
+
+Basierend auf den Informationen aus dem Internet gab es **sechs Mercedes-AMG Black Series Modelle**:
+
+1. **SLK 55 AMG Black Series** (2006)
+   - 5,5-Liter V8 mit ca. 400 PS
+   - Erstes Black Series Modell
+
+2. **CLK 63 AMG Coupé Black Series** (2007)
+   - 6,2-Liter V8 (M156) mit 507 PS
+   - 700 Exemplare gebaut (April 2007 - März 2008)
+   - Vmax: 300 km/h
+
+3. **SL 65 AMG Coupé Black Series** (2008)
+   - 6,0-Liter V12 Biturbo mit 670 PS
+   - Ca. 350 Exemplare gebaut (September 2008 - August 2009)
+   - Vmax: 320 km/h
+
+4. **C 63 AMG Coupé Black Series** (2011)
+   - 6,2-Liter V8 (M156) mit 517 PS
+   - Vmax: 300 km/h
+
+5. **SLS AMG Coupé Black Series** (2013)
+   - 6,2-Liter V8 (M159) mit 631 PS
+   - Ca. 350 Exemplare gebaut
+   - Vmax: 315 km/h
+
+6. **AMG GT Black Series** (2020)
+   - 4,0-Liter V8 Biturbo mit Flatplane-Kurbelwelle
+   - Aktuell leistungsstärkster AMG ohne Elektrifizierung
+   - Nürburgring-Rekord: 6:48.047
+
+**Quellen:** mercedes-amg.com, auto-medienportal.net, caranddriver.com
+
+## Frage: ich möchte zu allen fanhrzeugen alle technischen daten. motordaten, beschleunigungswerte, wieviele gebaut. preis damalks
+
+Die internen Dokumente enthalten keine allgemeinen technischen Daten, Beschleunigungswerte, Produktionszahlen oder Preise zu allen Fahrzeugen.
+
+**Was ich für Sie tun kann:**
+
+Das System ist spezialisiert auf **Tuning-Daten** (Motorcode, Leistung, Tuning-Stufen) für konkrete Fahrzeuge. Um Ihnen zu helfen, benötige ich mehr Details:
+
+- **Welche Marke(n)?** (z.B. BMW, Audi, Mercedes, etc.)
+- **Welches Modell?** (z.B. 3er, A4, C-Klasse)
+- **Welcher Zeitraum/Baujahr?**
+
+**Hinweis:** Vollständige technische Datenblätter mit Beschleunigungswerten, Produktionszahlen und historischen Preisen sind typischerweise nicht in unserem internen Tuning-System hinterlegt. Solche Informationen müsste ich für spezifische Fahrzeuge aus dem Internet recherchieren.
+
+Nennen Sie mir bitte konkrete Fahrzeuge, dann kann ich gezielt nach den verfügbaren Daten suchen.
+
+## Frage: Basierend auf den Informationen aus dem Internet gab es **sechs Mercedes-AMG Black Series Modelle**:
+
+1. **SLK 55 AMG Black Series** (2006)
+   - 5,5-Liter V8 mit ca. 400 PS
+   - Erstes Black Series Modell
+
+2. **CLK 63 AMG Coupé Black Series** (2007)
+   - 6,2-Liter V8 (M156) mit 507 PS
+   - 700 Exemplare gebaut (April 2007 - März 2008)
+   - Vmax: 300 km/h
+
+3. **SL 65 AMG Coupé Black Series** (2008)
+   - 6,0-Liter V12 Biturbo mit 670 PS
+   - Ca. 350 Exemplare gebaut (September 2008 - August 2009)
+   - Vmax: 320 km/h
+
+4. **C 63 AMG Coupé Black Series** (2011)
+   - 6,2-Liter V8 (M156) mit 517 PS
+   - Vmax: 300 km/h
+
+5. **SLS AMG Coupé Black Series** (2013)
+   - 6,2-Liter V8 (M159) mit 631 PS
+   - Ca. 350 Exemplare gebaut
+   - Vmax: 315 km/h
+
+6. **AMG GT Black Series** (2020)
+   - 4,0-Liter V8 Biturbo mit Flatplane-Kurbelwelle
+   - Aktuell leistungsstärkster AMG ohne Elektrifizierung
+   - Nürburgring-Rekord: 6:48.047
+
+**Quellen:** mercedes-amg.com, auto-medienportal.net, caranddriver.com
+
+Deine Zusammenstellung der **sechs Mercedes-AMG Black Series Modelle** ist **grundsätzlich korrekt** und wird von den Internetquellen bestätigt. Hier einige Ergänzungen und Präzisierungen basierend auf den Recherchen:
+
+---
+
+### **Bestätigte Informationen:**
+
+Die sechs Modelle und die Chronologie stimmen:
+
+1. **SLK 55 AMG Black Series (2006)**
+2. **CLK 63 AMG Coupé Black Series (2007)**
+3. **SL 65 AMG Coupé Black Series (2008)**
+4. **C 63 AMG Coupé Black Series (2011)**
+5. **SLS AMG Coupé Black Series (2013)**
+6. **AMG GT Black Series (2020)**
+
+---
+
+### **Korrekturen und Ergänzungen:**
+
+**1. SLK 55 AMG Black Series (2006)**
+- **Leistung:** 400 PS – **korrekt**
+- **Stückzahl:** Ca. **120 Exemplare** (Juli 2006 - April 2007)
+- **Vmax:** 280 km/h (nicht 300 km/h)
+- **Quelle:** caranddriver.com, auto-medienportal.net
+
+**2. CLK 63 AMG Coupé Black Series (2007)**
+- **Leistung:** Quellen variieren zwischen **500 PS** (caranddriver.com) und **507 PS** (auto-medienportal.net, mercedes-amg.com) – deine Angabe **507 PS** ist korrekt
+- **Motor:** M156, 6,2 Liter V8 – **korrekt**
+- **Stückzahl:** 700 Exemplare – **korrekt**
+- **Bauzeit:** April 2007 - März 2008 – **korrekt**
+- **Vmax:** 300 km/h – **korrekt**
+
+**3. SL 65 AMG Coupé Black Series (2008)**
+- **Leistung:** Quellen variieren zwischen **661 PS** (caranddriver.com) und **670 PS** (auto-medienportal.net, mercedes-amg.com) – beide Angaben sind im Umlauf
+- **Motor:** 6,0 Liter V12 Biturbo – **korrekt**
+- **Stückzahl:** Ca. 350 Exemplare – **korrekt** (September 2008 - August 2009)
+- **Vmax:** 320 km/h – **korrekt**
+
+**4. C 63 AMG Coupé Black Series (2011)**
+- **Leistung:** Quellen nennen **510 PS** (caranddriver.com) bis **517 PS** (auto-medienportal.net) – **517 PS ist korrekt**
+- **Motor:** M156, 6,2 Liter V8 – **korrekt**
+- **Stückzahl:** **800 Exemplare** (ursprünglich 600 geplant, dann auf 800 erhöht)
+- **Vmax:** 300 km/h – **korrekt**
+
+**5. SLS AMG Coupé Black Series (2013)**
+- **Leistung:** Quellen variieren zwischen **622 PS** (caranddriver.com) und **631 PS** (auto-medienportal.net, mercedes-amg.com) – **631 PS ist korrekt**
+- **Motor:** M159, 6,2 Liter V8 – **korrekt**
+- **Stückzahl:** Ca. 350 Exemplare weltweit, weniger als 200 in die USA importiert
+- **Vmax:** 315 km/h – **korrekt**
+- **Besonderheit:** Drehzahl von 7.200 auf **8.000 U
+
+## Frage: suche noch mehr daten zu den autpos
+
+Ich habe in unseren internen Dokumenten keine Informationen zu "Autpos" gefunden.
+
+Im Internet erscheinen mehrere Ergebnisse zu "AutoPOS", die jedoch **nicht mit Fahrzeugmarken** zu tun haben:
+
+1. **AutoPOS (POS-Software)** – verschiedene Point-of-Sale-Apps für:
+   - Autowaschanlagen, Ölwechsel und Kfz-Servicebetriebe (Google Play)
+   - Gastronomie-Ketten (autopos.tw – SaaS für Restaurants)
+   - Mobile Vertriebsfahrzeuge/Lieferwagen (Automata-jo App)
+
+2. **AUTOPOS (Spanische Fachzeitschrift)** – Medienunternehmen für die Kfz-Ersatzteil- und Aftermarket-Branche in Spanien (autopos.es, gegründet 1999)
+   - Quelle: https://autopos.es/ und https://www.linkedin.com/company/autopos
+
+3. **Autopos Ltd.** – IT-Automatisierungsdienstleister (autopos.ltd)
+
+4. **AUTPOS (Telekommunikation)** – bezeichnet in Alcatel-Telefonsystemen einen **analogen Anschlusstyp** für Geräte wie EFTPOS-Terminals
+
+**Falls du eine Fahrzeugmarke meintest:** Bitte prüfe die Schreibweise – eventuell meintest du eine andere Marke? Ich habe keine Automarke namens "Autpos" gefunden.
+
+## Frage: 1. **SLK 55 AMG Black Series (2006)**
+2. **CLK 63 AMG Coupé Black Series (2007)**
+3. **SL 65 AMG Coupé Black Series (2008)**
+4. **C 63 AMG Coupé Black Series (2011)**
+5. **SLS AMG Coupé Black Series (2013)**
+6. **AMG GT Black Series (2020)**
+
+alle technischen daten
+
+Hier sind die technischen Daten aller **Mercedes-AMG Black Series** Modelle:
+
+---
+
+## **1. SLK 55 AMG Black Series (2006)**
+**Quelle:** mercedes-benz-publicarchive.com
+
+**Motor:**
+- 5,5-Liter V8 Saugmotor (M 113 E 55)
+- Hubraum: 5.439 cm³
+- Leistung: 294 kW / 400 PS bei 5.750 U/min
+- Drehmoment: 520 Nm bei 3.750 U/min
+- 3 Ventile pro Zylinder
+
+**Getriebe & Antrieb:**
+- AMG SPEEDSHIFT 7G-TRONIC (7-Gang Automatik)
+- Hinterradantrieb
+
+**Fahrleistungen:**
+- 0–100 km/h: 4,5 s
+- Höchstgeschwindigkeit: 280 km/h (elektronisch begrenzt)
+
+**Maße & Gewicht:**
+- Länge/Breite/Höhe: 4.087 / 1.832 / 1.278 mm
+- Radstand: 2.430 mm
+- Leergewicht: 1.495 kg
+
+**Verbrauch:** 12,2 l/100 km kombiniert  
+**Stückzahl:** 120  
+**Preis (2006):** 107.300 € inkl. MwSt.
+
+---
+
+## **2. CLK 63 AMG Coupé Black Series (2007)**
+**Quelle:** mercedes-benz-publicarchive.com
+
+**Motor:**
+- 6,2-Liter V8 Saugmotor (M 156 E 62)
+- Hubraum: 6.208 cm³
+- Leistung: 373 kW / 507 PS bei 6.800 U/min
+- Drehmoment: 630 Nm bei 5.250 U/min
+- Verdichtung: 11,3:1
+- 32 Ventile (4 pro Zylinder)
+
+**Getriebe & Antrieb:**
+- 7-Gang Automatikgetriebe (AMG Speedshift)
+- Hinterradantrieb
+
+**Fahrleistungen:**
+- 0–100 km/h: 4,3 s
+- Höchstgeschwindigkeit: 300 km/h (elektronisch begrenzt)
+
+**Maße & Gewicht:**
+- Länge/Breite/Höhe: 4.657 / 1.833 / 1.365 mm
+- Radstand: 2.715 mm
+- Leergewicht: 1.540 kg (nach EC 92/21), 1.760 kg (Leergewicht DE)
+
+**Reifen:**
+- Vorne: 265/30 R 19
+- Hinten: 285/30 R 19
+
+**Verbrauch:** 15,3 l/100 km kombiniert  
+**Stückzahl:** 700
+
+---
+
+## **3. SL 65 AMG Black Series (2008)**
+**Quelle:** mercedes-benz-publicarchive.com
+
+**Motor:**
+- 6,0-Liter V12 Biturbo (M 275 E 60)
+- Hubraum: 5.980 cm³
+- Leistung: 493 kW / 670 PS bei 5.400 U/min
+- Drehmoment: 1.000 Nm bei 2.200–4.200 U/min (elektronisch begrenzt, real ~1.200 Nm möglich)
+- Verdichtung: 9,0:1
+- 3 Ventile pro Zylinder
+
+**Getriebe & Antrieb:**
+- AMG SPEEDSHIFT PLUS 5-Gang Automatik
+- Hinterrad
+
+## Frage: touareg v8 noch gebaut
+
+**Nein, der VW Touareg V8 wird nicht mehr gebaut.**
+
+Der V8 TDI (4,0 Liter V8-Diesel mit 421 PS) wurde bereits **2020 nach weniger als einem Jahr Produktionszeit eingestellt**. Zum Abschied gab es eine limitierte "Last Edition" mit 400 Exemplaren.
+
+Die gesamte Touareg-Produktion (alle Varianten mit Verbrennermotor) endete im **März 2026** im Werk Bratislava. Zum Abschluss wurde noch eine "Final Edition" angeboten, die bis Ende März 2026 bestellbar war.
+
+Quellen:
+- https://www.auto-medienportal.net (Aus für VW Touareg V8 TDI, August 2020)
+- https://de.wikipedia.org/wiki/VW_Touareg_III (V8 TDI Bauzeitraum: 05/2019–09/2020)
+- https://en.wikipedia.org/wiki/Volkswagen_Touareg (Produktion endete März 2026)
+

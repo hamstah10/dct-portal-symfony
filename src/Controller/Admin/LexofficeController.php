@@ -18,7 +18,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/lexoffice')]
 final class LexofficeController extends AbstractController
 {
     public function __construct(
@@ -41,7 +40,7 @@ final class LexofficeController extends AbstractController
         ]);
     }
 
-    #[Route('/profile', name: 'admin_lexoffice_profile', methods: ['POST'])]
+    #[Route('/admin/lexoffice/profile', name: 'admin_lexoffice_profile', methods: ['POST'])]
     public function profile(): JsonResponse
     {
         try {
@@ -53,7 +52,7 @@ final class LexofficeController extends AbstractController
         }
     }
 
-    #[Route('/contacts', name: 'admin_lexoffice_contacts', methods: ['POST'])]
+    #[Route('/admin/lexoffice/contacts', name: 'admin_lexoffice_contacts', methods: ['POST'])]
     public function contacts(Request $request): JsonResponse
     {
         try {
@@ -65,7 +64,7 @@ final class LexofficeController extends AbstractController
         }
     }
 
-    #[Route('/products', name: 'admin_lexoffice_products', methods: ['POST'])]
+    #[Route('/admin/lexoffice/products', name: 'admin_lexoffice_products', methods: ['POST'])]
     public function products(Request $request): JsonResponse
     {
         try {
@@ -77,7 +76,7 @@ final class LexofficeController extends AbstractController
         }
     }
 
-    #[Route('/vouchers', name: 'admin_lexoffice_vouchers', methods: ['POST'])]
+    #[Route('/admin/lexoffice/vouchers', name: 'admin_lexoffice_vouchers', methods: ['POST'])]
     public function vouchers(Request $request): JsonResponse
     {
         try {
@@ -92,7 +91,7 @@ final class LexofficeController extends AbstractController
         }
     }
 
-    #[Route('/invoices', name: 'admin_lexoffice_invoices', methods: ['POST'])]
+    #[Route('/admin/lexoffice/invoices', name: 'admin_lexoffice_invoices', methods: ['POST'])]
     public function invoices(Request $request): JsonResponse
     {
         try {
@@ -107,7 +106,7 @@ final class LexofficeController extends AbstractController
         }
     }
 
-    #[Route('/invoices/{id}/file', name: 'admin_lexoffice_invoice_file', methods: ['GET'])]
+    #[Route('/admin/lexoffice/invoices/{id}/file', name: 'admin_lexoffice_invoice_file', methods: ['GET'])]
     public function invoiceFile(string $id): Response
     {
         $id = trim($id);
@@ -145,7 +144,7 @@ final class LexofficeController extends AbstractController
      * Prüft für eine Firma, welche Kunden noch KEINEN Lexoffice-Kontakt haben
      * und versucht sie per E-Mail-Suche in Lexoffice zu finden.
      */
-    #[Route('/check-firma-contacts', name: 'admin_lexoffice_check_firma_contacts', methods: ['POST'])]
+    #[Route('/admin/lexoffice/check-firma-contacts', name: 'admin_lexoffice_check_firma_contacts', methods: ['POST'])]
     public function checkFirmaContacts(Request $request): JsonResponse
     {
         $firmaId = (int) $request->request->get('firmaId', 0);
@@ -272,7 +271,7 @@ final class LexofficeController extends AbstractController
      * Legt einen fehlenden Kunden als neuen Lexoffice-Kontakt an.
      * Die Kundennummer wird ins Notiz-Feld geschrieben.
      */
-    #[Route('/sync-contact', name: 'admin_lexoffice_sync_contact', methods: ['POST'])]
+    #[Route('/admin/lexoffice/sync-contact', name: 'admin_lexoffice_sync_contact', methods: ['POST'])]
     public function syncContact(Request $request): JsonResponse
     {
         $kundeId = (int) $request->request->get('kundeId', 0);
@@ -323,7 +322,7 @@ final class LexofficeController extends AbstractController
      * Vergleicht Felder und übernimmt nur fehlende/geänderte Werte.
      * Ansprechpartner wird als contactPerson eingetragen wenn Vor-/Nachname vorhanden.
      */
-    #[Route('/update-contact', name: 'admin_lexoffice_update_contact', methods: ['POST'])]
+    #[Route('/admin/lexoffice/update-contact', name: 'admin_lexoffice_update_contact', methods: ['POST'])]
     public function updateContact(Request $request): JsonResponse
     {
         $kundeId = (int) $request->request->get('kundeId', 0);
@@ -367,7 +366,7 @@ final class LexofficeController extends AbstractController
         }
     }
 
-    #[Route('/link-contact', name: 'admin_lexoffice_link_contact', methods: ['POST'])]
+    #[Route('/admin/lexoffice/link-contact', name: 'admin_lexoffice_link_contact', methods: ['POST'])]
     public function linkContact(Request $request): JsonResponse
     {
         $kundeId = (int) $request->request->get('kundeId', 0);
@@ -389,7 +388,7 @@ final class LexofficeController extends AbstractController
         return $this->json(['success' => true, 'message' => sprintf('Kunde %s mit Lexoffice-Kontakt %s verknüpft.', (string) $kunde, $lexId)]);
     }
 
-    #[Route('/link-all-contacts', name: 'admin_lexoffice_link_all_contacts', methods: ['POST'])]
+    #[Route('/admin/lexoffice/link-all-contacts', name: 'admin_lexoffice_link_all_contacts', methods: ['POST'])]
     public function linkAllContacts(Request $request): JsonResponse
     {
         $payload = json_decode((string) $request->getContent(), true);
@@ -443,7 +442,7 @@ final class LexofficeController extends AbstractController
     /**
      * Sync einzelnes Credit-Paket → Lexoffice Artikel (create oder update).
      */
-    #[Route('/sync-product', name: 'admin_lexoffice_sync_product', methods: ['POST'])]
+    #[Route('/admin/lexoffice/sync-product', name: 'admin_lexoffice_sync_product', methods: ['POST'])]
     public function syncProduct(Request $request): JsonResponse
     {
         $packageId = (int) $request->request->get('packageId', 0);
@@ -473,7 +472,7 @@ final class LexofficeController extends AbstractController
     /**
      * Sync alle Credit-Pakete → Lexoffice Artikel.
      */
-    #[Route('/sync-all-products', name: 'admin_lexoffice_sync_all_products', methods: ['POST'])]
+    #[Route('/admin/lexoffice/sync-all-products', name: 'admin_lexoffice_sync_all_products', methods: ['POST'])]
     public function syncAllProducts(): JsonResponse
     {
         $packages = $this->creditPackageRepository->findAll();
@@ -521,15 +520,20 @@ final class LexofficeController extends AbstractController
         $netPrice  = round((float) $package->getPrice(), 2);
         $grossPrice = round($netPrice * 1.19, 2);
         $category  = $package->getCategory();
+        $firmas    = $package->getFirmas();
         $description = $category ? $category->getTitle() : 'Credits';
         $articleNumber = sprintf('CRD-%s-%04d', $category ? strtoupper(substr($category->getTitle(), 0, 3)) : 'PKG', $package->getCredits());
 
+        $firmaNames = $firmas->map(function(Firma $f) { return $f->getName(); })->toArray();
+        $note = implode(', ', $firmaNames);
+
         $payload = [
-            'type'          => 'PRODUCT',
+            'type'          => 'SERVICE',
             'title'         => (string) $package->getTitle(),
             'description'   => $description,
             'articleNumber' => $articleNumber,
             'unitName'      => 'Stück',
+            'note'          => $note,
             'price'         => [
                 'leadingPrice' => 'NET',
                 'netPrice'     => $netPrice,
@@ -651,18 +655,21 @@ final class LexofficeController extends AbstractController
             $payload['tags'] = [$tag];
         }
 
-        // company/person: nur befüllen wenn in Lexoffice noch nicht vorhanden
-        $hasCompany = isset($existing['company']['name']) && '' !== trim((string) $existing['company']['name']);
-        $hasPerson  = isset($existing['person']['lastName']) && '' !== trim((string) $existing['person']['lastName']);
+        // company/person: immer aktualisieren
+        $existingCompany = isset($existing['company']['name']) ? trim((string) $existing['company']['name']) : '';
+        $existingLastName = isset($existing['person']['lastName']) ? trim((string) $existing['person']['lastName']) : '';
 
-        if (!$hasCompany && !$hasPerson) {
-            if ('' !== $company) {
+        if ('' !== $company) {
+            if ($existingCompany !== $company) {
                 $payload['company'] = ['name' => $company];
                 $changes[] = 'company';
-            } elseif ('' !== $lastName || '' !== $firstName) {
+            }
+        } elseif ('' !== $lastName || '' !== $firstName) {
+            $newLastName = '' !== $lastName ? $lastName : $firstName;
+            if ($existingLastName !== $newLastName) {
                 $payload['person'] = [
                     'firstName' => $firstName,
-                    'lastName'  => '' !== $lastName ? $lastName : $firstName,
+                    'lastName'  => $newLastName,
                 ];
                 $changes[] = 'person';
             }

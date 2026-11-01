@@ -84,7 +84,6 @@ final class AiProjectKnowledgeManager
                 'mediaType' => $resource->getMediaType(),
                 'mimeType' => $resource->getMimeType(),
                 Metadata::KEY_SOURCE => (string) ($resource->getFilePath() ?? ''),
-                Metadata::KEY_TEXT => $text,
             ]);
 
             $document = new TextDocument(
@@ -136,12 +135,11 @@ final class AiProjectKnowledgeManager
 
         $extension = $uploadedFile->guessExtension() ?: $uploadedFile->getClientOriginalExtension() ?: 'bin';
         $filename = sprintf('%s-%s.%s', date('YmdHis'), bin2hex(random_bytes(6)), $extension);
+        $mimeType = $uploadedFile->getClientMimeType() ?: $uploadedFile->getMimeType();
+        $size = $uploadedFile->getSize();
         $uploadedFile->move($uploadDir, $filename);
 
         $relativePath = 'uploads/ai/project/'.$filename;
-        $mimeType = $uploadedFile->getClientMimeType() ?: $uploadedFile->getMimeType();
-        $size = $uploadedFile->getSize();
-
         $asset = (new MediaAsset())
             ->setName(pathinfo((string) $uploadedFile->getClientOriginalName(), \PATHINFO_FILENAME) ?: $filename)
             ->setFilePath('/'.$relativePath)

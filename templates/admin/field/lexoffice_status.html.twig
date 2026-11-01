@@ -1,0 +1,9 @@
+{% if field.value %}
+    <span class="badge bg-success" title="{{ field.value }}">
+        <i class="fa fa-check me-1"></i> Synchronisiert
+    </span>
+{% else %}
+    <span class="badge bg-secondary">
+        <i class="fa fa-sync-alt me-1"></i> Ausstehend
+    </span>
+{% endif %}

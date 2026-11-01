@@ -13,7 +13,15 @@ use Symfony\Component\Process\Process;
 
 final class AiFirecrawlController extends AbstractController
 {
-    private const DEFAULT_MODEL = 'gpt-40-mini';
+    private const DEFAULT_MODEL = 'gpt-5-mini';
+
+    /** Chat-Modelle der OpenAI-Plattform (Firecrawl-Läufe nutzen PlatformInterface = ai.platform.openai). */
+    private const MODELS = [
+        'gpt-5.2', 'gpt-5', 'gpt-5-chat-latest', 'gpt-5-mini', 'gpt-5-nano',
+        'gpt-4.5-preview', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano',
+        'gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-4', 'gpt-3.5-turbo',
+        'o3', 'o3-mini', 'o3-mini-high',
+    ];
 
     public function __construct(
         private readonly FirecrawlRunStorage $storage,
@@ -109,6 +117,7 @@ final class AiFirecrawlController extends AbstractController
             'url' => $url,
             'instruction' => $instruction,
             'model' => '' !== $model ? $model : self::DEFAULT_MODEL,
+            'models' => self::MODELS,
             'action' => $action,
             'crawlDepth' => $crawlDepth,
             'crawlLimit' => $crawlLimit,

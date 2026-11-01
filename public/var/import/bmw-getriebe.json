@@ -1,0 +1,106 @@
+{
+  "meta":{"name":"BMW transmission and EGS tuning knowledge base","version":"1.0.0","as_of":"2026-10-27","policy":"Null beats guesswork. VERIFIED means directly supported; VENDOR_CLAIM is never an OEM fact.","frontend_schema_version":1},
+  "transmissions":[
+    {"id":"TR_ZF6HP","designation":"ZF 6HP","marketing_name":"6-Gang Steptronic","architecture":"Wandlerautomatik","gears":6,"status":"VERIFIED","source_id":"SRC_XHP"},
+    {"id":"TR_ZF8HP_G1","designation":"ZF 8HP Gen1","marketing_name":"8-Gang Steptronic","architecture":"Wandlerautomatik","gears":8,"status":"PARTIAL","source_id":"SRC_ZF_8HP"},
+    {"id":"TR_ZF8HP_G2","designation":"ZF 8HP Gen2","marketing_name":"8-Gang Steptronic / Sport","architecture":"Wandlerautomatik","gears":8,"status":"VERIFIED","source_id":"SRC_ZF_CATALOG"},
+    {"id":"TR_ZF8HP_G3","designation":"ZF 8HP Gen3","marketing_name":"8-Gang Steptronic / M Steptronic","architecture":"Wandlerautomatik, teils elektrifiziert","gears":8,"status":"VERIFIED","source_id":"SRC_AT_8HP3"},
+    {"id":"TR_DKG436_G1","designation":"DKG436 Gen1","marketing_name":"7-Gang M DKG","architecture":"Doppelkupplungsgetriebe","gears":7,"status":"VERIFIED","source_id":"SRC_AT_COMPAT"},
+    {"id":"TR_DKG436_G2","designation":"DKG436 Gen2","marketing_name":"7-Gang M DKG","architecture":"Doppelkupplungsgetriebe","gears":7,"status":"VERIFIED","source_id":"SRC_AT_COMPAT"},
+    {"id":"TR_8HP75H","designation":"ZF 8HP75H","marketing_name":"8-Gang Hybrid-Steptronic","architecture":"Hybrid-Wandlerautomatik","gears":8,"status":"PARTIAL","source_id":"SRC_AT_COMPAT"},
+    {"id":"TR_MHYBRID8","designation":"M Hybrid 8-Gang","marketing_name":"8-Gang M Steptronic Sport","architecture":"Wandlerautomatik mit integrierter E-Maschine","gears":8,"status":"VERIFIED","source_id":"SRC_BMW_M5"}
+  ],
+  "control_units":[
+    {"id":"CU_6HP","transmission_id":"TR_ZF6HP","designation":"ZF 6HP TCU","supplier":"ZF","mcu":"MPC562","status":"VENDOR_CLAIM","source_id":"SRC_AT_COMPAT"},
+    {"id":"CU_8HP_SH7254","transmission_id":"TR_ZF8HP_G1","designation":"ZF 8HPxx TCU","supplier":"ZF","mcu":"SH7254x","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HPXX"},
+    {"id":"CU_8HP_SH72549","transmission_id":"TR_ZF8HP_G2","designation":"ZF 8HPxx TCU","supplier":"ZF","mcu":"SH72549","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HPXX"},
+    {"id":"CU_8HP_TC275","transmission_id":"TR_ZF8HP_G3","designation":"ZF 8HP Gen3 TCU","supplier":"ZF","mcu":"TC275","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"CU_DKG_G1","transmission_id":"TR_DKG436_G1","designation":"DKG436 Gen1 TCU","supplier":"Temic","mcu":"TC1766","status":"VENDOR_CLAIM","source_id":"SRC_AT_COMPAT"},
+    {"id":"CU_DKG_G2","transmission_id":"TR_DKG436_G2","designation":"DKG436 Gen2 TCU","supplier":"Temic","mcu":"TC1784","status":"VENDOR_CLAIM","source_id":"SRC_AT_COMPAT"},
+    {"id":"CU_8HP75H","transmission_id":"TR_8HP75H","designation":"ZF 8HP75H TCU","supplier":"ZF","mcu":"SH72569","status":"VENDOR_CLAIM","source_id":"SRC_AT_COMPAT"}
+  ],
+  "part_numbers":[],
+  "tuning_functions":[
+    {"id":"6HP_S1","transmission_id":"TR_ZF6HP","stage":"STAGE_1","function":"xHP OTS Stage 1; Inhalt modellabhängig","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"6HP_S2","transmission_id":"TR_ZF6HP","stage":"STAGE_2","function":"xHP OTS Stage 2; Inhalt modellabhängig","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"6HP_S3","transmission_id":"TR_ZF6HP","stage":"STAGE_3","function":"xHP OTS Stage 3; Inhalt modellabhängig","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"8HP2_S1","transmission_id":"TR_ZF8HP_G2","stage":"STAGE_1","function":"xHP OTS Stage 1; Inhalt modellabhängig","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"8HP2_S2","transmission_id":"TR_ZF8HP_G2","stage":"STAGE_2","function":"xHP OTS Stage 2; Inhalt modellabhängig","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"8HP2_S3","transmission_id":"TR_ZF8HP_G2","stage":"STAGE_3","function":"xHP OTS Stage 3; Inhalt modellabhängig","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"8HP3_S1","transmission_id":"TR_ZF8HP_G3","stage":"STAGE_1","function":"xHP OTS Stage 1 für G-Serie","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"8HP3_S2","transmission_id":"TR_ZF8HP_G3","stage":"STAGE_2","function":"xHP OTS Stage 2 für G-Serie","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"8HP3_S3","transmission_id":"TR_ZF8HP_G3","stage":"STAGE_3","function":"xHP OTS Stage 3 für G-Serie","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"DKG_S1","transmission_id":"TR_DKG436_G2","stage":"STAGE_1","function":"xHP OTS Stage 1 für 7-Gang DCT","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"DKG_S2","transmission_id":"TR_DKG436_G2","stage":"STAGE_2","function":"xHP OTS Stage 2 für 7-Gang DCT","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"DKG_S3","transmission_id":"TR_DKG436_G2","stage":"STAGE_3","function":"xHP OTS Stage 3 für 7-Gang DCT","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"CUSTOM_SHIFT","transmission_id":"TR_ZF8HP_G2","stage":"CUSTOM","function":"Schaltpunkt-Editor für D- und S-Modus","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"CUSTOM_LAUNCH","transmission_id":"TR_ZF8HP_G2","stage":"CUSTOM","function":"Launch-Control-Parameter anpassen","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"CUSTOM_TQLIM","transmission_id":"TR_ZF8HP_G2","stage":"CUSTOM","function":"Drehmomentbegrenzer kalibrieren","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"CUSTOM_REDUCTION","transmission_id":"TR_ZF8HP_G3","stage":"CUSTOM","function":"Drehmomentreduzierung während Hochschaltungen anpassen","torque_limit_nm":null,"status":"VENDOR_CLAIM","source_id":"SRC_XHP"}
+  ],
+  "stage_feature_templates":[
+    {"id":"F_SHIFT","function":"Schaltpunkte in D/S anpassen","stage_1":"Modellabhängig","stage_2":"Erweitert","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"F_TORQUE","function":"Drehmomentbegrenzer anpassen","stage_1":"Modellabhängig","stage_2":"Erweitert","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"F_SPEED","function":"Schaltgeschwindigkeit verändern","stage_1":"Modellabhängig","stage_2":"Erweitert","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"F_LAUNCH","function":"Launch Control konfigurieren","stage_1":"Modellabhängig","stage_2":"Modellabhängig","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"F_BLIP","function":"Zwischengas / Throttle Blips","stage_1":"Modellabhängig","stage_2":"Modellabhängig","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"F_REDUCTION","function":"Motordrehmomentreduzierung beim Schalten","stage_1":"Modellabhängig","stage_2":"Erweitert","status":"VENDOR_CLAIM","source_id":"SRC_XHP"}
+  ],
+  "flash_methods":[
+    {"control_unit_id":"CU_6HP","tool":"xHP Flashtool","access":"OBD / Adapter","operation":"OTS- und Custom-Maps, Rückkehr auf Serie","status":"VENDOR_CLAIM","checked_date":"2026-10-27","source_id":"SRC_XHP"},
+    {"control_unit_id":"CU_8HP_SH7254","tool":"AutoTuner","access":"OBD","operation":"Lesen und Schreiben; DTC-Funktionen","status":"VENDOR_CLAIM","checked_date":"2026-10-27","source_id":"SRC_AT_8HPXX"},
+    {"control_unit_id":"CU_8HP_SH72549","tool":"AutoTuner","access":"OBD","operation":"Lesen und Schreiben; DTC-Funktionen","status":"VENDOR_CLAIM","checked_date":"2026-10-27","source_id":"SRC_AT_8HPXX"},
+    {"control_unit_id":"CU_8HP_TC275","tool":"AutoTuner","access":"OBD VR","operation":"Virtual Read, Schreiben, Checksummen, Back-to-stock","status":"VENDOR_CLAIM","checked_date":"2026-10-27","source_id":"SRC_AT_8HP3"},
+    {"control_unit_id":"CU_DKG_G2","tool":"xHP Flashtool","access":"OBD / Adapter","operation":"OTS- und Custom-Maps, Rückkehr auf Serie","status":"VENDOR_CLAIM","checked_date":"2026-10-27","source_id":"SRC_XHP"}
+  ],
+  "dependencies":[
+    {"id":"DEP_DME","transmission_id":"TR_ZF8HP_G2","depends_on":"DME","relation":"Schaltkalibrierung und angeforderte Drehmomentreduzierung müssen zur Motorkalibrierung passen.","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"DEP_UNLOCK","transmission_id":"TR_ZF8HP_G3","depends_on":"TCU_UNLOCK","relation":"AutoTuner nennt einen initialen Schreibvorgang mit Entsperrung.","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"DEP_VIN","transmission_id":"TR_ZF6HP","depends_on":"VIN_LICENSE","relation":"xHP-Lizenz ist fahrzeugbezogen; Kompatibilität über Modell oder VIN prüfen.","status":"VENDOR_CLAIM","source_id":"SRC_XHP"}
+  ],
+  "risks":[
+    {"id":"R_ID","transmission_id":null,"risk_type":"Falsche Getriebeidentifikation","description":"Steptronic-Marketingname allein bestimmt weder ZF-Variante noch TCU-Generation.","mitigation":"VIN, EGS-Identifikation, Hardware- und Softwarestand auslesen.","severity":"CRITICAL","status":"VERIFIED","source_id":"SRC_AT_COMPAT"},
+    {"id":"R_STAGE","transmission_id":null,"risk_type":"Stage-Bezeichnung nicht standardisiert","description":"Stage 1/2/3 bezeichnet Anbieterpakete und keine universell identischen Kalibrierungen.","mitigation":"Funktionen und Werte je Fahrzeug dokumentieren.","severity":"HIGH","status":"VERIFIED","source_id":"SRC_XHP"},
+    {"id":"R_POWER","transmission_id":null,"risk_type":"Programmierunterbrechung","description":"Spannungs- oder Kommunikationsabbruch kann die EGS unbrauchbar machen.","mitigation":"Stabile Spannungsversorgung und freigegebenen Adapter verwenden.","severity":"CRITICAL","status":"PARTIAL","source_id":"SRC_XHP"},
+    {"id":"R_TORQUE","transmission_id":null,"risk_type":"Unbelegte Drehmomentgrenze","description":"ZF-Nennwert oder Anbieterwert ist nicht automatisch das zulässige Fahrzeuglimit.","mitigation":"Variante, Kupplungspaket, Thermik und Softwarestand getrennt bewerten.","severity":"HIGH","status":"VERIFIED","source_id":"SRC_ZF_CATALOG"}
+  ],
+  "vehicle_applications":[
+    {"id":"A_M140I","transmission_id":"TR_ZF8HP_G2","control_unit_id":"CU_8HP_SH72549","model_series":"F20/F21","model_variant":"M140i","engine":"B58","transmission_variant":"8-Gang Steptronic Sport","status":"VERIFIED","source_id":"SRC_BMW_2018"},
+    {"id":"A_330I","transmission_id":"TR_ZF8HP_G2","control_unit_id":"CU_8HP_SH72549","model_series":"F30/F31","model_variant":"330i Limousine / Touring","engine":"B48","transmission_variant":"8-Gang Steptronic","status":"VERIFIED","source_id":"SRC_BMW_2018"},
+    {"id":"A_340I","transmission_id":"TR_ZF8HP_G2","control_unit_id":"CU_8HP_SH72549","model_series":"F30","model_variant":"340i / 340i xDrive","engine":"B58","transmission_variant":"8-Gang Steptronic","status":"VERIFIED","source_id":"SRC_BMW_2018"},
+    {"id":"A_440I","transmission_id":"TR_ZF8HP_G2","control_unit_id":"CU_8HP_SH72549","model_series":"F32/F33/F36","model_variant":"440i Coupé / xDrive Coupé","engine":"B58","transmission_variant":"8-Gang Steptronic","status":"VERIFIED","source_id":"SRC_BMW_2018"},
+    {"id":"A_G22","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G22/G23","model_variant":"4er Coupé Modellfamilie (2020)","engine":"variantenabhängig","transmission_variant":"8-Gang Steptronic serienmäßig","status":"VERIFIED","source_id":"SRC_BMW_G22"},
+    {"id":"A_840I","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G15","model_variant":"840i xDrive Coupé","engine":"B58","transmission_variant":"8-Gang Steptronic","status":"VERIFIED","source_id":"SRC_BMW_840I"},
+    {"id":"A_520D","transmission_id":"TR_ZF8HP_G2","control_unit_id":"CU_8HP_SH72549","model_series":"G30","model_variant":"520d Limousine","engine":"B47","transmission_variant":"8-Gang Steptronic","status":"VERIFIED","source_id":"SRC_BMW_2018"},
+    {"id":"A_520I","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G60","model_variant":"520i Limousine","engine":"Benzin Mild-Hybrid","transmission_variant":"8-Gang Steptronic","status":"VERIFIED","source_id":"SRC_BMW_520I"},
+    {"id":"A_G20","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G20/G21","model_variant":"3er ab 2019","engine":"20i / 30i / 30d / 40d / M340i","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G22V","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G22/G23/G26","model_variant":"4er / 4er Gran Coupé ab 2019","engine":"variantenabhängig","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G30","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G30/G31","model_variant":"5er ab 2016","engine":"variantenabhängig","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G11","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G11/G12","model_variant":"7er ab 2015","engine":"variantenabhängig","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G14","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G14/G15/G16","model_variant":"8er ab 2019","engine":"variantenabhängig","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G01","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G01/G02","model_variant":"X3 / X4","engine":"variantenabhängig","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G05","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G05/G06/G07","model_variant":"X5 / X6 / X7","engine":"variantenabhängig","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G29","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G29","model_variant":"Z4 ab 2019","engine":"20i / M40i","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G87","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G87","model_variant":"M2 ab 2023","engine":"S58","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_G8X","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"G80/G81/G82/G83","model_variant":"M3 / M4 ab 2021","engine":"S58","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_F90","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"F90","model_variant":"M5 ab 2017","engine":"S63","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_F97","transmission_id":"TR_ZF8HP_G3","control_unit_id":"CU_8HP_TC275","model_series":"F97/F98","model_variant":"X3 M / X4 M","engine":"S58","transmission_variant":"ZF 8HP Gen3 laut AutoTuner","status":"VENDOR_CLAIM","source_id":"SRC_AT_8HP3"},
+    {"id":"A_335I_DKG","transmission_id":"TR_DKG436_G1","control_unit_id":"CU_DKG_G1","model_series":"E90/E92/E93","model_variant":"335i DKG-Anwendungen","engine":"N54/N55","transmission_variant":"7-Gang DCT laut xHP","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"A_Z4_DKG","transmission_id":"TR_DKG436_G1","control_unit_id":"CU_DKG_G1","model_series":"E89","model_variant":"Z4 35i / 35is","engine":"N54","transmission_variant":"7-Gang DCT laut xHP","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"A_F8X_DKG","transmission_id":"TR_DKG436_G2","control_unit_id":"CU_DKG_G2","model_series":"F80/F82/F83/F87","model_variant":"M2 / M3 / M4 DKG-Anwendungen","engine":"N55/S55","transmission_variant":"7-Gang DCT laut xHP","status":"VENDOR_CLAIM","source_id":"SRC_XHP"},
+    {"id":"A_G90_M5","transmission_id":"TR_MHYBRID8","control_unit_id":null,"model_series":"G90/G99","model_variant":"BMW M5 / M5 Touring","engine":"M Hybrid","transmission_variant":"8-Gang M Steptronic Sport mit integrierter E-Maschine","status":"VERIFIED","source_id":"SRC_BMW_M5"}
+  ],
+  "sources":[
+    {"id":"SRC_XHP","publisher":"xAutomotive / xHP","url":"https://www.xautomotive.com/products/xhp-enduser-combo-flash-license-map-pack"},
+    {"id":"SRC_AT_8HP3","publisher":"AutoTuner","url":"https://www.autotuner.com/blogs/news/zf-8hp-gen3"},
+    {"id":"SRC_AT_8HPXX","publisher":"AutoTuner","url":"https://www.autotuner.com/pages/ecu/zf-8hpxx-sh72549"},
+    {"id":"SRC_AT_COMPAT","publisher":"AutoTuner Compatibility","url":"https://www.autotuner.com/a/app/compatibility"},
+    {"id":"SRC_ZF_8HP","publisher":"ZF","url":"https://press.zf.com/press/en/releases/release_99008.html"},
+    {"id":"SRC_ZF_CATALOG","publisher":"ZF Engineering Solutions","url":"https://www.zf.com/products/media/zfengineeringsolutions/about_us_3/downloads_9/ZES-Product-Catalogue_2024-11_EN.pdf"},
+    {"id":"SRC_BMW_G22","publisher":"BMW Group PressClub","url":"https://www.press.bmwgroup.com/global/article/attachment/T0308584EN/470438"},
+    {"id":"SRC_BMW_840I","publisher":"BMW Group PressClub","url":"https://www.press.bmwgroup.com/global/article/attachment/T0305273EN/445818"},
+    {"id":"SRC_BMW_520I","publisher":"BMW Group PressClub","url":"https://www.press.bmwgroup.com/global/article/attachment/T0443474EN/629035"},
+    {"id":"SRC_BMW_2018","publisher":"BMW Group PressClub","url":"https://www.press.bmwgroup.com/global/article/attachment/T0281562EN/408900"},
+    {"id":"SRC_BMW_M5","publisher":"BMW M","url":"https://www.bmw-m.com/en/all-models/overview-m-and-m-performance/bmw-m5-sedan/2024/bmw-m5-sedan.html"}
+  ]
+}

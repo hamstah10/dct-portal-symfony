@@ -88,6 +88,36 @@ class Kunde
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $passwordChangedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastLoginAt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $anrede = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mobil = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sprache = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $kundentyp = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $preisgruppe = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $rabatt = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $steuersatz = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $iban = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $zahlungsziel = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $zahlungsbedingungen = null;
 
@@ -570,6 +600,135 @@ class Kunde
     public function eraseCredentials(): void
     {
         $this->plainPasswort = null;
+    }
+
+    public function getAnrede(): ?string
+    {
+        return $this->anrede;
+    }
+
+    public function setAnrede(?string $anrede): static
+    {
+        $anrede = null === $anrede || '' === trim($anrede) ? null : trim($anrede);
+        $this->anrede = $anrede;
+
+        return $this;
+    }
+
+    public function getMobil(): ?string
+    {
+        return $this->mobil;
+    }
+
+    public function setMobil(?string $mobil): static
+    {
+        $mobil = null === $mobil || '' === trim($mobil) ? null : trim($mobil);
+        $this->mobil = $mobil;
+
+        return $this;
+    }
+
+    public function getSprache(): ?string
+    {
+        return $this->sprache;
+    }
+
+    public function setSprache(?string $sprache): static
+    {
+        $sprache = null === $sprache || '' === trim($sprache) ? null : trim($sprache);
+        $this->sprache = $sprache;
+
+        return $this;
+    }
+
+    public function getKundentyp(): ?string
+    {
+        return $this->kundentyp;
+    }
+
+    public function setKundentyp(?string $kundentyp): static
+    {
+        $kundentyp = null === $kundentyp || '' === trim($kundentyp) ? null : trim($kundentyp);
+        $this->kundentyp = $kundentyp;
+
+        return $this;
+    }
+
+    public function getPreisgruppe(): ?string
+    {
+        return $this->preisgruppe;
+    }
+
+    public function setPreisgruppe(?string $preisgruppe): static
+    {
+        $preisgruppe = null === $preisgruppe || '' === trim($preisgruppe) ? null : trim($preisgruppe);
+        $this->preisgruppe = $preisgruppe;
+
+        return $this;
+    }
+
+    public function getRabatt(): ?string
+    {
+        return $this->rabatt;
+    }
+
+    public function setRabatt(?string $rabatt): static
+    {
+        $rabatt = null === $rabatt || '' === trim($rabatt) ? null : trim($rabatt);
+        $this->rabatt = $rabatt;
+
+        return $this;
+    }
+
+    public function getSteuersatz(): ?string
+    {
+        return $this->steuersatz;
+    }
+
+    public function setSteuersatz(?string $steuersatz): static
+    {
+        $steuersatz = null === $steuersatz || '' === trim($steuersatz) ? null : trim($steuersatz);
+        $this->steuersatz = $steuersatz;
+
+        return $this;
+    }
+
+    public function getIban(): ?string
+    {
+        return $this->iban;
+    }
+
+    public function setIban(?string $iban): static
+    {
+        $iban = null === $iban || '' === trim($iban) ? null : trim($iban);
+        $this->iban = $iban;
+
+        return $this;
+    }
+
+    public function getZahlungsziel(): ?string
+    {
+        return $this->zahlungsziel;
+    }
+
+    public function setZahlungsziel(?string $zahlungsziel): static
+    {
+        $zahlungsziel = null === $zahlungsziel || '' === trim($zahlungsziel) ? null : trim($zahlungsziel);
+        $this->zahlungsziel = $zahlungsziel;
+
+        return $this;
+    }
+
+    public function getLastLoginAt(): ?\DateTimeImmutable
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): static
+    {
+        $this->lastLoginAt = $lastLoginAt;
+
+        return $this;
     }
 
     public function getPasswordChangedAt(): ?\DateTimeImmutable

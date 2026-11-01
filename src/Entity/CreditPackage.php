@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\CreditPackageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,8 +34,17 @@ class CreditPackage
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?CreditCategory $category = null;
 
+    #[ORM\ManyToMany(targetEntity: Firma::class)]
+    #[ORM\JoinTable(name: 'credit_package_firma')]
+    private Collection $firmas;
+
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $lexwareArticleId = null;
+
+    public function __construct()
+    {
+        $this->firmas = new ArrayCollection();
+    }
 
     public function __toString(): string
     {
@@ -113,6 +124,30 @@ class CreditPackage
     public function setCategory(?CreditCategory $category): static
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Firma>
+     */
+    public function getFirmas(): Collection
+    {
+        return $this->firmas;
+    }
+
+    public function addFirma(Firma $firma): static
+    {
+        if (!$this->firmas->contains($firma)) {
+            $this->firmas->add($firma);
+        }
+
+        return $this;
+    }
+
+    public function removeFirma(Firma $firma): static
+    {
+        $this->firmas->removeElement($firma);
 
         return $this;
     }

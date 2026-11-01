@@ -35,6 +35,11 @@ portal_superadmin_mercedes_transmission_api:
     type: attribute
     condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
 
+portal_superadmin_bmw_transmission_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/BmwTransmissionController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
 portal_superadmin_brand_assistant_api:
     resource: ../../src/Portals/SuperadminPortal/Controller/BrandAssistantController.php
     type: attribute
@@ -47,6 +52,11 @@ portal_superadmin_dyno_by_type_api:
 
 portal_superadmin_stage_check_api:
     resource: ../../src/Portals/SuperadminPortal/Controller/ScraperStageCheckController.php
+    type: attribute
+    condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
+
+portal_superadmin_dyno_missing_api:
+    resource: ../../src/Portals/SuperadminPortal/Controller/DynoMissingChartsController.php
     type: attribute
     condition: "request.attributes.get('_brand_system_type') == 'superadmin' or (request.attributes.get('_brand_system_type') == 'portal' and request.attributes.get('_brand_portal_key') == 'superadmin_portal')"
 

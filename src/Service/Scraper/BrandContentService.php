@@ -70,6 +70,10 @@ final class BrandContentService
      */
     public function olsxBrandModels(string $brandName): array
     {
+        // Einzelne Marken-Dateien (z. B. td/bmw.json) sind > 40 MB groß; json_decode braucht ein Vielfaches davon.
+        if ((int) \ini_get('memory_limit') >= 0 && (int) \ini_get('memory_limit') < 1024) {
+            @ini_set('memory_limit', '1024M');
+        }
         $key = $this->normalize($brandName);
         $result = [];
         foreach (glob($this->projectDir.'/scrapy-remote-scraper/data/viewer/*/index.json') ?: [] as $indexPath) {
@@ -84,6 +88,7 @@ final class BrandContentService
 
                 $brand = json_decode((string) file_get_contents($brandFile), true, 512, \JSON_THROW_ON_ERROR);
                 $result[] = ['type' => basename($viewerDir), 'models' => $this->summarizeModels($brand['models'] ?? [])];
+                unset($brand);
             }
         }
 

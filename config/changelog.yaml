@@ -1,4 +1,65 @@
 entries:
+  - date: "2026-10-30"
+    version: "v2026.10.30.0"
+    type: "feature"
+    portals: ["superadmin"]
+    title: "Superadmin: Stage-Prüfung in den Einstellungen mit Datenpool, Schwellen und Detailansicht"
+    description: "Die Stage-Prüfung ist von Scraper-Daten in die Einstellungen umgezogen. Sie prüft die Stages der Datenbank gegen das Original, der Datenpool ist wählbar, die Schwellen lassen sich in Prozent und absolut setzen, und die Ergebnisse sind nach Marke, Baureihe und Modell gebündelt."
+    items:
+      - "Stage-Prüfung liegt jetzt unter Einstellungen → Datenbank → Stage-Prüfung (/operations/settings/stage-pruefung); der Tab unter Scraper-Daten entfällt. „Datenbank“ ist ein neuer Reiter in den Einstellungen mit einer eigenen Unternavigation, in der weitere Datenbank-Seiten folgen"
+      - "Datenpool wählbar (Standard tfd_voll); neuer Endpunkt GET /operations-api/stage-check/pools, die Prüfung nimmt den Parameter pool"
+      - "Vier optionale Schwellen: PS %, NM %, PS absolut, NM absolut; eine Stage ist auffällig, sobald eine ausgefüllte Schwelle überschritten ist, leere Felder werden nicht geprüft (Parameter thresholdPs, thresholdNm, thresholdPsAbs, thresholdNmAbs)"
+      - "Liste gebündelt: Marke → Baureihe → Modell → Motoren, je Gruppe mit Anzahl Motoren, Stages und auffälligen Motoren; Gruppen mit auffälligen Motoren sind rot hinterlegt"
+      - "Die Spalte mit den Stage-Werten zeigt nur die auffälligen Stages, mit Abweichung in Prozent und absolut"
+      - "Detailansicht je Motor (/operations/settings/stage-pruefung/{Motor-ID}) mit Original-Werten, allen Stages und deren Abweichung; neuer Endpunkt GET /operations-api/stage-check/engine/{engineUid}"
+      - "Filter (Schwellen, Datenpool, Marke, Nur auffällige) bleiben beim Wechsel in die Detailansicht und zurück erhalten"
+      - "Motor-Detailansicht erweitert: Motordaten (Motorcode, Kraftstoff, Hubraum, Verdichtung, Turbolader, Antrieb, Gewicht, Beschleunigung, HSN, Steuergeräte u. a.), Vergleich der Datenbank-Stages mit den Scraper-Stages (Olsx, Trucks UK, Dyno, Tuning-Datenbank) mit Differenz in PS und Nm und Status gleich/abweichend/nur Scraper/nur Datenbank"
+      - "Motor-Detailansicht: Liste, in welchen anderen Fahrzeugen derselben Marke der gleiche Motor vorkommt (Baureihe, Modell, Werte identisch oder abweichend, Link zur Detailansicht); der Endpunkt /operations-api/stage-check/engine/{engineUid} liefert dafür die Felder info, scraper und same_brand"
+      - "Neuer Link Einstellungen → Datenbank → Dyno (/operations/settings/dyno): Übersicht, bei welchen Stages die Dyno-Kurve fehlt, gebündelt nach Marke mit Anzahl betroffener Motoren, Stages ohne Kurve und Abdeckung in Prozent; aufgeklappt die Motoren mit den betroffenen Stages und Link zur Detailansicht, Datenpool und Marke wählbar, CSV-Export; API GET /operations-api/dyno-missing (DynoMissingChartsController)"
+      - "Filterbereich der Stage-Prüfung im neuen Design: Schwellwert-Regler mit Ein/Aus-Schalter, Datenpool- und Markenauswahl, Zurücksetzen"
+      - "KPI-Karten und Dyno-Kurven aus der Stage-Prüfung entfernt; Formularfelder mit weißem Hintergrund, CSV-Export bleibt (eine Zeile pro Motor)"
+
+  - date: "2026-10-28"
+    version: "v2026.10.28.1"
+    type: "feature"
+    portals: ["superadmin", "easyadmin"]
+    title: "Superadmin: Wissen verwalten, Batch-Jobs, Getriebe-Wissen, Kunden- und E-Mail-Aktionen, Credit-Pakete pro Firma"
+    description: "Die Wissensdatenbank ist jetzt voll bearbeitbar, der Marken-Assistent kann Batch-Jobs ausführen, es gibt Getriebe-Daten für BMW und Mercedes, Kunden und E-Mails lassen sich direkt im Superadmin bearbeiten, und Credit-Pakete können Firmen zugeordnet werden."
+    items:
+      - "Wissensdatenbank (/operations/knowledge): Einträge mit Titel, Inhalt, Kategorie und Tags anlegen, bearbeiten und löschen, mit Suche; gespeichert in der Datenbank (/operations-api/knowledge-entries), Einträge können Motoren zugeordnet werden"
+      - "Batch-Jobs für den Marken-Assistenten (Einstellungen → Batch-Jobs): Jobs mit Vorlagen anlegen, Ergebnisse einsehen; API unter /operations-api/batch-jobs"
+      - "Getriebe-Wissen: neue Endpunkte /operations-api/bmw-transmissions und /operations-api/mercedes-transmissions; BMW-Wissensbasis (Getriebe und EGS-Tuning mit Status VERIFIED/PARTIAL und Quellen) als JSON unter public/var/import/bmw-getriebe.json"
+      - "Fahrzeugmotoren: neue Felder Antrieb (drivetrain), Turbolader, Gewicht, HSN und Preis (Migrationen Version20261026090000 und Version20261026100000)"
+      - "Kunden im Superadmin: Stammdaten bearbeiten, sperren/entsperren, Credits anpassen, Notizen, Passwort-Reset; neue Kundenfelder Anrede, Mobil, Sprache, Kundentyp, Preisgruppe, Rabatt, Steuersatz, IBAN, Zahlungsziel und letzter Login (CustomerLoginSubscriber)"
+      - "E-Mail im Superadmin: Mails senden, Status ändern (gelesen/archiviert) und löschen"
+      - "Credit-Pakete: Zuordnung zu einer oder mehreren Firmen, Lexware-Artikelnummer und Lexoffice-Status-Anzeige in der Liste (EasyAdmin)"
+
+  - date: "2026-10-28"
+    version: "v2026.10.28.0"
+    type: "feature"
+    portals: ["superadmin", "easyadmin"]
+    title: "Superadmin: Startseite als editierbares Bento-Layout"
+    description: "Die Startseite nach dem Login ist neu als Bento-Raster aufgebaut und lässt sich direkt im Portal bearbeiten (Inhalte, Reihenfolge, Größen). Das Layout wird für alle Superadmins gemeinsam gespeichert."
+    items:
+      - "Startseite (/) im Bento-Layout: 12 Kacheln in 4 Spalten (Command Center, MyGarage, Konfigurator, Kundenportal, AI-Empfehlung, Dyno-Simulation, ECU File Vault, Lead Pipeline, Partner Hub, Fahrzeugdaten, Händlerportal, Operations); Command Center → /operations, Konfigurator → /operations/vehicles, Kundenportal → /operations/customers"
+      - "Bearbeiten-Modus (Stift-Button oben rechts): Kacheln per Drag-and-drop verschieben, Titel, Beschreibung, Link, Icon, Stil (weiß/dunkel/rot), Breite und Höhe ändern, ein- und ausblenden, löschen, neue Kachel hinzufügen, Standard-Layout wiederherstellen"
+      - "Backend dazu: LandingBentoApiController (GET/PUT /api/landing-bento), Ablage in SuperadminSetting unter dem Key landing.bento, keine Migration nötig; Frontend: pages/LandingPage.tsx, dnd-kit-Pakete in package.json ergänzt"
+
+  - date: "2026-10-26"
+    version: "v2026.10.26.0"
+    type: "feature"
+    portals: ["easyadmin", "superadmin"]
+    title: "Superadmin: Chiptuning-Ansicht überarbeitet (Stage-Details, Neu-Buttons, Schriften)"
+    description: "Die Chiptuning-Ansicht im Superadmin ist überarbeitet: Stage-Details mit neuer Formel-Prüfung, „Neue“-Buttons rechts neben der Suche, Sportmarken-Logos in Originalfarbe und die Schriften des Chiptuning-Shops."
+    items:
+      - "Stage-Details: Die Breadcrumb-Leiste (Marke · Baureihe · Modell · Motor · Stage) bleibt beim Scrollen oben stehen"
+      - "Stage-Details: Formel-Prüfung im neuen Layout mit Stage-Tabs in der Kopfzeile, Zuwachs-Tacho für Leistung, Drehmoment-Balken und Kennzahlen für Leistung, Drehmoment, Leistungsgewicht und PS je Liter"
+      - "Stage-Details: Formel-Karten mit einheitlichen Eckenradien und hellgrauem Hintergrund für Kennzahlen"
+      - "„Neue Marke“, „Neue Baureihe“, „Neues Modell“ und „Neuer Motor“ stehen rechts neben dem Suchfeld oben"
+      - "Sportmarken-Logos (z. B. M, AMG, RS) werden wieder in ihren Originalfarben angezeigt"
+      - "Schriften wie auf chiptuning-tools.shop: Saira Condensed für Überschriften, Archivo für Fließtext, Oxanium für Zahlen"
+      - "Was ist neu?-Tour im Superadmin auf den Stand dieser Änderungen gebracht; sie erscheint einmal automatisch erneut"
+
   - date: "2026-10-24"
     version: "v2026.10.24.0"
     type: "feature"

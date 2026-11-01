@@ -6,6 +6,7 @@ namespace App\Portals\SuperadminPortal\Controller;
 
 use App\Entity\KnowledgeEntry;
 use App\Entity\VehicleEngine;
+use App\Service\Ai\KnowledgeSearchTool;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,7 +19,32 @@ final class KnowledgeEntryApiController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly KnowledgeSearchTool $brandKnowledgeSearch,
     ) {
+    }
+
+    #[Route('/operations-api/brand-knowledge/search', name: 'superadmin_portal_brand_knowledge_search', methods: ['GET'])]
+    public function searchBrandKnowledge(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->query->get('q', ''));
+        if ('' === $query) {
+            return $this->json(['data' => []]);
+        }
+
+        $result = $this->brandKnowledgeSearch->search($query);
+        if (!$result['found']) {
+            return $this->json(['data' => []]);
+        }
+
+        $items = [];
+        foreach (preg_split('/\n\n(?=\[\d+\] )/', $result['passages']) ?: [] as $part) {
+            if (1 !== preg_match('/^\[\d+\] ([^\n]*)\n(.*)$/s', $part, $matches)) {
+                continue;
+            }
+            $items[] = ['source' => $matches[1], 'text' => $matches[2]];
+        }
+
+        return $this->json(['data' => $items]);
     }
 
     #[Route('/operations-api/knowledge-entries', name: 'superadmin_portal_knowledge_list', methods: ['GET'])]

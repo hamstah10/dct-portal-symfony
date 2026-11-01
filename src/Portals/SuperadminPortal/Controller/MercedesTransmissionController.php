@@ -6,6 +6,7 @@ namespace App\Portals\SuperadminPortal\Controller;
 
 use App\Brand\Common\Portal\PortalRuntimeResolver;
 use App\Entity\Portal;
+use App\Portals\SuperadminPortal\Service\TransmissionSupplierLogoEnricher;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,6 +24,7 @@ final class MercedesTransmissionController extends AbstractController
 
     public function __construct(
         private readonly PortalRuntimeResolver $portalRuntimeResolver,
+        private readonly TransmissionSupplierLogoEnricher $supplierLogoEnricher,
         #[Autowire('%kernel.project_dir%')] private readonly string $projectDir,
     ) {
     }
@@ -45,6 +47,6 @@ final class MercedesTransmissionController extends AbstractController
 
         $version = $database['meta']['frontend_schema_version'] ?? null;
 
-        return $this->json(['data' => $database, 'schemaVersion' => $version, 'expectedSchemaVersion' => self::SCHEMA_VERSION]);
+        return $this->json(['data' => $this->supplierLogoEnricher->enrich($database), 'schemaVersion' => $version, 'expectedSchemaVersion' => self::SCHEMA_VERSION]);
     }
 }

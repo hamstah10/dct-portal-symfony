@@ -10,6 +10,7 @@ use App\Entity\Auftrag;
 use App\Entity\EmailKonto;
 use App\Entity\Firma;
 use App\Entity\Kunde;
+use App\Entity\KundeCreditTransaction;
 use App\Entity\SupportEmailMessage;
 use App\Entity\SupportTicket;
 use App\Entity\SuperadminCalendarEntry;
@@ -30,6 +31,7 @@ use App\Repository\SuperadminRememberedVehicleRepository;
 use App\Repository\SuperadminVehicleCompareListRepository;
 use App\Service\SuperadminProjectPasswordCipher;
 use App\Service\SupportEmailFetchService;
+use App\Service\SupportEmailSendService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -53,6 +55,8 @@ final class OperationsDataController extends AbstractController
         private readonly SuperadminRememberedVehicleRepository $rememberedVehicleRepository,
         private readonly SuperadminPinnedVehicleTypeRepository $pinnedVehicleTypeRepository,
         private readonly SupportEmailFetchService $supportEmailFetchService,
+        private readonly SupportEmailSendService $supportEmailSendService,
+        private readonly \App\Portals\Chiptuningfile\Service\PortalPasswordResetService $portalPasswordResetService,
         private readonly \App\Repository\GearboxStageOptionRepository $gearboxStageOptionRepository,
         private readonly \App\Repository\GearboxStageInfoRepository $gearboxStageInfoRepository,
         private readonly \App\Repository\GearboxDtcCodeRepository $gearboxDtcCodeRepository,
@@ -529,6 +533,177 @@ final class OperationsDataController extends AbstractController
         }
 
         return $this->json(['data' => $this->serializeCustomerDetail($customer)]);
+    }
+
+    #[Route('/operations-api/customers/{id}/update', name: 'superadmin_portal_operations_api_customer_update', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function customerUpdate(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $customer = $this->kundeRepository->find($id);
+        if (!$customer instanceof Kunde) {
+            return $this->json(['message' => 'Kunde nicht gefunden.'], 404);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['message' => 'Ungültige Anfrage.'], 400);
+        }
+
+        $value = static function (string $key) use ($payload): ?string {
+            $text = trim((string) ($payload[$key] ?? ''));
+
+            return '' === $text ? null : $text;
+        };
+
+        $email = $value('email');
+        if (null === $email || false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['message' => 'Bitte eine gültige E-Mail-Adresse angeben.'], 422);
+        }
+
+        $customer
+            ->setVorname((string) $value('first_name'))
+            ->setNachname((string) $value('last_name'))
+            ->setEmail($email)
+            ->setTelefon($value('phone'))
+            ->setWebsite($value('website'))
+            ->setFirmenname($value('company_name'))
+            ->setUstId($value('vat_id'))
+            ->setSteuernummer($value('tax_number'))
+            ->setStrasse($value('street'))
+            ->setHausnummer($value('house_number'))
+            ->setPlz($value('postal_code'))
+            ->setStadt($value('city'))
+            ->setLand($value('country'))
+            ->setZahlungsbedingungen($value('payment_terms'))
+            ->setAnrede($value('anrede'))
+            ->setMobil($value('mobil'))
+            ->setSprache($value('sprache'))
+            ->setKundentyp($value('kundentyp'))
+            ->setPreisgruppe($value('preisgruppe'))
+            ->setRabatt($value('rabatt'))
+            ->setSteuersatz($value('steuersatz'))
+            ->setIban($value('iban'))
+            ->setZahlungsziel($value('zahlungsziel'));
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeCustomerDetail($customer)]);
+    }
+
+    #[Route('/operations-api/customers/{id}/status', name: 'superadmin_portal_operations_api_customer_status', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function customerStatus(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $customer = $this->kundeRepository->find($id);
+        if (!$customer instanceof Kunde) {
+            return $this->json(['message' => 'Kunde nicht gefunden.'], 404);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload) || !array_key_exists('blocked', $payload)) {
+            return $this->json(['message' => 'Ungültige Anfrage.'], 400);
+        }
+
+        $customer->setGesperrt((bool) $payload['blocked']);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeCustomer($customer)]);
+    }
+
+    #[Route('/operations-api/customers/{id}/credits', name: 'superadmin_portal_operations_api_customer_credits', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function customerCreditAdjust(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $customer = $this->kundeRepository->find($id);
+        if (!$customer instanceof Kunde) {
+            return $this->json(['message' => 'Kunde nicht gefunden.'], 404);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        $amount = is_array($payload) ? (int) ($payload['amount'] ?? 0) : 0;
+        $direction = is_array($payload) ? (string) ($payload['direction'] ?? '') : '';
+        if ($amount <= 0 || !in_array($direction, ['add', 'sub'], true)) {
+            return $this->json(['message' => 'Bitte eine Anzahl größer 0 angeben.'], 422);
+        }
+
+        $before = $customer->getCredits();
+        $delta = 'add' === $direction ? $amount : -$amount;
+        $customer->setCredits($before + $delta);
+        $after = $customer->getCredits();
+
+        $transaction = (new KundeCreditTransaction())
+            ->setKunde($customer)
+            ->setAmount($after - $before)
+            ->setTransactionType('add' === $direction ? KundeCreditTransaction::TYPE_ADMIN_TOPUP : KundeCreditTransaction::TYPE_MANUAL_ADJUSTMENT)
+            ->setDescription('add' === $direction ? 'Manuelle Gutschrift' : 'Manueller Abzug')
+            ->setBalanceBefore($before)
+            ->setBalanceAfter($after);
+        $this->entityManager->persist($transaction);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeCustomerDetail($customer)]);
+    }
+
+    #[Route('/operations-api/customers/{id}/notes', name: 'superadmin_portal_operations_api_customer_note', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function customerNoteAdd(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $customer = $this->kundeRepository->find($id);
+        if (!$customer instanceof Kunde) {
+            return $this->json(['message' => 'Kunde nicht gefunden.'], 404);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        $text = is_array($payload) ? trim((string) ($payload['text'] ?? '')) : '';
+        if ('' === $text) {
+            return $this->json(['message' => 'Bitte einen Text eingeben.'], 422);
+        }
+
+        $notes = $this->loadCustomerNotes($id);
+        array_unshift($notes, ['text' => $text, 'date' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM)]);
+        $this->saveCustomerNotes($id, $notes);
+
+        return $this->json(['data' => $this->serializeCustomerDetail($customer)]);
+    }
+
+    #[Route('/operations-api/customers/{id}/password-reset', name: 'superadmin_portal_operations_api_customer_password_reset', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function customerPasswordReset(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $customer = $this->kundeRepository->find($id);
+        if (!$customer instanceof Kunde) {
+            return $this->json(['message' => 'Kunde nicht gefunden.'], 404);
+        }
+
+        $this->portalPasswordResetService->requestReset((string) $customer->getEmail());
+
+        return $this->json(['data' => ['requested' => true]]);
+    }
+
+    /** @return list<array{text: string, date: string}> */
+    private function loadCustomerNotes(int $customerId): array
+    {
+        $setting = $this->superadminSettingRepository->findOneBy(['settingKey' => 'operations_customer_notes_' . $customerId]);
+        $value = $setting?->getSettingValue();
+
+        return is_array($value) ? array_values($value) : [];
+    }
+
+    /** @param list<array{text: string, date: string}> $notes */
+    private function saveCustomerNotes(int $customerId, array $notes): void
+    {
+        $key = 'operations_customer_notes_' . $customerId;
+        $setting = $this->superadminSettingRepository->findOneBy(['settingKey' => $key]);
+        if (null === $setting) {
+            $setting = (new \App\Entity\SuperadminSetting())->setSettingKey($key);
+            $this->entityManager->persist($setting);
+        }
+        $setting->setSettingValue($notes);
+        $this->entityManager->flush();
     }
 
     #[Route('/operations-api/tickets', name: 'superadmin_portal_operations_api_tickets', methods: ['GET'])]
@@ -1112,6 +1287,100 @@ final class OperationsDataController extends AbstractController
         return $this->json(['data' => $this->serializeEmailMessage($message, true)]);
     }
 
+    #[Route('/operations-api/emails/{id}/state', name: 'superadmin_portal_operations_api_email_state', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function emailState(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $message = $this->supportEmailMessageRepository->find($id);
+        if (!$message instanceof SupportEmailMessage) {
+            return $this->json(['message' => 'E-Mail nicht gefunden.'], 404);
+        }
+
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['message' => 'Ungültige Anfrage.'], 400);
+        }
+
+        if (isset($payload['folder'])) {
+            $message->setFolder((string) $payload['folder']);
+        }
+        if (array_key_exists('read', $payload)) {
+            $message->setIsRead((bool) $payload['read']);
+        }
+        if (array_key_exists('starred', $payload)) {
+            $message->setIsStarred((bool) $payload['starred']);
+        }
+        $message->setUpdatedAt(new \DateTimeImmutable());
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeEmailMessage($message, false)]);
+    }
+
+    #[Route('/operations-api/emails/{id}', name: 'superadmin_portal_operations_api_email_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    public function emailDelete(int $id, Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $message = $this->supportEmailMessageRepository->find($id);
+        if (!$message instanceof SupportEmailMessage) {
+            return $this->json(['message' => 'E-Mail nicht gefunden.'], 404);
+        }
+        if (SupportEmailMessage::FOLDER_TRASH !== $message->getFolder()) {
+            return $this->json(['message' => 'Nur E-Mails im Papierkorb können endgültig gelöscht werden.'], 409);
+        }
+
+        $this->entityManager->remove($message);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => ['id' => $id]]);
+    }
+
+    #[Route('/operations-api/emails/send', name: 'superadmin_portal_operations_api_email_send', methods: ['POST'])]
+    public function emailSend(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
+    {
+        $this->assertOperationsRequest($request, $portalRuntimeResolver);
+
+        $payload = json_decode((string) $request->getContent(), true);
+        if (!is_array($payload)) {
+            return $this->json(['message' => 'Ungültige Anfrage.'], 400);
+        }
+
+        $account = $this->emailKontoRepository->find((int) ($payload['accountId'] ?? 0));
+        if (!$account instanceof EmailKonto) {
+            return $this->json(['message' => 'Bitte ein E-Mail-Konto wählen.'], 422);
+        }
+        $to = trim((string) ($payload['to'] ?? ''));
+        if ('' === $to) {
+            return $this->json(['message' => 'Bitte einen Empfänger angeben.'], 422);
+        }
+
+        $now = new \DateTimeImmutable();
+        $message = (new SupportEmailMessage())
+            ->setEmailKonto($account)
+            ->setFolder(SupportEmailMessage::FOLDER_SENT)
+            ->setFromEmail($account->getEmailAddress())
+            ->setFromName($account->getFromName() ?: $account->getName())
+            ->setToEmail($to)
+            ->setSubject(trim((string) ($payload['subject'] ?? '')))
+            ->setBodyText((string) ($payload['body'] ?? ''))
+            ->setIsRead(true)
+            ->setSentAt($now)
+            ->setCreatedAt($now)
+            ->setUpdatedAt($now);
+
+        try {
+            $this->supportEmailSendService->send($message, $account);
+        } catch (\RuntimeException $exception) {
+            return $this->json(['message' => $exception->getMessage()], 422);
+        }
+
+        $this->entityManager->persist($message);
+        $this->entityManager->flush();
+
+        return $this->json(['data' => $this->serializeEmailMessage($message, false)], 201);
+    }
+
     #[Route('/operations-api/emails/fetch', name: 'superadmin_portal_operations_api_email_fetch', methods: ['POST'])]
     public function emailFetch(Request $request, PortalRuntimeResolver $portalRuntimeResolver): JsonResponse
     {
@@ -1385,6 +1654,72 @@ final class OperationsDataController extends AbstractController
         ];
     }
 
+    /** @param list<Auftrag> $orders */
+    private function averageProcessingHours(array $orders): ?float
+    {
+        $durations = [];
+        foreach ($orders as $order) {
+            $created = $order->getCreatedAt();
+            $finished = $order->getFinishedFileUploadedAt();
+            if (null === $created || null === $finished || $finished < $created) {
+                continue;
+            }
+            $durations[] = ($finished->getTimestamp() - $created->getTimestamp()) / 3600;
+        }
+
+        return [] === $durations ? null : round(array_sum($durations) / count($durations), 1);
+    }
+
+    /** @return list<array<string, mixed>> */
+    private function serializeCreditTransactions(Kunde $customer): array
+    {
+        $transactions = $customer->getCreditTransactions()->toArray();
+        usort($transactions, static fn (KundeCreditTransaction $a, KundeCreditTransaction $b): int => ($b->getCreatedAt()?->getTimestamp() ?? 0) <=> ($a->getCreatedAt()?->getTimestamp() ?? 0));
+
+        return array_map(static fn (KundeCreditTransaction $t): array => [
+            'created_at' => $t->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'type' => $t->getTransactionType(),
+            'description' => $t->getDescription(),
+            'amount' => $t->getAmount(),
+            'balance_after' => $t->getBalanceAfter(),
+        ], array_slice($transactions, 0, 100));
+    }
+
+    /**
+     * @param list<Auftrag> $orders
+     * @return list<array<string, mixed>>
+     */
+    private function serializeCustomerFiles(array $orders): array
+    {
+        $files = [];
+        foreach ($orders as $order) {
+            $detail = $this->serializeOrderDetail($order);
+            $orderNumber = (string) $order->getOrderNumber();
+            if (is_array($detail['original_file'] ?? null)) {
+                $files[] = [
+                    'name' => $detail['original_file']['name'],
+                    'type' => 'Original',
+                    'order' => $orderNumber,
+                    'size' => $detail['original_file']['size'],
+                    'uploaded_at' => null,
+                    'download_url' => $detail['original_file']['download_url'],
+                ];
+            }
+            foreach ($detail['finished_files'] ?? [] as $finished) {
+                $files[] = [
+                    'name' => $finished['name'],
+                    'type' => 'Fertig',
+                    'order' => $orderNumber,
+                    'size' => $finished['size'],
+                    'uploaded_at' => $finished['uploaded_at'],
+                    'download_url' => $finished['download_url'],
+                ];
+            }
+        }
+
+        return $files;
+    }
+
     private function serializeCustomerDetail(Kunde $customer): array
     {
         $base = $this->serializeCustomer($customer);
@@ -1424,6 +1759,22 @@ final class OperationsDataController extends AbstractController
                 fn (Auftrag $order): array => $this->serializeOrder($order),
                 array_slice($orders, 0, 25)
             ),
+            'notes' => $this->loadCustomerNotes((int) $customer->getId()),
+            'last_login_at' => $customer->getLastLoginAt()?->format(\DateTimeInterface::ATOM),
+            'newsletter' => $customer->isNewsletter(),
+            'payment_terms' => $customer->getZahlungsbedingungen(),
+            'anrede' => $customer->getAnrede(),
+            'mobil' => $customer->getMobil(),
+            'sprache' => $customer->getSprache(),
+            'kundentyp' => $customer->getKundentyp(),
+            'preisgruppe' => $customer->getPreisgruppe(),
+            'rabatt' => $customer->getRabatt(),
+            'steuersatz' => $customer->getSteuersatz(),
+            'iban' => $customer->getIban(),
+            'zahlungsziel' => $customer->getZahlungsziel(),
+            'average_processing_hours' => $this->averageProcessingHours($orders),
+            'credit_transactions' => $this->serializeCreditTransactions($customer),
+            'files' => $this->serializeCustomerFiles(array_slice($orders, 0, 25)),
         ]);
     }
 
