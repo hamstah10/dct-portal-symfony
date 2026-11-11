@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Partner Wizard – Vorschau: {{ client.name }}</title>
-<link rel="stylesheet" href="/widgets/partner-wizard/style.css?v=17">
+<link rel="stylesheet" href="/widgets/partner-wizard/style.css?v=19">
 <style>
   body {
     margin: 0;
@@ -34,6 +34,7 @@
   body.tfd-preview--dark .tfd-preview-header p { color: #888; }
   body.tfd-preview--light .tfd-preview-header h1 { color: #1a1a1a; }
   body.tfd-preview--light .tfd-preview-header p { color: #666; }
+  .tfd-preview-header a { color: inherit; text-decoration: underline; }
   .tfd-preview-wrap {
     max-width: 1200px;
     margin: 0 auto;
@@ -44,7 +45,13 @@
 
 <div class="tfd-preview-header">
   <h1>Partner Wizard – Vorschau</h1>
-  <p>Client: <code>{{ client.clientId }}</code> ({{ client.name }}) — Theme: <code>{{ client.theme }}</code> — nur zur internen Ansicht, nicht verlinkt.</p>
+  <p>Client: <code>{{ client.clientId }}</code> ({{ client.name }}) — Theme: <code>{{ client.theme }}</code> — nur zur internen Ansicht, nicht verlinkt.
+    {% if editMode %}
+      — <b>Bearbeitungsmodus</b> · <a href="{{ path('tfd_partner_wizard_preview', {clientId: client.clientId}) }}">Normale Vorschau</a>
+    {% elseif canEdit %}
+      — <a href="{{ path('tfd_partner_wizard_preview', {clientId: client.clientId, edit: 1}) }}">Wizard bearbeiten (Texte, Fragen, Antworten)</a>
+    {% endif %}
+  </p>
 </div>
 
 <div class="tfd-preview-wrap">
@@ -52,10 +59,12 @@
     client-id="{{ client.clientId }}"
     api-base-url="/"
     primary-color="{{ client.primaryColor }}"
-    theme="{{ client.theme == 'light' ? 'light' : 'dark' }}">
+    theme="{{ client.theme == 'light' ? 'light' : 'dark' }}"{% if editMode %}
+    edit-mode="1"
+    edit-csrf="{{ editCsrf }}"{% endif %}>
   </tfd-partner-wizard>
 </div>
 
-<script src="/widgets/partner-wizard/tfd-partner-wizard.umd.js?v=17"></script>
+<script src="/widgets/partner-wizard/tfd-partner-wizard.umd.js?v=19"></script>
 </body>
 </html>

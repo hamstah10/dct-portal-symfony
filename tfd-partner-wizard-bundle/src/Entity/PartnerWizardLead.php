@@ -99,6 +99,17 @@ class PartnerWizardLead
     #[ORM\Column(length: 120, nullable: true)]
     private ?string $originDomain = null;
 
+    /** Gebuchter Beratungstermin (Start, Server-Zeitzone). */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $appointmentStartsAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $appointmentEndsAt = null;
+
+    /** ID des Eintrags in superadmin_calendar_event. */
+    #[ORM\Column(nullable: true)]
+    private ?int $appointmentEventId = null;
+
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
@@ -190,4 +201,11 @@ class PartnerWizardLead
     public function setOriginDomain(?string $originDomain): self { $this->originDomain = $originDomain; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
+
+    public function getAppointmentStartsAt(): ?\DateTimeImmutable { return $this->appointmentStartsAt; }
+    public function setAppointmentStartsAt(?\DateTimeImmutable $value): self { $this->appointmentStartsAt = $value; return $this; }
+    public function getAppointmentEndsAt(): ?\DateTimeImmutable { return $this->appointmentEndsAt; }
+    public function setAppointmentEndsAt(?\DateTimeImmutable $value): self { $this->appointmentEndsAt = $value; return $this; }
+    public function getAppointmentEventId(): ?int { return $this->appointmentEventId; }
+    public function setAppointmentEventId(?int $value): self { $this->appointmentEventId = $value; return $this; }
 }

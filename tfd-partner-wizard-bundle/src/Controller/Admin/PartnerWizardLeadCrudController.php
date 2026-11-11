@@ -45,6 +45,7 @@ final class PartnerWizardLeadCrudController extends AbstractCrudController
         yield TextField::new('email', 'E-Mail');
         yield TextField::new('phone', 'Telefon');
         yield TextField::new('website', 'Website')->hideOnIndex();
+        yield DateTimeField::new('appointmentStartsAt', 'Termin')->setFormat('dd.MM.yyyy HH:mm')->setTimezone('Europe/Berlin')->hideOnForm();
         yield TextField::new('originDomain', 'Domain')->hideOnForm();
         yield TextField::new('currentTool', 'Tool');
         yield TextField::new('recommendationStatus', 'Empfehlungsstatus');

@@ -5,6 +5,7 @@ export type SelectOption = {
   title: string;
   text: string;
   id?: number;
+  optionId?: number;
   icon?: string;
   imageUrl?: string;
   numericValue?: number;
@@ -22,9 +23,12 @@ export type WizardOptionConfig = {
   imageUrl?: string;
   numericValue?: number;
   id?: number;
+  /** ID der PartnerWizardQuestionOption (nur bei eigenen Optionen, für den Text-Editor). */
+  optionId?: number;
 };
 
 export type WizardQuestionConfig = {
+  id?: number;
   answerKey: string;
   title: string;
   helpText?: string | null;
@@ -40,6 +44,7 @@ export type WizardQuestionConfig = {
 export type WizardStepType = 'questions' | 'recommendation' | 'contact';
 
 export type WizardStepConfig = {
+  id?: number;
   key: string;
   label: string;
   type: WizardStepType;
@@ -85,6 +90,26 @@ export type VehicleTypeOption = {
   icon?: string;
 };
 
+export type WizardAppointmentConfig = {
+  enabled: boolean;
+  required: boolean;
+  title: string;
+  durationMinutes: number;
+  timezone: string;
+};
+
+export type AppointmentSlot = {
+  start: string;
+  end: string;
+  time: string;
+};
+
+export type AppointmentDay = {
+  date: string;
+  weekday: number;
+  slots: AppointmentSlot[];
+};
+
 export type WizardConfig = {
   clientId: string;
   name?: string;
@@ -103,11 +128,21 @@ export type WizardConfig = {
   enabledServices?: unknown[];
   currentToolOptions?: unknown[];
   customLabels?: unknown;
+  /** Aufgelöste UI-Texte (Standard + Überschreibungen des Clients). */
+  labels?: Record<string, string>;
   tools?: unknown[];
   packages?: unknown[];
   steps?: WizardStepConfig[];
+  appointment?: WizardAppointmentConfig;
   raw?: unknown;
 };
+
+export type EditTarget =
+  | { target: 'label'; key: string }
+  | { target: 'client'; field: 'headline' | 'introText' | 'privacyNotice' | 'toolDisclaimer' }
+  | { target: 'step' | 'question' | 'option' | 'package' | 'tool'; id: number; field: string };
+
+export type TextChange = EditTarget & { value: string | null };
 
 export type RecommendedTool = {
   key: string;
@@ -123,6 +158,7 @@ export type WizardRecommendation = {
   status: 'tool_required' | 'ready';
   packageKey?: string;
   packageName: string;
+  packageText?: string;
   leadStatus: 'tool_consulting' | 'new_partner_lead';
   cta: string;
   summary: string;

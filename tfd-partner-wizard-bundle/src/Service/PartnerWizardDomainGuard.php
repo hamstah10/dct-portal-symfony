@@ -7,6 +7,53 @@ use Tfd\PartnerWizardBundle\Entity\PartnerWizardClient;
 
 final class PartnerWizardDomainGuard
 {
+    /**
+     * Prüft Token und Domain einer API-Anfrage.
+     *
+     * Regeln:
+     * - Token mitgeschickt → muss gültig sein (sonst 401); gültig = erlaubt, Domain egal.
+     * - Kein Token, Client verlangt Token immer → 401.
+     * - Kein Token, kein Origin/Referer (Server-Aufruf), Client hat Token → 401.
+     * - Sonst Domain-Prüfung über „Erlaubte Domains" (403 wenn nicht erlaubt).
+     *
+     * @return array{status: int, error: string}|null null = erlaubt
+     */
+    public function authorize(PartnerWizardClient $client, Request $request): ?array
+    {
+        $token = $this->extractToken($request);
+
+        if ($token !== null) {
+            return $client->isApiTokenValid($token)
+                ? null
+                : ['status' => 401, 'error' => 'Invalid API token'];
+        }
+
+        if ($client->isApiTokenRequired()) {
+            return ['status' => 401, 'error' => 'API token required'];
+        }
+
+        $hasOrigin = (bool) ($request->headers->get('Origin') ?: $request->headers->get('Referer'));
+        if (!$hasOrigin && $client->hasApiToken()) {
+            return ['status' => 401, 'error' => 'API token required'];
+        }
+
+        return $this->isAllowed($client, $request)
+            ? null
+            : ['status' => 403, 'error' => 'Origin not allowed'];
+    }
+
+    public function extractToken(Request $request): ?string
+    {
+        $header = (string) $request->headers->get('Authorization', '');
+        if (preg_match('/^Bearer\s+(\S+)$/i', trim($header), $m)) {
+            return $m[1];
+        }
+
+        $key = trim((string) $request->headers->get('X-TFD-Api-Key', ''));
+
+        return $key !== '' ? $key : null;
+    }
+
     public function isAllowed(PartnerWizardClient $client, Request $request): bool
     {
         $allowed = array_filter($client->getAllowedDomains());

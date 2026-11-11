@@ -52,6 +52,7 @@ class PartnerWizardQuestion
     #[ORM\Column(type: 'boolean')]
     private bool $active = true;
 
+    #[ORM\OrderBy(['priority' => 'ASC', 'id' => 'ASC'])]
     #[ORM\OneToMany(mappedBy: 'question', targetEntity: PartnerWizardQuestionOption::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $options;
 

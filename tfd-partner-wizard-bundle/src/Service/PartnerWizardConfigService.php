@@ -21,6 +21,7 @@ final class PartnerWizardConfigService
         private readonly EntityManagerInterface $em,
         private readonly RequestStack $requestStack,
         private readonly string $projectDir,
+        private readonly PartnerWizardTextRegistry $textRegistry,
     ) {
     }
 
@@ -63,9 +64,11 @@ final class PartnerWizardConfigService
                 $client->getEnabledCurrentTools()->toArray()
             ),
             'customLabels' => $client->getCustomLabels(),
+            'labels' => $this->textRegistry->resolve($client->getCustomLabels()),
             'privacyNotice' => $client->getPrivacyNotice(),
             'toolDisclaimer' => $client->getToolDisclaimer(),
             'tools' => array_map(fn (PartnerWizardTool $tool) => [
+                'id' => $tool->getId(),
                 'key' => $tool->getToolKey(),
                 'name' => $tool->getName(),
                 'description' => $tool->getDescription(),
@@ -79,6 +82,7 @@ final class PartnerWizardConfigService
                 'product' => $this->serializeProduct($tool),
             ], $tools),
             'packages' => array_map(fn (PartnerWizardPackage $package) => [
+                'id' => $package->getId(),
                 'key' => $package->getPackageKey(),
                 'title' => $package->getTitle(),
                 'description' => $package->getDescription(),
@@ -87,6 +91,13 @@ final class PartnerWizardConfigService
                 'ctaLabel' => $package->getCtaLabel(),
             ], $packages),
             'steps' => $this->serializeSteps($client),
+            'appointment' => [
+                'enabled' => $client->isAppointmentEnabled(),
+                'required' => $client->isAppointmentEnabled() && $client->isAppointmentRequired(),
+                'title' => $client->getAppointmentTitle(),
+                'durationMinutes' => $client->getAppointmentDurationMinutes(),
+                'timezone' => $client->getAppointmentTimezone(),
+            ],
         ];
     }
 
@@ -98,6 +109,7 @@ final class PartnerWizardConfigService
         );
 
         return array_map(fn (PartnerWizardStep $step) => [
+            'id' => $step->getId(),
             'key' => $step->getStepKey(),
             'label' => $step->getLabel(),
             'type' => $step->getType(),
@@ -114,6 +126,7 @@ final class PartnerWizardConfigService
     private function serializeQuestion(PartnerWizardClient $client, PartnerWizardQuestion $question): array
     {
         return [
+            'id' => $question->getId(),
             'answerKey' => $question->getAnswerKey(),
             'title' => $question->getTitle(),
             'helpText' => $question->getHelpText(),
@@ -155,6 +168,8 @@ final class PartnerWizardConfigService
             : $this->publicAssetUrl($option->getIcon());
 
         return [
+            // Eigene ID für den Text-Editor; "id" ist bei Fahrzeug-/Tool-Optionen die Fremd-ID.
+            'optionId' => $option->getId(),
             'value' => $option->getValue(),
             'title' => $option->getTitle(),
             'text' => $option->getText(),

@@ -16,10 +16,14 @@ final class PartnerWizardLeadService
         private readonly PartnerWizardMailer $mailer,
         private readonly PartnerWizardDomainGuard $domainGuard,
         private readonly VehicleTypeRepository $vehicleTypeRepository,
+        private readonly PartnerWizardAppointmentService $appointmentService,
     ) {
     }
 
-    public function createLead(PartnerWizardClient $client, array $payload, Request $request): PartnerWizardLead
+    /**
+     * @param array{0: \DateTimeImmutable, 1: \DateTimeImmutable}|null $appointment bereits geprüfter freier Slot
+     */
+    public function createLead(PartnerWizardClient $client, array $payload, Request $request, ?array $appointment = null): PartnerWizardLead
     {
         $contact = $payload['contact'] ?? [];
         $recommendation = $this->recommendationService->recommend($client, $payload);
@@ -63,6 +67,19 @@ final class PartnerWizardLeadService
 
         $this->em->persist($lead);
         $this->em->flush();
+
+        if ($appointment !== null) {
+            [$start, $end] = $appointment;
+            $event = $this->appointmentService->createCalendarEvent($client, $lead, $start, $end, $payload);
+            $this->em->flush();
+
+            $serverZone = new \DateTimeZone(date_default_timezone_get());
+            $lead
+                ->setAppointmentStartsAt($start->setTimezone($serverZone))
+                ->setAppointmentEndsAt($end->setTimezone($serverZone))
+                ->setAppointmentEventId($event->getId());
+            $this->em->flush();
+        }
 
         $this->mailer->sendLeadNotification($client, $lead);
 

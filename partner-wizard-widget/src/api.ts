@@ -1,4 +1,4 @@
-import type { RecommendedTool, ToolProduct, VehicleTypeOption, WizardConfig, WizardFieldType, WizardOptionConfig, WizardQuestionConfig, WizardQuestionType, WizardRecommendation, WizardStepConfig, WizardStepType } from './types';
+import type { AppointmentDay, AppointmentSlot, RecommendedTool, TextChange, ToolProduct, VehicleTypeOption, WizardConfig, WizardFieldType, WizardOptionConfig, WizardQuestionConfig, WizardQuestionType, WizardRecommendation, WizardStepConfig, WizardStepType } from './types';
 
 type ApiError = Error & { status?: number; body?: string };
 
@@ -142,6 +142,7 @@ function normalizeQuestionOption(value: unknown): WizardOptionConfig | undefined
     imageUrl: asString(record.imageUrl ?? record.image_url, '').trim() || undefined,
     numericValue: Number.isFinite(numericValue) ? numericValue : undefined,
     id: typeof record.id === 'number' ? record.id : undefined,
+    optionId: typeof record.optionId === 'number' ? record.optionId : undefined,
   };
 }
 
@@ -158,6 +159,7 @@ function normalizeQuestion(value: unknown): WizardQuestionConfig | undefined {
     .filter((option): option is WizardOptionConfig => Boolean(option));
 
   return {
+    id: typeof record.id === 'number' ? record.id : undefined,
     answerKey,
     title,
     helpText: asString(record.helpText ?? record.help_text, '').trim() || null,
@@ -181,6 +183,7 @@ function normalizeSteps(value: unknown): WizardStepConfig[] {
     if (!key || !label) continue;
 
     result.push({
+      id: typeof record.id === 'number' ? record.id : undefined,
       key,
       label,
       type: asString(record.type, 'questions') as WizardStepType,
@@ -234,6 +237,7 @@ export async function fetchConfig(apiBaseUrl: string, clientId: string): Promise
     enabledServices: pickArray(data, ['enabledServices', 'enabled_services', 'services']),
     currentToolOptions: pickArray(data, ['currentToolOptions', 'current_tool_options', 'toolOptions', 'tool_options', 'currentTools', 'current_tools']),
     customLabels: data.customLabels ?? data.custom_labels ?? {},
+    labels: normalizeLabels(data.labels),
     privacyNotice: asString(
       data.privacyNotice ?? data.privacy_notice,
       'Mit dem Absenden erklärst du dich einverstanden, dass deine Angaben zur Bearbeitung der Anfrage gespeichert werden und wir dich kontaktieren.',
@@ -244,8 +248,141 @@ export async function fetchConfig(apiBaseUrl: string, clientId: string): Promise
     tools: pickArray(data, ['tools', 'toolRecommendations', 'tool_recommendations', 'recommendedTools']),
     packages: pickArray(data, ['packages', 'partnerPackages', 'partner_packages']),
     steps: normalizeSteps(data.steps),
+    appointment: normalizeAppointmentConfig(data.appointment),
     raw: json,
   };
+}
+
+function normalizeLabels(value: unknown): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [key, text] of Object.entries(asRecord(value))) {
+    if (typeof text === 'string') result[key] = text;
+  }
+  return result;
+}
+
+/** Speichert Text-Änderungen (nur Admin-Session + CSRF, Bearbeitungsmodus der Vorschau). */
+async function adminRequest(apiBaseUrl: string, path: string, method: string, csrfToken: string, body?: unknown): Promise<Record<string, unknown>> {
+  const response = await fetch(`${normalizeBaseUrl(apiBaseUrl)}/api/tfd-partner-wizard/admin/${path}`, {
+    method,
+    credentials: 'same-origin',
+    // Abgelaufene Session leitet zum Login um – das darf nicht als Erfolg gelten.
+    redirect: 'manual',
+    headers: {
+      Accept: 'application/json',
+      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+      'X-CSRF-Token': csrfToken,
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  if (response.type === 'opaqueredirect' || response.status === 0) {
+    throw new Error('Speichern fehlgeschlagen: Sitzung abgelaufen. Bitte im Admin neu einloggen und die Seite neu laden.');
+  }
+
+  const json = await response.json().catch(() => null) as { ok?: boolean; error?: string; errors?: (string | { error: string })[] } | null;
+  if (!response.ok || !json?.ok) {
+    let message = `Fehlgeschlagen (${response.status})`;
+    if (json?.errors?.length) {
+      message += `: ${json.errors.map((item) => (typeof item === 'string' ? item : item.error)).join(' · ')}`;
+    } else if (json?.error) {
+      message += `: ${json.error}`;
+    } else if (response.ok) {
+      message = 'Fehlgeschlagen: unerwartete Antwort vom Server.';
+    }
+    const error = new Error(message) as ApiError;
+    error.status = response.status;
+    throw error;
+  }
+
+  return json as Record<string, unknown>;
+}
+
+export async function saveTexts(apiBaseUrl: string, clientId: string, csrfToken: string, changes: TextChange[]): Promise<void> {
+  await adminRequest(apiBaseUrl, `texts/${encodeURIComponent(clientId)}`, 'PATCH', csrfToken, { changes });
+}
+
+export type NewQuestionInput = {
+  stepId: number;
+  answerKey: string;
+  title: string;
+  helpText?: string | null;
+  questionType?: string;
+  fieldType?: string | null;
+  multiSelect?: boolean;
+  required?: boolean;
+  options?: { value: string; title: string; text?: string | null }[];
+};
+
+export async function createQuestion(apiBaseUrl: string, clientId: string, csrfToken: string, input: NewQuestionInput): Promise<void> {
+  await adminRequest(apiBaseUrl, `questions/${encodeURIComponent(clientId)}`, 'POST', csrfToken, input);
+}
+
+export async function deleteQuestion(apiBaseUrl: string, clientId: string, csrfToken: string, questionId: number): Promise<void> {
+  await adminRequest(apiBaseUrl, `questions/${encodeURIComponent(clientId)}/${questionId}`, 'DELETE', csrfToken);
+}
+
+export async function createOption(apiBaseUrl: string, clientId: string, csrfToken: string, questionId: number, input: { value: string; title: string; text?: string | null }): Promise<void> {
+  await adminRequest(apiBaseUrl, `questions/${encodeURIComponent(clientId)}/${questionId}/options`, 'POST', csrfToken, input);
+}
+
+export async function deleteOption(apiBaseUrl: string, clientId: string, csrfToken: string, optionId: number): Promise<void> {
+  await adminRequest(apiBaseUrl, `options/${encodeURIComponent(clientId)}/${optionId}`, 'DELETE', csrfToken);
+}
+
+function normalizeAppointmentConfig(value: unknown): WizardConfig['appointment'] {
+  const record = asRecord(value);
+  const enabled = asBool(record.enabled, false);
+
+  return {
+    enabled,
+    required: enabled && asBool(record.required, false),
+    title: asString(record.title, 'Beratungstermin'),
+    durationMinutes: asNumber(record.durationMinutes, 30),
+    timezone: asString(record.timezone, 'Europe/Berlin'),
+  };
+}
+
+export async function fetchAppointmentDays(apiBaseUrl: string, clientId: string): Promise<AppointmentDay[]> {
+  if (!apiBaseUrl) {
+    return [];
+  }
+
+  const url = `${normalizeBaseUrl(apiBaseUrl)}/api/tfd-partner-wizard/appointments/${encodeURIComponent(clientId)}`;
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'omit',
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw await readError(response, 'Appointment request');
+  }
+
+  const data = asRecord(await response.json());
+
+  return normalizeArray(data.days)
+    .map((day): AppointmentDay => {
+      const record = asRecord(day);
+      return {
+        date: asString(record.date),
+        weekday: asNumber(record.weekday),
+        slots: normalizeArray(record.slots)
+          .map((slot): AppointmentSlot => {
+            const slotRecord = asRecord(slot);
+            return {
+              start: asString(slotRecord.start),
+              end: asString(slotRecord.end),
+              time: asString(slotRecord.time),
+            };
+          })
+          .filter((slot) => slot.start !== ''),
+      };
+    })
+    .filter((day) => day.date !== '' && day.slots.length > 0);
 }
 
 export async function fetchRecommendation(apiBaseUrl: string, payload: unknown): Promise<WizardRecommendation> {

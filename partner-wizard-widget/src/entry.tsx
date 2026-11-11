@@ -20,6 +20,9 @@ class TfdPartnerWizardElement extends HTMLElement {
     const primaryColor = this.getAttribute('primary-color') || '#E31E24';
     const themeAttr = this.getAttribute('theme') || 'light';
     const theme = themeAttr === 'dark' ? 'dark' : 'light';
+    // Nur die Admin-Vorschau setzt diese Attribute; ohne gültige Admin-Session lehnt die API ab.
+    const editMode = this.getAttribute('edit-mode') === '1';
+    const editCsrf = this.getAttribute('edit-csrf') || '';
 
     this.style.setProperty('--partner-wizard-primary', primaryColor);
 
@@ -30,6 +33,8 @@ class TfdPartnerWizardElement extends HTMLElement {
         apiBaseUrl={apiBaseUrl}
         primaryColor={primaryColor}
         theme={theme}
+        editMode={editMode}
+        editCsrf={editCsrf}
       />,
     );
   }

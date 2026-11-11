@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Partner Wizard – Einbettungscode: {{ client.name }}</title>
+<style>
+  body { margin:0; padding:40px 20px; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:#f2f2f2; color:#1a1a1a; }
+  .wrap { max-width:900px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 8px; }
+  p { font-size:14px; color:#555; }
+  textarea { width:100%; box-sizing:border-box; height:110px; font:13px/1.5 ui-monospace,Menlo,Consolas,monospace; padding:14px; border:1px solid #ccc; border-radius:8px; background:#fff; }
+  button { margin-top:12px; padding:10px 18px; border:0; border-radius:6px; background:#E31E24; color:#fff; font-size:14px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Einbettungscode – {{ client.name }}</h1>
+  <p>Diese eine Zeile an der gewünschten Stelle im HTML der Partner-Webseite einfügen. Die Webseite muss unter „Erlaubte Domains“ des Clients eingetragen sein (leer = alle).</p>
+  <textarea id="code" readonly>{{ code }}</textarea>
+  <button type="button" onclick="var t=document.getElementById('code');t.select();navigator.clipboard.writeText(t.value);this.textContent='Kopiert ✓'">Code kopieren</button>
+</div>
+</body>
+</html>

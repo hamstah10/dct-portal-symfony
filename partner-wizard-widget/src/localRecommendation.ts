@@ -24,7 +24,7 @@ export function getLocalRecommendation(
     const websitePackages: Record<string, Pick<WizardRecommendation, 'packageName' | 'summary' | 'bullets' | 'cta'>> = {
       full_package: {
         packageName: 'Händler-Website Komplettpaket',
-        summary: 'Website und Konfigurator werden gemeinsam aufgesetzt, damit der Händlerstart direkt mit einer kompletten Präsenz laufen kann.',
+        summary: 'Für deinen Start als Chiptuning-Händler empfehlen wir dir eine komplette Website mit integriertem Chiptuning-Konfigurator. Damit können Kunden direkt Fahrzeuge auswählen, Leistungsdaten ansehen und Anfragen senden.',
         bullets: [
           'Website + Konfigurator im Paket',
           'Schneller Start mit kompletter Händlerpräsenz',
@@ -34,7 +34,7 @@ export function getLocalRecommendation(
       },
       website_only: {
         packageName: 'Händler-Website',
-        summary: 'Eine saubere Händler-Website für deinen Auftritt, ohne Konfigurator-Erweiterung.',
+        summary: 'Du brauchst zuerst einen professionellen Online-Auftritt. Die Website kann später jederzeit um den Chiptuning-Konfigurator erweitert werden.',
         bullets: [
           'Professionelle Händler-Website',
           'Struktur für Kontakt und Leistungspakete',
@@ -44,7 +44,7 @@ export function getLocalRecommendation(
       },
       configurator_only: {
         packageName: 'Chiptuning-Konfigurator Widget',
-        summary: 'Das Widget für Anfragen und Fahrzeugkonfigurationen wird separat eingebunden.',
+        summary: 'Du hast bereits eine Website. Der Konfigurator kann als Widget oder API-Anbindung integriert werden und erweitert deine Seite um Fahrzeugauswahl, Leistungsdaten und Anfragefunktion.',
         bullets: [
           'Konfigurator-Widget für deine Website',
           'Einbindung in bestehende Seiten',

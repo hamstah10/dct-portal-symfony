@@ -34,6 +34,7 @@ class PartnerWizardStep
     #[ORM\Column(type: 'boolean')]
     private bool $active = true;
 
+    #[ORM\OrderBy(['priority' => 'ASC', 'id' => 'ASC'])]
     #[ORM\OneToMany(mappedBy: 'step', targetEntity: PartnerWizardQuestion::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $questions;
 

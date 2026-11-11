@@ -2024,3 +2024,505 @@ tfd-partner-wizard {
     max-height: none !important;
     overflow: visible !important;
 }
+
+/* =========================================================
+   Beratungstermin (freie Slots aus dem Superadmin-Kalender)
+========================================================= */
+
+.tfdWizard__appointment {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.tfdWizard__appointmentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.tfdWizard__appointmentHead small {
+  color: var(--text-subtle);
+  font-size: 11.5px;
+}
+
+.tfdWizard__appointmentDays {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+}
+
+.tfdWizard__appointmentDays button,
+.tfdWizard__appointmentSlots button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.tfdWizard__appointmentDays button {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 62px;
+  padding: 6px 8px;
+}
+
+.tfdWizard__appointmentDays button small {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tfdWizard__appointmentDays button b {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.tfdWizard__appointmentSlots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tfdWizard__appointmentSlots button {
+  padding: 8px 4px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.tfdWizard__appointmentDays button:hover,
+.tfdWizard__appointmentSlots button:hover {
+  border-color: var(--accent);
+}
+
+.tfdWizard__appointmentDays button.active,
+.tfdWizard__appointmentSlots button.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+.tfdWizard__appointmentDays button.active small {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.tfdWizard__appointmentSelected,
+.tfdWizard__appointmentBooked,
+.tfdWizard__appointmentEmpty {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.tfdWizard__appointmentSelected b,
+.tfdWizard__appointmentBooked {
+  color: var(--text);
+}
+
+.tfdWizard__appointmentBooked {
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--success);
+  background: var(--surface);
+}
+
+/* =========================================================
+   Text-Bearbeitungsmodus (nur Admin-Vorschau, ?edit=1)
+========================================================= */
+
+.tfdWizard--editing {
+  --edit: #2563EB;
+  --edit-soft: rgba(37, 99, 235, 0.10);
+  --edit-pending: #F59E0B;
+}
+
+.tfdWizard--editing .tfdEdit__text {
+  cursor: text;
+  border-radius: 3px;
+  outline: 1px dashed color-mix(in srgb, var(--edit) 55%, transparent);
+  outline-offset: 2px;
+  transition: background-color 0.12s ease, outline-color 0.12s ease;
+}
+
+.tfdWizard--editing .tfdEdit__text:hover,
+.tfdWizard--editing .tfdEdit__text:focus-visible {
+  background: var(--edit-soft);
+  outline: 2px solid var(--edit);
+}
+
+.tfdWizard--editing .tfdEdit__text--pending {
+  outline: 2px solid var(--edit-pending);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.tfdEdit__empty {
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.tfdEdit__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border: 1px solid var(--edit);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.tfdEdit__toolbarInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tfdEdit__toolbarInfo b {
+  color: var(--edit);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tfdEdit__toolbarInfo span {
+  color: var(--text-muted);
+}
+
+.tfdEdit__toolbarActions,
+.tfdEdit__dialogActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tfdEdit__toolbar button,
+.tfdEdit__dialog button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font: 600 13px/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.tfdEdit__toolbar button:disabled,
+.tfdEdit__dialog button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tfdWizard .tfdEdit__primary {
+  border-color: var(--edit);
+  background: var(--edit);
+  color: #fff;
+}
+
+.tfdEdit__notice {
+  flex-basis: 100%;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--edit-soft);
+  color: var(--text);
+}
+
+.tfdEdit__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(15, 15, 16, 0.55);
+}
+
+.tfdEdit__dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(560px, 100%);
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.tfdEdit__dialogTitle {
+  color: var(--edit);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tfdEdit__dialog input,
+.tfdEdit__dialog textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font: 400 15px/1.45 var(--font-sans);
+  resize: vertical;
+}
+
+.tfdEdit__dialog input:focus,
+.tfdEdit__dialog textarea:focus {
+  outline: 2px solid var(--edit);
+  outline-offset: 0;
+}
+
+.tfdEdit__hint {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.tfdEdit__hint--error {
+  color: #DC2626;
+}
+
+.tfdEdit__dialogActions > span {
+  flex: 1;
+}
+
+.tfdEdit__panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99998;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100%);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans);
+  border-left: 1px solid var(--border);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+}
+
+.tfdEdit__panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tfdEdit__panelHead button {
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tfdEdit__panelBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 24px;
+}
+
+.tfdEdit__panelBody h4 {
+  margin: 18px 0 6px;
+  color: var(--edit);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tfdEdit__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font: 400 13px/1.4 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.tfdEdit__row:hover {
+  border-color: var(--edit);
+}
+
+.tfdEdit__row small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.tfdEdit__row span {
+  overflow-wrap: anywhere;
+}
+
+.tfdEdit__row--pending {
+  border-color: var(--edit-pending);
+}
+
+/* Bearbeitungsmodus: Fragen & Antworten */
+.tfdWizard--editing .tfdWizard__option {
+  position: relative;
+}
+
+.tfdEdit__delete {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: #DC2626;
+  color: #fff;
+  font: 700 15px/1 var(--font-sans);
+  cursor: pointer;
+  vertical-align: middle;
+  flex: none;
+}
+
+.tfdEdit__delete:hover,
+.tfdEdit__delete:focus-visible {
+  background: #B91C1C;
+  outline: 2px solid rgba(220, 38, 38, 0.35);
+}
+
+.tfdWizard__option > .tfdEdit__delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+}
+
+.tfdEdit__structureBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 6px 0 10px;
+  font-family: var(--font-sans);
+}
+
+.tfdEdit__structureBar small,
+.tfdEdit__chips small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.tfdEdit__structureBar button,
+.tfdEdit__addQuestion {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px dashed var(--edit);
+  border-radius: var(--radius-md);
+  background: var(--edit-soft);
+  color: var(--edit);
+  font: 600 12px/1 var(--font-sans);
+  cursor: pointer;
+}
+
+.tfdWizard .tfdEdit__structureBar .tfdEdit__danger {
+  border-color: #DC2626;
+  background: rgba(220, 38, 38, 0.08);
+  color: #DC2626;
+}
+
+.tfdEdit__structureBar button:disabled,
+.tfdEdit__addQuestion:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tfdEdit__addQuestion {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 8px 0 16px;
+  font-size: 14px;
+}
+
+.tfdEdit__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.tfdEdit__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 4px 3px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 13px;
+}
+
+.tfdEdit__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tfdEdit__field small {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tfdEdit__dialog select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  color: var(--text);
+  font: 400 15px/1.2 var(--font-sans);
+}
+
+.tfdEdit__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.tfdEdit__check input {
+  width: auto;
+}

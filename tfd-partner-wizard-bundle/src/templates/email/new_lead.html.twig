@@ -11,6 +11,11 @@
   <li><strong>Website:</strong> {{ lead.website }}</li>
 </ul>
 
+{% if lead.appointmentStartsAt %}
+<h3>Gebuchter Termin</h3>
+<p><strong>{{ client.appointmentTitle }}:</strong> {{ lead.appointmentStartsAt|date('d.m.Y H:i', client.appointmentTimezone) }}{% if lead.appointmentEndsAt %} – {{ lead.appointmentEndsAt|date('H:i', client.appointmentTimezone) }}{% endif %} Uhr{% if client.appointmentLocation %} · {{ client.appointmentLocation }}{% endif %}</p>
+{% endif %}
+
 <h3>Empfehlung</h3>
 <ul>
   <li><strong>Status:</strong> {{ lead.recommendationStatus }}</li>
